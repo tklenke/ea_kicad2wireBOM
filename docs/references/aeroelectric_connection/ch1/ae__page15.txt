@@ -1,0 +1,19 @@
+DC and Wiring Fundamentals
+1-13Figure 1-16. Miscellaneous Wiring Symbols Figure 1-15 illustrates a range of connecting technologies
+and some symbols to help describe them.  Note that the–>>– combination of symbols ar e universally used to depict
+pin/socket combinations in connectors, Fast-On spadeterminations and maintenance joints using knife splices.It’s sufficient to indicate that the joint in the wire exists andresolve ambiguities with hands-on observation of the partand/or referring to the bill of materials.
+MISCELLANEOUS SYMBOLOGY:  Ground symbols
+depicted in Figure 1-16 labeled in accordance with theiroptimum locations. Every airplane has three specificlocations for instrument, electrical and avionics grounding.G1 is called out as the “engine” which automaticallyincludes alternator, starter and any sensors that find theirway to electrical ground by virtue of their mounting.
+Permanent magnet motors are most common  for  trim
+actuators, flaps or fan motors. The PM motor will reverseits direction of rotation by reversing the two leads that attach
+to the brushes.  There are a few articles of surplus aviation
+hardware that run a wound field, brush type motor.  Themotor’s field flux is supplied by a wound-field . . . lots ofturns of small wire. Both the field and armature (brushes)are supplied with bus voltage to make the motor run.Reversing either the field -OR- the armature supply leadswill cause the motor to reverse direction.
+Various appliances will be fitted with some kind of
+connector, screw terminals on a terminal strip. Perhapsyou’ll have to splice onto pendant wires. It’s easy tovisualize how one would draw a circle or rectangle, label itas to name or function and then describe the methodology bywhich wires are taken to and from the device.
+It’s not uncommon for some publishers to draw accurate
+pictures of various devices. recognizable as to name orfunction by observation.  I’ve fielded a few complaints about
+our drawings frombuilders who havepurchased one or moreaccessories wherein theinstallation drawings used“pictorials” to show howwire up the product.
+These work well if the
+device is wired with veryfew wires but it’s timeconsuming and tedious todevelop this type ofdrawing and adds no moremeaning than can bededuced from the simplegraphic that concentratesmore on wiring detailsthan on the physicalappearance of the devicebe wired.
+Most if not all of the
+devices discussed in thischapter will be covered inmore detail in laterchapters of this work. Thisintroduction to thelanguage and symbologyof aircraft electricalsystem analysis, designand documentation shouldassist your travels into thisnew venture.

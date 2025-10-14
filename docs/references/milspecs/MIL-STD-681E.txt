@@ -1,0 +1,1508 @@
+Downloaded from http://www.everyspec.com
+INCH-POUND
+MIL-STD-681E
+30 September 2010
+SUPERSEDING
+MIL-STD-681D
+13 August 1990
+DEPARTMENT OF DEFENSE
+STANDARD PRACTICE
+IDENTIFICATION CODING AND APPLICATION
+OF HOOKUP AND LEAD WIRE
+AMSC N/A
+ FSC 6145
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+FOREWORD
+1. This standard is approved for use by all Departments and Agencies of the Department of Defense.
+2. Comments, suggestions, or questions on this document should be addressed to Commander, DLA Land and
+Maritime, ATTN: VAI, P.O. Box 3990, Columbus, Ohio, 43218-3990 or emailed to WireCable@dla.mil. Since contact
+information can change, you may want to verify the currency of this address information using the ASSIST Online
+database at https://assist.daps.dla.mil.
+ii
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+PARAGRAPH
+1.
+1.1
+1.2
+2.
+2.1
+2.2
+2.2.1
+2.2.2
+2.3
+3.
+3.1
+3.1.1
+3.1.2
+3.1.3
+3.1.4
+3.1.5
+3.1.6
+3.1.7
+4.
+4.1
+4.2
+4.3
+4.4
+4.5
+4.6
+4.7
+4.8
+4.9
+4.10
+5.
+5.1
+5.1.1
+5.1.1.1
+5.1.1.2
+5.1.1.3
+5.1.2
+5.1.3
+5.1.4
+5.2
+5.2.1
+5.2.2
+5.2.3
+5.3
+5.3.1
+5.3.2
+5.4
+5.4.1
+5.4.2
+5.4.3
+5.4.4
+5.5
+5.5.1
+5.5.2
+Forward
+SCOPE
+Scope
+Classification
+CONTENTS
+APPLICABLE DOCUMENTS
+General
+Government documents
+Specifications, standards, and handbooks
+Non-Government publications
+Order of precedence
+DEFINITIONS
+Definitions
+Hookup wire
+Lead wire
+Chassis wiring
+Interconnecting wiring
+Harness
+Homogenous cable
+Jacketed cable
+GENERAL REQUIREMENTS
+Coding of hookup wire
+Coding of interconnecting wiring
+Abbreviations
+Shielded and unshielded wires
+Color limits
+Clear and neutral colored insulations
+Lead wires
+Hall generator leads
+DC power wiring for chassis and interconnecting systems
+AC power wiring in assembled units
+DETAIL REQUIREMENTS
+System I – Differentiation color coding for chassis wiring (see 1.2)
+Standard color code for single wires
+Method of color coding
+Identification markings
+Color sequence of helical stripes or circumferential bands
+Harness wiring
+Grouping of wires
+Termination points
+System II – Functional color coding of chassis wiring
+Standard colors
+Miscellaneous circuits
+Direct-coupled circuits
+System III – Differentiation or functional coding of chassis wiring by printed markings
+Differentiation marking
+Functional markings
+System IV – Coding of interconnecting wiring
+Wire insulation color
+Differentiation markings
+Interconnecting wiring on aircraft and guided missles
+Flat, multiconductor, homogenous cable
+System V – Direct wiring and open wiring
+Wire insulation color
+Differentiation markings
+iii
+ii
+1
+1
+1
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+3
+8
+8
+8
+8
+8
+8
+8
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+9
+10
+10
+10
+10
+10
+5.6
+5.6.1
+5.6.2
+5.6.2.1
+5.6.2.2
+5.6.3
+5.7
+5.7.1
+5.7.2
+5.7.2.1
+5.7.2.2
+5.7.2.3
+5.7.2.4
+5.8
+6.
+6.1
+6.2
+6.3
+6.4
+TABLES
+I.
+II.
+III.
+IV.
+V.
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+System VI – Differential color coding for high density chassis and interconnecting wiring1.2)
+Method of color coding
+Circumferential banding
+Identification numbers
+Color sequence of circumferential bands
+Wire markers
+Striping or banding
+Colored helical stripes or circumferential bands
+Sequence
+Stripe or band width
+Stripe or band spacing
+Length of lay (spacing between groups)
+Spacing between groups of bands
+Braided wire covering
+NOTES
+Intended use
+Subject term (keyword) listing
+International standardization agreements
+Changes from previous issue
+Preferred color sequence for single wires
+Colors for chassis and interconnection wiring system by function
+DC power color coding for chassis and interconnection wiring (optional method)
+Color coding for ac power wiring (100 V and greater) for single and three phase
+systems
+Printing type size of identification marking
+(see
+10
+10
+10
+10
+10
+11
+11
+11
+11
+12
+12
+12
+12
+12
+12
+12
+12
+12
+13
+4
+7
+8
+8
+11
+iv
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+1. SCOPE
+1.1 Scope. This standard establishes identification coding systems for all insulated hookup and lead wire used in
+electrical and electronic equipment by the Departments of the Army, Navy, and Air Force. These coding systems
+should also be used for identifying lead wires on Hall generators and ac and dc wire coding methods specified (see
+4.9 and 4.10).
+1.2 Classification. Identification of hookup wiring and lead wire shoud be limited to the following systems:
+System I – Differentiation color coding for chassis wiring. This system should be employed in complex
+electronic equipment having numerous wiring points (terminations) and requiring different colored wires for
+identification. Functional coding (system II) would be inadequate for those complex equipments because of its
+limited scope of significant colors.
+System II – Functional color coding of chassis wiring. This system should be employed in simple electronic
+equipments where it would be advantageous to identify a circuit function or a component part lead by its
+significant colored wire.
+System III – Differentiation or functional coding of chassis wiring by printed markings. This system should be
+employed as an alternate for systems I and II and is preferred for maintaining or repairing equipments. White
+wires are used for replacement, and will be marked with the designated color or symbol to readily identify it in
+the equipment. Marking may be accomplished through the use of sleeving where the diameter of the wire is so
+small as to make printing impracticable.
+System IV – Coding of interconnecting wiring. This system should be employed to readily identify wiring
+between complete units of electronic or electrical systems by means of marking on white insulated wires or
+applying sleeves, tags, or pressure-sensitive tapes on the insulated wires.
+System V – Direct wiring and open wiring. This system should be employed for direct, open chassis, and
+cabinet wiring. The hookup wire (see 3.1) need not be color coded; solid white is the preferred color.
+Permanently numbered sleeves can be used in conjunction with reference designations wherever practical; i.e.,
+terminal boards, bus bars, capacitors, relays, etc.
+System VI – Differential color coding of hookup wire for chassis and interconnection wiring. This system should
+be employed for identification of wiring in high density wired chassis units and the interconnection between
+them. Identification may be accomplished by use of solid color insulated wire, circumferential bands or spiral
+stripes on white insulated wire, or printed sleeve or tape markers. Short hookup wire, six inches or less
+between termination points, need not be marked if the path of the short wire can be easily and visually traced.
+1
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+2. APPLICABLE DOCUMENTS
+2.1 General. The documents listed in this section are specified in sections 3, 4, and 5 of this standard. This section
+does not include documents cited in other sections of this standard or recommended for additional information or as
+examples. While every effort has been made to ensure the completeness of this list, document users are cautioned
+that they must meet all specified requirements of documents cited in sections 3, 4, and 5 of this standard whether or
+not they are listed.
+2.2 Government documents.
+2.2.1 Specifications, standards, and handbooks. The following specifications, standards, and handbooks form a part
+of this document to the extent specified herein. Unless otherwise specified, the issues of these documents are those
+cited in the solicitation or contract.
+FEDERAL SPECIFICATIONS
+MIL-W-5088 – Wiring, Aerospace Vehicle.
+FEDERAL STANDARDS
+MIL-STD-104 – Limits for Electrical Insulation Color.
+(Copies of these documents are available online at https://assist.daps.dla.mil or from the Standardization Document
+Order Desk, 700 Robbins Avenue, Building 4D, Philadelphia, PA 19111-5094.)
+2.2.2 Non-Government publications. The following documents form a part of this document to the extent specified
+herein. Unless otherwise specified, the issues of these documents are those cited in the solicitation or contract.
+ASME INTERNATIONAL
+ASME Y14.38 – Dimensioning and Tolerancing
+(Copies of these documents are available online at http://www.asme.org or from the ASME International, Three
+Park Avenue, New York, NY 10016-5990.)
+2.3 Order of precedence. Unless otherwise noted herein or in the contract, in the event of a conflict between the text
+of this document and the references cited herein (except for related specification sheets), the text of this document
+takes precedence. Nothing in this document, however, supersedes applicable laws and regulations unless a specific
+exemption has been obtained.
+3. DEFINITIONS
+3.1 Definitions. For the purpose of this standard, the following definitions apply:
+3.1.1 Hookup wire. Hookup wire refers to an insulated conductor free at both ends and used for chassis wiring and
+interconnecting wiring.
+3.1.2 Lead wire. Lead wire refers to an insulated conductor forming an integral part of components such as motors,
+transformers, Hall generators, etc., and used for chassis wiring.
+3.1.3 Chassis wiring. Chassis wiring may consist of hookup wire, lead wire, shielded cable, jacketed multiconductor
+cable, coaxial cable, or twisted multiconductor groups of wires or cables, or wires and cables, used to connect
+electrical or electronic elements within the same equipment.
+3.1.4 Interconnecting wiring. Interconnecting wiring consists of wires cables, groups or harnesses used to connect
+complete units of electrical or electronic systems.
+3.1.5 Harness. An assembly of wires or cables, or wires and cables arranged so it may be installed or removed as a
+unit in the same electronic or electrical equipment.
+3.1.6 Homogenous cable. Cable composed of identical insulated conductors.
+2
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+3.1.7 Jacketed cable. A jacketed cable is a bundle of insulated wires encased in a common sheath.
+4. GENERAL REQUIREMENTS
+4.1 Coding of hookup wire. All hookup wire shall be coded by one or more of the systems listed in 1.2.
+4.2 Coding of interconnecting wiring. Coding of interconnecting wiring (system IV) need not apply to jacketed cables.
+4.3 Abbreviations. Abbreviations shall be in accordance with ASME Y14.38.
+4.4 Shielded and unshielded wires. All requirements for all systems shall apply to both shielded and unshielded
+wires.
+4.5 Color limits. Unless otherwise specified, all colors on the finished wire shall conform to class 1 colors of MIL-
+STD-104.
+4.5.1 White, clear, and neutral insulations. The term “white” shall apply only to colors meeting the requirements of
+“white” in MIL-STD-104. Clear or translucent uncolored (unpigmented) insulation shall be designated “clear”. Natural
+or neutral colored insulations shall be designated “neutral” (see 4.6).
+4.6 Clear and neutral colored insulations. Clear and neutral colored insulations shall be used on wires in lieu of
+white insulation only when specified by the applicable wire specification.
+4.7 Lead wires. Lead wires used for motor leads, transformer leads, and similar applications shall be color coded in
+accordance with table I, where no conflict would be created with another component color-code standard.
+4.8 Hall generator leads. Hall generator lead wires shall be color coded in accordance with table II.
+4.9 DC power wiring for chassis and interconnecting systems. DC power wiring for chassis and interconnecting
+wiring shall be color coded in accordance with table II or table III.
+4.10 AC power wiring in assembled units. AC power wiring in assembled units shall be color coded in accordance
+with table IV.
+3
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+Base color
+Black
+Brown
+Red
+Orange
+Yellow
+. 1/ 2/
+TABLE I. Preferred color sequence for single wires.
+First stripe
+ Second stripe
+ Third stripe
+or band
+ or band
+ or band
+Identification
+number
+0
+1
+2
+3
+4
+Green
+Blue
+Violet
+Gray
+White
+White
+White
+White
+White
+White
+Black
+Brown
+Red
+Orange
+Yellow
+White
+ Green
+White
+ Blue
+White
+ Violet
+White
+ Gray
+White
+ Black
+ Brown
+White
+ Black
+ Red
+White
+ Black
+ Orange
+White
+ Black
+ Yellow
+White
+ Black
+ Green
+White
+ Black
+ Blue
+White
+ Black
+ Violet
+White
+ Black
+ Gray
+White
+ Brown
+ Red
+White
+ Brown
+ Orange
+White
+ Brown
+ Yellow
+White
+ Brown
+ Green
+White
+ Brown
+ Blue
+White
+ Brown
+ Violet
+White
+ Brown
+ Gray
+White
+ Red
+ Orange
+White
+ Red
+ Yellow
+White
+ Red
+ Green
+White
+ Red
+ Blue
+White
+ Red
+ Violet
+White
+ Red
+ Gray
+White
+ Orange
+ Yellow
+White
+ Orange
+ Green
+White
+ Orange
+ Blue
+See footnotes at end of table.
+5
+6
+7
+8
+9
+90
+91
+92
+93
+94
+95
+96
+97
+98
+901
+902
+903
+904
+905
+906
+907
+908
+912
+913
+914
+915
+916
+917
+918
+923
+924
+925
+926
+927
+928
+934
+935
+936
+4
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+1/ 2/
+TABLE I. Preferred color sequence for single wires – Continued.
+Base color
+ First stripe
+ Second stripe
+ Third stripe
+ Identification
+or band
+ or band
+ or band
+ number
+White
+ Orange
+ Violet
+ 937
+White
+ Orange
+ Gray
+ 938
+White
+ Yellow
+ Green
+ 945
+White
+ Yellow
+ Blue
+ 946
+White
+ Yellow
+ Violet
+ 947
+White
+ Yellow
+ Gray
+White
+ Green
+ Blue
+White
+ Green
+ Violet
+White
+ Green
+ Gray
+White
+ Blue
+ Violet
+948
+956
+957
+958
+967
+White
+ Blue
+ Gray
+ 968
+White
+ Violet
+ Gray
+ 978
+White
+ Black
+ Brown
+ Red
+ 9012
+White
+ Black
+ Brown
+ Orange
+ 9013
+White
+ Black
+ Brown
+ Yellow
+ 9014
+White
+ Black
+ Brown
+ Green
+ 9015
+White
+ Black
+ Brown
+ Blue
+ 9016
+White
+ Black
+ Brown
+ Violet
+ 9017
+White
+ Black
+ Brown
+ Gray
+ 9018
+White
+ Black
+ Red
+ Orange
+ 9023
+White
+ Black
+ Red
+ Yellow
+ 9024
+White
+ Black
+ Red
+ Green
+ 9025
+White
+ Black
+ Red
+ Blue
+ 9026
+White
+ Black
+ Red
+ Violet
+ 9027
+White
+ Black
+ Red
+ Gray
+ 9028
+White
+ Black
+ Orange
+ Yellow
+ 9034
+White
+ Black
+ Orange
+ Green
+ 9035
+White
+ Black
+ Orange
+ Blue
+ 9036
+White
+ Black
+ Orange
+ Violet
+ 9037
+White
+ Black
+ Orange
+ Gray
+ 9038
+White
+ Black
+ Yellow
+ Green
+ 9045
+White
+ Black
+ Yellow
+ Blue
+ 9046
+White
+ Black
+ Yellow
+ Violet
+ 9047
+White
+ Black
+ Yellow
+ Gray
+ 9048
+White
+ Black
+ Green
+ Blue
+ 9056
+White
+ Black
+ Green
+ Violet
+ 9057
+White
+ Black
+ Green
+ Gray
+ 9058
+White
+ Black
+ Blue
+ Violet
+ 9067
+White
+ Black
+ Blue
+ Gray
+ 9068
+White
+ Black
+ Violet
+ Gray
+ 9078
+White
+ Black
+ Red
+ Orange
+White
+ Black
+ Red
+ Yellow
+White
+ Black
+ Red
+ Green
+White
+ Black
+ Red
+ Blue
+White
+ Black
+ Red
+ Violet
+See footnotes at end of table.
+9123
+9124
+9125
+9126
+9127
+5
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+1/ 2/
+TABLE I. Preferred color sequence for single wires – Continued.
+Base color
+ First stripe
+ Second stripe
+ Third stripe
+ Identification
+or band
+ or band
+ or band
+ number
+White
+ Brown
+ Red
+ Gray
+ 9128
+White
+ Brown
+ Orange
+ Yellow
+ 9134
+White
+ Brown
+ Orange
+ Green
+ 9135
+White
+ Brown
+ Orange
+ Blue
+ 9136
+White
+ Brown
+ Orange
+ Violet
+ 9137
+White
+ Brown
+ Orange
+ Gray
+ 9138
+White
+ Brown
+ Yellow
+ Green
+ 9145
+White
+ Brown
+ Yellow
+ Blue
+ 9146
+White
+ Brown
+ Yellow
+ Violet
+ 9147
+White
+ Brown
+ Yellow
+ Gray
+ 9148
+White
+ Brown
+ Green
+ Blue
+ 9156
+White
+ Brown
+ Green
+ Violet
+ 9157
+White
+ Brown
+ Green
+ Gray
+ 9158
+White
+ Brown
+ Blue
+ Violet
+ 9167
+White
+ Brown
+ Blue
+ Gray
+ 9168
+White
+ Brown
+ Violet
+ Gray
+ 9178
+White
+ Red
+ Orange
+ Yellow
+ 9234
+White
+ Red
+ Orange
+ Green
+ 9235
+White
+ Red
+ Orange
+ Blue
+ 9236
+White
+ Red
+ Orange
+ Violet
+ 9237
+White
+ Red
+ Orange
+ Gray
+ 9238
+White
+ Red
+ Yellow
+ Green
+ 9245
+White
+ Red
+ Yellow
+ Blue
+ 9246
+White
+ Red
+ Yellow
+ Violet
+ 9247
+White
+ Red
+ Yellow
+ Gray
+White
+ Red
+ Green
+ Blue
+White
+ Red
+ Green
+ Violet
+White
+ Red
+ Green
+ Gray
+White
+ Red
+ Blue
+ Violet
+White
+ Red
+ Blue
+ Gray
+White
+ Red
+ Violet
+ Gray
+White
+ Orange
+ Yellow
+ Green
+White
+ Orange
+ Yellow
+ Blue
+White
+ Orange
+ Yellow
+ Violet
+White
+ Orange
+ Yellow
+ Gray
+White
+ Orange
+ Green
+ Blue
+White
+ Orange
+ Green
+ Violet
+White
+ Orange
+ Green
+ Gray
+White
+ Orange
+ Blue
+ Violet
+White
+ Orange
+ Blue
+ Gray
+White
+ Orange
+ Violet
+ Gray
+White
+ Yellow
+ Green
+ Blue
+White
+ Yellow
+ Green
+ Violet
+White
+ Yellow
+ Green
+ Gray
+See footnotes at end of table.
+9248
+9256
+9257
+9258
+9267
+9268
+9278
+9345
+9346
+9347
+9348
+9356
+9357
+9358
+9367
+9368
+9378
+9456
+9457
+9458
+6
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+1/ 2/
+TABLE I. Preferred color sequence for single wires – Continued.
+Base color
+ First stripe
+ Second stripe
+ Third stripe
+ Identification
+or band
+ or band
+ or band
+ number
+White
+ Yellow
+ Blue
+ Violet
+ 9467
+White
+ Yellow
+ Blue
+ Gray
+ 9468
+White
+ Yellow
+ Violet
+ Gray
+ 9478
+White
+ Green
+ Blue
+ Violet
+ 9567
+White
+ Green
+ Blue
+ Gray
+ 9568
+White
+ Green
+ Violet
+ Gray
+White
+ Blue
+ Violet
+ Gray
+1/ For bundles composed of more than 139 wires, the above color designations shall be repeated in
+sequence with appropriate subgroupings to the extent necessary to provide identification of all
+conductors (see 5.1.3).
+2/ The code designation “N” shall be applied to unpigmented clear or neutral insulations (see 4.6) to
+indicate nonstandard color coding. These insulations may be used only if the color of these insulations
+do not fall within the requirements for the gray or the chromatic colors of MIL-STD-104.
+TABLE II. Colors for chassis and interconnecting wiring system by function.
+Function
+Grounds, grounded elements 1/ 2/
+Heaters or filaments
+Power supply, B+ 3/
+Screen grids clock
+Cathodes and transistor emitters, high logic 4/ 5/ 6/
+Control grids and transistor bases, low logic 5/
+Anodes (plates) and transistor collectors, control 4/ 5/ 8/
+Power supply, minus
+Base
+color
+Green 2/
+Brown
+Red
+Orange
+Yellow
+Black 7/
+Blue
+Violet
+(purple)
+Identifi-
+cation
+number
+5
+1
+2
+3
+4
+0
+6
+7
+Alternate
+color code
+(see 5.2.1)
+White/green 2/
+White/brown
+White/red
+White/orange
+White/yellow
+White/black 7/
+White/blue
+White/violet
+9578
+9678
+Alternate
+identifi-
+cation
+number
+95
+91
+92
+93
+94
+90
+96
+97
+1/ Negative side of Hall generator control current.
+2/ Inactive for new design. For new design, use green for base color (white/green for alternate), and
+identification number 5 (95 for alternate).
+3/ Positive side of Hall generator control current.
+4/ Applies to diodes, semiconductor elements, photoelectric cells, mercury-arc rectifiers, and other
+elements with operation similar to vacuum tubes and transistors.
+5/ Applies to all types of gas tubes with operation similar to vacuum tubes.
+6/ Negative side of Hall generator output voltage.
+7/ Inactive for new design. For new design, use black for base color (white/black for alternate), and
+identification number 0 (90 for alternate).
+8/ Positive side of Hall generator output voltage.
+7
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+TABLE III. DC power color coding for chassis and interconnection wiring (optional method).
+Voltage
+ Color
+ Identification
+(volts)
+ number
++151 to +500
+ Red
+ 2
++ 61 to +150
+ White/red
+ 92
++ 26 to + 60
+ White/brown/red
+ 912
++ 7 to + 25
+ White/red/orange
+ 923
++ 2 to + 6
+ White/red/yellow
+ 924
+- 26 to - 60
+ Violet
+ 7
+- 11 to - 25
+ White/violet
+ 97
+- 2 to - 10
+ White/violet/yellow
+ 47
+Ground
+ Green
+ 5
+TABLE IV. Color coding for ac power wiring (100 V and greater) for single and three phase systems.
+Service
+1/
+(nominal)
+ Phase A
+ Phase B
+ Phase C
+ Neutral
+ Ground
+115 V 60 Hz 1 φ
+ Black
+ ---
+ ---
+ White
+ Green
+208 V 60 Hz 3 φ “Y”
+ 2/
+ Black
+ Red
+ Orange or blue
+ White
+ Green
+230 V 60 Hz 3 φ delta
+ 2/
+ Black
+ Red
+ Orange or blue
+ ---
+ Green
+115 V 400 Hz 3 φ delta
+ 2/
+ Black
+ Red
+ Orange or blue
+ ---
+ Green
+208 V 400 Hz 3 φ “Y”
+ 2/
+ Black
+ Red
+ Orange or blue
+ White
+ Green
+1/ For all ac voltages below 100 V, gray wire is to be used, unless the optional color code is specified (see 2/).
+2/ Optional wire color insulations for phases A, B, C, and neutral shall be as follows:
+Phase A – Gray
+Phase B – White/gray
+Phase C – White/brown/gray
+Neutral – White
+5. DETAIL REQUIREMENTS
+5.1 System I – Differentiation color coding for wiring (see 1.2).
+5.1.1 Standard color code for single wires. Single conductor chassis wires to be coded for differentiation only shall
+be identified by colors in table I, preferably in the order given. All the combinations listed in table I are made up of the
+first 10 colors.
+5.1.1.1 Method of color coding. Color coding shall be accomplished by use of solid colored insulations, and by
+helical striping or circumferential banding on all-white insulation, in accordance with 5.7 except that system VI shall
+be used for circumferential banding (see 5.6). Longitudinal (nonhelical) color striping may be used if colored
+insulation material is used for striping. Materials or paints used for helical striping or circumferential banding shall not
+be electrically conductive.
+5.1.1.2 Identification numbers. Identification numbers appearing in table I are a ready reference to color
+combinations. The first digit indicates the background color (color of insulation or braid), and the succeeding digit or
+digits, if any, indicate the colors of the helical stripes or circumferential bands. Therefore, the second and third digit
+indicates the color of the first and second stripe or band, respectively.
+5.1.1.3 Color sequence of helical stripes or circumferential bands. Where stripes or bands are used, the first stripe
+or band shall be of the color with the lowest identification number, the second with the next higher number, and the
+third with the highest number.
+5.1.2 Harness wiring. Unless the wiring is routed to the same terminal, two or more wires shall not be identically
+color coded if they break out of a harness and are routed in terminations in close proximity where they could be
+misconnected.
+8
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+5.1.3 Grouping of wires. Where it is not practical to use wires each of which is differently color coded, the wires may
+be divided into groups. (Typical instances are where many wires enter a connector, or connect to grouped terminal
+blocks, or multiple terminations in close proximity.) Within each group, each wire shall be differently color coded, and
+the groups shall be distinguished by colored metal bands, pressure-sensitive tapes, or other approved devices that
+hold each group of wires together. The wire color coding sequence may be repeated in different groups. This
+method shall be used only where a large number of wires is involved.
+5.1.4 Termination points. Wires terminating where it would be difficult to distinguish one wire from another shall not
+be identically color coded unless the wiring is routed to the same termination point. For example, if three wires from
+one harness, three wires from another harness, and two point-to-point wires are all connected to a tube socket,
+different color coding shall be used on each wire to eliminate confusion.
+5.2 System II – Functional color coding of chassis wiring. Simple electronic connections where it is advantageous to
+identify circuit function (see 1.2).
+5.2.1 Standard colors. Colors used to identify chassis wires by function shall be as specified in table II and 5.2.2
+unless otherwise specified by the contracting activity. Color identification shall be accomplished by use of solid color
+insulation, or as an alternate method, by use of a single colored helical stripe or circumferential band over white
+insulation. For example, a white insulated wire having a blue helical stripe or a blue circumferential band would be
+considered an alternate equivalent to a solid blue wire. When more than one value of the same function must be
+identified, the alternative method may use a second stripe or band over white insulation as shown in table I.
+5.2.2 Miscellaneous circuits. White insulation shall be used for all circuits not designated in tables II, III, and IV or
+5.2.3.
+5.2.3 Direct-coupled circuits. In direct-coupled circuits, connecting wires shall be white with appropriately colored
+helical stripes or circumferential bands at the ends of the insulated wire to identify the elements to differentiate from
+the method of marking described in 5.2.2. For example, if a plate is connected directly to a control grid, the wire shall
+be white with helical green and blue stripes, or have green and blue circumferential bands at both ends of the wire
+(green designates grid, and blue, the plate). This is in contrast to the coding of wires connecting plate and grid
+through a coupling capacitor; in such case the wire from the plate to the capacitor would be solid blue, or have a blue
+stripe or band on a white wire (for the plate), and the wire from the other end of the capacitor to the grid would be
+black, or have a black stripe or band on a white wire (for the grid). This method of identification will normally be
+applied by the equipment fabricator to white insulated wire, when required.
+5.3 System III – Differentiation or functional coding of chassis wiring by printed markings. Chassis wiring shall be
+identified by printed characters (see table V) over white insulation or white insulation-braid. The printed characters
+shall represent differentiation or functional code marking (see 1.2).
+5.3.1 Differentiation marking. Wires shall be differentiated by printing the name(s), abbreviation(s) in accordance
+with ASME Y14.38, or identification number(s) of the colors and combinations listed in table I. Random printed
+numbers for alpha numerical characters designating specific coded information may be used provided this specific
+coding is not intermixed with stripe or band identification. The marking shall appear either along the entire length of
+the wire at 2-inch intervals, at each end of the wire (for wire harnesses only), on sleeves, or in the manner prescribed
+in applicable specifications.
+5.3.2 Functional markings. Functional information shall be as specified in table II or in the applicable equipment
+specification. Such information shall be printed either at the ends of the wire, on the sleeve, or in some other manner
+as prescribed in the applicable equipment specification.
+5.4 System IV – Coding of interconnecting wiring.
+5.4.1 Wire insulation color. White insulation shall be used for all interconnecting wires unless a particular color is
+prescribed in the equipment or system specification to identify a definite arrangement of elements, a specific function,
+or a hazardous condition.
+5.4.2 Differentiation markings. Circuit identification, if required, shall be printed in black on the wire insulation, on the
+white sleeve, or on some other type of marker. Printed markings shall be legible and applied so that the wire type is
+readily identified.
+9
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+5.4.3 Interconnecting wiring on aircraft and guided missiles. The coding of interconnecting wiring on aircraft shall be
+in accordance with MIL-W-5088, and on guided missiles shall be in accordance with MIL-W-5088. In the event of
+conflict between the requirements of this standard and those of the referenced specifications, the requirements of the
+referenced specifications shall govern.
+5.4.4 Flat, multiconductor, homogenous cable. When color coding is required, the base colors of table I shall be
+used, and shall be repeated in sequence for the required number of conductors by using solid colored insulation or
+striping on all-white insulation.
+5.5 System V – Direct wiring and open wiring.
+5.5.1 Wire insulation color. White insulation shall be used for all interconnecting wires, unless a particular color is
+prescribed in the equipment or system specification to identify a definite arrangement of elements, a specific function,
+or a hazardous condition.
+5.5.2 Differentiation markings. Identification, if required, shall be printed in black on the wire insulation, on the white
+sleeve, or on some other type of marker. Printed markings shall be legible and applied so that the marking function is
+readily identified.
+5.6 System VI – Differential color coding for high density chassis and interconnecting wiring (see 1.2).
+5.6.1 Method of color coding. Color coding shall be accomplished by use of solid color insulations, circumferential
+banding on all-white insulation or numerically marked sleeve or tape markers. Materials or paints used for
+circumferential banding or numeric marking shall not be electrically conductive.
+5.6.2 Circumferential banding.
+5.6.2.1 Identification numbers. Identification numbers shall consist of not more than four digits, which may be either
+in sequential or ascending sequential order, deleting the digit 9 for white.
+5.6.2.2 Color sequence of circumferential bands. The circumferential bands shall be parallel to each other, be
+clearly defined and, within and between repeated color groupings, consistent in width and spacing for the length of
+the wire, and essentially continuous except that discontinuities may be permitted provided the coded identity can be
+read by rotating the wire.
+a.
+Band width. The width of the bands shall be measured perpendicular to the centerline of the band. The
+width of all bands shall be not less than 0.031 inch when the diameter over the marked surface exceeds
+0.047 inch; or not less than two-thirds the nominal diameter of the surface when the diameter over the
+marked surface is 0.047 inch or less.
+b.
+Band spacing. The spacing between bands in a group shall be not less than the individual band width,
+except that the spacing between the first band in a group of three or four shall be twice the spacing between
+the bands in the remainder of the group.
+c.
+Spacing between groups of bands. The spacing separating a group of bands from the next grouping shall be
+greater than the widest spacing between bands within a group, but not exceed 3 inches, and be repeated
+along the length of the wire.
+d.
+Sequence of reading. The wire number represented by the color banding is read by starting with the band
+further displaced from the remaining two or three bands.
+5.6.3 Wire markers. Numerically marked sleeves, tapes or pressure sensitive tapes may be applied at the ends of
+the insulated wire or braided covering where wire diameter, cable concentricity or insulation type preclude the
+application of circumferential bands.
+10
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+TABLE V. Printing type size of identification marking. 1/
+Insulation
+ Printing type
+2/
+diameter
+ Height of type
+ Radius of curvature
+ Reading
+3/ 4/
+ 5/
+face
+ (± .001)
+ of type face (± .001)
+ direction
+For insulating materials that are not flattened during the printing the operation, following curved and flat face type
+shall be used:
+.030 to .038
+ .015
+ .020
+ Vertical
+.039 to .048
+ .020
+ .025
+ Vertical
+.049 to .060
+ .025
+ .031
+ Vertical
+.061 to .090
+ .025/.031
+ .046
+ Horiz or vert
+.091 to .122
+ .031/.046
+ .062
+ Horiz or vert
+.123 to .154
+ .046
+ .078
+ Horizontal
+.155 to .184
+ .062
+ .093
+ Horizontal
+.185 to .248
+ .078
+ .125
+ Horizontal
+.249 to .310
+ .093
+ .156
+ Horizontal
+.311 to .374
+ .093/.125
+ .187
+ Horizontal
+.375 to .436
+ .125
+ .218
+ Horizontal
+.437 to .498
+ .125
+ .250
+ Horizontal
+.499 to .560
+ .125
+ .281
+ Horizontal
+.561 to 1.000
+ .125
+ Flat
+ Horizontal
+Over 1.000
+ .187
+ Flat
+ Horizontal
+For insulating tubings that are flattened during the printing operation, the following minimum flat face type shall be
+used:
+.035 to .060
+ .065
+ Flat face
+ Vertical
+.052 to .068
+ .050
+ Flat face
+ Horizontal
+.069 to .096
+ .062
+ Flat face
+ Horizontal
+.097 to .166
+ .078
+ Flat face
+ Horizontal
+.167 to .624
+ .109
+ Flat face
+ Horizontal
+.625 to 1.000
+ .125
+ Flat face
+ Horizontal
+Over 1.000
+ .187
+ Flat face
+ Horizontal
+1/ Dimensions are in inches.
+2/ For heat shrinkable tubing, the height of the type face shall be governed by the “as supplied” insulation
+diameter.
+3/ Other type face heights may be used only when approved by the contracting activity.
+4/ For horizontal lettering, this quantity if the actual height. For vertical lettering, this quantity if the width
+of the letter. The letter height would be approximately 3 times this quantity.
+5/ All industry standard sizes.
+5.7 Striping or banding.
+5.7.1 Colored helical stripes or circumferential bands. Colored helical stripes or circumferential bands shall be used
+only on all-white insulation wherever color combinations other than solid colored wires are necessary. Not more than
+three stripes or bands shall be used. Stripes and bands shall be applied in the same direction and shall conform to
+the color code designated in table I. Longitudinal (nonhelical) color striping may be used if colored insulation is used
+for striping.
+5.7.2 Sequence. In the sequence of applying helical stripes or circumferential bands on a wire, the first stripe or
+band shall be distinguishably wider than the second and third stripe or band within the group. Helical stripes shall run
+parallel to each other and shall be continuous, clearly defined, and constant in width and spacing throughout the
+length of the wire. Circumferential bands shall be parallel to each other around the circumference of the wire, shall
+be clearly defined, shall be constant in width and spacing, and shall be continuous in repeated color groupings for the
+length of the wire unless specified (see 5.2.3).
+5.7.2.1 Stripe or band width. The width of the stripe or band shall be measured perpendicular to the centerline of the
+stripe or band. The width of the wide (first) stripe or band shall be not less than 0.031 inch when the diameter over
+the marked surface exceeds 0.047 inch; when the diameter over the surface on which the stripe or band shall be not
+less than two-thirds the nominal diameter of the surface. The narrow (second and third) stripe or band shall be not
+less than one-half nor more than three-quarters the width of the wide (first) stripe or band. The third stripe or band
+shall be of the same width as the second stripe or band.
+11
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+5.7.2.2 Stripe or band spacing. On single stripe or band coloring, the spacing between each stripe or band shall be
+not less than twice the width of the individual stripe or band. On multiple stripe or band coloring, the spacing between
+stripes or bands within a grouping shall be not less than the width of the narrow stripe or band.
+5.7.2.3 Length of lay (spacing between groups). The spacing between groups of bands shall be at regular intervals
+along the wire. The spacing separating a group of bands from the next grouping shall be greater than the spacing
+between the bands within a group, but shall not exceed 3 inches.
+NOTE: Length of lay is defined as the longitudinal distance along the wire from the starting point of
+one grouping of stripes to the starting point of the next repetition of the grouping. Also, length of lay
+required does not apply if stripes of colored insulation material are used.
+5.7.2.4 Spacing between groups of bands. The spacing between groups of bands shall be at regular intervals along
+the wire. The spacing separating a group of bands from the next grouping shall be greater than the spacing between
+the bands within a group, but shall not exceed 3 inches.
+5.8 Braided wire covering. When the wire covering includes a braided covering (of synthetic yarn or continuous
+filament glass yarn) over the insulation, with systems I and II color coding, the braided covering shall be the same
+base color; with systems III, IV, and VI color coding, the insulation and braided coverings shall be natural white. If
+color coded striping or banding is required on braided covering of systems I, II or IV color coded wires, the method
+described in 5.5 shall be adopted. If color coded banding is required on braided covering of system VI color coded
+wires, the method described in 5.6 shall be adopted. When helical stripes are used, colored carriers of suitable
+widths shall be used to form the coding stripes. The narrow (second and third) stripe, when applicable, shall be
+formed by using colored yarn in one carrier. The spacing between stripes in any group shall be formed by one base
+color carrier. The colored helical stripe, striping sequence, and length of lay shall be in accordance with 5.7.1, 5.7.2,
+5.7.2.1, 5.7.2.2, and 5.7.2.3.
+6. NOTES
+(This section contains information of a general or explanatory nature which may be helpful, but is not mandatory).
+6.1 Intended use. This standard identifies coding systems for all insulated hookup and lead wire used in electrical
+and electronic equipment.
+6.2 Subject term (keyword) listing.
+AC power
+Chassis
+Circumferential banding
+DC power
+Hall generator
+Interconnecting
+Striping
+6.3 International standardization agreements. Certain provisions of this document are the subject of international
+standardization agreement STANAG 4093. When change notice, revision, or cancellation of this document is
+proposed which will affect or violate the international agreement concerned, the preparing activity should take
+appropriate reconciliation action through international standardization channels, including departmental
+standardization offices, if required.
+12
+Downloaded from http://www.everyspec.com
+MIL-STD-681E
+6.4 Changes from previous issue. Marginal notations are not used in this revision to identify changes with respect to
+the previous issue due to the extent of the changes.
+CONCLUDING MATERIAL
+Custodians:
+Army – CR
+Navy – EC
+Air Force – 85
+DLA - CC
+Review activities:
+Army – AR, AT, AV, CR4, MI
+Navy – AS, MC, OS, SH
+Air Force – 19
+Preparing activity:
+DLA – CC
+(Project 6145-2010-002)
+NOTE: The activities listed above were interested in this document as of the date of this document. Since
+organizations and responsibilities can change, you should verify the currency of the information above using the
+ASSIST Online database at https://assist.daps.dla.mil.
+13

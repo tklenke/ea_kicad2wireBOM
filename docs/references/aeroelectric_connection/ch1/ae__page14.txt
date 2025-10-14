@@ -1,0 +1,14 @@
+DC and Wiring Fundamentals
+1-12Figure 1-15. Connectors and Connections
+connection between two main terminals.  Note that the
+starter contactor symbol shows a built in diode . . . NOTALL contactors have this feature . . . but if the contactoryou’ve selected includes the spike catcher diode, figure 1-14 suggests how to depict it.
+ There is nothing unique about the symbol for a contactor
+to differentiate a continuous duty contactor (for battery,crossfeed and ground power applications) from theintermittent duty devices (used on starters and some landinggear pump installations).  This differentiation is describedin your reference designator list or bill of materials.
+Relays are more like switches in that they are available in
+multiple poles.  If needed, you can easily acquire up to 4poles of double-throw relay in a compact, single device.Your project may not need any relays but they can be useful
+in flap and trim motor control systems, over-voltage controlimplementation on small alternators and pilot-prioritymicrophone selection.
+CONNECTORS and CONNECTIONS : As the various
+wires wend their ways about your airplane, they have to startand stop somewhere and somehow. There are basically twoways to attach wires to things, crimp the  buggers with someform of solderless connection or warm up the soldering ironand stick them together.
+Wires will terminate either in some device that mounts the
+wire to a stud, a passageway through a de-mateableconnector, or solder to the terminal provided on some
+device.

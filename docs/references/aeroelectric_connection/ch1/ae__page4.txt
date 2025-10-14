@@ -1,0 +1,17 @@
+DC and Wiring Fundamentals
+1-2Figure 1-2. Series and Parallel Resistance Calculation
+how little energy the air contained when it got to the other
+end. Something similar happens when electrons flowthrough a wire. The wire's ability to carry electrons islimited by its resistance, a sort of electrical friction. 
+The name for this characteristic is the Ohm. Ohms
+represent nothing but a potential for wasting  energy. Theyare of little practical use in an airplane electrical system butthey're always there. You can minimize them, make peacewith and endure a certain number of them, but you cannotmake them all go away. In order to talk about ohms andunderstand their effects, Mr. Ohm wrote a law. He said thatif you pass one amp (electrons per second) of currentthrough a conductor having a resistance of one ohm, youwill experience a drop of one volt (pressure). If the flow isincreased to two amps, then drop is two volts, etc. Thisgives rise to this mathematical model in Figure 1-1.
+Resistance Combinations
+When resistances to current flow are connected in series
+they are simply added to obtain of  total resistance.  Seriesmeans that they are connected end to end in a string.Parallel connection means that the resistors are connectedup laying side by side like cordwood. Paralleling resistorsis a little different.  If all the resistors are equal, then the nettotal is equal to the value of one resistor divided by thenumber of resistors. For example, five 10-ohm resistors inparallel net a total of 2 ohms.  If the resistors are not equal,
+then you need to get your calculator out and apply thefollowing rule:
+"The parallel value of any number of resistors is equal 
+to the reciprocal of the sum of the reciprocals of eachresistor." In Figure 1-2 I’ve illustrated a parallelcombination of  1-ohm, 2-ohm and 10-ohm resistors thatproduces a resistance  of 0.625 ohms for the combination.    
+When resistors are connected in series, the same  current
+flows in  each and the sum of the voltage drops across eachresistor equals the total voltage applied to the string.  Whenresistors are paralleled, the same voltage is impressed acrosseach resistor. The sums of the current flowing in eachresistor is equal to the total for the combination. Theseprinciples will be used throughout this publication to aid inselecting wire sizes, predicting performance of variousequipment items and understanding the limitations of otheritems.
+Energy Rate - The Watt
+Now we can introduce the last gentleman of the quartet I
+mentioned before, Mr. Watt. He described a unit of energyrate (now named after him) as being proportional to theproduct of pressure and flow. The mathematical model forthis and two corollaries are given in Figure 1-3..

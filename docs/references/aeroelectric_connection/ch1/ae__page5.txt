@@ -1,0 +1,15 @@
+DC and Wiring Fundamentals
+1-3Figure 1-3. Mathematical Identities for Calculating Watts.
+Figure 1-4 Current and Voltage in a Simple Landing Light CircuitSuppose you found a landing light bulb marked "150
+Watts" on its face. It may or may not be marked for itsrated operating voltage but in 14-volt systems (12-voltbatteries) the design point for many large lamps is 13.0volts. Later on in this publication there will be a section onwiring where you will find a wire table that says a 16 gauge
+wire has a resistance of .004 ohms per foot. Not much butsignificant. Let's suppose that your airplane is a compositestructure and that the landing light is out on a wing tip. Youneed to run two lengths of wire, a source and a return linefor the electron flow since there is no metal airframe toprovide the second path. Suppose that the total run of wirein the schematic is 24 feet times .004 ohms/foot yields atotal loop wiring resistance of .096 ohms.
+To figure the voltage drop in the wiring, we must first
+deduce the amount of current required by the lamp.Applying formula (4) above we can say the following:
+150 Watts = Amps x 13.0 VoltsTransposing we can say:
+             Amps = 150 Watts  ÷ 13.0 Volts
+ and Amps = 11.54If the total resistance of the wire is 0.088 ohms then we can
+apply formula (1) from Figure 1-1 asfollows:
+Volts = 11.54 Amps x .096 Ohmsand Volts = 1.1This hypothetical is illustrated in
+Figure 1-4. The schematics don'tshow an alternator charging thebattery but let's assume there is oneso that the voltage at the batteryterminals is 13.8 Volts. We havecalculated a drop in the wires of 1.1volts. Figure 1-4 shows  0.5 voltsdropped along the ground path, and0.6 volts dropped in the other (theswitch adds a tad more resistance tothe circuit). The lamp is beingsupplied with 13.8 - 1.1 = 12.7 volts.Not much below the rated 13.0 volts.
+In working this example we have
+uncovered techniques used bymanufacturers of electricalcomponents to make your selectionand application easier. Most heavycurrent devices are designed andrated for some voltage less than thenominal  system voltage. In thiscase, a 13.0 volt rated lamp might beused in a 13.8 volt system and a 26volt rated lamp would be used in a27.6 volt system. The parts are

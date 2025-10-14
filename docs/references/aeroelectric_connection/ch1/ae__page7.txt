@@ -1,0 +1,28 @@
+DC and Wiring Fundamentals
+1-5provided for other people’s products may use more
+elaborate system for wire labeling. For example. Supposeyou see a label wire label in a wirebook that looks like this:
+----- L4A16------In many airplanes this label is also repeated on the wire
+itself by means of hot-stamping or other means; usuallyabout every 6" along the entire length of the wire. The wiremarking  operation is accomplished on special machinesthat measure, mark and coil every conductor in the airplaneas if it were a separate part number.
+With verbose wire marking systems, the wirebook should
+include a key for decoding the system’s labelingconventions. For example, if I found this label on a wire ana B-52, my first pass at decoding it would suggest that “L”means some kind of lighting circuit. The “4" would meanit’s the 4
+th lighting circuit  of perhaps several more. The
+“A” means it’s the first segment in that circuit. Segment Amight run from circuit breaker to switch.  Segment B wouldgo from switch to perhaps some connector at the wing root.Segment C would continue on out to a light fixture. Thedigits “16" would suggest this circuit is wired with 16AWGmaterial. 
+Obviously, this kind of wire coding scheme can be used to
+convey a lot of meaning about the wire and its function -valuable information when dealing with complex systemson complex airplanes with fat wire bundles.
+I don’t recommend that the owner-built-and-maintained
+(OBAM) airplane project be extended to include sucheffort. First, the relative simplicity of our airplanes will notbenefit much from being able to tell which wire in a bundleof dozen or so wires is used to power a landing light vis-a-vis the nav lights. Second, it takes TIME to design,document and fabricate this kind of detail in your project’sdrawings. Unless you plan to build the ultimate showaircraft where one may gain points for crafting andimplementing an articulate wirebook, this kind of detail isa waste of time.
+However, if you’re designing a new Sky Thrasher 2000
+with a goal of  manufacturing kits and pre-fabricated wirebundles, then your project’s documentation will have to bemore comprehensive with a bill of materials that includesthe actual length of each wire segment. This is the only casewhere I could justify spending much effort on a complexwire labeling system.
+If you want to label your wires for easing future
+maintenance efforts, a simple numbering of a wire segmentwill suffice. The 4AWG wire from battery contactor tostarter contactor might have the number “1" depicted ateach end of the segment. Similarly, the next segment fromstarter contactor to starter might be “2" . . . or any OTHERnumber unique to that segment. The same number would be
+used to label that segment on your wiring diagram whereyou might call them “1-4" and “2-4" meaning segments 1and 2 fabricated from 4AWG wire. I wouldn’t bother to putthe wire gage callout on  the wire itself as most wire suitedfor aircraft is already labeled as to its size.
+It’s not even necessary or useful to use EVERY number in
+sequence.  For example: my first drawing might be thelanding light circuit wherein perhaps 4 wire segments areused to hook up the system. I might used the numbers 10-14to label these wires. For the next system, I might use 20-26.This leaves some open spaces between system so that if youchange anything later and need to add a segment, there areopen numbers next to the original numbers that can be usedto identify the new wires.
+This gives rise to the possibility of assigning groups of wires
+to various systems. For example, labels 1-19 might bereserved for DC power generation and distribution. 20-29for the starter system. 30-39 for landing light, 40-49 for navlights, etc. This way, you can know which system aparticular wire belongs to by observing the group in whichits label resides.  This scheme generally leaves handy gapsin the numbering so that any later additions to the systemhave unused numbers reserved within that grouping.
+In some of wiring diagrams, I may use “fat” lines on
+drawing to depict the major power distribution pathwayswhich are generally 2 to 8AWG conductors. I won’t gobeyond this simple convention for explaining how a systemis fabricated.
+When I hook wires up on paper, I try to convey as much
+meaning as possible and avoid ambiguous symbology. Forexample, wires that cross each other in a diagram may havea “hump” in one wire to show that they do not connect. It’sokay to leave the hump off and assume that they do notconnect unless there is a “dot” at the intersection. I never usea mid strand intersection without being  very specific as tohow the wires are joined. I use a specific symbol for a splicethat tells you that it’s my intent that the wires be simplyjoined in mid span between major components. Unless amid-span splice is intended and planned, wires on ourdiagrams will always come together at a location conduciveto implementing the connection. I.e, the stud of a contactoror the wire grip of a  terminal.  The act of tying two wirestogether mid-span with a simple dot is used on a schematic. . . a kind drawing intended to convey functionality withoutspecifics as to the mechanics of implementing fabrication.
+There are a few special cases for wiring symbology.
+Sometimes, the designer would like for you to twist thewires together. The most common reason to twist wires is tominimize their susceptibility to magnetically coupled noise(more on this in the chapter on noise). Sometimes it’s donesimply to custom fabricate a pair of wires that  work

@@ -1,0 +1,22 @@
+DC and Wiring Fundamentals
+1-9Figure 1-11. Capacitor Symbols6 amps times 0.6 volts =
+3.6 watts.  Not a great dealof power but significant interms of what a small, leadmounted device canhandle without externalheat sinking. You canpurchase leaded devicesgood for this kind ofcurrent but they’redifficult to deal with.Small plastic cylinderswith wires coming outeach end are intended tobe soldered into an etched circuit board.
+Here’s a handy product for dealing with applications
+requiring a diode to carry more than a few amps.  There’sa genre of diode assemblies called “bridge rectifiers”. Afull bridge is assembled from a ring of 4 diodes withterminals brought out for connection into a full-waverectifier for a DC power supply.
+A version of particular interest to us looks like the adjacent
+view. 
+It’s approximately1.2" square, 0.4"thick and is fittedwith four Fast-Ontab terminals. Thedevice mounts tostructure withscrew through aconvenient centerhole.
+The act of
+attaching thisdevice to a metalsurface providesheat sinking.  Irecommend thisgizmo as a meansfor installing theaforementionedmain-bus to e-bus
+steering diode.  Only one of the four diodes is used (twounused connection tabs can be snipped off).  The mountingand interconnection features of this device make it veryuseful in our airplanes.
+If you’re looking for this device, most electronics supply
+stores can provide you a device that LOOKs exactly likethis one. This package houses assemblies rated at 25 ampsor more and nobody builds a diode with less than a 50 voltrating. So, irrespective of it’s part number, any devicepackaged as shown above is suited as a main-bus to e-bus
+steering diode or any other task in your airplane that needsa continuous current capability of more than a couple ofamps.
+Note this package has a chamfered corner. Note further that
+the terminal adjacent to the chamfered corner is turned 90°to the other three. The “odd” terminal is always the (+)connection to the diode bridge assembly (two cathodes tiedtogether).
+CAPACITOR:  The capacitor is a device constructed not
+unlike its symbol suggests. Two conductors or platesseparated by an intervening insulator or dielectric material.A couple of pieces of aluminum with a sheet of glasssandwiched between them is an excellent example of acapacitor. This device can store a charge, it can also couplevarying or AC voltage variations across the insulator.
+Capacitors come rated in Farads (a really big capacitor) or
+in smaller, more convenient sizes called microfarads (1millionth of a Farad), nanofarads (1 billionth) and picofarads(1 trillionth).  They’ll also have a voltage rating thatdescribes the largest voltage to which the capacitor can becharged without arcing over or damaging the insulatorbetween the conductive plates.  Physically, they can range insize from the tiny surface mount devices up to bathtub sizeddevices. Capacitors are also offered in a huge combinationof construction methods to best suit the task. The capacitoryou will find most often in our drawings is an aluminumelectrolytic. It’s a plastic covered cylinder 1.3 to 2.5 inchesin diameter and 3 to 6 inches long. It will be fitted with two10-32 threaded connections on one end. The schematicsymbol I use for this device is illustrated in figure 1-x anddepicts the threaded fastener connections as represented bythe open circles in the drawing. 
+INDUCTOR:   The inductor’s symbol is intended to convey
+the notion of many turns of wire - usually wrapped aroundsome core of magnetic material.  There are some minorvariations on the theme for inductors but they’ll berecognized for their similarity to the devices depicted here.

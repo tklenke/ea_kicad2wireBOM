@@ -1,0 +1,5305 @@
+Downloaded from http://www.everyspec.com
+JINCH-POUND1
+MIL-W-5088L
+10 May 1991
+SUPERSEDING
+MIL-1+-5088K
+24 December 1984
+MILITARY
+ SPECIFICATION
+WRING, AEROSPACE VEHICLE
+This specification is amroved for use by all Departments
+and Agencies of the Dep&rtment of Defense.
+1.
+ SCOPE
+1.1
+ Scope. This specification covers all aspects from the selectlon through
+installation of wiring and wiring devices used in aerospace vehicles.
+ Aerospace
+vehicles include airplanes, helicopters, lighter-than-air vehicles, and missiles.
+1.1.1 Application.
+ This specification establishes design requirements
+guidance for wiring of aerospace vehicles.
+ Although many of the requirements are
+written as mandatory and shall be considered as such, there is also con- slderable
+material which is intended to denote optional, preferential or guidance type
+requirements.
+ In interpreting the material contained herein, it is intended that
+the philosophy of the entire document be considered for the wiring of each new
+type of vehicle. This philosophy Is safety of the personnel, safety of the
+vehicle, satisfactory performance and reliability of the vehicle and ease of
+maintenance, and service llfe all at the least cost to the Government.
+ The intent
+of this document will be fulfilled by tailoring the requirements in each new type
+or class of aerospace vehicle designed, to the proper application.
+2.
+ APPLICABLE DOCUMENTS
+2.1
+ Government documents.
+2.1.1
+ Specifications, standards and handbooks.
+ Unless otherwise
+specified, the following specifications, standards and handbooks of the Issue
+llsted in that issue of the Department of Defense Index of Specifications and
+Standards (DODISS) specified in the solicitation form a part of this speclfl-
+catlon to the extent speclfled herein.
+--
+Beneficial comments (recommendations, additions, deletions) and any pertinent
+data which may be of use in improving this document should be addressed to:
+Commanding Officer, Naval Air Engineer~ng Center, Systems Engineering and
+Standardization Department (Code 53), Lakehurst, NJ 08733-5100,
+ by using the
+self-addressed Standardization Document Improvement Proposal (DO Form 1426)
+appearing at the end of this document or by letter.
+AMSC N/A
+ AREA GDRQ
+DISTRIBUTION STATEMENT A.
+ Approved for publlc release; distribution
+ is unlimited.
+SPECIFICATIONS
+●
+MILITARY
+MIL-I-631
+MIL-I-3190
+MIL-C-3607
+MIL-C-3643
+MIL-C-3650
+MIL-C-3655
+MIL-B-5087
+MIL-E-6051
+MIL-C-6136
+MIL-E-7080
+MIL-T-7099
+MIL-F-7179
+MIL-I-7444
+MIL-C-7762
+MIL-B-7883
+MIL-T-7928
+MIL-S-8516
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+Insulation, Electrical, Synthetic-Resin
+ Composi-
+tion, Nonrfgld
+Insulation
+ Sleeving, Electrical, Flexible,
+Coated, General Specification for
+Connector, Coaxial, Radio Frequency, Series
+Pulse, General Specification for
+Connectors, Coaxial, Radio Frequency, Series HN
+Associated Flttlngs, General Speclflcat\on for
+Connectors, Coaxial, Radio Frequency, Series LC
+Connector, Plug and Receptacle, Electrical
+(Coaxial, Series Twin), and Associated Fittings,
+General Speclflcation for
+Bonding, Electrical, and Llghtlng Protection,
+for Aerospace Systems
+Electromagnetic Compatibility
+ Requirements,
+Systems
+Conduit, Electrical, Flexible, Shielded,
+Aluminum Alloy for Aircraft Installations
+Electric Equipment, Aircraft
+ Selection and
+Installation of
+Terminal, Lug and Splice, Cr mp Style Aluminum,
+for Alumlnum Aircraft N\re
+Finishes, Coatings, and Sealants for the
+ProtectIon of Aerospace ldeapons Systems, General
+Speclflcatlon for
+Insulation Sleeving, Electrical, Flexible
+Compass, Installation of
+Brazing of Steels, Copper, Copper Alloys, Nickel
+Alloys, Aluminum and Aluminum Alloys
+Terminals, Lug and Splice, Crimp Style, Copper
+Sealing Compound, Polysulflde Rubber, Electrlc
+Connectors and Electric Systems, Chemically Cured
+2
+Downloaded from http://www.everyspec.com
+MIL-I+5088L
+SPECIFICATIONS
+ (continued)
+MILITARY
+ (continued)
+MIL-I-8700
+MIL-C-22520
+MIL-H-22759
+MIL-I-23053
+MIL-S-23190
+MIL-S-23586
+MIL-I-23594
+MIL-M-24041
+MIL-C-25516
+MIL-C-26637
+MIL-C-39012
+MIL-C-39029
+MIL-T-43435
+●
+MIL-C-49142
+●
+ MIL-A-5533!I
+Installation and Test of Electronic Equipment in
+Aircraft, General Specification for
+Crimping Tools, Terminal, Hand or Power
+Actuated, Wire Termination and Tool Kits,
+General Specification for
+Wire, Electric, Fluoropolymer-i nsulated, Copper
+or Copper A11oY
+Insulation Sleeving, Electrical, Heat Shrink-
+able, General Speclflcatlon for
+Straps, Clamps and Mounting Hardware, Plastic
+and Metal for Cable Harness Tying and Support
+Sealing Compound, Electrical, Sillcone Rubber,
+Accelerator Required
+Insulation Tape, Electrical, High Temperature,
+Polytetrafluoroethylene, Pressure-sensitive
+Molding and Potting Compound, Chemically Cured
+Polyurethane
+Connectors, Electrical, Miniature, Coaxial,
+Environment-resistant Type, General Specifica-
+tion for
+Connector, Coaxial, Radto Frequency, Series LT,
+General Specification for
+Connectors, Coaxial, Radio Frequency, General
+Specification for
+Contacts, Electrical Connector, General Spec-
+Iffcatlon for
+Tape, Lacing and Tying
+Connector, Plug and Receptacle, Electrical,
+Trlaxial, Radio Frequency, General Specification
+for
+Adapter, Connector, Coaxial, Radio Frequency,
+(Between Series and Within Series), General
+Specification for
+3
+Downloaded from http://www.everyspec.com
+MIL-i&5088L
+SPECIFICATIONS
+ (continued)
+MILITARY (continued)
+MIL-M-81260
+MIL-W-81381
+MIL-T-81490
+MIL-T-81714
+MIL-T-81714/11
+MIL-T-81714/12
+MIL-S-81824
+●
+ MIL-C-83517
+MIL-S-83519
+biIL-C-85049
+MIL-C-85485
+●
+ MIL-S-85848
+STANDARDS
+FEDERAL
+FED-STD-595
+MILITARY
+DOD-STD-100
+MIL-STD-454
+Manual, Technical, Aircraft/System/Equipment
+Maintenance
+Hire, Electric, Polyimide-i nsulated, Copper and
+Copper Alloy
+Transmission
+ Lines, Transverse Electromagnetic
+Mode
+Terminal Junction System (TJS), Environment-
+reslstant, General Speciflcatlon for
+Terminal Junction System (TJS), Terminal
+Junction Blocks, Sectional, Wire In-Line
+Junctions, Sfngle, Series I
+Terminal Junction System (TJS), Terminal
+Junction Blocks, Sectional, Hire In-Line
+Junctions, Double, Series I
+Splice, Electric, Permanent, Crimp Style,
+Copper, Insulated, Environment-resistant
+Connector, Coaxial, Radio Frequency for Coaxial,
+Strip or Mlcrostrip Transmission Line, General
+Specification for
+Shield Termination, Solder Style, Insulated,
+Heat-shrinkable, Environment-1 esistant, General
+Speclflcatlon for
+Connector Accessories,
+ Electr
+ cal,
+ General
+Speciflcatlon for
+Cable, Electric, Fi’ter Line, Rad’to Frequency
+Absorptive
+Sleeving, For Ident fication Marking, Heat
+Shrinkable, General Speclficatlon For
+Colors Used in Government Procurement
+Engineering Drawing Practices
+Standard General Requirements for Electronic
+Equipment
+4
+Downloaded..
+.
+STANDARDS (continued)
+MILITARY (continued)
+MIL-STD-681
+MIL-STD-704
+DOD-STD-863
+●
+ MIL-STD-889
+●
+ MIL-STD-970
+MIL-STD-1353
+MIL-STD-1388
+MIL-STD-1553
+MS3373
+MS 18029
+MS21266
+MS21919
+MS25171
+?4S25274
+MS25281
+MS25435
+)4S25436
+kiS25437
+from http://www.everyspec.com
+MIL-H-50B8L
+Identification Coding and Application of Hookup
+and Lead Hire
+A~rcraft Electric Power Characteristics
+Wiring Data and System Schematic Diagrams,
+Preparation of
+Dissimilar Metals
+Standards and Speclflcat\ons, Order of
+Preference for the SelectIon of
+Electrical Connectors, Plug-in Sockets and
+Associated Hardware, SelectIon and USe Of
+Logistfc Support Analysis
+Digital Time Division Command/Response,
+Multiplex Data Bus
+Strip, Mounting,
+ Nut Insulating, for MS27212
+Terminal Board
+Cover Assembly,
+ Electrical, for MS27212 Terminal
+Board Assembly
+Grommet, Plastlc, Edging
+Clamp, Loop-Type, Cushioned, Support
+Nipple, Electrical Terminal
+Cap, Electrical (Hire End, Crimp Style, Type II,
+Class 1), for 105*C Total Conductor Temperature
+Clamp, Loop-Plastic,
+ Hire Support
+Terminal, Lug, Crimp Style, Straight Type, for
+Aluminum Aircraft Hire, Class 1
+Terminal, Lug, Crimp Style, 90” Upright Type,
+for Aluminum Aircraft Wire, Class 1
+Terminal, Lug, Crimp Style, Left Angle Type, for
+Aluminum Aircraft Wire, Class 1
+5
+-———
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+STANDARDS (continued)
+MILITARY (continued)
+MS25438
+ Terminal, Lug, Crimp Style, Right Angle Type,
+for Aluminum Aircraft Hire, Class 1
+MS25439
+ Spllce, Permanent, Crimp Style, 2 Nay Type for
+Aluminul Aircraft Hire, Class 1
+!4S25440
+ Masher, for Use tllth Aircraft Aluminum Terminals
+MS27212
+ Termina’ Board Assembly, Molded-In Stud, Electric
+MS27488
+ Plug, End Seal, Electrical Connector
+MS33540
+ Safety Hiring and Cotter Pinning, General
+Practices for
+MS35489
+ Grommet, Synthetic and Silicone Rubber, Hot 011
+and Coolant Resistant
+MS90376
+ Cap, Dust, Plastic, Electric Connector
+MS90387
+ Tool, Hand, Adjustable,
+ for Plastic Tiedown
+Straps
+AND1038O
+ Coupllng Installations,
+ Standard Conduit,
+Electrical
+HANDBCXXS
+MILITARY
+MIL-HDBK-216
+ RF Transmlsslon Lines and Fittings
+ADDITIONAL DOCUMENTS
+Additional documents pertaining to the selection of wire and cables are
+lfsted In Appendix A.
+*(Unless otherwise Indicated, copies of federal and military specifications,
+standards and handbooks are available from the Standardlzatlon Documents Order
+Desk, Bldg. 40, 700 Robbins Avenue. Phtladelphla, PA 19111-5094. )
+●
+ 2.2 Non-Government publications.
+ The following documents form a part of
+this document to the extent spec~fied herein. Unless otherwise spec~fled, the
+issues of the documents which are DOD adopted are those listed in the issue of
+the DODISS cited In the solicitation. Unless otherwise specified, the issues
+of documents not listed in the DODISSare the Issues of the documents cited In
+the solicitation
+ (see 6.2).
+6
+Downloaded from http://www.everyspec.com
+t41L-W-5088L
+AEROSPACE INDUSTRIES ASSOCIATION OF AMERICA, INC.
+ (AIA)
+NAS 813
+ Cap - Protective Electrical Connector
+NAS 820
+ P?ug - Protective Electrical Connector
+(Application for copies should be addressed to the Aerospace Industries
+Assoc’tation of America, Inc., 1250 Eye Street, N.H., Washington, DC 20005.)
+AMERICAN NATIONAL STANDARDS INSTITUTE (ANSI)
+Y14.15
+ 1966
+ Electrical and Electronics Diagrams
+Y32 .2
+1975
+Graphic Symbols for Electrical and Electronics
+Diagrams
+Y32.16
+1975
+Reference Designations for Electrical and
+Electronic Parts and Equipment
+(Application for copies should be addressed to the American Natlf nal Standards
+Institute, Inc., 1430 Broadway, New York, NY 10018-3308.)
+(Industry association specifications and standards are generally available for
+reference from libraries. They are also distributed among techn cal groups
+and using Federal agencies.)
+2.3 Order of precedence.
+ In the event of a conflict between the text of
+this document and the references cited herein (except for related associated
+detail speclficatlons, specification sheets, or military standards), the text
+of this document takes precedence.
+ Nothing in this document, however,
+supersedes appl~cable laws and regulations unless a specific exemption has
+been obtained.
+3.
+ REQUIREMENTS
+3.? Terminology interpretation.
+ The term “wiring” wherever used
+throughout this specification shall be Interpreted In accordance with 6.3.5.
+3.1.1 Oevtations.
+ Deviations from this specification desired by the
+contractor (substitution of equipment, material or installation) shall be
+specifically brought to the attention of the procuring actlvlty by letter
+concurrent with or prior to forwarding the design data for approval.
+ Al 1
+requests for deviations shall Include-sufficient engineering ‘nformation to
+substantiate the deviations.
+---
+3.2 Conflicting requirements.
+ In case of discrepancies between this
+specification and the type or detail specification for a part cular vehicle
+part, the type or detail specification shall prevail.
+●
+ 3.3 Selection of parts and materials.
+ Parts and materials covered by
+documents listed
+ herein are standard and shall be used whenever they are
+suitable for the purpose. Parts and materials shall be procured fromQPL
+sources when they exist. Nonstandard parts and materials must be equivalent
+to or better than similar standard parts and materials.
+ Mhen this specifica-
+tion fails to provide an applicable specification or standard, the contractor
+shall use other established speclflcatlons or standards in the order of
+precedence set forth in MIL-STO-970.
+ Parts and materials selected from other
+than this specification are not standard, and approval must be obtained prior
+7
+——————
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+to their use in aerospace vehicles. Each vendor source for a nonstandard part
+or mater~al requires approval.
+ When a nonstandard part is used where a
+suitable standard part exists, the contractor shall reference the standard
+part on the drawing, parts lists, or data package, and the Installation shall
+provide for replacement with the standard part.
+-
+3.3.1 ~ests
+ for app roval of nonstandard parts. The data to be sub-
+mitted with the request for approval of nonstandard parts shall be in
+accordance with the terms of the contract.
+3.3.2 Connnercial utllltyp arts. (hmnercial utility parts, such as
+screws, bolts, nuts, cotter pins, etc., may be used, provided they have
+suitable properties and are replaceable by standard parts without alteration.
+3.3.3 Contractor’s specifications.
+ Hlr!ng and wirtng devices conforming
+to contractor’s specifications may be used, provided each contractor’s spec-
+ification is approved by the procuring activity and provided no military
+specification exists.
+ The contractor shall provide substantiating test data
+and, when required by the procuring activity, shall provide samples for test.
+The use of contractor’s specifications shall not constitute waiver of Govern-
+ment inspections. Contractor’s speclflcatlons shall follow the format for
+milttary specifications.
+ When a detail or general military specification
+exists for the class of material required, the contractor’s specification
+shall reference
+ the existing mllltary specification and set forth only the
+needed new requirements and deviations.
+3.3.4 Comnmalltv.
+ An object~ve in the selection of parts shall be to
+maxim!ze conmnonallty and m~nimlze the variety of wiring components and related
+servicing tools required In the construction, installation and maintenance of
+the electrical wiring system.
+3.3.5 Government-furnished Aircraft Equipment (GFAE). Wlrlng and wiring
+devices furnished by the Government shall be Installed without modification
+unless otherw!se authorized or directed by the procuring activity.
+3.3.6 Modification.
+ The contractor shall not alter, rework or mod~fy
+wiring or wiring dev#ces built to and meeting Government specfficatlons,
+unless authorized or d~rected by the procuring activity, and such modification
+shall be subject to Government InspectIon. Modified parts shall have the
+Government Identlfylng part number removed and shall be identified by
+contractor part number.
+3.4 Service life. The wiring and associated components used for the
+wirina Installation shall be so selected and installed to promote ease of
+malnt~nance and high reliability over the entire expected service life of the
+vehicle. The rellab< llty and maintainability goals for the wiring system will
+be determined in the Logistic Support Analysts as delineated in MIL-STD-1388
+as wI1l the expected service life. These goals shall be subject to Procur~n9
+activity approval.
+3.5 Smoke and fire hazards. Wiring and wiring devices shall be selected
+and installed In such a manner as to minimize the danger of smoke and fire
+hazards. Adequate protective means, both physical and electrical, shall be
+employed to provide reliability and safety commensurate with this requirement.
+a
+Downloaded from http://www.everyspec.com
+MIL-N-5088L
+.—
+3.6 Matertals.
+ Materials used in the installation of wiring and equip-
+ment shall be suitable for the purpose and shall conform to such Government
+specifications as are specifically applicable under the contract.
+3.6.1 Metals.
+ Metals used in the Installation of wiring shall be
+corroston resistant or shall be suitably protected to resist corrosion and
+electrolytic action during normal service life. Finish and coating shall be
+in accordance with MIL-F-7179.
+●
+3.6.1.1 Dissimilar metals.
+ Dlssimllar metals used shall conform to the
+requirements of MIL-STD-889.
+ This standard establishes requirements for the
+selectlon and protection of dissimilar metal combinations and other
+sign!flcant corrosion behavtor factors.
+3.6.2 Nonmetals.
+ Nonmetals used, including plastlcs, fabrics and
+protective finishes, shall be moisture and flame resistant, shall not support
+fungus growth, shall not support combustion, and shall not be adversely
+affected by weathering, applicable fluids and propellants, temperature and
+ambient condlt~ons encountered during operation of the vehicle.
+ hlater~als
+that give off a minimum amount of noxious gases shall be selected.
+ Nonmetals
+may be treated to conform to this requirement.
+3.6.2.1 Insulating materials.
+ Insulating materials shall have an arc
+resistance capability wh~ch will meet the circuit requirements.
+3.6.3 Seallngmaterlals.
+ Only materials that are elastomeric and
+reversion resistant shall be used. Sealing materials required to seal wire
+junctions and terminations shall be selected from MIL-S-8516, NIL-S-23586, or
+other material specifically approved by the procuring activity.
+ MIL-S-8516 IS
+the preferred material.
+ The followlng temperature limlts apply (the upper
+limlt Includes ambient plus temperature rise):
+MIL-S-8516
+MIL-S-23586
+-51°C (-60”F) to 93°C (200*F)
+-65°C (-85°F) to232°C
+ (450°F)
+3.6.3.1 Process.
+ Sealtng materials shall be applied In strict
+conformance with the manufacturer’s instructions.
+ Overage material shall not
+be used. The sealtng material shall be held In place by suitable forms during
+the cur!ng process.
+3.7 Component select~on and installation.
+ Components and wlrlng devices
+shall be suitable for their application and selected and installed in
+accordance with the requirements of this specif~cation.
+ In addltlon,
+selectton and installation considerations shall be made relat~ve to vehicle
+operation and servlclng environments to ensure that they are not subjected to
+conditions exceeding the limits specified in the applicable wiring component
+speclftcations.
+3.7.1 Maintenance considerations.
+ The maintainability of the wiring
+system shall be a prime consideration in the selection, design and installa-
+tion of harnesses, cable assemblies and wiring system components.
+ All wiring
+shall be accessible, repairable and replaceable at the maintenance level
+L
+ speclfled by the procuring activity. Other specific requirements concerning
+maintenance are specified in the appropriate paragraph on the subject.
+9
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+3.8 Hiring selection,
+ Wirfng shall be of a type suitable for the
+application.
+ Mire shall be selected so that the rated maximum conductor
+temperature Is not exceeded for any combination of electrical loadlng, ambient
+temperature, and heating effects of bundles, conduit and other enclosures.
+Typical factors to be considered in the selection are voltage, current,
+ambient temperature, mechanical strength, abrasion, flexure and pressure
+altltude requirements, and extreme environments such as Severe Iifndand
+Motsture Problem (SHAI!P) areas or locations susceptible to significant fluid
+concentrations.
+ The wire shall be selected in accordance with Append~x A of
+this speclflcat!on.
+ The wire selectlon shall take tnto account all require-
+ments of this specification and the followlng design considerations.
+3.8.1 Elevated temperature deqradatton.
+ Degradation of tin and stlver
+plated copper conductors wI1l occur If they are exposed to continuous opera-
+tion at elevated temperatures.
+ These effects shall be taken \nto account In
+the selectton and application of wlrlng.
+3.8.1.? Ttn plated conductors.
+ Tin-copper intermetallics will form
+resultlng In an increase ~n conductor resistance.
+ The increase js Inverse to
+s!ze, being up to 4 percent for the smallest gage.
+3.8.1.2 Silver plated conductors.
+ Degradation In the form of inter-
+strand bonding, silver migration, and ox#dation of the copper strands wI1l
+occur w~th continuous operation near rated temperature, resulting In 10SS of
+flexlblllty.
+ Due to potential fire hazard, silver plated conductors shall not
+be used In areas where they are sub~ect to contamination by ethylene glycol
+solutlons. These condltioris should be considered In the aPPllcat~on of wirin9
+using these conductors.
+3.8.1.3 Solderab!llty.
+ Both tin plated and silver plated copper
+conductors will exhlblt poor solderabtllty after exposure to continuous
+elevated temperature.
+ Compensating steps shall be Included in maintenance
+procedures for reterminatlon.
+-
+3.8.2 Aluminum wire. The use of aluminum wire requires procuring
+activity approval. Aluminum wire shall be restricted to size 8 and larger.
+Alumlnum wire shall neither be directly attached to engine-mounted accessories
+nor \nstalled fn other areas of severe vlbratlon.
+ It shall not be installed
+where frequent connections and disconnections are required.
+ All installations
+of aluminum wire shall be relatively permanent.
+ Alum~num wire shall not be
+used where the length of run Is less than 3 feet, nor In areas where corrosive
+fumes exist. Aluminum wire shall be terminated only by terminations
+specifically approved for thfs application (see 3.20.2).
+*
+3.8.3
+ Deleted.
+*
+3.8.4 Coaxial cables. Coaxial cables shall be su table for the applica-
+tion and shall be selected in accordance with 30,1.5 of Appendlx A. For
+applications above 400 MHz and in critical RF circuits, critical electrical
+characteristics such as attenuation, capacitance, strut’ ural return loss,
+environmental requirements, short leads and grounding shall be considered In
+design.
+ MIL-HDBi(-216 shall be used as a guide in their selection.
+ Coaxial
+cable operating in the Transverse Electromagnetic Mode (TEM) and coaxial cable
+10
+_-
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+..
+with tubular metal outer surfaces shall be identified by a violet colored
+marker (1 inch nominal width) at intervals not greater than 24 inches of
+length and within 6 Inches of termination.
+ Transmlsslon llnes In accordance
+with MIL-T-81490 need not be identlf!ed by colored markers if the color
+requirements of MIL-T-81490 have been met.
+●
+ 3.8.5 Harnesses.
+ Harnesses shall be of either open or protected
+design. Open harnesses are preferred for maintenance considerations.
+Harnesses may be designed to meet mechanical or shielding requirements.
+ The
+use of protected harnesses shall be avoided unless wir~ng design
+considerations dictate their use and Is subject to the approval of the
+procuring activ~ty.
+ The design details of protected harnesses are also
+subject to the approval of the procuring activity.
+3.8.6 Insulation compatlbtllty with sealing and servlcinq.
+ Miring
+terminations in devices where the wiring must be sealed to provide an
+environment-resistant joint, shall have insulation compatible with the sealing
+feature of the device.
+ Elastomer grommets are generally qualified to seal on
+wires having smooth extruded insulations.
+ Only one wire per gronunet hole is
+permitted. Sealing on tape wrapped, braided, striped, or other than smooth
+circular insulations shall be specifically tested for compatibility and shall
+be subject to procuring activity approval, unless compatibility has been
+demonstrated in the qualification of the terminating device. After installa-
+tion in the vehicle, the Integrity of the sealing features of all such devices
+shall be intact, and able to perform their function.
+ A device shall be
+considered as sealed if the outermost sealing feature (web) Is in full
+ contact
+with the device when visually inspected.
+ The wiring shall be installed so
+that transverse loads will not destroy the integrity of the sealing feature of
+the wire.
+3.8.6.1 Wire diameter.
+ The finished wire outside diameter shall be
+within the limits specified for the grommet specified in the appropriate
+component specification and shall net exceed the capability of contact
+servicing tools to tnsert and release contacts.
+*
+3.8.6.2 Pottlncj seal on wire. The potting shall be bonded to the outer-
+most surface of the wire or cable in such a way to ensure an envlronmental-
+res!stant seal.
+3.8.6.3 Insulation degradation.
+ Wtrlng shall be handled, stripped and
+Installed so as not to distort, roughen or damage the insulation on which
+sealing is to be effected.
+ Methods-of marking and identification shall be
+applled so as not to provide a track for moisture entry. The impression left
+on the insulation of shielded and twisted wires can also cause unacceptable
+degradation of the insulation in relation to the elastomer seal. Caution
+shall be used to avoid this condition.
+3.8.7 Corona prevention.
+ In the selection of wiring, considerations
+shall be given to the prevention of corona discharge.
+ Useful information
+relating to corona prevention is contained In 6.6 and should be reviewed prior
+to the selection of all wiring.
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+●
+3.8.8 MInlmum wire size. This spectficatton permits the use of size 22
+wire as the minlmurn wire size for a{rr)lanes, helicopters and lighter-than-air
+vehicles, and prohtbits size 24 and s&ller”gages
+ (see 3.8.8.3 For missiles).
+This restriction in aerospace vehicle applications Is due to maintenance
+difficulties.
+-
+●
+3.8.8.1 Current carrying capac~ty. A guideline for the continuous
+current in each wire is shown in table 1. Table I assumes an ambient tempera-
+ture of 70”C, a harness or harness branch of 33 or more wires for sizes 26
+through 10, and 9 wires for size 8 and larger, carrying 20 percent or less of
+rated harness or harness branch current and operating at an altitude of 60,000
+feet. The use of this tabulation shall not eliminate other requirements for
+wire selectlon.
+ Data from figures 3, 4 and 5 may be used for determining wire
+size for conditions other than those contained In table 1, The use of table I
+and figures 3, 4 and 5 shall not eliminate other requirements for wire
+selectlon.
+●
+3.8.8. 1.1 Wlrlnq In harnesses.
+ Table I current ratings for wires In
+harnesses are based upon 33 or more wires for sizes 26 through 10 and 9 wires
+for stze 8 and larger operating at 60,000 feet altitude, and an ambient
+temperature of 70”C. The total current carried by the harness shall not be
+more than 20 percent of the numerical total obtained by adding the carrying
+capacities taken from table I (or calculated from figures 3, 4 and 5 for
+ambients, altitudes or harness loading factors differing from those assumed in
+table I), for the appropriate wire construction temperature rating for all the
+wires in the harness.
+ For example, If a wire harness contains 33 size 20
+wires rated at 200°C, the numerical total Is 330 amperes, 20 percent of which
+Is 66 amperes and the maximum allowable total current in the harness Is 66
+amperes and the maximum allowable current for any size 20 wire In the harness
+is 10 amperes. A cable in a harness shall be treated as a number of
+individual wires equal to the number of conductors In the cable, excludlng
+shields.
+In smaller harnesses, the allowable percentage of total current may be
+Increased as the harness approaches the single wire configuration.
+ The
+harness ratings contained in table I were derived from figures
+ 3, 4 and 5.
+Single wires In free alr ratings for copper wire were determined at
+ T
+(200’C -70’C) (for alumlnum wire derate the free air rating of copper wtre by
+20 percent) and derated for (a) operation at 60,000 feet altitude, (b)
+harnesses of 33 wires or more, and (c) carrying 20 percent or less of rated
+harness current.
+ For conditions other than (a) through (c), refer to 6.7.
+3.8.8. 1.2 Hire terminations.
+ The continuous current ratings of table I
+were derived only for wire application, and cannot be applled directly to
+associated wire termination devices (e.g., connector contacts, relays, circuit
+breakers, switches).
+ The current ratings are llmited by the design character-
+istics of the devtce.
+ Care shall be taken to ensure that the continuous
+current value chosen for a particular system circuit shall not create hot
+spots within any circuit element which leads to premature failure.
+ Acceptable
+temperature levels of circuit components shall be those defined by the
+particular circuit component specification.
+12
+Downloaded from http://www.everyspec.com
+MIL-l&5088L
+*
+3.8.8.2 Amb~ent temperature.
+ The contractor shall ensure that the
+maximum ambient temperature that the wire bundles will be subjected to, plus
+the temperature rtse due to the wire current loads, does not exceed the
+maximum conductor temperature rating found in Appendix A in tables A-I and
+A-II . Figures 3, 4 and 5 may be used to determine the appropriate current
+loads when the following conditions are known: maximum ambient temperature,
+maximum conductor temperature, maximum altitude and the number of wires in a
+bundle. See example in 6.7 for method of calculation.
+●
+3.8.8 3 Missile wiring application.
+ For missiles only, use of size 24
+high tensi’ e strength copper alloy wire is permitted when bundled with other
+wires.
+3.8.8 4 Voltaqe drop. For power distribution circuits, the total
+Impedance of supply and return paths shall be such that the voltage at the
+load equipment terminals is within the limits of MIL-STD-704.
+3.8.9 Maintainability.
+ Wire selectlon shall be affected by considera-
+tions of the types and frequency of maintenance action.
+3.8.10 Nirincj selection for special applications.
+ The general purpose
+wires llsted in Appendix A do not perform equally In all applications.
+ The
+detail characteristics of the specific wire’types shall be considered for the
+following special applications.
+●
+ 3.8. 10.1 Severe wind and moisture problems (SHAMP). Suitable wire types
+in accordance with MIL-W-22759 are Dreferred for severe wind and moisture
+problems (SWAMP) or both. Appllcat\ons include wheel wells, near wing flaps,
+wing folds and pylons.
+3.8.10.2 Frequency flexure. Suitable w~re types selected from
+MIL-N-22759 are preferred for areas that require repeated bending and flexing
+of the wiring.
+3.8.10.3 Electromagnetic Interference (EMI) and Electromagnetic
+Vulnerabll~ty (EMV) sensitive areas. MIL-C-8S485 Is preferred for use in EMI
+and EIOIsensltlve areas.
+●
+ 3.8. 10.4 Thermocouple wlrlng.
+ The followlng
+ is required when using
+thermocouple wires (see 6.8):
+a.
+b.
+The use of thermocouple contacts is discouraged and should be
+used only If essential to meet system requirements, such as
+thermal gradient conditions.
+ Crimp terminations are preferred.
+TransitIon from thermocouple wires to copper wires are per-
+mitted with the environmental sealed connectors specified in
+3.14.1 or MIL-T-81714/12, type 2 in-line junction.
+ When
+gold-plated crimping pairs are used, precautions should be
+taken to ensure that the connector external temperature ambient
+and internal hotspot temperature is such that both the wire to
+contact junctions for the thermocouple wires within the
+connector are at the same temperature.
+13
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+c.
+Spliclng of thermocouple wire shall be avoided.
+ If splicing is
+necessary (see 3.19) a MIL-T-81714/12, type 2 dual in-line
+junction (splice) or MIL-T-81714/11 single in-line junctton
+(spllce) or MIL-S-81824/l spllce shall be used.
+d.
+The connector, in-line junction, or spllce shall provide an
+environmental seal on the thermocouple w!re. The tensile
+characteristics of the contact)thermocouple combination shall
+be equal to or greater than the tensile characteristics of the
+thermocouple wire.
+*
+3.9 Wire and cable identification.
+ Each wire and cable shall be marked
+with an identification code on the jacket or sleeving of the wire and cable.
+Hot stamp marking of wire and cable shall not be used upless other marking
+methods are not compatible with wire or cable insulation.
+3.9.1 Assignment of Identification code. The identification code for
+wiring shall be slqnificant or nonslqn!ficant In accordance with AoDendlx B or
+C, as-specified by-the procuring act~vity.
+3.9.2
+ Deleted.
+3.9.3
+ Marklnq,
+3.9.3.1 The wire identification code shall be printed to read
+hor zontally from left to right or vertica’ ly from top to bottom. See figures
+8-1 and B-2.
+3.9.3.2 The characters shall be legible and permahent and the method of
+identification shall not impair the characteristics of the wiring.
+●
+3.9.3.3 Wiring shall be identified, throughout its length, at intervals
+not longer than 3 inches, as measured from the end of a mark to the begtnning
+of the next mark.
+*
+3.9.3.3.1
+ bihen it Is not possible to print d~rectly upon a wire or
+cable, an identification marker shall be used. The marker shall be a
+MIL-S-85848 or MIL-I-23053 heat-shrinkable sleeve; a MIL-S-23190 (MS3368
+Identification strap, see 3.11.3.8) or a MIL-I-3190 glass braid. The marker
+shall not be used as an electrical insulating device. The markers shall be
+used as follows:
+d
+(NOTE: tIiIL-S-23190(MS3368) identification strap shall not
+be used within cables, groups, harnesses or bundles, )
+a.
+Cables upon which identification cannot be printed shall be
+identified by printing the identification code (and individual
+wire color, where applicable) on a markqr placed external to
+the outer covering at the term~natlng end or a common jacket
+shall be identified with printed markers at each end and at
+intervals not greater than 3 feet. Individual wires within a
+cable shall be identified wlthln 3 inches from their
+termination.
+14
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+b.
+c.
+Wires on which identification cannot be marked shall be
+identified by printed markers at each end and at Intervals not
+greater than 3 feet.
+Wires for which the Identifications are reassigned after
+installation In the aircraft may be reidentlfied by markers at
+the termination of each wire segment.
+ It is not necessary to
+reidentify such wires throughout their lengths.
+3.9.3.3.2
+ Short wires and cables less than 6 Inches In length need not
+be identified In the aircraft, but shall be completely Identified on the
+drawing.
+3.9.3.3.3
+ For developmental mdel aircraft, wiring identlf~cat~on
+ may be
+provided at junction and termination points only.
+●
+3.9.3.3.4
+ For protected harnesses and shielded, jacketed multi-conductor
+cables and when using nonsignificant wire identiflcatlon, color coding or its
+alphanumeric equivalent may be interchanged within the same harness. The
+alphanumeric equivalent of the color code shall be in accordance with
+MIL-STD-681.
+ See paragraph 30.2.3.3 in Appendix C for an example of a}pha-
+numerlc equivalent of color coding.
+3.9.4 Connector Identlficatlon.
+ Connectors shall be identified to
+facilitate mating.
+ All plugs shall have a nonmetallic band affixed to the
+wire group, cable or harness. This band shall bear the P and J number
+identification of both the plug and the mating receptacle and the equ~pment
+nomenclature.
+ The band shall be w~thln 6 inches of the plug. All receptacles
+shall be Ident!fled with a “J” number on both sides of the structure, adjacent
+to the receptacle.
+ Receptacles, such as test and power, to which a matfng
+plug Is not attached, shall have, fn addition, the function of the receptacle
+identified on the plug staleof the structure.
+●
+ 3.9.5 Hire s~ze color code system. kihen approved by the procuring
+activity, a wire size color code system as specified be?ow may be used to
+facilitate control of the wire size. Hhen a wire size color code Is used, the
+wire Insulation shall be Identified with the appropriate color by one of the
+follovdng methods. Only one method may be used for each vehicle.
+a.
+b.
+c.
+Solid colored.
+Dlstlnctlvely
+ color banded.
+Dlstlnctlvely
+ striped.
+Downloaded from http://www.everyspec.com
+MIL-ki-5088L
+The wire s~ze color code is as follows:
+●
+Size
+ Color
+ Size
+ Co 1or
+26
+ Black (see 3.8.8)
+ 10
+ Brown
+Blue (see 3.8.8)
+ 8
+ Red
+:;
+ Green
+ 6
+ Blue
+20
+ Red
+ 4
+ Yellow
+18
+ White
+ 2
+ Red
+16
+ Blue
+ 1
+ White
+14
+ Green
+ o
+ Blue
+12
+ Yellow
+3.10 Wlrlng installation.
+ Design of the wiring Installat on shall
+conform to the following precedence:
+1st
+ -
+ Safety in fllght.
+2nd
+ -
+ The ease of maintenance,
+ removal and replacement of the
+w!rlng.
+3rd
+ -
+ Cost effective aircraft production.
+Wlrlng shall be fabricated and installed so as to achieve the follow!ng:
+a.
+ Maximum rellabllfty.
+b.
+ Minimum Interference and coupling between systems.
+c.
+ Acsesslbillty
+ for inspection and maintenance.
+d.
+ PreventIon of damage.
+The ease of maintenance, removal and complete replacement of wire harnesses
+shall be given consideration In the wiring design.
+3.10.1 Arranqementof
+ wirlrq. Mrlng shall be arranged in groups and
+bundles to facilitate installation and maintenance.
+ Indlvldual groups shall
+be spot tied, and when these groups are bundled the spot ties shall not be
+removed.
+●
+ 3.10.2
+ Bundle and group size. As a design objective, bundles and groups
+within clamps shall be no more than 2 inches in diameter.
+ 141rlng to high
+density connectors may be run as a single group, provided all of the utrlng in
+the group is pertinent to a single item, equipment or system.
+3.10.2.1
+ Hlqh density harness size. The number of wires In high density
+harnesses shall be llmlted only by efficient and good design.
+ The use of wire
+sizes larger than 16 is discouraged unless there are also smaller wires in the
+same harness.
+16
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+3.10.3 Inspection and maintenance.
+ In open wiring, groups shall be
+installed to permit replacement of the group without removal of the bundle.
+High density harnesses-shall be designed so that they are readily replaceable
+in sect~ons.
+3.10.4 Facility for changes.
+ Hhere required by the procuring activity,
+the wiring for specified systems shall be installed so as to be readily
+removed and wiring for new systems readily installed, when system changes are
+undertaken.
+ The Installation of the wlrlng shall be such that only the equip-
+ment and wiring related to the change have to be disturbed.
+*
+3.10.5 Dead ending.
+ Each undesignated wire end shall be dead ended with
+MS25274 caps or with Insulation in a manner acceptable to the procuring
+activity.
+ Dead ending shall take place within four to SIX inches of
+connectors o~ feedthrough bushings.
+3.10.6 Routlnq.
+ Nlrlng shall be routed to ensure reliability and to
+offer protection from the following hazards:
+a.
+ Chafing.
+b.
+ Use as handholds or as support for personal equipment.
+c.
+ Damage by personnel moving within the vehicle.
+d.
+ Damage by stowage or shifting of cargo.
+e.
+ Damage by battery or acid fumes and fluids.
+f.
+ Abrasion In wheel wells where exposed to rocks, ice, mud, etc.
+9.
+ Combat damage (to the maximum extent practicable).
+h.
+ Damage by moving parts.
+t.
+ Harsh environments such as SWAMP areas, high temperatures, or
+areas susceptible to slgnlflcant fluid or fume concentration.
+3.10.7 Slack in wlrinq.
+ In addltlon to slack provided for drip loops
+(3.11.8), slack shall also be provided to meet the requirements of 3.10.7.1
+through 3.10.7.5. Slack requirements shall be met on every production vehicle
+as well as experimental models.
+ In production wire harness fabricat~on,
+provisions shall be incorporated into the harness design and fabrication
+process to ensure that the Installed harness meets these requirements without
+the need for straining, forcing or modifying the harness.
+3.10.7.1 Connector termination.
+ When wtring is terminated In a
+connector or terminal junction (excludlng RF connectors), a min~mum of 1 inch
+of slack for complete connector replacement shall be provided.
+ This slack
+shall be between the connector and the second wjr~ng support clamp. The
+I-Inch slack requirement shall be Interpreted to mean that with the connector
+unmated and the first wiring support clamp loosened, the wiring will permit
+17
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+the front end of the connector shell to extend 1 Inch beyond the point
+normally required to properly mate the connector.
+ Slack for replacement of
+potted connectors shall be, as a minimum, the length of the potting plus one
+inch.
+-
+3.10.7.2
+ Lug termination.
+ At each end of a wire terminated by a lug, a
+minimum length of slack equal to twice the barrel length of the lug shall be
+prov!ded.
+ For copper wire, size 2 and larger,
+ and alum~num wire, size 4 and
+larger, the mlnlmum length of slack shall be equal to one barrel length of the
+lug. The slack shall be In the vicinity of the lug and available fo~ replace-
+ment of the lug by maintenance personnel.
+3.10.7.3 Strain prevention.
+ The wlrlng insta latlon shall be designed
+to prevent strain on wires, junctions and supports.
+3.10.7.4
+ Free movement.
+ The wiring installat on shall permit free move-
+ment of shock and v!bration mounted equipment.
+3.10.7.5 Wire shiftlnq.
+ The wlrlng installation shall permit shifting
+of wiring and equipment necessary to perform maintenance within the vehicle.
+3.10.8 Electromagnetic compatibility.
+ Hiring, including RF and antenna
+cables, shall be routed so as to minimize electromagnetic Interference In
+accordance with MIL-E-6051.
+3.10.9
+ Ignition. Flexlble metallic conduit of a type specifically
+approved by the procuring activity shall be used for magneto cable clrcults.
+Magneto ground cables (except the induction vibrator output cable) shall not
+run through conduit or junction boxes containing other cables.
+_
+3.10.10 Compass deviation.
+ Hiring and ground return paths shall be
+installed so as not to cause a compass devlatton exceeding that allowed by
+MIL-C-7762.
+ Each wire carrying direct current in the area of compasses or the
+sens~tive pickup elements of compasses shall have a corresponding ground
+return wire twisted with it to neutralize the magnetic field.
+3.10.11 Assembly.
+ Lug terminated wire shall be Installed so as to
+reduce human error In assembly to adjacent terminals,
+ Control of wire length
+fran tfe-down points, fanning strips, or different size stud holes are
+preferred to dependence on code Identification.
+3.10.12 Sensitive circuits.
+ Sensitive circuits such as low-power level
+signal circuits shall be kept separate from other clrcults at junctions.
+ This
+shall be accomplished by us~ttg separate connectors for the sensitive circuits
+and by having at least one grounded terminal stud between sens!tive circuits
+and other circuits on a cmn
+ terminal board.
+3.10.12.1
+ Electroexploslve subsystem wlrlnq.
+ All circuits associated
+with electroexDlosive subsystems shall be routed in twisted shielded pairs.
+All c~rcults and junctions-shall be shielded without discontinuities or gaps
+In the shleldlng. Wire shields shall be bonded around the circumference of
+connectors.
+ All firing and control circuits associated with ordnance and
+explosive subsystems shall be kept separate from other clrcults at junctions.
+18
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+3.10.12.2
+ Electroexploslve subsystem wiring (for Air Force use). All
+firing and control circuits associated with ordnance and explosive subsystems
+contained within junction boxes shall be coded with a red stripe in accordance
+with FED-STD-595, color 11105.
+3.10.13 Power systems.
+ Electrically unprotected wiring of the primary
+electrical power system shall not be bundled or grouped with distribution
+circuit wiring. Wiring from two or more sources shall not be in the same
+bundle or group to prevent a single damage from affecting more than one power
+source.
+3.10.14 Essential equipment.
+ Hiring to each system which must operate
+to maintain fllght control of the vehicle under normal or emergency condtt~ons
+shall be separately routed from other wiring.
+ Essential engine circuits shall
+have their wiring so routed as to prevent damage to any circuit for one engine
+from affecting circuits of any other engine.
+ Propeller circuits shall be
+routed separately from all other circuits.
+3.10.15 Parallel circuits.
+ The procuring activity may specify parallel
+circuits for specific eauipment circuits and feeders to load centers.
+ Wiring
+to equipment performing ”duplicate functions shall be run in separate bundles
+to prevent damage to one system affecting the other. On airborne vehicles
+that employ dual or multiple redundant MIL-STD-1553 multiplex data bus
+systems, the redundant data bus cables shall be run in separate bundles and
+routed to prevent damage to one data bus cable affecting the operation of the
+redundant data bus or buses.
+3.10.16 High-temperature equipment.
+ Hiring shall be kept separate from
+high-temperature equipment, such as resistors, exhaust stacks, heating ducts
+and de-icers, to prevent insulation deterloratton.
+3.10.17 Nacelle wirinq.
+ Hiring in an engine nacelle. from the point of
+disconnection for removal of the engine, shall be interchangeable between all
+engine installations having identical equipment and for the same series of
+vehicle. A means for positively ascertaining clamp locations shall be
+provided for wlrlng that must be unclamped for engine removal.
+ This shall be
+accomplished by permanently attaching clamp brackets to supporting parts.
+3.10.18 Id\rlnq In bilges.
+ Hiring in bilges shall be installed at least
+6 inches from the centerline of the aircraft except where attachment to equip-
+ment located in this area is required.
+ Wire types susceptible to moisture
+degradation shall not be used in bilges.
+-..
+3.10.~9
+ Enqine mounted accessories.
+ For direct attachment to engine
+nounted accessories, wire smaller than size 20 shall not be used.
+ Ilhen size
+20 wires are used, they shall be high-strength alloy conductor and when
+terminated in connectors, the connector shall provide support and prevent
+stra!n on terminations.
+ The wires shall be adequately grouped, spot tied and
+supported.
+3.10.20 Wheel well area!. Conduit or other protection shall be provided
+for all wiring in wheel well areas.
+ Flexible tubing, abrasion resistant tape
+or braided outer jackets are acceptable for use where wiring is properly
+19
+Downloaded from http://www.everyspec.com
+MIL++-50B8L
+supported. Hhen tubing s used, drainage holes shall be provided at all trap
+points and at the lowest point between each set of support clamps. Taping
+shall be In accordance w th 3.11.6. Hire types susceptible to moisture
+degradation shall not be used In wheel well areas.
+*
+3.10.21 Sllde mounted equipment.
+ When connecting wires or cable to
+sllde mounted equipment, sufficient wire or cable shall be provided to permit
+the slide mounted equipment to slide in and out without damage, and permit
+unmating of the connectors.
+3.11 Protection and support.
+ Wiring shall be supported to meet the
+follow~ng requ~rements:
+-
+a.
+ Prevent chafing as deftned in 6.3.8.
+b.
+Secure wiring where routed through bulkheads and structural
+members.
+c.
+d.
+e.
+Properly group, support and route wlrlng in junction boxes,
+panels and bundles.
+Prevent mechanical strain or work hardening that would tend to
+break the conductors and connections.
+Prevent arcing or overheated wiring from causing damage to
+mechanical control cables, and associated moving equipment.
+f.
+ Facilitate reassembly to equipment terminal boards.
+9“
+h.
+Prevent interference between wiring and other equipment.
+Provide support for wiring to prevent excessive movement fn
+areas of high vlbratlon.
+1.
+Dress the wiring at connectors and terminating devices In the
+direction of the run without deformation of grommet seals.
+*
+3.11.1 Primary support. Primary support of wiring shall be provtded by
+metal cushion clamps and plastic clamps, in accordance with HIL-S-23190,
+PlS21919 and !!S2528~, spaced at Intervals not to exceed 24 Inches. In
+addition, where wlr~ng Is routed through cutouts in any aircraft structure,
+clamps shall be installed as necessary to meet the protection and anti-chafing
+requirements of this specification.
+ Open wiring contained in troughs, ducts
+or conduits is exempt from this requirement.
+ Rigid portions of harnesses
+shall be supported by clamps spaced at Intervals not to exceed 42 inches.
+Clamps for harnesses other than round shall be shaped to fit the contour of
+the harness and shall provide a snug fit. Plastic clamps shall not be used to
+support r!gld portions of harnesses.
+ Plastic cable straps shall not be used
+as primary supporting devices unless specifically approved by the procuring
+activity and then they shall be subject to the restrictions invoked on plastic
+clamps. The primary support of wiring shall not be attached to adjacent
+wiring.
+20
+Downloaded from http://www.everyspec.com
+MIL-l&5088L
+●
+3.11 .1.1 Plastic clamps. Plastlc cable cjamps may be used on horizontal
+wiring runs provided every fourth clamp is a rubber cushion type. The first
+clamp-immediately adjacent to wiring terminations for wire bundles greater
+than .125-inch diameter shall be a metal cushion clamp. The use of plastic
+cable clamps on other than horizontal wiring runs shall be avoided unless the
+installation is such that slack cannot accumulate between clamping points, and
+then every fourth clamp shall be a rubber cushion type.
+3.11.’ .2 Clamp size. Primary supporting devices shall be of a size
+which will hold the wirtng In place without damaging the insu?atlon.
+ Tape <n
+accordance with 3.11 .6,1 may be wrapped around groups In order to provide a
+proper fit
+3.11.’ .3 Support at connectors.
+ Idlrlng terminating In plugs shall be
+supported to dress the wiring in the direction of the run. This may be
+accomplished by adapters, clamps, potting, wire guides, or other means
+acceptable to the procuring activity.
+●
+ 3.11 .1.4 Metal cushion clamps.
+ bihen metal cushion clamps are used for
+primary support, their physical properties must be compatible with their
+installation environment.
+ Cushion compounds are formulated to meet specific
+requirements and may not be suitable In other applications.
+●
+3.11.2 Secondary support. Secondary support of wlrlng harnesses,
+bundles or groups (support between primary supports) shall be provided by
+devices selected from 3.11.2.1 through 3.11.2.4.
+3.11 .2.1
+ Tying tape in accordance
+ with MIL-T-43435.
+3.11 .2.2 Plastic cable straps In accordance
+ with MXL-S-23190,
+ installed
+with tools in accordance with MS90387.
+3.11 .2.3
+ Insulation
+ tape in accordance with MIL-I-23594,
+ Type I.
+●
+ 3.11 .2.4
+ Protective
+ outer covering for a protected harness (see 6.3).
+3.11.3
+ Limltattons on support.
+3.11 .3.1 Continuous laclng shall not be used,
+ except In panels and
+junction boxes where this practice is optional.
+3.11 .3.2
+ Deleted.
+3.11 .3.3 The use of insulating sleeving for the protection of wiring
+shall be kept to a minimum.
+ Provisions shall be included to eliminate the
+possibility of entrapment of liquids.
+3.11 .3.4
+ Deleted.
+3.11 .3.5 Wires shall not be tied or fastened
+ together in conduit or
+Insulating sleeving.
+21
+Downloaded from http://www.everyspec.com
+MXL-W-5088L
+3.11 .3.6 Cable supports shall not restrict the wlrlng in such manner as
+to interfere with operation of shock mounts.
+3.11 .3.7
+ Tape or cord shall not be used for primary support.
+3.11 .3.8 Plastic cable straps shall not be used \n areas when the
+restrictions of 3.11 .3.8.1 through 3.11 .3.8.7 apply.
+3.11 .3.8.1
+ Where the
+ total
+ temperature
+ (ambient plus rise) exceeds 85°C
+(185*F).
+3.11 .3.8.2 Hhere failure of the strap would permit movement of the
+wiring against parts which could damage the insulation or allow wiring to foul
+mechanical linkages.
+3.11 .3.8.3 Hhere failure would permit the strap to fall into moving
+mechanical parts.
+3.11 .3.8,4
+ In h~gh vibration areas.
+3.11 .3.8.5 In areas of severe wind and moisture problems (SWAMP), such
+as wheel wells, near wing flags, wing folds, umblllcal or other areas
+specified in the detail specification or contract.
+3.11 .3.8.6 Where exposure to ultra-violet
+ Ilght might exist, unless the
+straps are resistant to such exposure.
+3. 11.3.8.7
+ To tie wires, cables, groups or harnesses wlthln bundles.
+●
+ 3.11.4 Anti-chafing provisions.
+ Chafing shall be prevented by routing
+and clamping bundles to prevent contact with edges of equipment and
+structure. Hhere physical separation of at least .375 inch cannot be main-
+tained, the edges shall be covered with suitable, protection strips or
+grommets. Grommets and protection
+ strips shall be securely fastened In place
+with bonding or other suitable means. Metal braided or shielded harnesses
+shall have a protective external non-metallic covering except for fire zone
+areas where it Is an opt~on.
+3.11.5 RF coaxial cable support. Support of individual coaxial cables
+and of bundles containing coaxial cables shall be subject to the following
+additional requirements.
+a.
+b.
+c.
+8oth primary and secondary support devices shall be tnstal led
+so as not to exert greater pressure on the cable than the
+minimum required to prevent sl~pping.
+Pressure shall be evenly distributed around bundles containing
+coaxial cables, or around the coaxial cable If individually
+supported.
+The support devices shall not deform the cables so that the
+electrical characteristics of the cables are degraded,
+22
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+d.
+Only tape as specified In 3.11 .2.1 shall be used for tying
+bundles containing coaxial cables. Selection of the tape and
+installation shall meet the requirements of 3.11.5a, b and c,
+except that plastic straps In accordance w~th MIL-S-23190
+installed with tools in accordance with MS90387 may be used for
+tying bundles containing coaxial cables with solid dielec-
+trics. The tension adjustment on the MS90387 tool shall be set
+so that the requirement of 3.ll,5a is met.
+3.11.6 General purpose ‘protectIon and suppo rt hardware.
+ The followlng
+items may be used for the protection and support of wiring and related equip-
+ment.
+3.11 .6.’ Insulation tape.
+ Insulation tape shall be of a type su!table
+for the a~plication, or as called out for the spec~fic use. Insulation tape
+shall be used primarily as a filler under clamps and as secondary support.
+Nonadhesive tape may be used as a wraparound wiring for additional protection,
+such as in wheel wells. All tape shall have the ends tied or otherwise
+suitably secured to prevent unwinding.
+ Tape used for protection shall be
+applted so that overlapping layers shed liquids, and shall be provided with
+drafnage holes at all trap points, and at each low point between clamps.
+Plastic tapes that absorb moisture, or that have volattle plasticizers that
+produce chemical reactions with other wiring shall not be used.
+-.
+3.11 .6.2 Insulation sleevinq.
+ Unless preinsulated, splices and wire
+terminals shall be protected with insulating sleevtng.
+ Insulating sleev~ng
+shall conform to MIL-I-7444, NIL-I-631 or MIL-I-3190.
+ The sleeving shall
+cover the splices or terminal barrels and at least .500 inch of the adjacent
+wire insulation.
+ Non-heat shrinkable sleeving shall be tied in place
+securely:
+ Sleeving temperature ratings shall be compatible with the tempera-
+ture service requirements of the wire and splices or terminals.
+3.11 .6.2.1 Insulating sleeving, heat shrinkable.
+ Heat shrinkable
+insulating sleeving shall conform to MIL-I-23053.
+3.11 .6.3 Terminal nipples.
+ MS25171 terminal nipples shall be used to
+provide overall insulation and protection on terminal lugs and studs.
+3.11 .6.4 Grommets.
+ Grommets shall be In accordance with MS21266 or
+MS35489. MS21266 gronnnets shall be permanently bonded in place and shall
+prevent the wires from contacting the sides of the holes.
+3.11 .6.4.1 Split grommets.
+ The remaining opening In split grommets
+shall be no wtder than .063 Inch. The splits shall be diagonal and placed in
+the cutouts In such a manner that the wire pressure will be on the opposite
+side from the spl~t.
+●
+ 3.11.7
+ Radius of bend measured to Inside surface.
+a.
+Wire, cable and harness.
+ For wiring groups, bundles or
+harnesses and single wires and cables individually routed and
+supported, the rnlnlfnumbend radius shall be ten times the out-
+side diameter of the largest included wire or cable. At the
+23
+Downloaded from http://www.everyspec.com
+141L-bi-5088L
+b.
+c.
+d.
+point where wiring breaks out from a group, harness or bundle,
+the minimum bend radius shall be ten times the diameter of the
+largest Included wire or cable, provided the wtrlng is suitably
+supported at the breakout point.
+ If wires used as shield
+terminators or jumpers are required to reverse direction In a
+harness, the minimum bend radius of the wire shall be three
+times the diameter at the point of reversal providing the wire
+Is adequately supported.
+-
+Protected harnesses.
+ The minimum bend radius, as measured on
+the Inside radius of a protected harness, shall be six times
+its outer diameter.
+ In no case shall the bend radius of a
+protected harness be less than ten times the diameter of the
+largest Included wire or cable.
+Coaxial cables.
+ The m!nimum radius of bend shall not adversely
+affect the characteristics of the cable. For flexlble type
+coaxial cables, the radius of bend shall not be less than s~x
+times the outsjde diameter.
+ For semt-rigid types, the radius
+shall not be less than ten times the outside diameter.
+These requirements
+ also apply during shipping, handling and
+storage.
+3.11.8 Drip Iooe. Where wtring is dressed downward to a connector,
+terminal block, panel or junction box, in addition to the requirement of
+3.10.7.1, a trap or drip loop shall be provided in the wiring to prevent
+fluids or condensate from runnfng into the above devices. Potted connectors
+are exempt from this requirement.
+3.11.9 Hiring near moving parts. Hiring attached to assemblies where
+relative movement occurs (such as at hinges and rotating pieces, particularly
+control sttcks, control wheels and columns, and flight control surfaces) shall
+be installed or protected in such manner as to prevent deterioration of the
+wirfng by the relative movement of the assembly parts. This deter!orat!on
+includes abrasion of one wire or cable upon another and excess twist!ng and
+bending. Bundles shall be installed to twist !nstead of bending across
+hinges. Cables in the vlcinlty of line replaceable units (LRUS) and weapon
+replaceable assemblies (WAS) shall be protected against damage caused by
+flexing, pulling, abrasion and other effects of frequent reuwal and replace-
+ment of equipment.
+3.11.10 Special protection.
+ Power feeders, Including wires, cables and
+busses shall be given particular mechanical protection such as in the formof
+extra Insulation, standoff mounting and separation.
+ Bus centers shall be
+located wlthln insulated enclosures, isolated in order to prevent a fault to
+ground or phase-to-phase fault that would d!srupt the electrical power
+system. i41rlng installed in locatlons, such as bilges and on decks or floors,
+shall be so located or protected that they will not be damaged by maintenance
+personnel during normal maintenance or crew movement.
+ Hiring installed In
+locations where fluids may be trapped and the wires and cables contaminated,
+shall be properly routed and protected against fluld damage.
+24
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+3.11.11 Gas and fluid carrying l~nes and tubes. kJiring shall be
+suDoorted lndeDendent of and with the maximum practicable separation from all
+flu’id-carrying”lines, tubes and equipment.
+ Wiring shall be routed above,
+rather than below l!quid carrying lines,
+ tubes and equipment to prevent
+contamination or saturation of the wiring in the event of leakage. 14here this
+routing is not practicable, the wiring shall pass below the lines at an angle
+rather than parallel to the lines, Terminating devices shall not be placed
+under any lines. Wiring shall not be attached to fluld carrying llnes, tubes
+and equipment unless they require electrical connections or their separation
+is less than two inches, In areas where separation is less than two Inches,
+the wiring shall be Installed tomaintatn
+ positive separation of at least
+.500 inch. Examples: (a) separate the wir~ng from the ltne with a suitable
+separation device, (b) attach the wiring to primary support(s) at the closest
+proxlmlty of the wiring to the line. ldhere lines and wirtng are installed
+such that they are separated by rigid nonmetallic conduit, metal conduit,
+ribs, webs, frames, channels, extrusions, stringers, or other suitable
+barriers, the above minimum separation requirements do not apply.
+3.11.12 Hiring through fuel tanks. Wiring should not be routed through
+fuel tanks exceDt where there is no alternative.
+ Hiring that must be routed
+through fuel tanks, but that is not part of the fuel ma~agement or control
+wiring shall be routed through a dry access channel or passage so as to
+preclude contact of the wiring insulation and the fuel. The channel or
+passage shall be of a size to facilitate the removal and repair of the wiring
+without removal of the fuel tank, and shall have a fluorocarbon liner which
+will preclude electrical contact.
+3.11.13 Miring inside fuel tanks. Hiring that is essentfal to the
+operation of fuel management or control system, may be routed inside fuel
+tanks only if there is no alternative.
+ Hiring that is Lsed In cirh!ts that
+are capable of generating energy levels greater than 0.02 millijoules must be
+encased in a grounded metal conduit having a fluorocarbon liner. Hiring that
+comes in contact with fuel must have an insulation system which is compatible
+with the fuel and fuel vapor. Clamps and hardware used to attach wlrlng
+inside fuel tanks must also be compatible with the fuel and fuel vapor. Tie
+tape, string, mechanical straps, or other items that could become loose and
+clog fuel filters shall not be used Inside fuel tanks.
+3.11.14 GFAE equipment wirinq.
+ GFAE equipments furnished with wiring
+and connectors which are excessive {n length shall not have the wiring length
+reduced.
+ The excess .length shall be grouped and supported in a manner which
+will prevent damage to the wlrlng and possible fouling of moving parts.
+3.12 Ground return. The electrical power source ground terminals shall
+be connected to the primary metallic structure of the vehicle. The vehicle
+structure shall serve as the ground return circuit unless system considera-
+tions require separate ground return wiring.
+ Equipment that incorporates a
+ground terminal shall be grounded by the shortest suitable ground wire.
+Equipment that is Internally grounded and that does not Incorporate a ground
+terminal shall be grounded by the shortest practicable ground wire if suitable
+grounding is not provided by the equipment mounts, or if corrosion
+ of the
+nmunts Is likely to occur. Ground return wiring shall not be connected to
+magnesium.
+ Bonding shall be in accordance with MIL-B-5087.
+25
+Downloaded from http://www.everyspec.com
+MIL-N-5088L
+3.12.1 Shielded wire qroundlng.
+ Unless otherwise speclfled by the
+detail installat~on sDecificatlon for the equipment Involved, shielded wires
+shall have the shields adequately grounded at each end. In clrcultsoperatlng
+below 50 Ktiz, shielded wires may have the shields grounded at one end only.
+In harness appl~cations, shtelds shall be terminated as close as practicable
+to the connectors, and specifically wlth~n the booted areas of breakout
+terminations.
+ Shields grounded through connector accessories shall be
+grounded only to connector accessories specifically designed for shield
+terminations.
+-
+3.12.1.1 Shteld terndnations.
+ MIL-S-83519 specifies the only devices to
+be used in terminating shields.
+●
+ 3.12.2 kiultlple grounds.
+ No more than four ground wires shall be
+connected to a common ground stud. Ground module In accordance with
+MIL-T-81714 may be used for multiple grounds. No more than 16 ground w~res
+shall be connected In a ground module.
+ Each ground for electrlc power sources
+(primary, secondary, conversion, emergency) shall be connected to separate
+ground pojnts. Grounds for utilization equipment may be connected to a common
+ground point only when supplled from the same power source provided these
+equipments do not perform duplicate or overlapping functions.
+3.12.3 Insulated equipment boxes. Electrical equipment such as relays
+mounted on insulated surfaces shall be Indlvldually connected to ground rather
+than serfes connected and then grounded by a single wire to a ground stud.
+3.13 Conduit. Conduit may be used where necessary to protect wiring or
+to facilitate maintenance ~n inaccessible areas. Use of conduit requ~res
+procuring activity approval unless speciftcal?y required elsewhere in this
+specification. Metalllc conduit may be used for shleldlng to meet the
+requirements of MIL-E-60S1, subject to approval by the procuring activity.
+3.13.1 Riqld metal llc.
+ Rigid metallic conduit shall be aluminumor
+aluminum alloy tubing.
+3.13.2 Flexlble metallic.
+ Flexible metallic conduit shall conform to
+HIL-C-6136 and shall be used only when rigid metalllc conduit Is tmpractlcal.
+3.13.3 ?40nmetalllc. !lonmeta?llc condu!t shall be of a material satis-
+factory for the Installation environment.
+ Polyvlnyl chloride shall not be
+used.
+3.13.4 ~.
+ In determining the diameter of conduit to be used, the
+wiring which is to be Installed theretn shall be bundled together and the
+maximum diameter measured.
+ The maximum diameter shall not exceed 80 percent
+of the Internal diameter of the conduit.
+ Maximum diameter wire and cable
+permitted by applicable speclf~cations shall be used or allowed when taking
+this measurement.
+3.13.5 Fittings. Conduit fittings in accordance with AND1038O or other
+applicable drawings shall be used In conjunction with metallic conduit.
+ Non-
+metallic conduit shall be term~nated with approved AN or MS fittings.
+ Rigid
+metallic and nonmetallic conduit used for wiring inaccessible areas need not
+be terminated provided the conduit is suitably flared or rounded and sharp
+edges removed.
+26
+Downloaded from http://www.everyspec.com
+MIL-i&5088L
+3.13.6 Conduit installation.
+ Conduit shall be installed to withstand
+vibration and normal service abuse.
+3.13.7 Suppor~.
+ Conduit shall be supported so that strain on the
+ferrules is relieved.
+3.13.8 Drainaqe.
+ Where practicable, metallic and nonmetallic conduit
+shall be installed so that fluids or condensate will not be trapped. Suitable
+drainage holes shall be provided at the low points, except for magneto ground
+cable conduit and metallic flexible conduit.
+ Tape (nonadhesive) used as a
+wraparound wiring shall also have drainage holes at the low points. Burrs
+shall be removed from drainage holes In metallic conduit and from the conduit
+fittings.
+3.13.9 Groundinq.
+ Grounding of metallic conduit shall be in
+accordance with MIL-B-5087.
+3.13.10 Ignition conduit. The gnition ground conduit for each engine
+shall be separately routed to prevent a single damage from affecting more than
+one engine.
+●
+ 3.?3.11 Radius of bends. The radius of bend of conduit shall allow the
+bend radius reau!rements of 3.11.7 to be met. Conduit and conduit fittinq
+bends shall not cause chafing of the wiring.
+-.
+●
+ 3.14 Connectors.
+ Selection and use of electrical connectors and
+associated hardware shall be in accordance with MIL-STD-1353.
+ Connectors
+shall be environment resisting.
+ Except for hermetic connectors with only pin
+type design, connectors shall be selected so that contacts on the “live” or
+“hot” side of the connection are socket type rather than pin type to minimize
+personnel hazard and to prevent accidental shorting of live clrcutts when the
+connector is unmated.
+ When using special contacts such as thermocouple or
+coaxtal, circular electrical connectors shall be specified on installation
+drawings using the A and B suffix when applicable in the connector part
+number. The “A” designation
+ without pins and the “B” designation without
+sockets, lnd~cate special applications for the connector.
+●
+3.14.1 Moistureproof connectors.
+ Connectors shall be sealed against the
+ingress of water and water vapor under all service conditions including
+changes in altitude, humidity and temperature.
+ The connectors shall have an
+interracial seal as well as seallng at wire ends. Environment resisting
+connectors having wire sealing grommets are preferred; however, potting may be
+used where a grommet seal connector would not be suitable (see 3.14.8).
+ The
+outside diameter of the wiring terminated at the connector that has a wire
+sealing grommet shall comply with the wire diameter range specified for that
+connector (see 3.8.6).
+3.14.2 Contacts.
+ Connectors using removable crimp contacts are
+preferred to solder contact types. Contacts shall be in accordance with
+MIL-C-39029.
+ Contractors may use automatic, semi-automatic or hand crimp
+tools for production, provided contacts will give specified performance in
+accordance with MIL-C-22520, when crimped with the applicable tool.
+21
+Downloaded from http://www.everyspec.com
+MIL-h&5088L
+3.14.3 Fireproof and flrewall connectors.
+ These connectors shall be
+thread-coupled. self-lockinq connectors with crimp contacts
+ and corrosion-
+resistant steel shells.
+ Hh~re It is necessary to”maintain electrical
+continuity for a limited time under continuous flame, both the receptacle and
+mating plug shall be fireproof.
+ If only flame integrity Is necessal y without
+the need for electrical continuity, only the receptacle needs to be fire-
+proof. Ftreproof and firewall connectors shall meet the Class K, K“ or KS
+requirements of the applicable military specification.
+-
+●
+3.14.4 coaxial and trlaxial connectors.
+ Coaxial and trlaxlal ‘connectors
+shall be suitable for the application and shall be covered by milltary spec-
+ification. MIL-STD-1353 shall be used as a selectlon guide. Series N, C,
+BNC, TNS, SC, SMA, SMB and SMC shall be in accordance with MIL-C-39012.
+Category B connectors of this spectftcation shall be used only on original
+equipment. When using Category B connectors, the contractor shall specify an
+equivalent field replaceable connector as defined on the latest issue of
+MIL-C-39012 for replacement as a maintenance or repair item. Category B
+connectors are not recommended for maintenance or repair. Category E and F
+connectors of this specification shall be used for applications using
+semi-rigid coaxial cables.
+ Pulse series connectors shall be in accordance
+with MIL-C-3607, HN series with MIL-C-3643, LC series with MIL-C-3650, twin
+series with MIL-C-3655, environment resisting series with MXL-C-25516, strip
+llne with MIL-C-83517, adapters with MIL-A-55339, and triaxial connectors with
+MIL-C-49142. Where connector parameters beyond the scope of the military
+specification are required, nonstandard commercial types may be utiltzed
+provlcled that they meet the general requirements of the applicable milltary
+speclficat!on and are approved by the procuring activity.
+3.14.4.1 Coaxial rlqid lines. Coaxial rigid lines that employ air
+dielectric shall be provided with air passage bulkhead connectors and pressure
+fittfng connectors for purging and pressurization of the llnes.
+A
+3.14.5 Connector installation. Connectors shall be used to join cables
+to cables or to equtpment when frequent disconnection is required to remove or
+service equipment: c~onents
+ or wtring. Adequate space shall be provtded for
+mating and unmating connectors without the use of tools. At least 314 inch
+shall be provided around the coupling rings of circular connectors.
+ Ctrcular
+connectors, when installed with the axis in a horizontal direction, shall be
+posittoned so that the master keyway is located at the top. 14hen Installed
+with the axis In a vertical direction and master keyway shall be located
+forward in relatlon to the vehicle. Connectors shall be located and Installed
+so that they will not provide hand holds or foot rests to operattng and main-
+tenance personnel, or be damaged by cargo and stored material.
+ Both plug and
+receptacle shall be visible for engagement and orientation of polarizing
+key(s). Mated plugs shall not be strained by the attached wiring. Connectors
+in pressurized structures shall preferably be installed with the flange on the
+high pressure side. All circular receptacles with mounting holes shall be
+installed with mounting screws In each hole. Ground power receptacles shall
+be installed with the small contacts at the bottom (6 o’clock position).
+●
+ 3.14.5.1 In-llne connector installation.
+ Except for coaxial and data
+bus connectors, in-line connectors shall be Installed using primary support
+(see 3.11.1 and 6.3.13).
+28
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+●
+3.14.6 Locatfons with multiple connectors.
+ Connectors used to provide
+separation of or connections to multiple electric circuits in the same
+Io&atlon shall be installed so that it will be impossible to mate the wrong
+connector In another mating unit. It is preferred that wiring be routed and
+supported such that an improper connection cannot be made. The order of
+precedence for making the connector selection for a multiple connector
+location shall be as follows:
+a.
+First, the connectors shall be different sizes or have
+different insert arrangements.
+b.
+Second, the connectors with the same insert arrangements
+ shal
+have alternate insert posit’ ons or keying positions.
+c.
+Third, if none of the above requirements can be met, identlca
+connectors shall have color coded sleeves attached to the
+wiring near the connector which identifies the associated
+connector mating half.
+ In cases where one of the connectors is
+mounted, the connector shall be coded by a color identifier on
+the adjacent structure.
+3. 14.6.1 Connector drainaqe. Receptacles shall be so positioned that
+when unmated for maintenance operations, fluids and condensate will drain out
+of and not into the receptacle.
+ Connectors installed external to the vehicle
+proper, such as In engine compartments, wheel wells, etc., shall be given
+special attention to protect against entry of 011 and moisture into the
+connector such as taping or sealing mated connectors and providing protective
+covers for receptacles and plugs which may be left unmated. Connectors shall
+not be mounted or located in a position where they will support standing water.
+3.14.7 Safety wlrinq.
+ Non-self-locking threaded coupled connectors
+located in engine nacelles, areas of high vibration (excludtng connectors on
+shock-mounted equipment), and in areas which are normally inaccessible for
+periodic maintenance Inspection, shall have the coupling nut safety-wired or
+otherwise mechanically locked to prevent opening of the connector due to
+vibration. When safety wiring Is required on electrical connectors or
+connector accessories which use threaded coupling rings, or on plugs which
+employ screws or rtngs to fasten the individual parts of the plug together,
+they shall be safety-wired with 0.020 Inch diameter corrosion-resistant steel
+wire in accordance with MS33540.
+3.14.8 Pottinq. Connectors that require potting shall be potted with
+MIL-S-8516 sealant for operating temperatures not exceeding 93°C (200”F).
+bihere operating temperatures exceed 93°C but do not exceed 232°C (450”F),
+sealing compound in accordance with MIL-S-23586 may be used. Hhere resistance
+to oil and fuel is required and temperatures do not exceed 125°C (275”F),
+k!IL-M-24041 molding and potting compound may be used. For higher tempera-
+tures, potting shall not be used unless specifically approved by the procuring
+activity.
+ If protective sleeving, identification sleeves, jacketing or
+braiding is terminated at a potted connector, it shall not extend into the
+potted material.
+ Insulated sleeving shall not be used within the potted
+material of the connector.
+ For Air Force procurement, all p0ttin9 Of
+connectors Is discouraged and requires specific application approval.
+29
+Downloaded from http://www.everyspec.com
+MIL-k&50881.
+3.14.9 Spare contacts.
+ i4hen crimp contact connectors are used, the
+unused contacts shall be installed.
+ MS27488 or applicable sealing plugs shall
+be inserted in unused grommet holes of environment resistant connectors. For
+potted connectors, each spare contact shall have a p~gtall attached,
+consisting of a wire or the largest size that can be accommodated by the
+contact and extends 5 to 7 inches beyond the potting material.
+ The plgtalls
+shall be Identified and dead ended.
+-
+3.14.10 Solder type contacts.
+ The soldering of contacts shall be in
+accordance with MIL-STD-454, Requirement 5. When a brazing process is used,
+it shall be in accordance with MIL-13-7883.
+3.14.11 Dust protection.
+ Through production (except when uncovered for
+assembly operat~ons) unmated connectors shall be suitably covered. Plastic
+dust caps such as those conforming to MS90376, NAS813 and NAS820 may be used
+for this purpose.
+3. 14.11.1 Final assembly covers.
+ Unmated connectors on final installed
+assembles.
+ such as those intended for test. future or optional wlrin9 shall
+be engaged’to approved vapor-tight covers such as dummy receptacles o; chained
+protective covers In accordance with MIL-STD-1353.
+3.14.12 DUMMY receptacles.
+ Dummy receptacles shall be provided with
+stowlnq unmated plugs or caps or protective covers when the related connectors
+are no~ in operatioiial use.. The dummy receptacle shall be conspicuously
+marked and conveniently located to accmdate
+ the unmated connector or
+protective cover. The dummy receptacle shall conform to the requ~rements of
+the related connector specification.
+3.14.13
+ Provision pluqs. Connector plugs that are for equipment to be
+Installed later or for test purposes shall be secured by clamps, or to dummy
+receptacles provided for that purpose, in order that the plugs cannot swing on
+wir~ng and cause damage to themselves, wlrlng, or adjacent equipment, or foul
+mechanical linkage.
+●
+ 3.14.14 Connector accessories.
+ Circular electrical connectors shall be
+t)rovided with strafn relief accessories In accordance with MIL-C-85049.
+Accessories shall not be used to terminate ground wires or shields unless the
+accessory was spec~fically desfgned to terminate ground wires or shields.
+Ground wires shall not be terminated to saddle clamp screws.
+3.15
+ Deleted.
+3.15.1
+ Deleted.
+3.16
+ Deleted.
+3.17 Junct!ons.
+ An uninterrupted wire is generally preferable to a
+junction. Only approved devices, such as permanent splices, feed-thru
+ .
+bushings, headers, terminal blocks, terminal junction systems and connectors,
+shall be used for wire junctions.
+ The need and choice of junctions shall be
+determined by consideration of reliability factors, maintenance factors and
+manufacturing procedures, in that order of selection.
+ Solderless junctions
+are preferred.
+ The use of solder junctions shall be kept to a minimum.
+30
+Downloaded from http://www.everyspec.com
+MIL-kl-5088L
+3.17.1 Junction installations.
+ Electrical junctions shall be installed
+so that they are adequate both mechanically and electrically.
+ They shall not
+be subject to mechanical strain or used to support Insulating mater~als,
+except for insulation on terminals and splices. Junctions shall not depend
+upon insulators under compression for maintaining the connection tightness.
+Circuit continuity shall not depend upon nonmetallic parts retaining original
+shape when subjected
+ to compression loading.
+●
+ 3.17.2 Preparation for crimp termination.
+ Mires and cables, when
+stripped for termination, shall not have more nicked or broken strands than
+specified in table II.
+ 14hen the stripped portion of the conductor Is vls~ble
+In the crimp contact inspection hole, no more than .031 ~nch of the conductor
+shall be exposed at the end of the barrel for size 12 Affi and smaller,
+.063 inch for size 10 and larger, when the conductor Is terminated.
+ These
+dimensions shall be applicable for contacts, term~nal lugs and spllces. For
+terminal lugs, the stripped portion of the conductor shall extend to a point
+beyond the open end of the crimp barrel, which will not Interfere with the
+stud, washer, nut or similar attachment device. For spllces, the stripped
+portion of the conductor shall be visible In the Inspection window.
+3.17.3 Conductivity.
+ The conductivity of each junction shall not be
+less than that of an equivalent length of wire equal in size to that being
+joined.
+3.17.4 Spac~ng and creepage distance.
+ Electrical junctions shall have
+adequate spacing and creepage distance to prevent arcing and detrimental
+leakage currents between circuits.
+ Suitable insulating barrier material may
+be used to provide necessary creepage distance.
+3.17.5 Protection.
+ Special attention shall be given to ensure that
+electrical junctions are adequately protected from damage or short circuits
+resulting from nravement of personnel, cargo, shell cases, clips, and other
+loose or stored materials.
+ This protection may be provided by covering the
+junctions, by installing them in junction boxes, by locating them In such
+manner that additional protection is not required, or by other means
+acceptable to the procuring activity.
+3.17.6 Exposed junctions.
+ Exposed junctions and buses shall be
+protected with insulating materials.
+ Reusable devices are preferred to non-
+reusable material.
+ Junctions and buses located within enclosed areas con-
+taining only electrical and electronic equipment are not considered as
+exposed. Compartments housing electrical and electronic equipment but which
+are naturally adaptable as stowage areas or which are not protected against
+occasional debris, etc., shall not be considered as enclosed areas. Terminal
+junctions located In wheel wells shall be protected against the effects of
+water thrown by the wheels.
+3.17.7 Essential circuit junctions.
+ Junctions in circuits that affect
+the operational safety of the vehicle shall be Particularly ~rotected to
+ensure a maximum degr~e of reliability.
+ These junctions s~all be Individually
+encased with insulating material to insure electrical insulation and isolation
+from foreign material.
+.
+31
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+3.17.8 Aluminum wire junc[ ions. Specia attention shall be given to
+alum num wire and cable installation to guard against conditions that would
+resu t in excessive voltage drop and high res stance at junctions that may
+ultimately lead to failure of the junction. Examples of-such conditions are
+improper installation of terminals-and washers, improper torsion (“torquing”)
+of nuts, and inadequate terminal contact areas.
+3.i7.9 Accessibility.
+ All junctions shall be accessible for inspection
+and maintenance without r~qulrlng electrical, hydraulic, or other operational
+power for any vehicle system or equipment, This shall Include those junctions
+that are installed for manufacturing convenience.
+-
+3.17.10 Nonmetallic covers. Nonmetallic junction covers, such as fabric
+or plastlc, shall maintatn a high dielectric resistance and shall not absorb
+or be affected by applicable fluids.
+ They shall be Installed In such a manner
+that mechanical movements are free from interference, that fasteners are
+unable to cause short circuits, and that proper drainage is provided. tlon-
+metall~c covers in proximity with high-temperature equipment, such as
+resistors, shall be capable of withstanding the maximum temperature
+encountered without damage.
+3.18 Junctton boxes. Junction boxes may be used to provide special
+protection for wire and cable junctions.
+3.18.1 Junction box construction.
+ Junction boxes may be made of metal
+or of nonmetallic material.
+ Metallic junction boxes shall have their
+interiors coated with an insulating material to minimize the possibility of
+grounding faults.
+ The inside of all junction boxes shall be white to
+facilitate inspection and maintenance.
+ Except for vapor tight boxes, drainage
+holes shall be provided, allowing drainage of the boxes with the vehicle on
+the ground and in fllght, with wings, wheels, and surfaces both folded and
+extended, as applicable,
+ Metal junction boxes shall be fabricated from a
+metal gage size sufficient to provide stiffness and rigidity, to adequately
+support multiple attachments without flexlng or deforming under service
+conditions, and to provide proper support and alignment for hinged or
+removable covers.
+3.18.2 H~nqes.
+ Nhen electrical or electronic equipment Is nwnted on
+junction box covers, such covers shall be hinged in a manner to prevent damage
+to cables and equipment when the covers are opened and closed.
+3.18.3 Junction boK identificat~on,
+ Junction boxes shall be externally
+Identified to facilitate correlation of the box with the wiring diagrams.
+Vapor tight junction boKeS shall be externally labeled “Vapor-ttght.”
+3.18.4 Junction box wiring.
+ Hiring In junction boxes shall be
+adequately supported at convenient
+ intervals to meet the following require-
+ments:
+a.
+ Provide neat and orderly arrangement of wiring.
+b.
+ Provide ease of inspection and maintenance.
+32
+Downloaded from http://www.everyspec.com
+MIL4J-5088L
+c.
+ Provide relief of \train on terminals.
+d.
+ Minimize possibility of faults.
+e.
+ Prevent vibration from damaging wiring or terminals.
+3.19 Nire splices.
+ Insulated
+ in-line wire splices may be used to
+assemble subassemblies, to incorporate changes or to facilitate repairs and
+maintenance.
+3.19.1 Permanent splices. Permanent splices may be used to assemble
+subassemblies, to incorporate changes or to facilitate repairs. Splices for
+copper conductors shall be In accordance with MIL-T-7928 or MIL-S-81824.
+ For
+the Navy, only MIL-S-81824 environment resistant spllces shall be used.
+Environment resistant sealed splices shall be used in areas of severe wind and
+misture problems (S14AMP), such as wheel wells, near wing flaps, wing folds
+and other areas speclfled in the detail speclflcatlon or contract. Spl ices
+for alumlnum conductors shall be in accordance with MIL-T-7099 and MS25439.
+3.19.2 Quick disconnect splices. Quick disconnect splices designed for
+disconnection without the use of tools shall not be used.
+3.19.3 Terminal junction disconnect spllces. When splices are used for
+in-llne connections of two or more wires, where disconnect is required,
+disconnect spllces in accordance with MIL-T-81714/11 and 141L-T-81J14/12 shall
+be used. Sealing plugs in accordance with MS27488 shall be Installed in
+unused grommet holes.
+3.19.4 Splice restrictions.
+ Splices are subject to the following
+restrictions:
+*
+a<
+b,
+c.
+d.
+e.
+There shall not be more than one splice in any one wire segment
+between any two connectors or other disconnect points, except
+as allowed by e, g and h, below.
+Installation of splices in bundles shall not Increase the size
+of the bundle so as to prevent the bundle from fitting in its
+designated space or cause congestion which will adversely
+aff~ct maintenance,
+Spl ces shall not be used
+ to salvage scrap lengths of wire.
+Spl ces shall not be used within 12 inches of a termination
+dev
+ ce, except for e, below.
+Splices may be used within 12 Inches of a termination device
+when attaching to the pigtail spare lead of a potted termina-
+tion device, or to”splice multiple wires to a single wire, or
+to adjust the wire sizes so that they are compatible with the
+contact crimp barrel sizes.
+..
+33
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+f.
+~.
+h.
+The applicatiorl
+ of splices
+ shall be under design
+ control
+ and
+sha 1 be authorized by engineering drawings.
+Splices may be used to repair
+ manufactured harnesses
+ or
+installed
+ wiring when approved by engineering.
+(For Air Force use) Splices shall not be used on firing or
+control circuits associated with ordnance or explosive sub-
+systems.
+3.19.5 Splice areas. Splfces Installed for assembly of subassemblies
+shall be contained In splice areas and identified as such on all applicable
+drawings. Splice areas shall be selected so that they are read~lyaccesslble
+for maintenance and inspection including spllces contained in the center of
+the bundle.
+3.20 Terminal luqs. 141re terminal lugs shall be used to connect wiring
+to terminal block studs or equipment terminal studs. No more than four
+terminal lugs or three terminal lugs and a bus shall be connected to any one
+stud (total number of terminal lugs per stud includes a coamxm bus bar joining
+adjacent studs. Four terminal lugs plus a common bus bar thus are not
+permitted on one stud). 14hen the terminal lugs attached to a stud vary in
+diameter, the greatest diameter shall be placed on the bottom and smal?est
+diameter on top. Terminal lugs shall be selected with a stud hole diameter
+which matches the diameter of the stud. Tightening terminal connections shall
+not deform the terminal lugs or the studs. Terminal lugs shall be so
+positioned that bending of the terminal lug is not required to remove the
+fasten~ng screw or nut, and movement of the terminal lugs will tend to tighten
+..
+the connection.
+3.20.1 Copper terminal luqs. Solderless crimp style copper wire
+terminal lugs shall be used. Terminal lugs shall conform to MIL-T-7928.
+Spacers or washers are not permitted between the tongues of terminal lugs.
+3.20.2 Alum~num terminal luqs. Aluminum terminal lugs conforming to
+NIL-T-7099 (MS25435, MS25436, MS25437 and 14S25438) shall be crimped to
+aluminum wire only. The tongue of the aluminum termtnal lugs or the total
+number of tongues of aluminum terminal lugs when stacked, shall be sandwiched
+between two MS25440 flat washers when terminated on terminal studs. Spacers
+or washers are not permitted between the tongues of terminal lugs.
+3.20.3 Class 2 terminal luqs. Class 2 terminal lugs conforming to
+MIL-T-7928 may be used for installation by contractors, provided that in such
+installations Class 1 terminal lugs are adequate for replacement without
+rework of installation
+ or terminal lugs.
+ Class 2 terminal lugs shall be the
+Insulated type unless the conductor temperature exceeds 105°C, in which case
+uninsulated terminal lugs shall be used. Parts lists shall indicate the
+appropriate Class 1 terminal lugs to be used for service replacement of any
+Class 2 terminal lugs Installed.
+3.21 Terminal boards and terminal junction modules.
+ Terminal boards or
+terminal junction mdules
+ shall be used for junctions of wiring requiring
+infrequent disconnection or for joining two or more wires to a common point.
+34
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+3.21.1 Terminal boards. Terminal boards shall be in accordance with
+MS27212 and shall be Installed with 14S18029 covers. Ammeter shunts shall not
+be used as terminal boards.
+*
+3.21.2 Terminal junction modules.
+ Terminal junction modules and their
+mounting tracks and brackets shall be in accordance with 141L-T-81714.
+Terminal board mounting screw insulators shall be installed in accordance with
+)4s3373. Sealing plugs In accordance with MS27488 shall be installed in unused
+grommet holes.
+*
+3.21.3 Terminal board and terminal junction system identification.
+ Each
+MS27212 terminal board shall be assigned an individual Item number, and the
+studs for each board shall be assigned consecutive numbers or letters
+beglnnlng with 1 or A, to correlate wfth the wiring diagrams.
+ For example,
+TB75-4 shall designate stud #4 of terminal board 75. Each term!nal junction
+track, per NIL-T-81714, shall also be assigned an }ndlvldual TB number. For
+example, track #76 would be designated as TB76. Individual terminal junct!on
+modules shall be identified by numbers or letters permanently applied to the
+individual track as specified in NIL-T-81714.
+ The identification of terminal
+boards, studs and tracks shall be of a permanent nature affixed to the vehicle
+and shall be so located that the information is readable with minimal
+disturbance to wiring or equipment.
+ Tracks shall be positioned so that the
+module Identification reads left to right, or top to bottom.
+ Removal of the
+board or track shall leave the Identification intact.
+—.
+3.22
+ Deleted.
+3.22.1
+ Deleted.
+●
+ 3.23 klorkmanshi~. Workmanship shall be In accordance with aerospace
+vehicle electrical wiring and equipment installation practices to ensure
+safety, proper operation and service life. Details of workmanship shall be
+subject to the inspection and approval of the procuring activity.
+3.23.1 Loose parts. Chips, scraps, excess hardware, tcols or other
+unessential material that can cause damage to the electrical system by
+shorting terminals, abrading wiring or puncturing insulation, shall not be
+left in the vehicle.
+4.
+ QUALITY ASSURANCE PROVISIONS
+4.1 Responsiblllty for inspection.
+ Unless otherwise specified In the
+contract or purchase order, the contractor Is responsible for the performance
+of all ~nspection requirements (examinations and tests) as specified herein.
+Except as otherwise specified in the contract or purchase order, the con-
+tractor may use his own or any other facilities suitable for the performance
+of the inspection requirements specified herein, unless disapproved by the
+Government.
+ The Government reserves the right to perform any of the inspec-
+tions set forth in this specification where such inspections are deemed
+necessary to ensure supplies and services conform to prescribed requirements.
+35
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+4.2 General.
+ The Inspection checks and tests required herein for wiring
+installation are classified as quallty conformance inspections.
+4.3 Nlrinq mockup. 14hen specified in the contract, the contractor shall
+conduct a wiring mockup for inspection by the procuring activity, prior to
+delivery of the first vehicle and in time to permit needed changes. On this
+mockup, the contractor shall demonstrate typical wiring Installations and
+specific wiring practices for which deviations are required. This mockup may
+be conducted on a production vehicle.
+4.4 Inspection of first vehicle.
+ The wiring installation of the first
+complete vehicle shall be Inspected at the contractor’s plant by the con-
+tractor under supervision of the procuring activity to determine conformance
+to the requirements of this specification, and shall be subject to approval by
+the procuring act!vlty.
+4.5 Changes In wirlnq. Vehicles in which changes have been made in the
+wiring shall be inspected at the contractor’s plant by the contractor under
+the supervision of the procuring activity to determine compliance with the
+requirements of this specification.
+4.6 Indlvldual tests. Functional checks shall be conducted by the
+contractor on each vehicle to ensure proper continuity of all electrical and
+electronic circuits, and proper operation of all electrical and electronic
+equipment.
+5.
+ PACKAGING (not applicable)
+6.
+ NOTES
+● (This section contains Information of a general or explanatory nature that
+may be helpful, but is not mandatory. )
+6.1 Intended use. The wiring requirements covered by this specification
+are Intended for use In the selection and installation of wlrlng and acces-
+sories for the interconnection of electr~cal and electronic equipment in aero-
+space vehicles.
+ The requirements specified herefn are applicable to develop-
+ment, prototype, production, rework and modification wiring, on new or
+In-service vehicles. All wiring that is completely internal to electrical and
+electronic equipment, should be in accordance with the applicable equipment
+specifications rather than this specification.
+6.2 Orderinq data. Specify the type of identification code in
+accordance with Appendix B or C (see 3.9.1). Unless specified otherwise, the
+identification code for the Navy shall be “significant” in accordance with
+Appendix B. When wlrlng data in accordance with DOD-STD-863 is required by
+contract, nonsignificant wire identification in accordance with Appendix C
+will be spec~fied by that standard.
+6.2.1 Contract data requirements.
+ The selected data requirements in
+support of this specification will be reflected in a Contract Data Require-
+ments List (DD Form 1423) attached to the request for proposal, invitation for
+bid, or the contract as appropriate.
+36
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+6.3
+ Definitions.
+6.3.1
+ Aircraft.
+ An airplane, helicopter or lighter-than-air
+ vehicle.
+6.3.2 ~.
+ A single metallic conductor of solid, stranded or tinsel
+construction, designed to carry current in an electric circuit, but not having
+a metallic covering, sheath or shield. For the purpose of this specification,
+“wire” refers to “insulated electric wire.”
+●
+ 6.3.3 Wire seqment. A length of wire that Is continuous and unbroken
+between its two intended points of termination.
+ A wire segment that has been
+broken and then repaired is still considered to be one wire segment.
+6.3.4 Cable.
+ Two or more Insulated conductors, solid or stranded,
+contained in a common covering, or two or more insulated conductors twisted or
+molded together without common covering, or one insulated conductor with a
+metallic covering shield or outer conductor.
+6.3.5 blirinq. Nit-es, cables, groups, harnesses and bundles, and their
+terminations, associated hardware, and support, Installed in the vehicle.
+When used as a verb it is the act of fabricating and Installing these items in
+the vehicle.
+-.
+6.3.6 Wlrinq devices. Hiring devices are the accessory parts and
+materials which are used in the installation of wiring, such as terminals,
+connectors, junction boxes, conduit, clamps, Insulation and supports.
+6.3.7 Flammable.
+ Capable of bursting Into flame when a spark or open
+flame Is passed sufficiently
+ near, as with fume% and vapors from hot oils or
+volatile combust~ble liquids, and with finely powdered, combustible solids.
+6.3.8 Chafing.
+ Repeated relative motion between wiring system
+components, or between a wiring system component and structure or equipment,
+which results In a rubbing action that causes deleterious wear.
+●
+6.3.9 Grou~. A number of wires and/or cables and their terminations
+secured together within the structure
+ of a bundle or harness.
+ Groups nOr~llY
+contain wi~e and/or cable pertaining to a single
+ circuit or routed to a s’ngle
+Itemof equipment.
+●
+ 6.3.?0 Harness. An assembly of any number of w!res, cables and/or
+groups and their terminations which !s designed and fabricated so as to a’ 1 Ow
+for installation and removal as a unit. A harness may be an open harness or a
+protected harness.
++
+6.3. 10.1 Hlqh density harness.
+ A protected harness designed to save
+weight and space which has a majority of wire types selected from Appendix A,
+table A-II.
+*
+6.3.11
+ Bundle.
+ Any number of harnesses or branches routed and supported
+together along some distance within the aircraft.
+37
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+6.3.12 Spot ties. Ties other than secondary support ties used to
+separate a number of wires, cables, groups or harnesses within a bundle.
+6.3.13 Primary support.
+ Support provided for wiring that carries the
+weight of the wiring and secures It in the intended position.
+-
+6.3.14 Severe Wind and Moisture Problem (S14AMP) areas. Areas such as
+wheel wells, wing folds and areas near wing flaps, and areas directly exposed
+to extended weather conditions are considered SWAMP areas on aerospace
+vehicles.
+h
+6.3. 5 Open harness.
+ An assembly
+ of wires
+ and/or cables that does not
+include a protect~ve outer covering.
+●
+ 6.3. 6 Protected harness.
+ A harness that employs some overall outer
+covering o provide additional mechanical protection for the wires and/or
+cable contained
+ therein.
+ The added protection may consist of an overbraid,
+tape wrap, conduit or some other form of protection.
+d
+6.3.17 Branch. A section of harness that divides off and extends to a
+point of termination.
+●
+ The connector containing the coupllng ring or
+6.3.18 Connector Pluq.active retention device of the mating pair.
+●
+ 6.3.19 Connector receptacle.
+ The connector containing the static
+retention device of the mating pair.
+6.4 Installation of electrical and electronic equipment.
+ The installa-
+tion of electrical and electronic equipment Is covered by MIL-E-7080 and
+MIL-I-8700, respectively.
+-
+6.5 Technical manuals.
+ Technical Manual NAVAIR 01-lA-505, USAF T.O.
+1-1A-14, and Army TM 55-1500-323-24, “Installation Practices for Aircraft
+Electric and Electronic 141rlng,” contains useful information and guidance on
+aircraft wiring Installation techniques.
+ Guidance on fabrication and instal-
+lation of R.F. cabling is contained In MIL-HDBK-216.
+6.6 Corona prevention related information.
+ In order to prevent ioniza-
+tion, also referred to as corona, or partial discharges between the outside of
+an unsh~elded wire covering and grounded structural elements over which the
+wire passes, or between the Insulation and a braided shield, the wire covering
+should have adequate “equivalent Insulation thickness” for the conditions of
+operation.
+ “HIre covering” means any combination of extruded or taped insula-
+tions and Insulating
+ jackets.
+ Ionization
+ causing chemical and mechanical
+deterioration
+ of the cover!ngs, is a source of radio frequency interference,
+and produces by-products which can corrode adjacent metallic components.
+ For
+AC operat!ng voltages
+ not exceed~ng 240 volts RMS, any g~ven thickness of
+flaw-free insulation is adequate to support this voltage at any pressure or
+temperature; thickness is dictated by mechanical requirements,
+ For higher AC
+voltages the “equivalent insulation thickness” can be found In figure 1.
+38
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+Select the appropriate curve for the simultaneous minimum pressure and maximum
+temperature of the ambient air to which the wire wI1l be exposed and read the
+“equivalent insulation thickness” corresponding to the operating RMS voltage.
+In aircraft and space applications due to partial or complete enclosure for
+pressurization and due to local heating, the ambient pressures and tempera-
+tures in the equipment may not correspond to those at the same altitude
+outside of the craft.
+ Equipment operating pressures and temperatures should
+be used in the determination.
+ The “equivalent insulation thickness” is
+related to the wire covering and is shown in figure 2 where t~, t2, etc., are
+the successive thicknesses and kl, k2, etc., are the respective relative
+dielectric constants of these same wire coverings.
+ The value determined is
+independent of power frequency up to at least several kilo- hertz. The values
+of figure 1 and figure 2 are based on the inception voltage (corona starting
+voltage).
+ In many Instances once ionization has started it does not
+extinguish unt~l the applied voltage is lowered to the corona extinction
+voltage, which may be as much as 20 percent lower. Thus, a factor of safety
+should be allowed so that a transient voltage will not initiate Ionlzatlon
+which will not disappear at the operating voltage.
+ For DC, cables can be used
+without ionization to a maximum voltage of 340 volts independent of the usual
+practical range of wire covering thicknesses.
+ Under certain conditions
+(notably at high ambient temperatures and/or high altitude) some wire types
+may not be free from corona at rated voltage.
+-.
+●
+ 6.7 Nlre current ratings.
+ The wire current rating in 3.8.8. 1.1 is based
+upon the curves of figures 3, 4 and 5. The following examples illustrate the
+procedure for using these curves for applications other than 70°C and 33 wire
+harness for size 26 through 10 gauge, and 9 wire harness for size 8 and larger
+as referenced for table I values.
+*
+1.
+Assume a harness (open or protected) consisting of 10 size 20,
+200”C rated wires and 25 size 22, 200°C rated wires.
+ It will
+be installed in an area where the ambient temperature Is 60”C
+and the vehicle is capable of operating at 60,000 feet
+altitude.
+ Circuit analysis reveals that 7 of the 35 wires in
+the bundle (7/35 - 20 percent) will be carrying power currents.
+a.
+Referring to the “single copper wire in free air” curves
+in figure 3, determine the
+ T of the wire to determine
+free air ratings (for aluminum, derate these values by 20
+percent).
+ Since the wire will be In an ambient of 60*C
+and the wire is rated at 200”C, the
+ T iS 200-60 =
+140”C. Following the 140”C
+ T line on figure 3, the
+free air rating of size 20 is 21.5 amps and the free air
+rating of size 22 is 16.2 amps.
+b.
+Referring to the “bundle derating curves” in figure 4, the
+20 percent curve is selected since circuit analysis
+indicated that 20 percent or less of the wire in the
+harness would be carrying power currents.
+ Find 35 (on the
+abscissa) since there are 35 wires in our bundle and
+determine a derating factor of .52 (on the ordinate) from
+the 20 percent curve.
+39
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+c.
+Derate the size 22 free air rating of 16.2 amps by .52 to
+get 8.4 amps harness rating and the size 20 free air
+rating of 21.5 by .52 to get 11.2 amps harness rating,
+-
+d.
+Referring to the “altitude derating curve” of f~gure 5,
+look for 60,000 feet (on the abscissa) since that is the
+altitude the vehicle wI1l be operating at the note the
+wire must be derated by a factor of ,79 (found on the
+ordinate).
+e.
+f)erate the s~ze 22 harness rating of 8.4 amps by .79 to
+get 6.6 amps and the size 20 harness rating of 11.2 amps
+by .79 to get 8.8 amps.
+f.
+To find the total harness capacity, multiply the total
+number of size 22 wires by the derated capacity (25 x 6.6
+= 165.0 amperes) and add to that the number of size 20
+wires multiplied by the derated capacity (10 x 8.8 - 88
+amperes) and multiply the sum by the 20 percent harness
+capacity factor. Thus, the total harness capac!ty is
+(165.0 + 88.0) x 20 = 50.6 amperes.
+9-
+It has been determined that the total harness current
+should not exceed 50.6 amps, no size 22 wire should carry
+more than 6.6 amps and no size 20 wire should carry nnre
+than 8.8 amps.
+2.
+Assume a harness (open or protected) conslst!ng of 12, size 12,
+200”C rated wires. The harness wtll be operated In an ambient
+of 25°C at sea level and 60”C at 20,000 feet altitude. All 12
+wires wtll be operated at thetr maximum capactty.
+--
+,
+a.
+b.
+c.
+Referring to the “single wire In free air” curve In figure
+3, determine the
+ T of the wire to determine free alr
+ratings. Since the wire will be in an ambient of 25°C and
+60”C and is rated at 200”C the
+ Ts are 200*C - 25*C-
+I75”C and ZOO*C - 60”C = 140°C. Following the 175°C and
+the 140”C
+ T lines on figure 3, the free air ratings of
+size 12 are 68 amps and 61 amps, respectively.
+Referring to the “bundle deratlng curves” in figure
+ 4, the
+100 percent curve !s selected because we know all 12 wires
+will be carrying full load. Find 12 (on the abscissa)
+since there are 12 wires In the bundle and determine a
+derating factor of .43 (on the ordinate) from the 100
+percent curve.
+Derate the size 12 free alr ratings of 68 amps and 61 amps
+by .43 to get 29.2 amps and 26.2 amps, respectively.
+d.
+Referring to the “altitude deratlng curve” of figure 5,
+look for sea level and 20,000 feet (on the abscissa) since
+these are the conditions at which the load will be
+carried. The wire must be derated by a factor of 1.0 and
+.91, respectively.
+40
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+e.
+Derate the size 12 bundle ratings of 29.2 amps at sea
+level and 26.6 amps at 20,000 feet by 1.0 and .91,
+respectively, to obtain 29.2 amps and 23.8 amps.
+f.
+The total bundle capacity at sea level and 25°C ambient is
+29.2 by 12 = 350.4 amps and at 20,000 feet at 60”C ambient
+is 23.8 x 12 = 285.6 amps. Each size 12 wire can carry
+29.2 amps at sea level, 25°C amb!ent or 23.8 amps at
+20,000 feet, 60”C ambient.
+●
+ 6.8 Thermocouples.
+ A thermoelectric clrcult consists of two wires
+com~osed of dissimilar metals permanently joined at both ends (thermocouple)
+and one thermocouple Is heated”to a diff~r~nt temperature than the other”. The
+signal from the heated thermocouple is a function of the temperature gradient
+of the thermocouples and the composition of the two metals.
+6.9
+ Hiring
+ d{agrams.
+ Hiring diagrams when contractually required on the
+DO 1423 shall be prepared
+ in accordance with 00D-STD-100, ANSI Y14.15, ANSI
+Y32.16 and ANSI Y32.2.
+6.9.1 Schematic diagrams (except for Atr Force use). Schematic diagrams
+(functional) for electrical wiring shall show each circuit and may be on
+multiple sheets.
+ The presentation of these circuits in a straight Itne
+(elementary) form is acceptable.
+ Each electronic wiring diagram of an equip-
+ment or system shall be included on one sheet, if practicable.
+=.
+6.9.2
+ Master dlaqrams (except for Air Force use). Master diagrams and
+wire data lists shall be \n accordance with MIL-M-81260 and DOD-STD-100.
+ Each
+system, such as AC power, DC power, exterior llghting and engine control shall
+be presented on one sheet, If practicable, without undue crowding.
+●
+ 6.9.2.1 Terminal board and terminal module symbols (except for Air Force
+~.
+ On the master interconnection diagrams, each terminal board stud symbol
+and terminal module contact cavity symbol shall be identified to exactly
+correlate w~th that established In 3.21.1. The wiring diagram shall have
+complete representation for each terminal board, module-track assembly and
+wire connected thereto, Includlng information as to location of the board or
+assembly. Terminal boards and module-track assemblies shall be identified In
+accordance with the requirements of ANSI Y32.16.
+*
+6.10 International standardization agreement.
+ Certain provisions (3.8,
+Appendix A and Appendix B) of this specification are the subject of inter-
+national standardization agreement ASCC 104/19, STANAG 3317 and STANAG 3347.
+When amendment, revision or cancellation of this specification Is proposed
+that will affect or violate the international agreement concerned, the
+preparing activity will take appropriate action through international
+standardization channels, including departmental standardization offices, to
+change the agreement or make other appropriate accommodations.
+41
+—
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+●
+6.11
+ Subject term (keyword)
+ l~stinq.
+Cables
+Cables, coaxial
+Circuit
+Conduit
+Connectors
+Current
+Junction boxes
+Terminals
+Wire
+Hire, aluminum
+Hire, copper
+Hire, electr~cal
+6.12 Changes from previous
+ Issue.
+ The margins of this specification are
+marked with an asterisk to Indicate where changes from the previous issue were
+made. This was done as a convenience only and the Government assumes no
+liability whatsoever for any Inaccuracies in these notations.
+ Bidders and
+contractors are cautioned to evaluate the requirements of this document based
+on the entire content irrespective of the marginal notations and relationship
+to the previous issue.
+.-
+Custodians:
+Army - CR
+Air Force - 85
+Review actlvitles:
+Alr Force - 11, 17, 19, 99
+User activities:
+Army - ME, AV
+Preparing activity:
+Navy - AS
+Project GDRQ-0080
+—
+42
+.-
+.-
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+TABLE I.
+ Current rating of wires.
+Conductor
+ Wire
+Material
+ Size
+ 105”C
+ 1So”c
+ 200°c
+Copper or
+ 8
+ 38
+ 57
+ 71
+Copper
+ 6
+ 50
+ 76
+Al loy
+ 4
+ 68’
+ 103
+ 1U
+2
+ 95
+ 141
+ 179
+1
+ 113
+ 166
+ 210
+1/0
+ 128
+ 192
+ 243
+2/0
+ 147
+ 222
+ 285
+3/0
+ 172
+ 262
+ 335
+4/0
+ 204
+ 310
+ 395
+Aluminum
+ 8
+ 6
+ E
+ 45
+ 61
+4
+ 54
+ 82
+2
+ 76
+ 113
+90
+ 133
+1}0
+ 102
+ 153
+2/0
+ 117
+ 178
+3/0
+ 138
+ 209
+4/0
+ 163
+ 248
+TABLE 11.
+ Flaxlmum allowable nicked and broken strands (see 3.17.2).
+Conductor
+Material
+CopperCopper
+Alloy
+or
+Aluminum
+Number of Strands
+Per Conductor
+;;
+Above 37
+All numbers of strands
+Total Allowable Nicked
+and Broken Strands
+2 nicked, none broken
+4 nicked, none broken
+6 nicked or broken
+None nicked or broken
+43
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+I
+I
+D
+u
+.
+Xx%x%
+ 000
+ 0 0
+ 0
+ 0
+ 0
+Omm.*
+ ::Z
+ z
+ ~gz:
+ ~ s
+ ?
+ 2
+ :
+CORONA-START
+ VOLTAGE
+ (VOLTS RMS)
+44
+I&
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+INSULATION
+7HtCKNESSEs
+(MtLs)
+lRlc CONSTANT
+FIGURE 2.
+ Equivalent
+ insulation thickness of wire covering (see b.6).
+45
+—
+ .—
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+N
+ TEMPERATURE
+ DIFFERENCE
+ (WIRE
+ RATING
+MINUS
+ THE AMBIENT
+ = T IN
+ C)
+46
+.
+C7
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+.
+.
+I
+L
+k
+l=)
+m
+ s
+TEMPERATURE
+ DIFFERENCE (WIRE RATINC
+MINUS
+ THE AMBIENT = T IN C)
+47
+VI
+.
+m
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+.
+?--J
+L
+o
+—
+CURRENT
+ DERATING
+ FACTOR
+ FORWIRES
+ UNBUNDLES
+48
+...
+--
+-.
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+f’
+0
+0
+0
+m
+o
+0
+u-l
+5?
+0
+I--I
+w
+>
+L
+:r.
+.
+LD
+K-
+-r
+ +
+.kJ.
+ad
+L.
+Wm
+v.
+a)
+.
+-gel
++.
+.-
+ I-4
+u.
+z.
+ ;
+m
+-.
+.(-)
+.
+IL
+CURRENT
+ DERATING
+ FACTOR
+49
+Downloaded from http://www.everyspec.com
+..
+THIS PAGE I NKNTIONALLY LEFT BLANK
+..
+ ...
+ ,
+ ,.
+f’
+,
+-
+50
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+APPENDIX A
+f
+OPEN OR PROTECTED HARNESSES
+10.
+ SCOPE
+10.1 scope. TtIis appendix governs the selection of electrtc wire and
+cable to be used for the interconnection of equipment tn aerospace vehicles.
+This Appendix is a mandatory part of the spectflcatlon.
+ The Information
+contained herein Is intended for compliance.
+20.
+ APPLICABLE
+ DOCUMENTS
+20.1
+ Government
+ documents.
+20.1,1 Specifications, standards and handbooks.
+ Unless otherwise
+specified, the followlng speclflcatlons, standards and handbooks of the Issue
+listed in that issue of- the Department of Defense Index of Spectficatlons and
+Standards (0001SS) spec fled in the solicitation form a part of this spec-
+Ificatlon to the extent specifled herein.
+SPECIFICATIONS
+MILITARY
+MIL-C-17
+ Cable, Radio Frequency, Flexible and Semi-Rig~d,
+General Specification for
+MIL-N-22759
+ Hire, Electric, Fluoropolymer-\nsulated,
+ Copper
+or Copper Alloy
+MIL-N-25038
+ Wire, Electrical, High Temperature and Fire
+Resistant, General Spec!ftcation For
+MIL-C-27500
+ Cable, Power, Electrical and Cable Special
+Purpose. Electrical Shielded and Unshielded,
+General Specification For
+MIL-H-81044
+ Wire, Electric, Crosslinked Polyalkene, Cross-
+linked Alkane-lmlde Polymer or Polyarylene
+Insulated, Copper or Copper Alloy
+MIL-W-81381
+ Hire, Electric, Polyimide-insulated,
+ Copper and
+Copper Alloy
+MIL-T-81490
+ Transmission
+ Lines, Transverse Electromagnetic
+Mode
+MIL-C-85485
+ Cable, Electric, Filter Line, Radio Frequency
+Absorptive
+(Unless otherwise Indicated, copies of federal and military specifications,
+standards and handbooks are available from the Standardization Documents Order
+Desk, Bldg. 4D, 700 Robbins Avenue, Philadelphia, PA 19111-5094.)
+51
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+30.
+ REQUIREMENTS
+APPENDIX A
+/
+-
+30.1 Selection of wire and cable. Unless otherwise approved by the
+procuring activity, only wires and cables conforming to one of the documents
+listed In table A-I, table A-II, 30.1:3, 30.1.4, 30.1.5, 30.1.6, of this
+Appendix shall be used for interconnection of electric and electronic
+equipment in aerospace vehtcles.
+ The limitations and other select!on crtterla
+of Section 3 of this specification shall also be imposed on the selectlon and
+use of these w~res and cables. The contractor shall become familiar with all
+requirements of this speclflcatlon before any wires and cables are selected
+for use.
+30.1.1
+ Harness wlrinq.
+ Hires shall be selected from table A-I.
+h
+ 30.1.2 Protected harnesses.
+ Wires shall be selected from table A-II,
+but may also Include wires from table A-I. Any harness that uses Wire
+select;d from table A-II shall have an outer cover!ng throughout ~ts length
+for mechanical protection.
+●
+ 30.1.3 Use of MIL-H-81381 wire (for Air Force applications only).
+MIL-H-81381 wire shall be used only when justified to and approved by the
+responsible program management office within the procuring actlvlty.
+●
+30.1.4 Cable. Cable shall be in accordance with MIL-C-27500.
+ Only
+constructions utllizlng basic wires In accordance with tables A-I and A-II
+shall be used. Shielded unjacketed cables shall not be used.
+,.
+30.1.5
+ Coaxial cable.
+ Coaxial cable shall be in accordance
+ with
+MIL-C-17.
+30. 1.5.1 T.E.M. transmission lines. Transverse electromagnetic
+ mode
+transmission lines shall be In accordance with MIL-T-81490.
+30.1.6 Filter Ilne cable.
+ Radio absorptive filter llne cable shall be
+In accordance with ktIL-C-85485.
+40.
+ NOTES
+40.1 Intended purpose. The purpose of this Appendix Is to present the
+contractor with a working llst of approved documents to be used In the
+selection of wire and cable for aerospace vehicle wiring.
+52
+4
+Downloaded from http://www.everyspec.com
+MIL-I+5088L
+v
+APPENDIX
+ A
+,/
+TABLE A-I.
+ Open wlrinq appllcat!ons
+ ~/.
+Rated
+Voltage
+ wire
+rating
+ temper-
+ Insulation
+ Conductor
+Document
+ maximum)
+ ature (“C)
+ Type
+ type
+ Application
+MIL-14-22759/l
+ 600
+ 200
+ Fluoropolymer
+ Silver coated
+ Approved for
+Insulated
+ copper
+ use in
+TFE and TFE
+ Army, Navy
+coated glass
+ and Air Force
+applications
+MIL-W-22759/2
+ 600
+ 260
+MIL-H-22759/3
+ 600
+ 260
+‘“I
+600
+ 200
+t--
+MIL-H-22759/5
+ 600
+ 200
+MIL-H-22759/6
+ 600
+ 260
+Fluoropolymer
+insulated
+TFE and TFE
+coated glass
+Nickelcopper
+coated
+Approved for
+use In
+Army, Navy
+and hir Force
+applications
+Fluoropolymer
+ Nickel coated
+ Approved for
+insulated
+ copper
+ use In
+TFE-glass-
+ Army, Navy
+TFE
+ and Air Force
+appllcat!ons
+Fluoropolymer
+ Silver coated
+ Approved for
+insulated
+ copper
+ use in
+TFE-glass-
+ Army, Navy
+FEP
+ and Alr Force
+applications
+Fluoropolymer
+ Silver coated
+ Approved for
+Insulated
+ copper
+ use in
+extruded TFE
+ Army, Navy
+and Alr Force
+applications
+Fluoropolymer
+ Nickel coated
+ Approved for
+insulated
+ copper
+ use !n
+extruded TFE
+ Army, Navy
+and Air Force
+applications
+.
+~/
+ For sealing capability of wire, see 3.8.6 and 3.14.I
+--
+53
+-.
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+3
+APPENDIX A
+/
+TABLE A-I
+ Open wiring applications.
+ (Cont.)
+w
+Rated
+Voltage
+ wire
+rating
+ temper-
+Document
+ maximum)
+ ature (“C)
+MIL-b&22759/7
+ 600
+ 200
+MIL-W-22759/8
+ 600
+ 260
+MIL-H-22759/9
+ I000
+ 200
+MIL-W-22759/1(
+ 1000
+ 260
+MIL-H-22759/1:
+ 600
+ 135
+MIL-H-22759/1[
+ 600
+ 150
+Insulation
+ Conductor
+Type
+ Type
+ Application
+Fluoropolymer
+ Silver coated
+ Approved for
+tnsulated
+ copper
+ use ~n
+extruded TFE
+ Army, Navy
+and Air Force
+applications
+Fluoropolymer
+ Nickel coated
+ Approved for
+Insulated
+ copper
+ use In
+extruded TFE
+ Army, Navy
+and Air Force
+applications
+Fluoropolymer
+ Silver coated
+ Approved for
+Insulated
+ copper
+ use in
+extruded TFE
+ Army, Navy
+and Alr Force
+applications
+Fluoropolymer
+ Nickel coated
+ Approved for
+insulated
+ copper
+ use in
+extruded TFE
+ Army, Navy
+and Alr Force
+appl!cat!ons
+Fluoropolymer
+Insulated
+FEP PVF2
+Tin coated
+copper
+Approved for
+use In
+Army, Navy
+and Air Force
+applications
+F]uoropo]Ymer
+insulated-
+extruded
+ETFE
+Tln coated
+copper
+Approved for
+use in
+Army, Navy
+and Air Force
+applications
+54
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+.—
+APPENDIX A
+TABLE A-I.
+ Open wiring applications .(Cent.)
+f’
+Rated
+I
+ Voltage
+ rating
+ ~ire
+ temper-
+ature (“C)
+150
+MIL-W-22759120
+ 1000
+ 200
+260
+T50
+MIL-1+22759/35
+ 600
+ 200
+‘M-F
+ 200
+[nsulation
+ Conductor
+Application
+type
+ type
+~luoropolymer
+ Silver coated
+ Approved for
+Insulated
+ high strength
+ use in
+~xtruded
+ copper alloy
+ Army, Navy
+and Air Force
+ETFE
+applications
+Fluoropolymer
+ Silver coated
+ Approved for
+insulated
+ high strength
+ use in
+extruded
+ copper alloy
+ Army, Navy
+and Air Force
+TFE
+applications
+Fluoropolymer
+ Nickel coated
+ Approved for
+Insulated
+ high strength
+ use in
+extruded
+ copper alloy
+ Army, Navy
+and Air Force
+TFE
+applications
+fluoropolymel
+ Tin coated
+insulated
+ copper
+crossllnked
+inodlfled ETF
+Approved for
+use In
+Army, Navy
+and Air Force
+applications
+Fluorcpolyme
+ silver coated
+ Approved for
+insulated
+ high strength
+ use in
+crossllnked
+ copper alloy
+ Army, Navy
+and Alr Force
+modified ETF
+applications
+Fluoropolyme
+ crosslinked
+ insulated
+ 1-
+ Nickel copper
+ coated
+ Approved use Army, and !n
+ Air Navy
+ Force
+ for
+applications
+.-
+55
+——
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+APPENDIX
+ A
+TABLE A-I.
+ Open wirinq app licatlons.(Cent.)
+J’
+T-
+ 1
+ I Rated
+ I
+ I
+ T--7
+I
+ \
+ Uocument
+ !41L-ld-22759/42 (maximum)
+ Voltage
+ rat!ng
+ 600
+ wire
+ temper-
+ ature 200
+ (“C)
+ Insulation
+ tYPe
+ Fluoropolwr
+ crosslinked
+ Insulated
+ Conductor
+ type
+ Nickel high copper strength
+ coated
+ alloy
+ d
+ JS6
+ !rmy, In
+Navy
+and Air Force
+I
+ I
+ I modified ETFEI
+ applications
+~IL-H-22759/43
+ 600
+ 200
+MIL-H-2503813
+ 600
+ 260
+~1
+150
+MIL-W-81044I6”
+ 600
+MIL-H-81044/7
+ 600
+ 150
+“MIL-w-81044/9
+ 600
+ 150
+FluOroDolwer
+lnsulated-
+crossl inked
+modified ETFE
+Silvercopper
+coated
+See
+spec!f\catlon
+sheet
+See
+specification
+sheet
+Crossl inked
+polyalkene
+Silver coated
+high strength
+copper alloy
+*
+Approved for
+use in
+Army, NavY
+and Air Force
+appllcatlOnS
+Approved for
+use in
+Army, Navy
+and Air Force
+applications
+Approved for
+use In
+Army, Navy
+and Air Force
+applications
+Approved for
+use in
+Army, Navy
+and Air Force
+appl!cat\OnS
+Approved for
+use In
+Army, Navy
+and Alr FOrce
+~llcatlon
+ L
+2/
+ For use In circuits where during a fire, maintenance
+ of electrical
+Integrity is required for a limlted time.
+56
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+,
+APPENDIX A
+;
+TABLE A-I.
+ Open wiring applications.(Cent. )
+Rated
+Voltage
+ w!re
+rating
+ temper-
+Document
+ (maximum)
+ ature (“C)
+MIL-W-81044/10
+ 600
+ 150
+MIL-W-81381/11
+ 600
+ 200
+MIL-W-81381112
+ 600
+ 200
+MIL-H-81381/13
+ 600
+ 200
+MIL-bl-81381/14
+ 600
+ 200
+MIL-K81381/22
+ 600
+ 150
+L
+ i
+Insulation
+ Conductor
+type
+ type
+ Application
+Crossllnked
+ Silver coated
+ Approved for
+polyalkene
+ high strength
+ for use In
+copper alloy
+ Army, Navy
+and Air Force
+applications
+Fluorocarbon
+ Silver coated
+ Army: Not for
+polyimide
+ copper
+ use
+Navy: Not for
+use
+Alr Force: 31
+Fluorocarbon
+ Nickel coated
+ Army: Not for
+polylmlde
+ copper
+ use
+Navy: Not for
+use
+Air Force: 3/
+Fluorocarbon
+ Silver coated
+ Army: Not for
+polyimide
+ high strength
+ use
+copper alloy
+ Navy: Not for
+use
+Air Force: 3/
+Fluorocarbon
+ Nickel coated
+ Army: Not for
+polylmide
+ high strength
+ use
+copper alloy
+ Navy: Not for
+use
+Air Force: 3/
+Fluorocarbon
+ Tin coated
+ Army: Not for
+polyimide
+ copper
+ use
+Navy: Not for
+use
+Air Force: 3J
+~/
+ MIL-W-81381
+ ts allowed In Alr Force applications
+ only (See 30.1.3 for restrlctlons).
+57
+—...—
+ —
+Downloaded from http://www.everyspec.com
+MIL-b&5088L
+TABLE A-II.
+APPENDIX A
+/
+Protected w!rlng appllcat~ons
+ ~1.
+-
+Rated
+Voltage
+ wire
+rating
+ temper-
+ Insulation
+ Conductor
+Document
+ (maximum)
+ ature (*C)
+ type
+ type
+ Application
+HIL-H-22759/11
+ 600
+ 200
+ Fluoropolymer
+ Silver coated
+ Approved for
+Insulated
+ copper
+ uit in
+extruded TFE
+ Army, Navy
+and Alr Force
+appl~catlons
+MIL-H-22759/12
+MIL-W-22759/14
+MIL-H-22759/15
+600
+600
+600
+260
+135
+135
+Fluoropolymer
+ Nickel coated
+insulated
+ copper
+extruded TFE
+Fluoropolyme r
+ Tln coated
+insulated
+ copper
+FEP-PVF2
+Approved for
+use in
+Army, Navy
+and Alr Force
+applications
+Approved for
+use in
+Army, Navy
+and Air Force
+applications
+Fluoropolymer
+ Silver plated
+ Approved for
+insulated
+ high strength
+ use in
+ w
+FEP-PVF2
+ copper alloy
+ Army, Navy
+and Alr Force
+applications
+, MIL-H-22759/18
+ 600
+I
+I
+~I
+I
+ML-H-22759115
+600
+150
+150
+Fluoropolymer
+insulated
+extruded
+ETFE
+Tin coated
+copper
+Approved for
+use in
+Army, Navy
+and Atr Force
+applications
+Fluoro~olYmerl
+ Silver coated
+ Approved for
+lnsulated-
+ high strength
+ use in
+extruded
+ copper
+ .,
+ alloy
+ Army, Navy
+ETFE
+ and Air Force
+applications
+1/
+ For sealing capability of wire, sec 1.8.6 and 3.14.1.
+.
+58
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+APPENDIX A
+,f’
+..-
+ TABLE A-II.
+ Protected wlrlng applications.
+ (Cont.)
+r
+ Rated
+Voltage
+ wire
+rating
+ temper-
+ Insulation
+ Conductor
+. Document
+ maximum;
+ atuie (“C)
+ type
+ type
+ Application
+PIIL-W-22759/22
+ 600
+ 200
+ Fluoropolymer
+ Silver coated
+ Approved for
+Insulated
+ high strength
+ use in
+extruded
+ copper alloy
+ At-my, Navy
+TFE
+ and Air Force
+applications
+‘–fiIL-M-22759/23 600
+ --1-EET
+ TFE
+ Nickel h\gh copper strength
+ coated
+ alloy
+ Approved use Army, and Air in
+Navy
+ Force
+ for
+applications
+41L-H-22759133
+‘141L-b4-22759/44‘MIL-1+22759/45
+600
+600
+600
+600
+150
+200
+Fluoropolymer
+ Tin coated
+Insulated
+ copper
+crossl inked
+modlfled ETFE
+Silver coated
+high strength
+copper alloy
+crossl inked
+modified ETFE
+Silvercopper
+coated
+I
+Fluoropolymer
+ Nickel coated
+!nsulated-
+ copper
+crossl inked
+modified ETFE
+1
+Approved for
+use in
+Army, Navy
+and Air Force
+applications
+Approved for
+use in
+Army, Navy
+and Air Force
+applications
+Approved for
+use In
+Army, Navy
+and Alr Force
+applications
+Approved for
+use in
+Army, Navy
+and Air Force
+applications
+59
+—
+Downloaded from http://www.everyspec.com
+KIIL-H-5088L
+APPENDIX A
+ i
+#
+I
+TABLE A-II.
+ Protected wiring applications.
+ (Cont.)
+Voltage
+ Rated
+rating
+ wire
+Documents
+ max 1mum
+ temper-
+ Insulation
+ Conductor
+ature (°C)
+ type
+ type
+ A l~catlon
+MIL-H-22759/46
+ MIL-W-81044/12
+ 600
+ 600
+ 200
+ 150
+ Fluoropolymer
+ insulated
+ crosslinked
+ modified Crossllnked
+ ETFE
+ Nickel high copper Tin coated
+ strength
+ coated
+ alloy
+ 7
+ Approved Army, use and applications
+ Alr In
+ Navy
+ Force
+ for
+polyalkene
+ copper
+ m
+MIL-W-81044/13
+ 600
+ 150
+ Crossl inked
+ Silver coated
+polyalkene
+ high strength
+ Akhy,
+ Navy,
+copper alloy
+ and Air Force
+applications
+MIL-H-81381/7
+ 600
+ 200
+ Fluorocarbon
+ Silver coated
+ Army: Not for
+polylmide
+ copper
+ use
+Navy: Not for
+use
+MIL-w-81381/B
+ 600
+ 200
+MIL-1+81381/9
+ 600
+ 200
+MIL-H-81381/1(
+ 600
+ 200
+Fluorocarbon
+ Nickel coated
+-.
+polyimlde
+ copper
+ Navy: use
+ Not use
+ for
+ I
+A!r Force: 2/ I
+Fluorocarbon
+ Silver coated
+ Army: Not for
+polyimide
+ high copper strength
+ alloy
+ Navy: use
+ Not use
+ for
+ I
+polylmide
+ Fluorocarbon
+ high Nickel strength
+ coated
+ -w-=+-i
+ use
+copper
+ Navy: use
+ Not for
+ I
+Air Force: 2/ [
+—
+ 2/
+ MIL4+-81381 Is allowed for use in Air Force applications
+ only (See 30.1.3 for
+restrictions).
+60
+Downloaded from http://www.everyspec.com
+MIL-H-5088L
+APPENDIX A
+/
+TABLE A-II.
+ Protected wiring applications.
+ (Cont.)
+Rated
+Voltage
+ wire
+rating
+ temper-
+ Insulation
+ Conductor
+,.Document
+ (maximum)
+ tYpe
+ type
+ Appllcat!on
+ature (“C)
+MIL-H-81381117
+ 600
+ 200
+ Fluorocarbon
+ Silver coated
+ Army: Not for
+polyimide
+ copper
+ use
+Navy: Not for
+[
+use
+Alr Force: 2/
+~ MIL-H-81381/la
+ 600
+ 200
+ Fluorocarbon
+ Nickel coated
+ Army: Not for
+polyimide
+ copper
+ use
+Navy: Not for
+use
+Air Force: 2/
+MIL-W-81381119
+ 600
+ 200
+ Fluorocarbon
+ St]ver coated
+ Army: Not fOr
+polyimide
+ high strength
+ use
+copper alloy
+ Navy: Not for
+use
+Alr Force: 2/
+MIL-H-81381120
+ 600
+ 200
+ Fluorocarbon
+ Nickel coated
+ Army: Not for
+polyimide
+ high strength
+ use
+copper alloy
+ Navy: Not fOr
+use
+Air Force: 2/
+MIL-W81381/2
+ 1
+ 600
+ 150
+ Fluorocarbon
+ Tin coated
+ Army: Not for
+polyimide
+ copper
+ use
+Navy: Not for
+use
+Air Force: 2/
+~/
+ NIL-H-81381 \s allowed for use in
+ Air Force applications only (See 30.1.3 for
+restrictions).
+=--
+Downloaded from http://www.everyspec.com
+MIL-W-50881
+APPENDIX A
+-
+THIS PAGE INTENTIONALLY
+ LEFT BLANK
+62
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+APPENDIX B
+,,
+SIGNIFICANT HIRE IDENTIFICATION
+(See 3.9.1)
+/
+10. SCOPE
+10.1 Scope. This appendix establishes the procedure for assigning the
+Identiflcatlon codes for each Individual wire and harness within the scope of
+this speclflcatlon when the type of identlflcatlon code is specified as
+“significant” in accordance with 3.9.1 and 6.2. The w!re identification is
+“sign!flcant” in that it Indicates the function of the circuit.
+ This
+Identlflcation shall be for use in wlrlng data and for physical identification
+of Installed wiring.
+ This Appendix is a mandatory part of the specification.
+The Information contained herein is intended for compliance.
+20.
+ APPLICABLE DOCUMENTS
+20.1
+ Government documents.
+●
+ 20.1.1 Specifications, standards and handbooks.
+ The followlng
+specifications, standards, and handbooks form a part of this document to the
+extent specified herein. Unless otherwise specified, the issues of these
+documents are those listed in the issue of the Department of Defense Index of
+Specifications and Standards (DODISS) and the supplement thereto, cited in the
+solicitation.
+STANDARDS
+MILITARY
+MIL-STD-196
+ Joint Electronics Type Destgnatlon
+ System
+(Unless otherwise indicated, copies of federal and military specificat~ons,
+standards and handbooks are available from the Standardization Documents Order
+Desk, Bldg. 4D, 700 Robblns Avenue, Philadelphia, pA 19~11-5094.)
+30.
+ REQUIREMENTS
+30.1 Assignment responsibility.
+ The contractor (installing activity)
+shall assign the identification code for circuit functions except those listed
+under R, S, T and Y in Table B-I.
+ The equipment contractor shall assign the
+identification code in accordance with the equipment specification for equip-
+ments fall!ng under categories R, S, T and Y.
+30.2 Hiring identification code. The wiring identification code shall
+be in accordance with the pattern illustrated in Figure B-1 or B-2 as
+applicable, and as follows:
+30.3 Unit number. Hhere two or more identical Items of equipment are
+installed in the same vehicle, the unit numbers “1,” “2,” “3,” “4,” etc.. maY
+be prefixed to differentiate between wires when it Is desired that the equip-
+ment have the same basic identification.
+ To facilitate interchangeability
+requirements, identical wiring located in left and right wings, nacelles, and
+major Interchangeable structural assemblies may have identical identification
+and the unit number is not required.
+63
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+I
+APPENDIX B
+.30.4 Circuit function letter. The circuit function Iette is used to
+i_cientifythe circuit function specified In Table B-I. Mhere a L ire Is used
+for more than one circuit function, the circuit function letter of thatcircuit
+which Is functionally predominant shall apply. hlhen functional predominance
+is questionable, the circuit funct~on letter for the wire having the lowest
+wire number shall be used.
+30.5 Hire number. The wire number consisting of one or more d!gits is
+used to differentiate between wires In the circuit.
+ A different number shall
+be used for wire not having a common terminal or connection.
+30.5.1 Wires with the same clrcult function having a common terminal
+connection or junction shall have the same wire number but different segment
+letters.
+.
+30.5.2 Numbers 2( 00 to 4999, inclusive, shall be reserved for use by the
+procur!ng activity to dentify wires installed by service modifications.
+30.5.3 Beginning with the lowest number, a number shall be assigned to
+each wire In numerical sequence, as far as practicable.
+30.6 Hire segmen
+ letter. A wire seament is a conductor between two
+terminals or connections. - The wire segmen~ letter is used to differentiate
+between conductor segments In a particular circuit.
+ A different letter $hal~
+be used for wire segments having a cmn
+ terminal or connection.
+ Hire seg-
+ments shall be lettered In alphabetical sequence and the letter “A” should
+icientlfy the first segment of each clrcult starting at the power source.
+ If a
+circuit contains only one wire segment, the wire segment shall be marked “A.”
+The letters “I” and “O” shall not be used as segment letters. Double letters
+“AA,n “AB,” “AC,” etc., shall be used when more than 24 segments are
+required.
+ Two permanently spliced wires do not require separate segment
+letters if the splice Is used for modlflcatlon or repair.
+30.7 Hire size number.
+ The wire size number ts used to identify the
+size Of the wfre or cable. For coaxial cables and thermocouple wires, the
+wire size number shall not be Included.
+ For thermocouple wires, a dash (-)
+shall be used In lieu of the wire size number.
+30.8
+ Ground, phase or thermocouple
+ letter(s).
+30.8.1 Unless otherwise specified by the procuring activity, ground
+cable letter “N” shall be used as a suffix to the wire identification code to
+Identify any wiring that completes the circuit to the ground network. Such
+wlrlng shall be capable of being connected to the ground network of the atr-
+craft electrical system without causing malfunctioning of any circuit.
+Critical and sensitive electronic systems which have Interconnecting “ground”
+leads, but only one segment actually grounded to the structure shall be
+identified with the “N” suffix.
+30.8.2 Phase letter “A,” “B” or “C” shall be used as a suffix on the
+wire Identlflcat!on code to ldent{fy the phase of wires that are in the
+three-phase power distribution wtring of AC systems.
+ The phase sequence shall
+be “A-B-C.” The letters “A,” “B” and “C” shall indicate the phase sequence
+corresponding to “T1,” “T2” and “T3,” ~4spectlvely.
+ For grounded delta
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+APPENDIX
+ B
+ $
+systems, “T2” shall
+ be considered as corresponding to the groun ed phase.
+?
+(Examples of wire identification coding, as applied to AC powerw iring,
+ are
+illustrated by Figure B-3.)
+30.8.3 Phase letter “V” shall be used as a suffix on the identification
+code to identify the ungrounded wire that is in a single-phase system.
+30.8.4 For thermocouple wire, the followtng suffixes shall be used as
+applicable.
+ Where space considerations dictate, the two letter suffixes shown
+may be used:
+CHROM
+ - Chromel
+ -
+ CR
+ALML
+ - Alumel
+ -
+ AL
+IRON
+ - Iron
+ FE
+CONST
+ - Constantan
+ -
+ CN
+COP
+ - Copper
+ -
+ CU
+●
+ 30.9 Electromagnetic Compatibility (EMC) identification.
+ Hhen EMC
+category number identification is used, it shall be accomplished by marking
+applicable category number at the end of each significant-wire code. Category
+number definition shall be as specifically approved by the procuring activity.
+&
+ 30.9.1 Alternate methods for EMC identification.
+ Alternate methods such
+as identification sleeving, color codes or other methods may be used for EMC
+category identification when approved by procuring activity.
+-.
+30.10 Aluminum wire.
+ For alum~num wire, ALUMINUM or ALUM shall be added
+as a suffix to the wire identification code.
+30.11 Spare contacts.
+ Hires attached to spare contacts of connectors
+shall be identified by the contact designation.
+30.12 Harnesses.
+ Each harness shall be identified by the letter “W” and
+a distinct suffix. Example:
+ H-1, W-2, W-3, H-4, etc.
+30.13 Code for type designated equipment.
+ For equipment type designated
+in accordance with MIL-STD-?96, the wire identification code shall be derived
+utilizing that portion of the rnllitary type designation (AN nomenclature)
+following the /, but excludlng the hyphen and any suffix letters.
+ The block
+of wire numbers for each equipment shall start wtth 1 and continue for as many
+numbers as are needed to Identify all wires.
+ For example, wires of an
+AN/APS-45 would be identified APS45-1A20 --- APS45-975C22; wires of the
+AN/ARC-52A would be ARC52-1A22 --- ARC52-999C22; and the 14X94 would be the
+MX94-IA20 --- MX94-62D20.
+65
+Downloaded from http://www.everyspec.com
+MIL-U-5088L
+APPENDIX B
+THIS PAGE INTENTIONALLY
+ LE17 BLANK
+.
+66
+.—
+.—
+Circuit
+Function Letter
+A
+B
+c
+.
+D
+--
+F
+G
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+APPENDIX B
+TABLE B-I. Circuit function letters.
+(See 30.1, 30.4 of Appendix B)
+/
+Circuit
+~rmament
+~hotographlc
+;ontrol Surface
+-
+Instrument (other than
+flight or engine
+instruments)
+Engine Instrument
+Fltght Instrument
+Landing Gear Ming
+Foldlng
+Examples
+Stores Management
+ System
+Missiles/Rockets
+Gun
+Chemical
+Camera
+CameraCameraDoors
+Heating
+Autopilot
+Flight Control
+Wing Sweep
+Trim Control
+Airbrakes
+Hydraulic System
+Position Indicator
+Pressure Gauge
+Temperature Gauge
+Clock
+Temperature Gauge
+Pressure Gauge
+Quantity Meter
+Flow Meter
+Tachometer
+Power Indicator
+Nozzle Indicator
+Gyroscopic Instrument
+Attitude Indicator
+Compass
+Head Up Display
+Altitude
+Extension and Retraction
+Brak~ng
+Locking
+Steering
+Anti-Skid
+Arrestor Hook
+Utilities Hydraulics
+67
+—.—
+Circuit
+Function Letter
+H
+I
+J
+K
+L
+M
+N
+o
+P
+—
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+APPENDIX B
+TABLE B-I.
+ Circuit function letters (contl~ued).
+Circuit
+Heating
+VentilatingDe-icing
+and
+~
+Heating
+De-icing
+Cabin conditioning
+Galley
+Equipment Bay Cooling
+-
+In order to avoid confusion with the numeral one, the letter
+“I” shall not be used for clrcult or cable Identlflcatlon.
+Ignition
+Engine Control
+Engine Ignition
+Jet-Assisted Take-Off
+Vent and Flap
+Propeller Control
+Carburetor
+Supercharging
+Power Control
+Nozzle Control
+Thrust Reverser
+Engine Starting
+Ltghtlng {Illumination)
+Miscellaneous
+(Electrical)
+Internal
+External
+Windshield Wiper & Spray
+Dcx3rs
+Hoist and Winch
+Position (Seat & Pedal)
+Auxiliary Power Unit
+Emergency Power Unit
+Cigarette Lighter
+Unassigned
+In order to avoid confusion with the numeral zero, the
+letter “O” shall not be used for circuit or cable
+iclentificatlon.
+DC Power
+Generation
+Distribution
+Battery
+Rectifier
+External Power
+68
+--
+Circuit
+Function Letter
+Q
+R
+s
+T
+u
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+APPENDIX B
+TABLE B-I.
+ Clrcult function
+ letters (condlnued).
+Circuit
+Fuel and Oil
+Radio (Navigational
+ and
+Communication)
+Radar (Pulse Technique)
+Special Electronics
+Miscellaneous
+ (Electronic)
+69
+Examples
+Valves
+Pumps
+Refueling/DefueTransfer
+Dump
+ling
+Instrument Landing
+Homing
+Liai son
+Marker Beacon
+VHF Radio
+UHF Radio
+HF Radio
+Intercommunication
+Direction Flndlng
+Radar Altimeter
+Interception
+Gun Aim!ng
+Mapping
+Navigation
+Bomb Aiming
+Search
+Recognition (IFF)
+Terrain Following
+Active Electronic Counter
+Inertial Navigation
+Television
+Measures
+Reconnaissance
+Computer
+Weapon Aiming
+Chaff Dispensing
+Infra-Red
+Electronic wiring for which the
+11~,11$[s)l
+ or “T” Identification
+is not applicable shall be
+assigned the circuit function
+letter “U,” An example would
+be common leads to electronic
+equipments and systems, inter-
+connection wiring, such as
+antenna or power circuits
+common to more than one
+equipment.
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+APPENDIX
+ B
+TABLE B-I.
+ Circuit functton
+ letters (continuqti).
+Circuit
+Function Letter
+Circuit
+Examples
+v
+H
+x
+Both DC power cables and DC control cables for AC systems
+shall be identified by the circuit function letter “V.”
+Warning and Emergency
+(except those listed
+under other circuit
+functions)
+AC Power
+Ball-Out Alarm
+Oxygen Indicator
+Passenger S~gn
+Central/Master 14arning
+Generation
+Distribution
+External Power
+-
+.
+Y
+Armament Special
+Equipment (except
+those listed under
+clrcult function “A”)
+L-_
+ z
+ When Experimental research Function standard any wiring such Letter Installation, C!rcuits.
+ clrcult shall Is Installed, be has the 14hen used, been letter flight the preceded adopted appropriate “Z” test shall and by and becomes the be experimental
+ Circuit
+ removed.
+ letter part “Z.”
+ of a
+70
+Downloaded from http://www.everyspec.com
+MIL-k&5088L
+APPENDIX B
+i
+I
+I
+ALTERNATE
+METHOD
+-
+2
+02
+ u
+ P 215A 4 N ALUM
+ P!
+-1--
+ I
+ 2’
+I
+SUFFIX
+ II
+I
+I
+ GROUND,
+ PHASE, OR THERMOCOUPLE
+ LETTER
+ 5
+I WIRE SIZE NUMBER
+ A
+I
+WIRE SEGMENT
+ LETTER
+ 4
+/
+ WIRE NUMBER
+I
+ N
+1
+ CIRCUIT FUNCTION LETTER
+I—— ————
+ ——-—
+ ————
+ -.
+ UNIT
+ NUMBER
+ A
+L
+Applies ti all circuit
+ functions
+ except
+ type designated
+ equipment.
+ u
+M
+%.
+,
+FIGURE B-1 .
+ Example of wire Identification
+ coding.
+(See 3.9.3.1, 30.2)
+ALTERNATE
+METHOD
+R
+c
+PHASE,
+ OR TH ERMOCOUPLE
+ LETTER
+K
+I
+ WIRE SIZE NUMBER
+I
+ I
+ WIRE SEGMENT
+ LETTER
+ 2
+I
+ I
+ I
+ I
+ wtRE NUMBER
+EQUIPMENT
+ IDENTIFICATION
+ 4
+I—-—
+ -----
+ -----
+ ----
+ uNIT
+ NUMBER
+ .
+b
+Applies
+ to t~’pe designated
+ equipment.
+B
+12
+FIGURE B-2.
+ Example of wire identification
+ cod~.
+(See 3.9.3.1, 30.2)
+10
+N
+L
+71
+T1
+~x2A20’—
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+APPENDIX B
+T, ~
+PHASE SEQUENCE
+TI=T2=T3
+,6’,,,
+(a) Slt4GLE PHASE SYSTEM
+-—1,
+T1
+X34A14A ~
+T6
+T,
+1=
+I
+X17A14N —.11
+T3
+~
+ X5A14B ~
+~
+PHASE SEQUENCE
+T1- 72- T3
+T6
+x29*1K
+ .—o
+(b) THREE - PHASE “Y*’ SYSTEM
+‘17A16A ~
+T3
+L
+)
+12
+13
+(c)THREE-
+X65A16N—I
+X2ZA16C ~
+PHASE DELTA
+ SYSTEM
+II
+(FOR INVERTIZRSHAVIXG
+ CONNECTORSWITII
+ PHASE ROTATIOX
+ C-B-A AT
+THIZ PINS, THE CORRESPONDING
+ TIZRhIINAL
+ DESIGNATIONS
+ zIRE Tl - T2 - T3
+AND T13tZ \VIRE IDENTIFICATION
+ PIIASIZ LETTERS
+ SIiOULD BE CONSISTENT
+WITH FIGURE
+ (C)
+ ABOVE.
+ )
+FIGURE B-3.
+ Examples of wire identification
+ as applied to ac power
+ wlr~.
+—-.(See 30.8.2)
+72
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+APPENDIX C
+NON-SIGNIFICANT HIRE IDENTIFICATION
+(See 3.9.1)
+~
+10.
+ SCOPE
+10.? Scope. This appendix establishes the procedure for assigning the
+individual codes for each wire, cable and harness wtthiri the scope of this
+specification when the type of ~dentlflcation code Is specified as
+“non-significant” In accordance with 3.9.1 and 6.2.” The wire identification
+is “non-significant” in that it does not Ind!cate the function of the
+circuit. This identification shall be for use in wiring data and for physical
+Identification of installed wiring. This appendix Is a mandatory part of the
+specification.
+ The information contained herein is intended for compliance.
+20. APPLICABLE DOCUMENTS
+ This section is not applicable
+ to this
+appendix.
+30.
+ REQUIREMENTS
+30.1 Harness identification.
+ Each harness shall be identified by the
+class letter “N” followed by a distinct wire harness number identifier of not
+more than four digits.
+30.2 Wire identification,
+ Each wire
+ shall be assigned a unique
+alpha-numeric identification (wire number)
+ to distinguish It from all other
+wires In the aerospace vehicle.
+ Each wire
+ number shall Include the wire
+harness identification, a wire identifier,
+ a wire gage number and where
+applicable, special coding for wire color,
+ thermocouple wire and shields.
+Example:
+The wire number will
+w
+ 192
+ -
+ 06
+ -
+ 22
+ xx
+ read “H192-06-22XX”
+(a)
+ (b)
+ (f)
+ (c)
+ (f)
+ (d)
+ (e)
+(a)
+ Hire harness class letter.
+(b)
+ Hire harness number identifier (maximum of 4 digits, see 30.1).
+(c)
+ Hire identifier (maxlmumof
+ 4 dlglts, see 30.2.1).
+(d)
+ Hire gage number (see 30.2.2).
+(e)
+ Special coding (see 30.2.3).
+(f)
+ Hyphen separation.
+30.2.1 Hire identifier.
+ The wire Identifier shall distinguish each wire
+from all others within a given harness.
+ Harness to harness continuity of the
+wire identifier is a requirement for wires joined by splices.
+ Harness to
+harness continuity of the wire identifier is not a requirement for all other
+wires but should be considered as a design objective.
+ The wire identifier
+shall not exceed four digits.
+30.2. 1.1 Hire identifiers 900 to 999 and 9000 to 9999 inclusive, shall
+be researched for use by the procuring activity to identify wires installed by
+service modifications.
+73
+Downloaded from http://www.everyspec.com
+MIL-I+5088L
+APPENDIX C
+30.2.2 Hire qage number. The wire gage number ~dentlfte~’ the wire
+Size. For coaxial cables and thermocouple wires, the wire gagd may be omitted
+from the wire Identification.
+30.2
+ 3
+ Special coding.
+30.2 3.1 Thermocouple ulre.
+ For thermocouple
+ wire, the following
+ letter
+codes sha’ 1 be used as applicable:
+Chrome 1
+Alumel
+Iron
+Constantan
+Copper
+-
+CR
+AL
+FE
+CN
+Cu
+Example:
+ H192-645-CR
+.-
+30.2.3.2 Color-coded cable. Jacketed, shielded and/or twisted conductor
+cable consisting of 2 or more wires which are color coded by single strips or
+bands or by solld colors shall be assigned the same wire Identifier.
+ The
+color of each conductor shall be identified by using the two letter code shown
+below followlng the wire gauge number.
+Letter
+ Letter
+Color
+ Code
+ Color
+ Cod e
+Black
+ BK
+ Blue
+ BL
+Brown
+ BR
+ Violet
+ VT
+Red
+ RD
+ Gray
+ GY
+Orange
+ OR
+ Hhite
+ HH
+Yellow
+ YE
+ Pink
+ PK
+Green
+ GN
+See the example In 30.2. 3.3 for a shielded, tri-conductor,
+ color-coded
+ cable.
+30.2.3.3 Shields.
+ Shielded cable having ccxnmon wire Identifiers
+ass~gned In accordance with 30.2.3.2
+ shall be assigned the same number as the
+conductor(s).
+ Shields over complete harnesses or over groups of wires having
+different wire Identifiers assigned In accordance with 30.2.1 shall be
+assigned separate wire identifiers.
+ The suffix “SH” shall fo’ low the
+“wire-identifier.”
+a.
+Example of a shield over wires separately
+ iden’ ified in
+accordance with 30.2.1:
+N192-019-Z2
+W192-020-22
+N192-600-SH
+74
+Downloaded from http://www.everyspec.com
+MIL-N-5088L
+APPENDIX
+ C
+b.
+ Example of a shielded s!ngle conductor:
+ /
+bi201-019-22
+W201-019-SH
+c.
+ Example of a shielded, color-coded
+ tri–conductor:
+W201-363-22 RD
+14201-362-22 BL
+14201-362-22 YE
+W201-362-SH
+30.2.3.4
+ Aluminum wire.
+ For alumlnum wire, “ALUM” (if total number of
+digits exceeds 15, “AM” shall be used) shall be added as a suffix to the wire
+identification code.
+75
+Downloaded from http://www.everyspec.com
+FIIL-W-5088L
+APPENDIX C
+.
+THIS PAGE INTENTIONALLY
+ LEFT BLANK
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+1’
+Paragraph
+Accessibility ......................................................
+ 3.17.9
+Accessories
+Connector ........................................................
+ 3.14.14
+Engine mounted ...................................................
+ 3.10.19
+Aluminum
+Terminals ........................................................
+ 3.20.2
+Hire .............................................................
+ 3.8.2
+Wire junctions ...................................................
+ 3.17.8
+Amb~ent temperature ................................................
+ 3.8.8.2
+Anti-chafl ngprovislons
+ ............................................
+ 3.11.4
+Arrangement ofwlrlng
+ ..............................................
+ 3.10.1
+Assembly ...........................................................
+ 3.10.11
+Bundle and group size ..............................................
+ 3.10.2
+Cables
+Coaxial ..........................................................
+ 3.8.4
+Caps, dust .........................................................
+ 3.14.11
+Circuits
+Parallel .........................................................
+ 3.10.15
+Sensitive ........................................................
+ 3.10.12
+Clamp size .........................................................
+ 3. 11.1.2
+Coaxial
+Cables ...........................................................
+ 3.8.4
+Cable support ....................................................
+ 3.11.s
+Connectors ........ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ 3.14.4
+Selection ......... . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ 30.1.5,
+Appendix A
+Code
+Assignment of !dent ficatlon .....................................
+ 3.9.1
+Hire and cable iden ification ....................................
+ 3.9
+Hire size color code .............................................
+ 3.9.5
+Commonality ........................................................
+ 3.3.4
+Compass deviation ...0.... ..........................................
+ 3.10.10
+Component selection and installation ...............................
+ 3.7
+Conduit ............................................................
+ 3.13
+Flttlngs .........................................................
+ 3.13.5
+Flexlble metallic ................................................
+ 3.13.2
+Installation .....................................................
+ 3.13.6
+Ignition .........................................................
+ 3.13.10
+Nonmetallic .................4....................................
+ 3.13.3
+Radius of bends ..................................................
+ 3.13.11
+Rigid metalllc ...................................................
+ 3.13.1
+Size .............................................................
+ 3.13.4
+Conductivity ..................... ..................................
+ 3.17.3
+Connectors ........................$.. ..............................
+ 3.14
+Accessories ......................................................
+ 3.14.14
+Coaxial ..$.......................................................
+ 3.14.4
+Fireproof and firebal l..... .......................................
+ 3.14.3
+Identification ...................................................
+ 3.9.4
+Installation ................$....................................
+ 3.14.5
+Molstureproof ................................................. ...
+ 3.14.1
+Triaxial .........................................................
+ 3.14.4
+77
+Downloaded from http://www.everyspec.com
+MIL-14-5088L
+INDEX (continued)
+Paragraph
+Contacts ........................................................... 3.14.2
+Solder ........................................................... 3.14.10
+Spare ............................................................ 3.14.9
+Contractor’ s specification. ........................................ 3.3.3
+Copper terminals ................................................... 3.20.1
+Corona prevention .................................................. 3.8.7
+Corona prevention related information .............................. 6.6
+Current carrying capacity .......................................... 3.8.8.1
+Current ratings, wire..... ......................................... 6.7
+Cushion clamps ..................................................... 3.11 .1.4
+Data requirements, contract ........................................ 6.2.1
+Dead end!ng ........................................................ 3.10.5
+Definitions ........................................................ 6.3
+Diagrams
+Master ........................................................... 6.9.2
+Schematic ........................................................ 6.9.1
+Wiring ........................................................... 6.9
+Dissimilar metals .................................................. 3.6.1.1
+Drainage ........................................ ................... 3.13.8
+Conduit .......................................................... 3.13.8
+Connector
+ ....................................................... 3. 14.6.1
+Drip loop .......................................................... 3.11.8
+Dummy receptacles ............................... ................... 3.14.12
+Electromagnetic compatibility ...................................... 3.10.8,
+30.9 ApP.B
+Engine mounted accessories ......................................... 3.10.19
+Equipment
+Essential ........................................................ 3.10.14
+Gas and fluldllnes
+ .............................................. 3.11.11
+GFAE wiring ...................................................... 3.11.14
+High temperature .............................. ................... 3.10.16
+Installation, electrical and electronic .......................... 6.4
+Insulated boxes .................................................. 3.12.3
+GFAE aircraft equipment ............................................ 3.3.5
+GFAEequipment
+ wiring .............................................. 3.11.14
+Gromnets ........................................................... 3.11 ,6.4
+Ground return ...................................................... 3.12
+Grounding .......................................................... 3.13.!?
+Harnesses .......................................................... 3.8.5
+Hlghdensit yharnesssize
+ .......................................... 3.10.2.1
+High-temperatureequlpment
+ ......................................... 3.10.16
+Hinges ............................................................. 3.18.2
+Ignition .........................................................4. 3.10.9
+Conduit ......................................................... 3.13.10
+Individual tests ................................................... 4.6
+Inspection and maintenance ......................................... 3.10.3
+Of first vehicle ................................................ 4.4
+Install ationdetai lsforwlri
+ ng .................................... 3.10
+Installat on of electronic
+ and
+ electronic equipment ................ 6.4
+Installat on of connectors
+ .........................................
+ 3.14.5
+Insulated equipment boxes
+ .........................................
+ 3.12.3
+78
+Downloaded from http://www.everyspec.com
+MIL44-5088L
+INDEX (continued)
+Paragraph
+Insulating materials ..... . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.6.2.1
+Insulation tape .......... . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.11 .6.1
+Insulation sleeving ...... . . .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.11 .6.2
+International standardlzat on agreement
+ . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6.10
+Junction
+Boxes ............................................................ 3.18
+Box construction ................................................. 3.18.1
+Box identification ............................................... 3.18.3
+Boxwirlng
+ ....................................................... 3.18.4
+Installation ..................................................... 3.17.1
+Junctions .................... ...................................... 3.17
+Alumlnum wire .................................................... 3.17.8
+Essential circuit
+ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.17.7
+Exposed .................... ...................................... 3.17.6
+Llmltations on support ............................................. 3.11.3
+Loose parts .................. ...................................... 3.23.1
+Ma!ntainabl lity .................................................... 3.8.9
+Manuals, Technical ................................................. 6.5
+Harking ............................................................ 3.9.3
+Master diagrams .................................................... 6.9.2
+Materials .......................................................... 3.6
+Metals ............................................................. 3.6.1
+M~nimum wire size .................................................. 3.8.8
++.
+Missile wiring ..................................................... 3.8.8.3
+Modification ....................................................... 3.3.6
+Molstureproof connectors ........................................... 3.14.1
+Multiple grounds ................................................... 3.12.2
+Nacelle w~rlng ..................................................... 3.10.17
+Nonmetal llc covers .................. ............................... 3.17.10
+Nonmetals .......................................................... 3.6.2
+Parallel circuits .................................................. 3.10.15
+Plastic cable straps ......... ...................................... 3.11.2.2
+Plastic clamps ..................................................... 3.11.1.1
+Potting ............................................................ 3.14.8
+Power systems ...................................................... 3.]0.13
+Preparation for termination .. ...................................... 3.17.2
+Primary support .................................................... 3.11.1
+Protection and support ............................................. 3.11
+Provision plugs ......................................... ........... 3.14.13
+Rad!us
+Of bend (wire or cable) ............................... ........... 3.11.7
+Of bends (conduit) ............................................... 3.13.11
+Routing wiring ....-..................,............................. 3.10.6
+Safety wiring ...................................................... 3.14.7
+Schematic diagrams ................................................. 6.9.1
+Sealing materials .................................................. 3.6.3
+Secondary support .................................................. 3.11.2
+Selection of parts and materi als ................................... 3.3
+Sensitive circuits ................................................O 3.10.12
+Service llfe ....................................................... 3.4
+Shield terminations ................................................ 3.12.1.1
+79
+Downloaded from http://www.everyspec.com
+MIL-W-5088L
+INDEX (continued)
+Shielded wire grounding ............................................ 3.12.1
+Slack in wiring .................................................... 3.10.7
+Smoke and fire hazards ............................................. 3.5
+Solder type contacts ........ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.14.10
+Spacing and creepage distance . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.17.4
+Spare contacts .............. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ------
+ .. 3.14.9
+Special protection .......... . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.11.10
+Splices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3.19
+.....................Standardlzatlon, lnternationa’ agreement ........................... 6.10
+Support at connectors ..........1................................... 3.11 .1.3
+SWAMP applications ................................................. 3.8.10.1
+Terminals .......................................................... 3.20
+Aluminum ......................................................... 3.20.2
+Copper ........................................................... 3.20.1
+Terminal boards .................................................... 3.21
+Terminal n~pples ................................................... 3.11 .6.3
+Terminations, shield ............................................... 3.12.1.1
+Thermocouple wiring ................................................ 3.8.10.4
+Triaxial connectors ................................................ 3.14.4
+Itagedrop
+ ....................................................... 3.8.8.4
+re
+Aluminum ......................................................... 3.8.2
+Alum! numw!re junctions .......................................... 3.17.8
+ -
+Arrangement of ................................................... 3.10.1
+Current ratings .................................................. 6.7
+Minimum size ..................................................... 3.8.8
+Rad!us of bend ....... ............................................ 3.11.7
+Selection for special application ................................ 3.8.10
+Shielded grounding ............................................... 3.12.1
+Size color code system... ........................................ 3.9.5
+Wire and cable identification ......................................
+Hiring .................,.....-...............--..........-...-..... ::;.5
+Changes .......................................................... 4.5
+Diagrams ......................................................... 6.9
+Fuel tanks, through .............................................. 3.11.12
+Fuel tanks, inside ............................................... 3.11.13
+In bilges ........................................................ 3.10.18
+Filssile .......................................................... 3.8.8.3
+Mockup ........................................................... 4.3
+Nacel le .......................................................... 3.10.17
+Near moving parts ................................................ 3.11.9
+Protection and support ........................................... 3.11
+Routing .......................................................... 3.10.6
+3.14.7
+Safety ...........................................................Selection ........................................................ 3.8
+Slack ............................................................ 3.10.7
+Special protection ............................................... 3.11.10
+Temperature degradation. ......................................... 3.8.’
+Thermocouple ..................................................... :.:.’ 0.4
+20
+Hheel well areas .................................................
+3;8
+Wiring selection ................................................. .
+3.23
+Workman ship ...........-. ...........................................80
+DownloadedREFERENCEDDOCUMENT NO.
+MIL-C-17
+MIL-I-631
+MIL-I-3190
+MIL-C-3607
+MIL-C-3650
+MIL-C-3643
+MIL-C-3655
+MIL-B-5087
+MIL-E-6051
+MIL-C-6136
+MIL-E-7080
+MIL-T-7099
+MIL-F-7179
+MIL-I-7444
+MIL-C-7762
+MIL-B-7883
+MIL-T-7928
+MIL-S-8516
+MIL-I-8700
+MIL-C-22520
+MIL-C-22759
+MIL-I-23053
+MIL-S-23190
+MIL-S-23586
+MIL-I-23594
+MIL-M-24041
+MIL-C-25038
+MIL-C-25516
+MIL-C-26637
+MIL-C-27500
+MIL-C-39012
+MIL-C-39029
+MIL-T-43435
+MIL-C-49142
+MIL-A-55339
+MIL-W-81044
+MIL-M-81260
+MIL-H-81381
+MIL-T-81490
+MIL-T-81714
+MIL-T-81714/11
+MIL-T-81714/12
+MIL-S-81824
+MIL-C-83517
+MIL-S-83519
+MIL-C-85049
+MIL-C-85485
+MIL-S-85848
+FED-STD-595
+DOD-STD-1OO
+from http://www.everyspec.com
+MIL-H-5088L
+DOCUMENTS
+ INDEX
+ I
+PARAGRAPH
+30.1.4, Appendix A
+3.11 .6.2
+3.11.6.2, 3.9.3.3.1
+3.14.4
+3.14.4
+3.14.4
+3.14.4
+3.12, 3.13.9
+3.10.8, 3.13
+3.13.2
+6.4
+3.19.1, 3.20.2
+3.6.1
+3.11 .6.2
+3.10.10
+3.14.10
+3.19.1, 3.20.1, 3.20.3
+3.6.3, 3.14.8
+6.4
+3.14.2
+Tables A-I & A-II,
+Appendix A, 3.8.10.1, 3.8.10.2
+3.9.3.3.1, 3. 11.6.2.1
+3.9.3.3.1, 3.11.2.2, 3.11.1, 3.11.5d
+3.6.3, 3.14.8
+3.11 .2.3
+3.14.8
+Table A-I, Appendix A
+3.14.4
+3.14.4
+30.1.4, Appendix A
+3.14.4
+3.14.2
+3.11 .2.1
+3.14.4
+3.14.4
+Tables A-I & A-II, Appendix A
+6.9,2
+Tables A-I & A-II, Appendix A
+30.1.5,1, Appendix A, 3.8.4
+3.12.2, 3.21.2, 3.21.3
+3.8.10.4, 3.19.3
+3.8.10.4, 3.19.3
+3.8.10.4, 3.19.1
+3.14.4
+3.12.1.1
+3.14.14
+3.8.10.3, 30.1.6, Appendix A
+3.9.3.3.1
+3.10. 12.2
+6.9, 6.9.2
+81
+Downloaded from http://www.everyspec.com
+MIL-M-5088L
+REFERENCEDDOCUMENT NO.
+MIL-STD-196
+141L-STD-454
+NIL-STD-681
+MIL-STD-704
+DOO-STD-863
+MIL-STD-889
+MIL-STD-970
+MIL-STD-1353
+MIL-STD-1388
+MIL-STD-1553
+/4S3368
+!4s3373
+MS 18029
+MS21266
+MS21919
+MS25171
+MS25274
+MS25281
+MS25435
+MS25436
+t4S25437
+MS25438
+)4S25439
+?4S25440
+MS27212
+MS27488
+MS33540
+MS35489
+MS90376
+MS90387
+AND10380
+NAS813
+NAS820
+MIL-HDBK-216
+ANSI Y14.15
+ANSI Y32.2
+ANSI Y32.16
+ASCC 104/19
+STANAG 3317
+STANAG 3347
+ARMY TM 55-1500-323-24
+NAVAIR 01-lA-505
+USAF T.O. 1-1A-14
+DOCUMENTS
+ INDEX
+ I
+PARAGRAPH
+30.13,
+ Appendix B
+3.14.10
+3.9.3.3.4
+3.8.8.4
+6.2
+3.6.1.1
+3.3
+3.14, 3.14.4, 3.14. 11.1
+3.4
+3.10.15
+3.9.3.3.1
+3.21.2
+3.21.1
+3.11 .6.4
+3.11.1
+3.11.6.3, 3.16
+3.10.5
+3.11.1
+3.20.2
+3.20.2
+3.20.2
+3.20.2
+3.19.1
+3.20.2
+3.21.1, 3.21.3
+3.21.2, 3.19.3, 3.14.9
+3.14.7
+3.11 .6.4
+3.14.11
+3.11 .2.2
+3.13.5
+3,14.11
+3.14.11
+3.8.4, 3.14.4, 6.5
+6.9
+6.9
+6.9, 6.9.2.1
+6.10
+6.10
+6.10
+6.5
+6.5
+6.5
+82
+Downloaded from http://www.everyspec.com
+STANDARDIZATION
+ DOCUMENT IMPROVEMENT
+ PROPOSAL
+lhtSTRUCllOhJS
+9
+I, The preparingactivity
+ must completeblocks1,2,3,and 8. In block 1, both the d-ubent
+ number and revision
+letter
+ shouldbe given.
+2. The submitterofthisform must complete blocks 4,5,6,
+ and 7.
+3.
+ The preparing activity must provide a reply within 30 days from receipt of the form.
+NOTE: This form may not be used to request copies of documents, nor to requestWaivers,or clarification
+ of
+requirements on current contracts.
+ Comments submittedon thisfofm do ~t ctitute m imply● uthorization
+ to
+waive●ny @on
+ ofthe referenced ocument(s)orto amend contractual requirements.
+m&&:::::.,>G
+ . .’.’k..k
+ “b,:...,<:,<...
+ 2. DOCUMENT DATE (YYMAKJO)
+&ENQ’:#”wwEFt$il
+ ‘“-;?:;.?;;;
+ 910510
+. .:. : .; . :+-4. ..+%’iwsx?%%?$$:w
+ : ‘:ww~~’
+3. DOCUMENT TITLE
+WIRING,
+ AEROSPACE VEHICLE
+-ATURE
+ OF CHANGE [)dentify pwagraph number
+ ● nd inclti
+ proposed rewrite,
+ If posd~e.
+ Attach
+ ● xtv ~ts
+ u needed.)
+Y. ‘“XASON
+ FoR ftECOMMENDATION
+1. MEPARING
+ ACTIVITY
+B
+ “4ME
+Commanding Officer
+NAEC SESD (Code
+ 5313)
+L AOORESSOmfude Zip CudeJ
+Lakehurst, NJ 08733-5100
+DO Form 1426, (KT
+ 89
+b. TELEPHONE Odude
+(1) Commercial
+908-323-7438
+-t
+Code)
+(2) AUTOVON
+624-7438
+IF YOU DO MOT RECEIVE A REPLY WITHIN 4S DAYS, CONTA~:
+ -
+Oefwme Quality ● nd Standardization
+ OfficQ
+5203 L@e$burg Pike, Suite 1403, Falls Churth, VA 2204 I-3466
+Telephone (703) 7562340
+ AUTOVON 289-2340
+Previous editions we obsolete.
+Wsnw
+Downloaded from http://www.everyspec.com

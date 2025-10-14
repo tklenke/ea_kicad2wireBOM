@@ -1,0 +1,16 @@
+DC and Wiring Fundamentals
+1-6Figure 1-7. Switches and Pushbuttons
+Figure 1-6. Cells and Batteriestogether in some system. Whatever the case,
+my favorite way to depict a twisted pair isshown in the adjacent figure.  Anotherspecial case is shielding. When you see thelittle “race track” surrounding one or morewires, this tells you that they are shielded.The most common shielding techniques useeither an overbraid of fine bare wires or anoverwrap of thin aluminum foil. Theoverbraid is made from tinned copper wire.It’s easy to make an electrical connectionwith overbraid shields.
+Foil shields cannot be soldered to.
+Manufacturers who produce this wire willinclude a bare “drain wire” in thecompliment of insulated wires to be shielded.The drain wire makes connection with theinside surface of the aluminum foil shieldover its entire length. Being made up tinnedcopper conductors, the drain wire offers ameans for efficient electrical connection tothe shield.
+The symbol for shielding is the same irrespective of the
+material from which it is made. The designer should showyou exactly how the shield is to be treated at BOTH ends.In some cases, both ends are connected but not always. Ifyou see a shielded wire symbol on one end of a wiresegment, it means the entire length of that segment isshielded whether or not the other end has a shield symbol.Obviously, if the designer intends that both ends of theshield are  connected to something, the symbol will appearat both ends along with a depiction of where the shield isterminated at each end. BATTERIES : The symbol for a “cell” is depicted as a long
+and short line where the  most common convention is toassign (+) terminal of a cell to the longer of the two lines.A “battery” is a collection of two or more cells. Some folkstry to be accurate in their depiction of battery symbols byincluding the same number of cells in the symbol as for thebattery called out in the drawing. I don’t bother with that sothe battery symbol you see here will be used consistentlyirrespective of the number of cells and the operating voltageof the battery.
+SWITCHES:  The symbols for switches are pretty good
+physical representations of switch operation. There aredetailed examples of the various switches that appear in ourdrawings in the chapter on switches later on in this volume.A convention used by many designers and used throughoutthis book uses a tria ngular contact to denote a momentary
+contact while a circular contact is a sustained switchposition.  
+Some designers will include additional information about
+the mode of attaching wires to their switches . . . an opencircle denotes screw terminal and a solid dot is a solderjoint.  The –>>– symbol on the wire denotes some form ofpin and socket connection. I’m really sold on the reliabilityand convenience of the push-on spade or “Fast-On” tabs andterminals. The same symbol is show on one of the switchdepictions where Fast-Ons are featured.  Detailed depictionsof solder, screw, or pin-socket connections may not beconsistently called out on our drawings for various products.
+The intent of this discussion is to make you aware of the
+variety of connection technologies and how they may bedepicted on a wiring diagram.  You should take advantage

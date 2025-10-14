@@ -1,0 +1,22 @@
+DC and Wiring Fundamentals
+1-1
+Figure 1-1 Ohm’s Law - Three Variations on a ThemeDirect Current and Wiring Fundamentals
+Every discipline has its own spoken and written language.
+Carpenters speak of "cripples, jacks and studs" whileillustrating their tasks with familiar shapes that describesomething as yet to be. Hydraulics designers use words like"pilot valve, cylinder, and bleeder” described on paper withyet another set of symbols. We promise not to try to makeyou an engineer but there are a few rudimentary analytictools and language that will help you navigate this newterrain. If you already have a working knowledge of Ohm'sLaw, how to calculate power consumption and readschematics and wiring diagrams, then proceed directly toChapter 2   If you do not possess these skills, spend sometime with us in this chapter and we'll tell you about it:
+The Story of Electron Behavior
+A long time ago, in a galaxy not very far away there were
+four gentlemen named Volta, Ohm, Ampere and Watt.They aren't around any more but they left us with sometools that help us predict the behavior of some very tinycritters known as electrons. Nobody has ever seen one butwe know where they are  because they can be made to dosome amazing and otherwise difficult tasks.   
+The Force Behind the Flow
+The first behavior trait is described in terms proposed by
+Mr. Volta. The Volt is a unit of measure that represents thePRESSURE behind a source of electrons; its generic nameis "electromotive force". The Volt has been given attributes
+much like pressure exerted on a liquid or a gas. Forexample, you can have an air bottle filled to 100 PSI of air.The PSI value represents a potential for doing work. Theair could be used to run a rivet gun or dr ill motor. If the
+bottle’s valve is closed, there is no movement of the air inspite of the pressure and no work is being done. In theelectrical world, a 12-volt battery has twice the 'pressure'behind its stored electrons as a 6-volt battery.  Until youconnect wires to the battery and route the energy to somelocation to do work then the potential energy contained inthe battery stays there waiting to be used.  Voltage is measured as a difference in electromotive force
+between two points.  Voltmeters come with probes on twotest leads and you touch the probes to two pointssimultaneously to measure the voltage between them. 
+The Flow
+The next trait is measured in Amps, a unit that represents a
+RATE like jelly beans per day, miles per hour, and the like.An ammeter is a device that is hooked in series with aconductor supplying an electrical device with power. Theterm 'in series' means that you literally break the wire andinsert the ammeter in the gap. In this way it can detect anddisplay the number of electrons per second that pass throughon their way to do work. If we made a comparison in thecompressed air bottle analogy we would need to place agauge in the air line to measure molecules per second of airflow. 
+A flow of electrons (amps) together with pressure (volts)
+will do work. They  start engines, light lamps, spin gyromotors, run radios and do all manner of nifty tasks.
+Tight Places Along the Way
+Unfortunately, there is no way to move the electrons from
+their source (such as an alternator or a battery) to thelocation where they are to do work without losing some oftheir energy along the way. If you hooked one mile of airhose to the 100 PSI air bottle, you would be disappointed at

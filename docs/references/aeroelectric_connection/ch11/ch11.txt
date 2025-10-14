@@ -1,0 +1,2191 @@
+Switches, Relays and Contactors
+Switches, Relays and Contactors
+Switches, relays and contaclors are a family of basic
+devices used to control flow of current in an electrical
+system. The generic switch has been around from the
+very beginning of electrification. Houses were convert-
+ed from gas or oil to electrical illumination by literally
+fastening lamp fixtures to ceilings, switches to walls and
+connecting the whole mess together with wires that
+were stapled to the surface. Even in these rudimentary
+beginnings, switches were constructed to accomplish
+connection or disconnection of electrical circuits with a
+snap. As one rotated the handle of an early light
+switch, a feeling of winding up a spring was unmistaka-
+ble. At some point, tension was sufficient to push
+internal parts past a detent and the switch would
+complete its operation with a "click"; a sudden release
+of tension could be felt in the fingers.
+The need for snap action was well understood, espe-
+cially in the early days of domestic power distribution.
+Most houses were first supplied with direct current
+(d.c.) in contrast with present day systems which supply
+alternating current (a.c.). In the section on over voltage
+protection I described special design efforts required
+to control the fire between spreading relay contacts
+which are attempting to bring a failed alternator/regu-
+lator system under control. When d.c. was routed to
+our ancestors homes, the problem of controlling high
+voltage had to be addressed. In this instance, the high
+d.c. voltage was not developed by a collapsing magnetic
+field. The voltage was already high; 100 volts or so as
+delivered to the back of the house!
+A simpler device known as a knife switch was universal
+in industrial applications. It operates in a manner which
+is suggested by its name: a blade of conductive material
+was moved by an insulated handle so that it was forced
+between two spring loaded leaves of conductive materi-
+al thus making a connection. Breaking connection was
+accomplished by simply pulling the blade from between
+the leaves.
+My earliest recollection of knife switches is from old
+black and white movies. The good Doctor Frankenstein,
+standing over his patient, is yelling instructions to Igor
+who manipulates many switches and knobs on the
+laboratory apparatus. Operation of these switches is
+always accompanied with flashes of fire and puffs of
+Pagesmoke. The . effects were undoubtedly enhanced for the
+benefit of the movie viewers, but then fire and smoke
+was not totally out of character for this type of switch.
+Indeed, hesitant or sloppy operation of a knife switch in
+a high voltage circuit would produce long, hot blue
+sparks accompanied by subsequent damage to the
+switch.
+Purveyors of early electrification products and services
+knew that consumers would not be favorably impressed
+with little fires and puffs of smoke at their fingertips.
+Snap action switches were developed in a successful
+attempt to keep 'lights" off of walls and up on ceilings
+where they belonged! Control of high voltage d.c. using
+snap action switches required no instruction or special
+action on the part of the switch operator. A child could
+easily accomplish a making or breaking of connection.
+Thus children began to "make" more connections than
+they "broke" and the seeds of eternally illuminated
+children's bedrooms were planted. They thrive to this
+day!
+If you have ordered catalogs from firms listed in
+Appendix A, then you have access to a pretty good
+cross section of many ways in which switches are made.
+Start with parts that hang out through the panel: the
+actuator handle. For actuator choices one finds toggles,
+rockers, paddles, buttons and knobs, just to name the
+most ordinary. Then there are single-pole, double-pole
+and many-pole types capable of switching several cir-
+cuits simultaneously. The part of a switch that hides
+behind the panel has about as many different configura-
+tions as the part that sticks out the front!
+To assist in communicating switch functions, a simple
+language has been devised. It goes like this: to describe
+a switch that simply controls a landing light, one would
+ask for a "single-pole, single-throw" switch. This is
+abbreviated by writing SPST. To describe a switch like
+that used to control the avionics/essential bus on wiring
+diagrams in Appendix Z, one requests a "two-pole,
+double-throw" with terminal interconnections made in
+all three switch positions. Its function is abbreviated by
+writing DPDT, ON-ON-ON. On the same diagrams a
+combination fuel pump and electric primer switch are
+shown. This switch is identical to the avionics bus switch
+except an extreme position is spring-loaded to center.
+11-1
+The AeroElectric Connection
+ Switches, Relays and Contactors
+~"0
+SINGLE POLE, SINGLE THROW
+(SPST, OFF-ON)
+—(V"" >
+O—
+SINGLE POLE, DOUBLE THROW
+' CENTER OFF (SPOT. ON-OFF-ON)
+DOUBLE (DPDT, 'q
+ POLE, ON-ON-ON)
+ DOUBLE THROW
+-A.
+O
+SINGLE POLE, DOUBLE THROW
+(SPOT, ON-ON)
+-~ymr" >
+I
+ O—
+—Cm"" >
+O—
+DOUBLE POLE, DOUBLE THROW
+CENTER OFF (DPDT, ON-OFF-ON)
+~t
+ LANDING \.L 'g
+ i
+ LT
+ jl
+ 11
+DOUBLE POLE, DOUBLE THROW
+ TAXI LIT
+(DPDT, ON-ON-ON)
+WIRED FOR SP3T OPERATION
+Figure 11-1. Toggle Switch Configurations
+Page 11-2
+The AeroElectric Connection
+Its abbreviation is DPDT, ON-ON-(ON). The paren-
+thesis about one of the positions indicates spring load-
+ing. Suppose you needed a switch to operate an electric
+trim actuator with a permanent magnet motor. An
+appropriate switch would be a DPDT, (ON)-OFF-
+(ON). It would provide a trim up and trim down posi-
+tions with spring loading to the center off position.
+Specialized switches permit single switches to perform
+multiple functions thereby reducing panel space needed
+to do a job. Wiring diagrams in Appendix Z have
+several examples of "panel space conservation". For
+example, the magneto switches also control starter
+functions. The fuel pump switch also controls an elec-
+tric primer valve. The avionics master switch controls
+essential bus connection to main bus, selects an emer-
+gency mode essential bus feed directly from battery and
+also disables the starter circuits if the switch is not
+positioned to shut off the avionics! How's that for
+squeezing triple duty from a single switch? If you plan
+to install both landing and taxi lights, consider a single
+switch of the DPDT, ON-ON-ON type. Wire it for the
+SP3T function like the avionics master but leave the
+lower position connection unused for "OFF", wire the
+mid position to illuminate the taxi light and the upper
+position to illuminate the landing light. These examples
+are illustrated in Figure 11-1.
+Switch selection tasks usually begin with a choice of
+actuator. . . . the part you grab with your fingers. The
+traditional actuator is the "bat handle" which accurately
+describes its appearance. Other shapes include flat
+paddles, tapered paddles, rockers, lighted rockers, etc.
+This part of the selection is a matter of style and is
+pretty much up to the builder and his pocket book!
+The next consideration is the electrical rating of the
+switch. Most of the catalogs from the vendors listed in
+Appendix A will have abbreviated if not complete speci-
+fications for the switches they offer. Unfortunately, the
+real implication of the manufacturer's ratings is not cut
+and dried. Here is a sketch of what the ratings are
+about:
+A switch will have both a voltage and a current rating
+equated with a switching task. For example, suppose
+you read that a switch is rated at 10 amps resistive at
+125 volts AC, 7 amps resistive at 250 volts AC and 5
+amps inductive. Sometimes you even see a "tungsten"
+rating on a switch which refers to its ability to handle
+light bulb loads. A sampling of the three types of loads
+is shown in Figure 11-2. Is the thing suited to an appli-
+cation in your airplane? Let us consider the character
+Switches, Relays and Contactors
+of these loads first.
+A nesistive load refers to a device which is neither induc-
+tive or tungsten-like in nature. Very few devices in an
+airplane fall into the category of resistive. Avionics
+components will make up the bulk of resistive loads.
+The nature of a resistive load is that the inrush, running
+and breaking currents and voltages are all the same.
+For example, suppose you were selecting a switch to
+control a 450 watt electric heater in a 28-volt Long-Eze.
+Referring to the techniques introduced in Section 1, you
+may deduce that a 450 watt heater will draw 450/26 =
+17.3 Amps. Why 26 volts? Recall in earlier discussions
+many devices with large current draws will be rated for
+operation at some level below normal bus voltage.
+Sharp component designers recognize the fact that zero
+resistance wire is not available and some drop in inter-
+connect wiring is to be expected. An electric heating
+element is almost purely resistive meaning that the
+instant the switch is dosed, an inrush of 17.3 amps can
+be expected. While the switch is closed, a running
+current of 17.3 amps can be expected. And lastly, when
+the switch is opened, no inductive voltage spike is
+expected. With no inductive spike the contact spreading
+velocity of the switch may characterized for breaking a
+28-volt circuit, not a several hundred volt circuit!
+An inductive load is a device which is internally con-
+structed with coils of wire around magnetic materials of
+some type. These devices include motors, relays,
+contactors, solenoids, some strobe light power supplies,
+electric primer valves, etc. The inductive spike phe-
+nomenon was explained in detail in the section on over-
+voltage protection so I won't dig into it here. Suffice
+it to say that the act of turning an inductive load OFF is
+the difficult part. When a switch is poorly adapted to its
+task, energy stored in the magnetic circuit of the induc-
+tive component is dissipated at the opening contact
+points of the switch. Motors present a worst case sort of
+switching task. Obviously wound with many turns of
+wire, they are quite inductive. However, it also take
+much more current to start a motor than that which is
+required to run it. Motors will be described in detail in
+a later section but we are all familiar with the dimming
+of the house lights when an air conditioner or washing
+machine kicks on. Furthermore, it is a rare airplane
+that doesn't show a momentary but distinct dimming of
+panel lights when electric flaps or landing gear are
+extended. Motor inrush currents may be 4 to 10 times
+the running current.
+Heavy duty contactors can also wreak inductively in-
+duced havoc. An inductiw spike from the coil of a
+Page 11-3
+The AeroElectric Connection
+ Switches, Relays and Contactors
+"^%
+G,
+ IQ
+Z ,r=>,
+!
+'A
+ a
+F
+S 10
+'^
+¢
+~'b
+ i
+ .
+PITQT TUBE
+i-EATER
+vi =,
+ ~
+|"1
+~<J
+ ANTILATION
+fYjWfR MTR
+Figure 11-2. Resistive, Tungsten and Inductive Loads.
+cootactor can be hard on the switch that controls it. It
+can also damage sensitive, improperly protected elec-
+troaic components. For row [ will conceotrate on the
+task of controlling inductive devices; the taming of the
+inductive shrew will be discussed in detail in the section
+on electrical noise.
+The so called tungsten characteristic refers to li®ht
+bulbs. Iii the section on lighting I will discuss the
+operation of lamps in detail but for now, know that the
+theoretical inrush curreat on a landing light can be 16
+times its runtiing current! Lets see. . . ISO watts divided
+by 13 volts is 115 amps. Sixteen times 115 amps is 184
+amps!!!!!
+What's a mother to do? Where are we going to find a
+panel mounted switch for a landiog light that is good
+for 184 amps? Take heart. Note tbat [ used the term
+"theoretical" in front of the word "inrush". All inrush
+values assume that full rated voltage is available to
+power the lamp from the first instant of switch closure.
+Let us accomplish a quickie analysis of a landing light
+turn-on sceuario:
+PageThe device which is capable of delivering the landing
+light inrush current is the battery. The alternator's
+output will mitigate any load on the battery. However,
+for the purposes of this analysis we will assume that it's
+assistance is negligible. Starting with the battery, let us
+assume that the internal resistance of the battery is 12
+milliohms which says that the dead short current limit
+on the battery is oa the order of 1000 amps. Let us
+further assume that our Long Eze uses 6AWG battery
+supply ami ground wires tocaling sevea feet for an addi-
+tioaal 3 milliohms. Let's call out the landing light
+supply and ground wires as 16AWG md 8 feet loog for
+another 32 milliohms. Looking at the light bulb itself.
+to draw 184 amps at 13 volts requires a cold filament
+resistance of 13/184 = .065 ohms or 65 milliohms.
+Adding up all of the resistances we get 65 + 32 " 3 "
+12 for a totd of 112 milliohms. In the sectioa oq bacter-
+ies, I described a battery as a 12 volt device internally so
+the real inrush current at the instant of switch closure is
+more on the order of 12 volts divided by 0.112 ohms or
+107 amps! This oumber is still big but certainly much
+less than 184. There are inductive effects of the wiring
+to consider and lastly, this inrush lasts for less than a
+11-4
+The AeroElectric Connection
+millisecond since the lamp bulb's current draw drops
+rapidly as the filament warms up.
+In actual practice, the landing light may be expected to
+have a peak inrush on the order of 80 amps or about 7
+times the rated load current of the lamp. The same
+sort of conditions apply to motor starting loads but they
+last much longer. As a general rule, motor inrush
+currents will be ten times longer in duration because
+load current is a function of motor speed and it takes
+longer to spin up a motor armature than it takes to heat
+a lamp filament.
+A resistive load is the most benign. Therefore, a resistive
+load rating is the larger of the three for all switches.
+Depending upon a switch's design, either tungsten or
+inductive loads could be considered to be a worst case.
+A switch might have very heavy contacts and be quite
+suited to high inrush switching but heavy contacts are
+harder to accelerate apart and the switch might get
+lower marks for inductive loads. On the other hand, a
+very fast over-center mechanism might be driving light
+weight contacts. This device might be capable of break-
+ing the nastiest of inductive spike arcs but the light
+contacts won't do so well in the high inrush application.
+Looking at the manufacturers' ratings again, suppose
+we put a switch rated at 15 amps resistive into a slot that
+controlled our 17.3 amp heater? Does this mean the
+switch is going to smoke after a few minutes? Suppose
+we used a miniature toggle switch mounted on a control
+stick for electric trim. The switch was rated for 2 amps
+inductive. We were running a 1 amp trim motor with it
+but the switch failed. Teardown disclosed a functioning
+mechanism but badly burned contacts. What went
+wrong? In the section on overvoltage relays I said, "if
+you let me pick the 2 amp inductive circuit, I would
+show you how to melt down a 10 amp inductive rated
+relay or switch." Well, here is the rest of the story about
+switch ratings.
+There are hundreds of test specifications for rating
+switches. The military has written at least 50 different
+specs that I have referred to over the years. Under-
+writer's Laboratories has a fist-full of test specs too.
+However, UL testing is user safety oriented, not
+product performance oriented. I've had experiences
+with UL approved devices that didn't work worth a toot
+but they didn't set my house on fire either! Added to
+this are many commercial and industrial specifications
+for rating switches. A great deal of commonality is
+shared by these specifications. However, each spec was
+created to address a "special" need. The need might be
+Switches, Relays and Contactors
+as exotic as an application on a spacecraft. Or perhaps
+the manufacturer simply tailored the specs to match his
+ability (or inability) to build switches.
+The rating of a switching device can be deceptive. I
+remember two instances wherein I was mandated to
+used a "heavier" switching device than I had originally
+specified just as a safety factor. Both situations in-
+volved secondary trim systems, one a twin jet and the
+other a high performance twin turboprop. In the in-
+stance of the jet, i had designed a seventeen dollar, 2-
+amp nsistive, l-amp inductive rated relay into the direc-
+tion control system of a motor that was drawing 1.8
+amps worst case though the relay. I had spent many
+hours selecting arc suppression networks to match the
+system characteristics and had proved the relay to be
+good for over 100,000 cycles as designed. The customer
+arbitrarily selected a 5-amp resistive, 3-amp inductive
+device to go in the same slot. This newer, "stronger"
+relay sold for over $100 a copy! It was simply "insur-
+ance" they said.
+My inspection of the relay showed that it did indeed
+have heavier contacts and was well suited to carrying 5
+amps but the spreading velocity was much slower and
+the final resting air gap between the open contacts was
+less one half the gap in the 2-amp relay! My protests
+yielded naught and the big husky relay went into pro-
+duction. Over the next few years that I was associated
+with that product, the direction change relay was in the
+top five trouble items for the product. The heavy duty
+relays often failed in less than 100 hours of flight serv-
+ice. Somehow nobody could seem to recall who spec'ed .
+the bigger, more expensive relay into the product and
+we fielded a lot of flack over the failures. But, the
+product was certified and the cost of recertification was
+too much to justify any changes.
+The other was a case where I had specified a sub-
+miniature switch to be used in a pilot's secondary trim
+switch mechanism. The switch I had selected was by a
+well known manufacturer and again, I was using it at or
+near its design limits. My superior wanted some "insur-
+ance" and insisted that I find a 'better" switch. I did
+find a switch by an obscure manufacturer that had a
+slightly better rating. I found that it was better only
+because of the spec that it was tested to but that was of
+no concern to my boss. If the catalog gave it a better
+rating, it had to be better in our application so that's
+what we bought. Fortunately, that switch has proved to
+be satisfactory so far; I am aware of no particular diffi-
+culties with it.
+Page 11-5
+The AeroElectric Connection
+ Switches, Relays and Contactors
+The problem presented to you as purchasing agent for
+Podunk Hollow Homebuilts is to understand how all
+this does or does not affect your decisions on selecting
+and buying a switch. I am sure you have neither the
+time nor an inclination to approach the task with the
+energy, determination and budget of a NASA engineer.
+First, let us address the issue of style. My personal
+favorite is the standard bat handle for a switch opera-
+tor. Reason: many manufacturers supply similar if not
+identical looking switches in a variety of special func-
+tions. These switches usually mount in a single 15/32"
+round hole; they utilize a keyed and tabbed anti-
+rotation washer for additional security in installation
+and they install with a single nut. Switches with other
+styles of handles are more limited in the availability of
+special functions except by special order. Rocker
+switches are the worst of the lot for mounting since they
+require square cornered rectangular holes and two
+mounting screws. The lowly bat handle can be spruced
+up with colorful plastic booties. However, the choice is
+yours . . . . I have seen some very snazzy looking panels
+with rocker switches or multi color paddle switches on
+them.
+The next consideration should be directed not so much
+at ratings as at the mechanical quality of a switch. The
+best way to acquire some confidence in the mechanics
+of a switch is to pick from well known manufacturers.
+Microswitch, Cutler-Hammer, Potter and Brumfield
+are a few good sources of many sizes of switches. C &
+K, Cutler-Hammer and ALCO are additional choices
+for miniature switches. A military specification number
+builds some confidence in a switch's pedigree. The
+reason for concentrating first on mechanical attributes
+over electrical attributes is the fact that a hand operated
+switch in the panel of an aircraft is more likely to fail
+mechanically than it is to fail electrically.
+Explanation: All credible manufacturers of panel
+switches have electrical and mechanical ratings of in the
+tens of thousands of operations or more. One hundred
+thousand is not uncommon. How long will it take you
+to put even 10,000 operations on any switch in your
+airplane? Yet, most switches fail in service with a small
+fraction of this number of cycles on them. Teardown
+usually shows a mechanical failure; the electrical con-
+tacts are still in good shape. In the laboratory testing
+environment, the 50,000 or 100,000 cycles is applied to a
+product in a short period of time. One operation per
+second is 3600 per hour. Less than 28 hours are needed
+to "test" a switch to 100,000 cycles. The telling stresses
+on a switch in service are temperature cycles, humidity
+cycles, vibration, etc. Over time, these stresses can be
+harder on mechanisms than upon the contacts of a
+switch.
+Let's look again at electrical ratings. In the area of mild
+overload, of say 50%, the effect is not going to be
+inducement of immediate failure but one of shortening
+of the electrical life. In the laboratory, the electrical
+and mechanical Lives of switches are similar. So, does it
+bother you a great deal that the way you are using a
+particular switch might reduce its life to a paltry 10,000
+cycles? The major switch contact killer is the inductive-
+ly induced fire created in the spreading contact air-
+space.
+The next most common failure is induced by steady
+state overload which produces a precipitous accelera-
+tion toward self destruction. The phenomenon was
+described in the section on circuit protection wherein
+two pieces of metal which are normally in tigiit electri-
+ -
+cal contact with each other get just a little corroded.
+The contact resistance goes up which increases the heat
+generated at the contact. Corrosion accelerates due to
+heating and the resistance goes up some more, the heat
+increases again as a result and so on. Eventually the
+thing catches fire and/or just melts down.
+Except for the big electric heaters used in the Eze's,
+and pitot tube heaters, no large loads are of the contin-
+uous duty type. Landing gear motors, flap motors,
+landing lights, etc. are intermittent, short time loads.
+Switches used for these kinds of service are not very
+prone to precipitous corrosion failure. There is a third
+type of switching device failure, which usually happens
+only to contactors, but we'll discuss it here.
+The third switch failure mode is a bit more complex:
+when working with large current flows in d.c. power
+systems there is no practical way to reduce the arcing
+at the contacts to zero. Some arcing will occur at time
+of contact closure and again at contact opening. Arcing
+at switch closure happens because of contact bounce (?
+? ? Yes, bounce!). Imagine yourself to be 0.1 inches
+tall. In front of you are a pair of contacts in a switch
+designed for, let us say, 30 amps. These contacts might
+be 0.1 inches in diameter, 0.05 inches thick and be
+normally separated by 0.1 inches of airspace when
+open. These dimensions scaled up to your normal size
+might translate into 6 feet in diameter, 3 feet thick and
+6 feet apart. Now, let's smack these chunks of metal
+together so as to cause them to close a circuit and carry
+current. Be assured that they will not stay in contact
+with each other after the first closure. Nor perhaps the
+Page 11-6
+The AeroElectric Connection
+second or even the third. This 'bounce' is present to
+some degree no matter what the scale of the switch is.
+I have personally documented as many as eleven sepa-
+rate contact closures on some types of relays. All this
+happens in tens of milliseconds and the air gap between
+bounces is quite small; not much is happening here in
+most cases but suppose we're trying to warm of the
+filament of that landing light with each bounce putting a
+107 amp pulse of current to the lamp! (There are some
+bounce-free designs for switches and we'll talk about
+them later.)
+The next opportunity for arcing occurs at switch open-
+ing time as we've discussed before. With tungsten and
+resistive loads it is no big deal. However, if the load is
+inductive all the excess energy stored in the magnetic
+circuit of the inductive device tries to warm up the
+contacts of our switching device with fires fueled by a
+voltage which happily grows larger as the contacts get
+farther apart. Again, if the contacts move rapidly and
+their thermal mass is sufficient, the device can be
+expected to work under its rated conditions for many
+thousands of cycles. It is a matter of degree; the ability
+to prevent arcing in the circuit versus the ability to
+withstand arcing in the switch: a design trade-off
+between expense and function.
+So, if arcing is never zero, what are the consequences?
+First, let us consider the characteristics of an electric
+arc. If you ever get to look directly at contacts in opera-
+tion on some open switch or relay, the color of the arc
+is yellow-white to blue. These colors imply tempera-
+tures on the order of thousands of degrees! No matter
+how small an arc may be, some amount of contact
+metal will be vaporized. When the metal molecules are
+ripped off the surface of the contact by an electric arc,
+they tend to loose a few electrons from their outer
+shells and they become ions with positive charge, free
+to roam about in the hot gasses of the arc. It is only
+natural that they migrate toward the more negative
+terminal of the two contacts and when they strike the
+colder metal they stick and pick up their missing elec-
+trons from the current flow.
+If you recall a badly worn set of points removed from
+an automotive ignition system, the contacts were never
+worn evenly. They mated together when closed but one
+contact would be fatter, perhaps convex in shape. It
+would exactly fit into the concave surface of the other
+contact. This is the most routine example I can think of
+where the transfer of metal from one contact to the
+other can be observed. In the case of manually operated
+switches, this metal transfer phenomenon is seldom
+PageSwitches, Relays and Contactors
+observed. This is because switches as a class of device in
+an airplane are seldom required to handle over 10 amps
+of inductive or tungsten load for very many cycles. If
+you ran a set of ignition points for 10,000 miles at 3000
+revolutions per mile in an 8 cylinder engine, they would
+have to make and break a 2-amp inductive load 120
+million times! Not much arcing takes place at each
+switching action but 120 million itty-bitty arcs can trans-
+fer a substantial amount of metal.
+Metal transfer is the culprit in another switch failure
+mode. It works like this: suppose after many normal
+operations of a particular switch some significant metal
+transfer has taken place. A general form of the transfer
+is for metal deposited on the positive contact to form a
+little sharp topped micro-mountain only a few thou-
+sandths of an inch high. Now let us suppose that on
+some particular closure, this little mountain of metal
+does not fall exactly into the valley on the other contact
+and instead it hits on the rim. If the switch is carrying a
+high inrush load like a motor or a large lamp, the tip of
+the mountain, as a poor conductor of large currents,
+becomes the welding material for sticking the two
+contacts together! Contact closure welding is a phe-
+nomenon most often found in large relays or "contac-
+tors". Contactors are special switches; a topic of the
+following few paragraphs. The starter contactor is most
+likely to suffer contact welding although I have seen
+battery, landing gear and flap motor contactors stick
+too.
+ROTARYSWITCHES
+For a device which simply connects or disconnects wires
+from each other, switches can be very complex too!
+Take a look at the cam operated switches in a washing
+machine or an automatic dishwasher some time. Air-
+craft circuit designs seldom require such complexity but
+there are a few cases where a simple toggle switch
+won't do the job. The transmitter selector switch for an
+aircraft microphone circuit is often actuated by twisting
+a knob through three or more positions. This single,
+rotary switch might control the interconnections of up
+to 20 wires!
+Illustrations of rotary switches are shown in Figure 11-
+3. This figure shows an example of a rotary switch
+section (sometimes called a wafer) and examples of
+schematics representing a rotary switch. Switch sec-
+tions are assembled on a shaft to any practical number.
+At Hughes Aircraft about 25 years ago, I recall repair-
+ing a test fixture wherein the fifth section in a
+11-7
+The AeroElectric Connection
+ Switches, Relays and Contactors
+7
+8
+ 6
+9
+ 5
+'
+ Q
+ '
+11
+ 3
+12
+ 2
+Lc1ommon
+TERMINAL
+VIEW A
+S
+,}""!9',
+'
+ ·1 I?e
+ ¢
+90
+ O'
+ ¢
+i00
+ 6L-~
+"1,1 i rj
+ 1¶0
+ t20 T Q2
+ 0?
+ S
+ S
+S
+1
+S
+L COMMON
+L COMMON
+TERMINAL
+VIEW B
+TERMINAL
+VIEW C
+MECHANICAL REPRESENTATION
+OF ROTARY SWITCH WAFER
+\
+TWO SCHEMATIC REPRESENTATIONS
+OF ROTARY SWITCH WAFER
+SINGLE POLE, 12 POS
+ROTARY SWITCH
+'
+Figure 11-3.stack of about 12 was burned. I was able to disassem-
+ble the switch, remove and replace the burned section,
+and reassemble the switch. Only ten connections out of
+the 100 or so total were soldered to the damaged sec-
+tion. You are unlikely to need many sections for an
+application in your airplane. In a later section on in-
+strumentation, well discuss the use of a rotary switch to
+select from a variety of thermocouples for the meas-
+urement of temperatures.
+A subscriber told me of a trip to a local parts store to
+purchase a rotary switch. The clerk asked if he wanted a
+"shorting" or "non-shorting" type. He replied, "non
+shorting, of course. Who would want to buy a shorted
+switch?" The clerk didn't answer his question; the
+reader asked me about it in a later telephone conversa-
+tion. I explained as follows:
+In some circuit designs, it is undesirable to have the
+common terminal become disconnected or "floating"
+during the transition from one position to the next. In
+Figure 11-4 I have shown a series of views for the two
+types of switches. Observe that the rotor in both series
+of views is transitioning from position 4 to position 5.
+The center views show mid positions. In vi¢w B, the
+rotor tab is wide enough so that it makes contact with
+PageRotary Switches.
+the next position (S) before it breaks with the last posi-
+tion (4). In view E, the narrow tab has already broken
+connection with position 4 and has not yet made con-
+nection with position 5. Most of the time, a non-
+shorting or break-before-make switch is appropriate. In
+some instrumentation or audio selector applications,
+the shorting or make-before-break is used. Do not rely
+on a schematic symbol to make definitive statements as
+to the type of switch needed for the task. A bill of
+materials part number or description in accompanying
+text should be consulted to determine which type of
+switch is recommended.
+'MICRO' SWITCHES
+There is a class of switches ordinarily referred to as
+micro switches. These are plunger operated, single
+pole, double throw switches like those illustrated in
+Figure 11-5. To call every example of these switches
+"micro switches" is like calling all copy machines "xer-
+ox's." Microswitch is the name of a company that
+pioneered little plunger operated basic switches and the
+name sort of stuck. In the examples shown, a variety of
+sizes and actuating systems are given. The devices in
+11-8
+The AeroElectric Connection
+ Switches, Relays and Contactors
+7
+ 7
+ _7
+ /
+8@
+ 0
+ ,,6
+ 8
+ 6
+ 8©
+ |oL, O:'
+C,
+ 0
+ 0
+9(µ, ' "¢"
+ "" d?'5
+9(8,,.
+ I
+ ' @S
+ g ©m·
+ 'r ' ,>jS
+T
+ '"
+/
+ &
+in= ,
+ G)
+ =4
+ 1 =
+ Cl
+ (= 4
+ I
+ ej "
+ \,
+ r""" \ "
+ )7 "
+ \ /
+ = 4
+~»'
+ m, \
+ ^1 jC? '.
+ .
+ "3
+ ,,es
+ ^@'3
+ 1 j(O '
+ '
+ ' R»3
+r
+ d
+ ...
+0
+ (J
+ O
+ (J
+ O
+ 'J
+12 0
+ 0
+ 2
+ 12 0
+ :
+ 2
+12 L7
+ 0
+ ?
+1
+ 1
+ "
+VIEW A
+ VIEW B
+ VIEW C
+\
+A "SHORTING"
+ TYPE ROTARY SWITCH
+/
+A SHORTING TYPE SWITCH WILL MAKE THE NEXT CONNECTION BEFORE
+BREAKING THE LAST CONNECTION
+ NOTE IN THE EXAMPLE ABOVE THAT
+THE SELECTION TAB ON THE ROTOR IS WIDER SO TUAT IT CONTACTS
+TERMINAL 5 BEFORE BREAKING CONTACT WITH TERMINAL 4, AS IT
+TRANSITIONS FROM 4 TO 5.
+7
+ 7
+ 7
+8@
+ 0
+ ,,6
+ 8
+ 0
+ 6
+ 8
+ 0
+ 6
+CJ
+ 0
+ C\
+ lj'
+9@,-
+ -
+ ' ¢jjS
+ 9@
+ O 5
+ 9 Cj ' / \
+ " '
+ O 5
+1 " = \\
+ Ei
+ / = 4
+ 1 n=
+ CJ,
+ = 4
+ in=
+ Oj
+ =4
+L.
+1 |(g"' ·.
+ '
+ %3
+ 1 j9 "
+ / "3
+ 1 1 O
+ \
+ %3
+^
+ \
+I 2° tb' !
+ 'I?
+ 1 2 O
+ 0
+ :
+ \J
+ "2
+ 12 O
+ 0
+ 0
+ CJ
+ 2
+I
+ 1
+\
+VIEW D
+VIEW E
+A NON-SHORTING ROTARY SWITCH
+VIEW F
+/
+A "NON-SHORTING" SWITCH WILL BREAK THE LAST CONNECTION BEFORE
+MAKING THE NEXT CONNECTION
+ NCTE IN THE EXAMPLE ABOVE THAT
+THE SELECTION TAB ON THE ROTOR IS TOO NARRCW TO CONTACT TWO
+TERMINALS AT ONCE AS IT TRANSITIONS FROM PC'SITICJN 4 TO POSITION
+5
+Figure 11-4. Shorting versus Non-Shorting Rotary Switches.
+Page 11-9
+The AeroElectric Connection
+ Switches, Relays and Contactors
+(0)
+A
+O
+ O
+it
+ It It
+VIEW A
+,EO
+r
+'
+m
+*\
+ ~
+ °'
+n
+='O
+ '
+%,
+ O,
+,~,
+ !
+VIEW B
+O
+<±O
+ '
+*'
+ ~
+ °"
+VIEW C
+ VIEW D
+MANY CIRCUIT DESIGNERS USE THE RIGHT
+ANGLE 'HOOK' ON ONE CONTACT TO DE-
+NOTE THE NORMALLY CLOSED CC'N'A"'
+_©
+ _—--
+7
+¢_
+"
+k
+"o—i
+.
+O
+O
+i
+VIEW E
+VIEW F
+Figure 11-5. Plunger Operated Basic Switches.
+Page 11-10
+The AeroElectric Connection
+the illustration are approximately actual size. There are
+some smaller as well as larger but these will take care
+of about every application in a homebuilt.
+A familiar application of basic switches is for limit sens-
+ing in meChanisms. Applications include up and down
+limit sensing in flap and landing gear systems. Other
+tasks include sensors for unlocked canopy latches, open
+baggage doors and sensing whether or not pitch trim is
+in take-off position. Basic switches are often combined
+with a pressure sensing diaphragm to fabricate an
+under-pressure or perhaps an over-pressure warning
+circuit. Small plunger or lever operated switches are
+used to sense down locks on landing gear mechanisms.
+"Three-in-the-green" on short final means that three
+separate switches have been actuated and now show
+that all gear mechanisms are down and locked.
+Catalogs are available from Microswitch and others
+which detail an uncountable combination of ways these
+switches may be configured. It is unlikely that you will
+need to order anything very exotic from a catalog list-
+ing. However, the catalogs are invaluable for identifying
+a switch's characteristics. You can probably find switch-
+es suited to your needs in surplus catalogs, fly/flea
+markets, etc. Most switches will be marked with the
+name of the manufacturer and a part number. Manu-
+facturer's catalogs will then help you determine the
+electrical ratings, mechanical characteristics and special
+features which may have been built into the switch.
+They are not expensive switches when new. They are
+built by the millions and regularly surplused by industry
+in large quantities. Surplus outlets should be considered
+good sources for basic switches.
+Figures 11-6 and 11-7 give some examples of basic
+switch application. In Figure 11-6, the switches are
+wired to provide automatic shutoff of an. electric trim
+motor, just before the mechanism reaches hard me-
+chanical stops. In this example, the motor current is
+low enough to allow the basic switch to carry motor
+current. In Figure 11-7, an electrically extended flap
+system is illustrated. Here the motor current is too
+large to run through small switches so control relays are
+added to the system. The pilot's panel operated switch
+and the basic switches used as limit sensors may now be
+rated to carry relay coil current (milliamps) instead of
+motor current (tens of amps).
+RELAYS AND CONTACTORS
+This brings us to the next topic of discussion in this
+PageSwitches, Relays and Contactors
+section: relays and contactors are types of remote
+controlled switches. A need for a remotely controlled
+switch can arise from: (I) the current to be controlled is
+too great to be carried by a basic, hand operated device
+o' (2) a large number of circuits must be switched
+simultaneously but the system design makes it impracti-
+cal or impossible to bring all of the wires to a hand
+operated switch location.
+An example of multiple circuit switching can be found
+in many VHF COMM transceivers (See Figure 11-8).
+Pressing the microphone button closes a single wire
+circuit which energizes the electromagnet of a relay. A
+two pole, double throw DPDT relay inside the trans-
+ceiver disconnects the comm antenna from the receiver
+and connect it to the transmitter. At the same time, a
+second pole disconnects power from the receiver and
+applies it to the transmitter. The act of changing from
+a receive to transmit mode may require the changing of
+many more circuits than antenna and power. I remem-
+ber the very unpopular chore of changing out the
+transmit/receive relay on a particular FM Two-way
+transceiver back in the '60's. The thing occupied only
+about 2 cubic inches of volume and was buried deep in
+the guts of the power supply. It had 12 wires attached
+to it that were never long enough to allow clipping the
+old relay out and soldering in a new one. The job took
+over an hour! In that instance, 7 different circuits,
+some with hundreds of volts on them, were switched
+when the operator pressed one little button on the
+microphone.
+The most familiar form of contactor is that which is
+used to control the airplane's battery and starter motor.
+A contactor is really just a big relay but it has features
+which make it unique and worthy of the name "contac-
+tor". Some people call these devices "solenoids"; close
+but no cigar. A solenoid is an electric motor; it imparts
+motion to a mechanism when electrical power is ap-
+pLied. Contactors are solenoid operated switches and
+indeed, many starter engagement solenoids on automo-
+biles also control the electrical side of the starter motor.
+There are features which set a contactor apart from the
+relay: first, the magnetic motor that actuates it is more
+powerful than the one found in a transceiver's
+transmit/receive relay. For relays, a few ounces of
+force is sufficient to hold the contacts closed. A contac-
+tor may require several pounds of force for reliable
+operation. The form of the contacts is unique too. The
+schematic symbol for the contactor suggests an electri-
+cal conductor is bridged between two contacts as the
+device closes. There are a couple of good reasons for
+11-11
+The AeroEiectric Connection
+ Switches, Relays and Contactors
+~!A ::T
+UP
+PILOT'S
+ A
+ELECTRIC
+TRIM SW
+ V
+TRIM
+ON
+l~-iL
+TRIM ON LIMIT SW
+NC
++TR1M ON
+'1 F_mo
+ '°"
+®
+TRIM UP LIMIT SW
+NC
++TR1M UP
+'I F-n,
+ '°'
+ELECTRIC
+TRIM MOTQR
+@
+Figure 11-6. Basic Switches as Motion Limiters in a Low Current Motor Circuit.
+^^q
+)t,,:1
+c"iL_~
+/'>A
++FLAP+FLAPUP
+ON
+RAISE
+FLAPS
+RELAY
+,
+,
+0
+§tS9?5 PILOT'S
+ P
+ "P"l_~_
+FLAPS
+ O-A
+ON
+ pups UP L|MIY SW I
+""%L_
+O-"
+FLAPS ON LIMIT SW
+'"L—o
+—cA
+l
+ LOWER
+FLAPS
+Rf|AY
+Figure 11-7. Basic Switches in Combination with Relays.
+Page 11-12
+_
+ELECTRIC
+F|,AP MQTOR
+The AeroElectric Connection
+ Switches, Relays and Contactors
+VHF COMMUNICATIONS TRANSCEIVER
+ I
+>
+~ RELAY T
+RECVR
+ 1
+ 0 m
+0
+A
+ 0 A
+,,,,,, :7tj
+CS_CJ
+HEADSET
+VHF COMM ANTENNA
+17
+VHF COMM
+C,^O
+PUSH-TO-TALK
+BUTTON
+"""IC,,,,,,,,,,
+Figure 11-8. Multiple Circuit Switchingthis approach to the design. One is simplicity. In re-
+lays, a flexible conductor is often incorporated to make
+electrical connection to a contact which moves. A flexi-
+ble conductor rated for hundreds of amps isn't very
+flexible! So, by using a movable contact to bridge
+between two stationary contacts, the need for a flexible
+conductor is eliminated.
+b
+The second reason has to do with contact life. Recall
+that switches with a very snappy action have fast contact
+spreading velocities and are able to break an arc before
+it builds to intolerable heat levels. The massive moving
+components of a contactor simply cannot be made to
+"break" quickly. The problem is compounded when the
+contactor is used to operate the engine starter motor
+which is quite inductive and capable of storing consid-
+erable energy in its magnetic circuits! The contactor
+really has two sets of contacts in series. So . . . when
+one of the contacts has opened to a gap of 0.050", so has
+the other. The result is the same as though the contac-
+tor had a single air gap of 0.100'. The series connection
+has the net effect of doubling the air gap and the con-
+tact spreading velocity on what is otherwise a slow
+moving clunker of a contactor.
+in a Transceiver with a Relay.
+Contactors which you are likely to encounter come in
+two basic forms illustrated in Figures 11-9 and 11-10.
+For the sake of discussion we'll call these Type I and
+Type II. Type I is a "trickle up" technology from
+automotive and industrial applications. This contactor
+has been used by the tens of thousands on Cessnas,
+Pipers and some Beech single engine airplanes. The
+contactor sells for under $20 from Newark and others.
+This contactor has taken a lot of flack for its propensity
+for failure and high cost of replacement at Smiley Jack's
+Airdrome Services.
+I've disassembled a lot of dead Type I devices over the
+years. I can tell you that a goodly number of the contac-
+tors I've opened failed prematurely from environmental
+abuse of one kind or another. I've seen them rusted out
+and/or water damaged inside. Some years ago, Cessna
+went to a floating cowl for cabin noise reduction. The
+gap formed by shock mounting the cowl allows rain-
+water to run down the firewall. Cessna mounts a lot of
+electrical hardware on the firewall. Their "fix" was to
+seal things up with epoxy, silicon rubber, and other
+sorts of uckum-yucky. Sealants are minimally success-
+ful in these situations, a topic I will discuss in an upcom-
+ing section on reliability.
+Page 11-13
+The AeroElectric Connection
+ Switches, Relays and Contactors
+STATIONARY CONTACT FORMED
+ON END OF TERMINAL POST.
+MOVEABLE CONTACT DISK MOUNTED
+ON END OF SOLENOID ARMATURE.
+r"\
+ "
+ua i i
+"
+ti
+rm
+,
+ "
+e
+ t.~.~.~.+.~...+j
+ ,
+'
+)0 _
+ J
+,:"t
+ TAKE CARE DURING
+INSTALLATION TO
+PREVENT TERMINAL
+POST ROTATION WHILE
+TIGHTENING TERMINAL
+NUTS.
+'&,, , ,=
+ ,,, ,, , ,,,J
+Figure 11-9. Type I Contactor Cutaway View.
+'
+MOVEABLE CONTACTS ARE MADE FROM
+SILVER-CADMIUM ALLOY AND BRAZED
+TO BUS BAR.
+""""" " I ? }
+r m 0 +0 m o~e m P ~0 m "¶
+i
+ i
+P
+0—A A-~0
+!
+ I
+:
+ i
+ "
+,
+L
+ ~ · B
+ ~ · m
+ ~ · ~W ~ 0 J
+O
+"
+_
+I—
+ 1
+ ¶
+1 ,,E'""°'^'"°"^'"^"
+ m
+-
+ BRAZED TO SOLIDLY MOUNTED
+"
+ BUS BAR. RISK OF MISALIGNMENT
+'
+ DUE TO INSTALLATION ERROR IS
+:
+ ELIMINATED.
+—
+~
+%,, ,,, ,=::, ,, ,,
+ '
+Figure ll-lO. Type II Contactor Cutaway View.
+Page 11-14
+AeroElectric Connection
+ Switches, Relays and Contactors
+Suffice it to say here that internal damage Fom water entry
+is not an uncommon cause of contactor failure in Cessnas.
+Another form of failure in Type I devices is precipitated by
+the mechanic who installs a new contactor. Note that the
+stationary contacts are fabricated on the end of the threaded
+connector stud which penetrates the housing wall. If the
+installer is not careful, the stud is rotated a tiny amount due
+to overzealous tightening of the stud nuts. The resulting tilt
+placed on the face of the stationary contact prevents good
+mating with the movable contact. The reduced area of
+contact precipitates early failure.
+Earlier in this section I discussed switch failure modes
+precipitated by contact heating which raises contact
+resistance which increases heating which increases
+resistance . . .. This precipitous slide to failure is
+"lubricated" by moisture and accelerated by external heat
+sources such as exhaust stacks.
+The Type I devices that failed by just being tired had many
+hours of service on them. My personal judgment of these
+devices is that they will perform well if you (I) keep them
+firom getting wet, (2) don't twist their arms too hard during
+installation and (3) mount them free of radiant and/or
+conducted sources of heat. An advantage of the Type I
+contactors is their low cost. I would happily use them in any
+airplane I built, and carry spares!
+Type I devices have a catalog rating of only 70 amps.
+Properly applied, they have performed well in systems
+where they are routinely loaded to 200 amps during
+cranking.
+Type II contactors are "trickle-down" technology firom
+military specified devices. The contacts are indeed an on
+purpose, cadmium silver button designed for heavy duty
+relay service. This is in contrast with Type I contactors
+where a raw copper disk is mashed down on raw copper flats
+machined into the terminal studs. Note too that Type IT
+studs are independent of the contacts and interconnected
+with them by a bus bar.
+Type II contactors are available in ratings up through 400
+amps--larger than you will ever need in a single engine
+airplane! In fact, you could use 100-amp devices m either
+battery contactor or starter contactor applications. The
+contactors would be overloaded to some degree during
+cranking but only momentarily and in6requently. If you are
+interested in using Type II devices, check in the catalogs for
+Cutler-Hammer 6041 series parts.
+Relays and contactors have contact ratings much the same as
+those of a switch. A fully specified relay or contactor may
+Pagehave separate ratings for resistive, inductive or tungsten
+loads. These devices must have a second rating as well for
+their elecwomagnetic operating motor, sometimes called the
+"coil" rating. Tjie coil rating may or may not have anything
+to do with the rating of the contacts. For example, the relay
+used to turn on the fan motor in your furnace or
+air-conditioner may be operating on 24 volts AC for the coil
+but the contacts will be handling 120 or perhaps 240 volts!
+The relay or contactor is simply a remote controlled switch
+and the controller may be rated to operate in an entirely
+different electrical environment than the contacts.
+When selecting a relay or contactor for a specific task in an
+airplane, consider both the coil and contact ratings. The coil
+will need to be rated at 12-14 or 24-28 volts D.C.
+Important! . . . AC and DC coils are designed differently.
+You cannot use a 12-volt AC rated relay coil in a I4-volt
+DC airplane. There may also be a duty cycle rating on a
+contactor coil. Relays are almost always designed to be a
+continuous duty device. That is to say that there is no time
+limit on how long the relay coil can stay energized. Some
+contactors have over-stressed coil conductors to provide
+extra pulling power without increasing the physical size of
+the electromagnet. This is commonly done when the
+contactor is expected to see very short ON times (such as for
+engine cranking). The battery contactor, however, must
+have a continuous duty rating since it must operate
+continuously for hours at a time.
+Contactors are &equent finds at surplus stores and fly/flea
+markets. If you are considering a Type I which is not in its
+original packing container and/or bears signs of having
+been installed, I wouldn't give more than $5 for it. (Check
+for circular scratches on the mounting ears and dings on the
+nuts to answer the installation question.) If very clean
+and/or in original factory packing then look for an
+identifiable part number; a search in the catalogs will give
+you the critter's pedigree. Now, suppose you have a pretty
+clean, not rusted Type I contactor. Let us fiirther suppose it
+shows signs of installation (scratches, nuts missing, etc.). S5
+to $10 isn't much of a risk. If no catalogs are handy, an
+ohmmeter check of the coil terminals will give a clue as to
+its duty rating. On 14-volt devices, a coil resistance of 15
+ohms or less suggests an intermittent duty contactor, suited
+only for starter motor control. Coil resistances above 15
+ohms suggest continuous duty rating on the coil. Double
+these values for a 28-volt device. Many Type I devices have
+only one coil terminal brought to the outside. This means
+the other end ofthe coil is connected to a main terminal stud
+or to the metallic case; your ohmmeter check will confirm
+which.
+Surplus Type II devices may be disassembled for inspection.
+A cover over the relay contacts may be removed with simple
+ll-lS
+ 8-98
+AeroElectric Connection
+ Switches, Relays and Contactors
+tools. If you can find clean surplus parts in the Type II
+devices, they should be priced on the order of $30 or less;
+new ones are $160 and up. 14-volt Type II devices &om
+surplus sources will be rare since most were originally
+purchased for 28-volt military vehicles.
+THINGS YOU CAN DO WITH SWITCHES
+Say what? Everybody knows that switches turn things on
+and off. What's the big deal? I'd agree that most of the
+switches we operate every day are simply a handy means of
+opening and closing a gap in a wire. I'll add that switches
+come in a variety of flavors. Aside horn the simple on/off
+control 01[, say a light bulb, variations on a theme give us
+handy tools to simplify a variety of switching tasks.
+Table ll-l. AeroElectric Connection
+S700-Series Toggle Switches
+Dash
+ # of
+ # of
+ Action
+No.
+ Poles
+ Positions
+ Keyway - Center-
+Opposite
+l-l
+ 1
+ 3
+ ON-OFF-ON
+1-2
+ I
+ 2
+ OFF-none-ON
+1-3
+ 1
+ 2
+ ON-none-ON
+1-5
+ 1
+ 3
+ (ON)-OFF-ON
+1-7
+ 1
+ 3
+ (ON)-OFF-(ON)
+1-8
+ I
+ 2
+ (ON)-none-ON
+2-1
+ 2
+ 3
+ ON-OFF-ON
+2-2
+ 2
+ 2
+ OFF-none-ON
+2-3
+ 2
+ 2
+ ON-none-ON
+2-5
+ 2
+ 3
+ (ON)-OFF-ON
+2-7
+ 2
+ 3
+ (ON)-OFF-(ON)
+2-8
+ 2
+ 2
+ (ON)-none-ON
+2-10
+ 2
+ 3
+ ON-ON-ON
+2-50
+ 2
+ 3
+ (ON)-ON-ON
+2-70
+ 2
+ 3
+ (ON)-ON-(ON)
+First, I'd like to introduce you to our numbering convention.
+As we update schematics and power distribution diagrams,
+we'll try to add more detail to a switch's description.
+Adjacent to the reference designator number (SI, S2, S3,
+Pageetc.) we'll include in parentheses the dash number out of
+Table ll-l which describes the switch's number of poles,
+number of positions and its action.
+The left column of Table ll-l is the suffix to add to the
+basic switch specification number. To fully describe a
+switch you would precede it with the standards number
+followed by the dash number appropriate to the action you
+want For example, an S700-2-7 switch is a two pole, three
+position toggle switch spring loaded to center &om both
+extremes and having an (ON)-OFF-(ON) action. The
+parentheses ( ) around an action label means the switch is
+spring loaded to leave that position when released. Other
+styles of switches (like rockers) will replace the "S700" with
+mother number but the dash number to describe the number
+of poles: number of positions and action will remain the
+same.
+BUSH NG KEYWAY
+POSITIONED UP
+SINGLE POLE
+SWITCH
+DOUBLE POLE
+SWITCH
+4Q ii
+ 6 5 ' d2Sk EB
+ 0 ® "@
+ tgj CD 3
+ 2
+ '
+TCGC.LE SW'TCH TERMiNAL NUMBERING
+Figure ll-l 1. Toggle Switch Terminal Numbering.
+We'll standardize all our drawings to conform to the above
+terminal numbering convention for switches. The mounting
+for a toggle switch is a 15/32" threaded bushing with a
+keyway cut on one side. Switch actions described in the last
+column have keyway side positioning of the toggle first,
+fOllowed by center positioning (3-position switches only)
+and opposite side positioning on the right. For most
+applications, switches are mounted with bushing keyway
+oriented UP in the panel.
+It is app'o-
+ Q'c.i 25
+ 0.370
+(7\C!.469 6^+
+ [
+priate
+ tomention here
+that
+ toggle
+ '
+switches can
+ !, '
+ i
+ \ /j r
+be difijcylt to
+keep tightly
+ '_ /'
+mounted
+ in
+the
+ panel.
+ Figure 11-12. Hole Layout for S700
+This
+ is
+ Series Toggle Switches.
+because
+ it's
+attached with threaded fasteners and you're always yanking
+on its handle. You could use thread-locker to make the nuts
+difficult to move after the switch is installed but this makes
+11-16
+ 8-98
+AeroElectric Connection
+ Switches, Relays and Contactors
+the switch difficult to replace later.
+The best solution is to take advantage of the anti-rotation
+keyway washer and internal tooth lockwasher that is
+supplied with all switches hom our catalog. The keyway
+washer has two tabs, one to engage the keyway in the switch
+bushing, the other to engage a 0.125"hole that you need to
+drill in the panel, 0.37" above the 15/32" mounting hole.
+The anti-rotation keyway washer installs firom the back and
+will not protrude through a panel of .062" thickness or more.
+Most panels have a placard to label the switches that will
+cover a 0.125" hole. Inclusion of this hardware in your
+installation will keep the switches right where you installed
+them. Leaving thread-lockers out of the installation will
+make them easy to replace should it become necessary.
+By the way, you'll 6nd a 9/16" "Spin-Tite" or nut driver very
+useful when installing or replacing toggle switches. I have
+several that have been polished with crocus cloth to a very
+shiny surface where it touches the panel. This little
+modification to the stock tool assures you that it cannot
+scratch your panel placard . . . even if it's plastic.
+SINGLE POLE SWITCHES
+l-l
+ 1-2
+ 1-3
+J
+ 1
+2 0
+ 'J: '"~"' 'I i:
+I
+l-S
+ 1-7
+ 1-8
+'I 'i"l '1"Ki'
+Figure 11-13. Family of Single Pole Switches.
+Here's how the single-pole switches look in our schematics.
+The symbols have a great deal in common but there me
+differences that give you clues as to what kind of switch is
+being called out . . . and how it works.
+First;, I'd like to point out the ">" symbol between terminals
+I and 3 of three switches illustrated in Figure 11-13. This
+tells you that there is a center position that makes it a 3-
+position device. Switches without this symbol are 2-position
+devices. Note also that the moveable "am" of the switch can
+be swung to make contact with either a solid dot ( 0 ) or a
+solid triangle ( 'V ). The dot represents a sustained position
+Pagefor the switch while the triangle represents a momentary or
+spring loaded position.
+Okay, 6 kinds of toggle switches . . . why would we want so
+many and what would we do with them?
+1 dash I, ON-OFF-ON switches are useful for selecting
+either of two devices with a both off position. How about
+having a landing and taxi light fixture share a single fuse or
+breaker? Terminal 2 connects to the bus, terminal 1 might
+power the landing light fixture while terminal 3 connects to
+the taxi light.
+1 dash 2, OFF-none-ON switches are useful for any simple
+task of controlling nav lights, landing light, fuel pump, pitot
+heat, etc. We don't stock this kind of switch because a 1-3
+switch has the same functionality. If you want a 1 dash 2,
+we can supply it to you. Note that the only "ON" condition
+is with the toggle placed opposite the keyway. To use this
+style switch for a landing light, you would have to mount it
+keyway down in order to have the switch close when the
+toggle is moved up. On the other hand, a 1 dash 2 switch
+would serve nicely as a magneto switch. Unlike landing
+lights, magnetos are "ON"when the switch is open. I've
+included them in the family tree of switches because they do
+exist.
+1 dash 3, On-none-ON switches select either oftwo circuits
+but doesn't permit both to be off. Obviously, terminal 3 of
+the 1 dash 3 switch can be ignored when the switch takes on
+simple tasks of the 1 dash 3 style switch described above.
+Since connection is made at both extremes, you could use a
+I dash 3 switch to use a single fuel gage to monitor either
+right or left-hand fuel tanks. Or how about switching a
+single dimmer between to lighting loads, say a map light and
+an overhead flood?
+.
+1 dash 5, (ON)-OFF-ON switch has one position spring
+loaded to center, the other is a sustained position. One
+application that comes to mind would be an ignition-start
+combination switch for an engine like a Rotax. Terminal 2
+would be connected to ground. Terminal 3 would ground the
+ignition in the down position (kill the e engine), leave the
+ignition 6ree to function m the mid position, and operate a
+ground-to-energize starter contactor m the up position.
+Here's a first example of getting a single switch to do two
+separate but related functions. I've had some builders use
+the 1 dash 5 switch for electric flaps where a single action
+selects fully "extended" flaps but the spring loaded "retract"
+operation is conducive to milking the flaps up during a go-
+around.
+1 dash 7, (ON)-OFF-(ON) switches have momentary
+throws both sides of center. This action might be used for
+11-17
+ 8-98
+AeroElectric Connection
+ Switches, Relays and Contactors
+electric trim operations where momentary blips to either
+direction of trim are desired. On of my Defiant builders
+plans to use a 1 dash 7 switch to control &ont and rear
+starter contactors Hom a single switch.
+1 dash 8, (ON)-none-OFF switches have a sustained and
+momentary contact at either extreme of two positions. The
+1 dash 8 action could be used to replace a push-button
+where terminals 2 and 1 are used to momentarily operate
+some device (like the starter contactor).
+TWO POLE SWITCHES
+'7 _ C'
+4—
+2-3
+2-8
+I
+7
+"~'
+'"L~6'->j:'tj:
+'-ti:'<:
+?— 1
+ 2—5
+ 7—7
+·-0
+ ·4
+ ^1
+2
+ > 1
+ 2
+ > 1
+ 2
+ > ,
+3
+ 3
+ ^-0 "
+'~C: '~',1: ' j;
+2- i 0
+ 2-ZiC
+ t
+ 2- 7C
+'>S>S'
+ 'g
+ I
+"<ir"4il" 'ij
+Figure 11-14. Family of 2-Pole Switches.
+behavior. When a 3-position switch has more than one
+pole, small changes in the transfer mechanisms can yield
+some unique functions.
+I don't have applications for all of the switching actions
+depicted but here are a few that I've used in the past. Some
+of these are also shown on our power distribution diagrams
+and wire-book examples.
+2 dash 3, On-none-ON is a common part number we stock.
+This device is recommended for combination battery-
+master/altemator-field switching. MUCH less expensive
+than the popular but unnecessary "split rocker" found on
+many certified ships, the 2 dash 3 works quite nicely in this
+position. The 2 dash 3 also serves nicely as a magneto
+switch. You can use terminals 2 and 3 to kill the magneto in
+the down or OFF position. The other pole is used in series
+with the second magneto switch. Properly wired, you can
+disable the starter except when the impulse coupled magneto
+is ON and the non-impulse coupled magneto is OFF. Use of
+toggle switches with a starter lockout feature eliminates the
+kickback hazard inherent with the key-type OFF-L-R-
+BOTH-START switches found on most certified single
+engine ships. Furthermore, toggles are easier to mount and
+much less expensive than the key-switch. The big bonus of
+using toggles comes when and if you replace either or both
+magnetos with electronic ignition. The existing toggle is
+"electronic ignition ready."
+2 dash 7, (ON)-OFF-(ON) is commonly found in trim or
+flap systems that use permanent magnet motors. When wired
+as shown below, the 2 dash 7 reverses polarity of power
+applied to the motor to reverse its direction.
+/
+"\
+2-7
+V
+I '
+e..
+5
+" W
+,,)~,
+J
+ '."-'
+,?)rm
+i
+ ',
+t"'
+I C.
+\CJ PNL
+Figure ll-lS. example of a 2 dash 7 Switch Application.
+Wow! wouldja look at all those two-pole devices! You'll
+recognize the first 6 as close cousins to the single pole
+devices shown earlier. We've simply doubled up the
+mechanism so that two switches side by side share the same
+The spring loading to center firom both extremes makes it
+easy to "bump" the switch for small trim changes.
+Page 11-18
+ 8-98
+AeroElectric Connection
+ Switches, Relays and Contactors
+RX AUDIO
+COMM
+/ ,
+ i
+ X
+'1'^
+NAY 2
+NAV 1
+HEADPHONES
+,J
+2— 1 0 ,
+1
+2
+ 1
+:
+ " 03
+I
+ " 0
+5H
+ I - 4
+06
+m
+ NAY 1
+ AUDIO
+m
+ COMM AUDIO
+m
+ NAY 2 AUDIO
+Figure 11-16. Example of a 2 dash 10 Switch
+Application.
+2 dash 10, ON-ON-ON. Here's an interesting example of
+how you can wire a 2 dash ID switch to implement a single-
+pole, three-position action. In the drawing above, I show
+how a headset can be switched individually to any of three
+audio sources. Incidentally, four pole switches are available
+in the dash 10 configuration so that you can implement a 2-
+pole, three-position configuration.
+LANDING
+LIGHT
+7 '" ,)'
+TAXI
+OFF
+5\SR>>
+2- 10
+"
+ , '
+ '
+ LONG LT
+' ' i @rj
+TAXI LT
+Figure 11-17. Example of a 2 dash 10 Switch
+Application.
+control landing and taxi lights Hom a single switch powered
+Hom single source.
+NAY
+LTS
+Dtrobe
+OFF
+STROBE
+"
+ 2-10
+2..,. j1
+ Gj->
+5\9D"
+5\9D>
+ ':.2 ,Zj,,, "
+m~'
+Figure 11-18. Example of a 2 dash 10 Switch
+Application.
+Another space saver for switch panels uses a 2 dash 10
+switch to control both strobe and nav lights. The first
+position brings up the strobe lights while the second adds
+nav lights. Each lighting circuit has its own power supply
+and circuit protection.
+MAG
+START
+CON
+OFF
+t)
+ > '° '^""°
+2
+ 50
+2 I
+ I
+ 1
+"
+ )
+ ;jr"
+p '° "^""
+5
+ , L:
+ CONTACTOR
+5\SE>>
+I
+Figure 11-19. Example of a 2 dash 50 Switch
+Application.
+ShuMe the wires a little bit on a 2 dash 10 and you can
+ Here's a way to combine magneto switching with starter
+Page 11-19
+ 8-98
+AeroElectric Connection
+ Switches, Relays and Contactors
+control. Using the 2 dash 50 in this
+configuration makes it easy to
+change out magnetos for electronic
+ignition at a later date. Just use
+terminals 1 and 2 to control DC
+power to the ignition system.
+L
+ 2AWG
+FUSE LINK
+22AWG
+E,
+= Ie
+ IS
+.=~ ga ?
+4-pole versions of these switches
+ T
+follow
+ the
+ same
+ numbering
+?
+conventions. The need for a 4-pole
+S
+ "
+ S3,,-,,
+device is pretty rare but a 4 dash 10
+ESSNTLswitch could be wired as a 2-pole, 3-
+ \\1/
+ ALT FEED
+position transmitter select switch or
+perhaps for load monitoring and to aux use alternator volts, a single main load.
+ instrument
+ alternator
+ ="
+Virtually all applications I've had for
+ Figure
+4-pole switches were some small
+signal application where a miniature toggle was called for.
+We may not stock these soon but if you need one and have
+trouble procuring it, we'll be pleased to assist.
+FUN PROJECTS WITH CONTACTORS
+Battery Master Contactors - everyone needs at least one.
+The ship's battery is capable of serious output of hundreds
+of amps - way too much to manage with manual switches.
+Primary conuol of batteries is delegated to the battery
+master contactor. Figure I 1-20 illustrates typical battery
+master contactor wiring. Note that I've shown a 3-terminal
+contactor, but it could just as easily have 4 terminals. In this
+case, coil terminal has been internally wired to one of the
+large terminals. Many times the large terminal will be
+stamped "BAT" by the contactor manufacturer. If you use
+a 4-terminal device, you'll have to provide your own jumper
+between the upper coil terminal and the always-hot battery
+terminal.
+A battery contactor needs to be a continuous-duty rated
+device. I.e., being energized for hours at a time doesn't
+generate so much internal heat Eom the coil that it raises its
+temperature to destructive levels. Note that I show the
+battery master contactor being controlled simultaneously
+with the alternator field circuit using a 2 dash 3 style switch.
+The"traditional" split rocker switch used on most certified
+single-engine airplanes for controlling DC power offers no
+particular utility or advantage.
+Note also the use of a diode across the contactor's coil
+terminals. Contactor coils are inductive devices. When the
+energizing circuit is broken, the magnetic field collapses
+very rapidly (see Kettering ignition discussion in Chapter 6).
+If allowed to progress unrestrained, the voltage spike
+MAIN EIATTERV
+CONTACTCR
+T =" T
+'
+TO STARTER
+)
+ S 1
+ DC POWER
+_ _ _J
+ E
+ (2-3)
+ m^S'ER
+a
+ ' ,
+ n,w,_>
+22AWG
+ 2
+ 3
+ALT FLO
+*,~< 5A
+ I
+ ~2CAWG -A TO REGULATOR
+""N'^— '°^"'_~~,
+BUS
+ > q.
+ \"
+ ,n'x
+ I
+>&
+DIODE POLARITY MARKING
+I) >>m
+1 !-20. Battery Master Contactor Wiring.
+generated by this magnetic field collapse can be hundreds of
+volts in amplitude. The use of a diode catches this spike and
+keeps it 6rom eroding the contacts of the master switch. It is
+a popular belief that diodes wired in this manner are
+protecting avionics and other Eagile devices Fom the
+ravages of contactor coil spikes. Actually, these spikes are
+very low energy and easily filtered off by power input
+conditioning built into all modem avionics products. The
+device at risk firom potentially high voltage discharges is the
+battery master switch. Repeated breaking of the unrestrained
+inductive load will erode the switch's contacts.
+Until Revision 8 to this book, I've recommended metal oxide
+varistors (MOV) as "spike catchers." I liked them because
+they are AC devices and work well connected in either
+direction - you can't hook them up backwards. However,
+they're not a commonly stocked item with electronics
+suppliers in the voltage ratings needed for 14V systems.
+Diodes are very easy to obtain and the only caveat in their
+use is to observe the polarity of the device as compared to
+its schematic symbol. These are illustrated in Figure 11-20.
+One further item to point out: note that there is no circuit
+breaker associated with the control circuit of a battery
+master contactor. This is because there are no failure modes
+that would burn the wire. Opening the wire simply causes
+the contactor to fail to function. A grounding of the wire
+causes the contactor to be continuously energized . . . it will
+certainly run the battery down but it doesn't put the wire in
+jeopardy. This is in contrast to the other circuit which
+shares a DC Power Master Switch - the alternator field
+circuit is supplied Hom the bus. Faults on this wire are quite
+capable of smoking the wire . . . besides, this is the lead that
+gets deliberately faulted by a crowbar OV module . . . we
+always put a breaker in this line.
+Page 11-20
+ 8-98
+AeroElectric Connection
+ Switches, Relays md Contactors
+Starter Contactor wiring shown in
+STARTER
+ STARTER
+Figure 11-21 is typical. Note that this
+WARN
+ CONTACTOR
+circuit way of does a get breaker circuit or protection fuse. This
+ by
+ a m
+ ~ "i J_ 7
+particular contactor is also a 3-
+ ALTERNATOR B-LEAD t
+ '^W' ^
+ '
+ '
+ (S)
+terminal device with one side of its
+ BATTERY CONTACTOR $
+ 2AWG
+ "sj7 C !
+solenoid coil grounded to the
+ :
+ E
+mounting base. Unlike the battery
+ C\1
+contactor that needs a GROUND to
+operate, the starter contactor needs a
+ L__ _ _J
+SOURCE of power.
+ When
+~1
+ PUSH TO
+mounted on a metal firewall, this
+START
+contactor gets an operating ground
+ STARTER
+ V
+from the firewall. If you mount this
+ Sz,µj_,,,,,
+ 0 A
+ aL~20awg—
+contactor on a nonmetallic and/or
+ungrounded separate to the most wire convenient surface, Hom a mounting you'll power need ground
+ bolt
+ a
+ -J"
+ 'r'
+in the airplane.
+ Figure 11-21. Typical Starter Contactor Wiring.
+Note also that this contactor has the diode INSIDE the
+symbol . . . the new line of starter contactors we're stocking
+has spike suppression diodes built right in. Ithink this is a
+trend for future products Hom most companies. However, if
+you're in doubt as to the existence of a built in diode, go
+ahead and put one outside . . . there's no problem with
+having two diodes . . . lots of problems with having no
+diodes!
+Our starter contactors have a fourth, smaller (8-32 threaded
+terminal). Many starter contactors do. It's generally marked
+iR:
+n"
+AZ
+m
+/
+ /
+ / /1
+ r
+ZZ"/-
+M
+4AWG
+T
+ CROSS-FEED
+ CONTACTOR
+r6~'
+,¥
+7z /
+.ii'
+iE'
+t!f ?:^"
+"'a t^—20AWG
+ ~
+ I
+ " "1
+ |ZOONSTTA^CRTTO£RR
+7"/
+ CROSSFEED
+ 2
+ ' i
+ "
+ S3 (2-7)
+'^" 7
+ /
+ WARN
+ I) 5)7,aw,_>
+ I
+ ~3
+ CROSS-FEED
+ STARTER/
+, C\1
+ K
+ ·C
+ 'i-l i
+C-d
+ I
+22AWG
+ .
+)
+V
+Figure 11-22. Crossfeed Contactor Wiring.
+Page 11-21
+ 8-98
+AeroElectric Connection
+ Switches, Relays and Contactors
+"I." This terminal becomes "hot" when the contactor is
+ Ground Power Contactors are left offmany ground power
+energized. If you'd like to have a "Starter Energized"
+ receptacle installations. Here's why I think they're a good
+warning light on your panel, you may bring a 5A inline fuse
+ idea. Referring to Figure 11-23 note that I show a contactor
+offthe "I" terminal and route it to an indicator lamp on the
+ in series with the main power between the receptacle and the
+panel. Should the starter contactor or its operating button
+ battery. This gives the contactor command and control over
+become stuck, the lamp will remain illuminated after you
+ any power source connected to your airplane's electrical
+take your finger offthe button.
+ system. Note that with the GROUND POWER switch-
+breaker closed, the ground power contactor will energize
+any time power is present on the receptacle . . . provided it's
+Crossfeed Contactors are useful when you have
+ the right polarity. The contactor is prevented Hom closing in
+independent DC power systems that need to share resources
+ case of accidental reversal of ground power polarity by a
+firom time to time. There's a dual battery, dual alternator
+ diode in the lead between the receptacle's small sense pin
+diagram in Appendix Z that features a system crossfeed
+ and the contactor coil terminal. Polarity reversal accidents
+contactor. An excerpt Hom that diagram is shown in Figure
+ are most common with battery carts that routinely receive
+!1-22. Here's another application for the diode bridge
+ maintenance that requires unwiring and rewiring a stack of
+rectifier you see in many of my wiring diagrams. Here we're
+ batteries.
+able to make use of all four diodes in the assembly. Note
+that a diode Hom the main and aux bus sides of the
+ Another feature of this circuit is inclusion of a crowbar
+crossfeed contactor supplies power to the upper coil
+ overvoltage protection module across the coil. This feature
+terminal. This means that EITHER bus may be used as a
+ is useful when the line boy puts 28 volts to your 14 volt
+power source to get the contactor closed.
+ airplane. It's an easy mistake to make: it has happened to
+me. An OV condition trips out the switch breaker on the
+¶
+ panel. The switch breaker is useful because it puts control
+In this design, I show a 2 dash 7 switch wired so that when
+ of ground power in the hands of the pilot. If for any reason
+you press the switch to the upper, spring loaded position,
+ you want power removed, you have only to flip the switch.
+you energize the starter contactor with power Hom the main
+ Further, it cannot be put on the airplane until you're ready to
+bus. At the same time, we close a ground to the lower coil
+ allow it.
+terminal ofthe crossfeed contactor causing it to close. This
+places both batteries in parallel for better cranking capacity.
+When the engine starts and you release the switch, both the
+ I like to tie ground power directly into the battery as shown.
+starter and crossfeed contactors lose power and de-energize.
+ This feature allows you to charge a dead battery without
+If you trace out the circuitry carefully, you'll find that the
+ removing it Hom the airplane and without powering up any
+remaining two diodes are in a position
+to serve as "spike catchers" for the
+GROUND PWR
+crossfeed contactor's coil. Crossfeed
+ RECEPTACLE
+contactors should be rated for
+ GROUND PWR
+ BATTERY
+continuous duty.
+ '°-'0!9'7
+ rs°-Ef!!?'7
+ t
+0
+ I
+ e ": . ®
+ ,AW,
+ · ·
+ t
+In case of alternator failure on either
+ I
+ I
+ L
+ 2AWG
+ / I
+ 1
+the main or auxiliary bus systems, the
+ 0
+ !, ":g'"|'fye
+ CROW- RED
+ I
+ !
+ I
+ '
+ ?
+Starter/Crossfeed in the lower, maintained switch can be position
+ placed
+ I Ejt
+ 'i
+ A
+energizing ONLY the crossfeed
+contactor. This allows power hom the
+ :
+ /t"
+ '
+Ml-up bus to flow to the bus with the
+ailing alternator. Similarly, should the
+battery contactor fail on one bus,
+ D
+Z
+closing the crossfeed contactor places
+'^'=J
+ f
+a good battery on both busses. Even
+when the paralleled alternators don't
+evenly share the ship's loads, they're
+\
+ .
+both available up to and including
+Figure 11-23. Ground Power Contactor.
+their full capacity stabilized by the
+remaining good battery.
+Page 11-22
+ 8-98
+AeroEjectric Connection
+ Switches, Relays and Contactors
+of the airplane's electrical system. I show a 4-terminal
+contactor in this application. Further, a continuous duty
+contactor is appropriate for this service.
+CONTACTOR INSTALLATION CONSIDERATIONS
+Aside &om the obvious caveats mentioned earlier,
+contactors can be mounted about anywhere. Battery and
+ground power contactors should be close to a battery. Starter
+contactors should be close to the starter.
+There's an ol' mechanic's tale out there about installing your
+contactors so that in-flight g-loads don't cause unintentional
+contact closure. Seems an airshow hot-dog landed to
+discover a smoked starter and a chewed up ring gear. The
+theory advanced at the time was that maneuvers during his
+performance caused the starter contactor to experience
+tentative closures causing the contacts to weld shut.
+I'll suggest that the starter contactor welded when he started
+his engine. Without a "starter engaged" warning light, he
+' flew the entire performance with a starter shucking out little
+bits ofmetal. How does this story influence what we should
+do as designers and builders of the world's finest single-
+engine airplanes? Not much. First, battery contactors are
+always closed in flight; g-loading--if it ever was a factor--is
+not a factor here. Ground power and crossfeed contactors
+are not subject to welding if subjected to momentary,
+unintended closures. The starter contactors we stock and
+recommend have an operating axis that usually mounts on
+the firewall with its operating axis at right angles to
+aerodynamically induced g-loads and are immune to this
+influence. Last but not least, if you plan to do advanced
+ ,
+aerobatic maneuvers in your airplane, there are lots of
+system issues to be considered. . . get the advice of someone
+who does it for a living!
+Ifyou are looking for something worth worrying about in the
+design and maintenance of your electrical system, I'll
+suggest that knowing your battery's capacity throughout its
+service life is much more deserving of your undivided
+attention.
+Page 11-23
+ 

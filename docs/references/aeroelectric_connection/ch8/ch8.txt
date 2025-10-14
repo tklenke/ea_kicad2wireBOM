@@ -1,0 +1,1364 @@
+WU'e SelectionThe concept of using wires to provide a path for elec-
+trons to flow from a source to· some remote load where
+the work is to be done is pretty well understood. The
+following discussion on wire will cover the selection of
+wire sizes, wire forms, and appropriate types of insula-
+tion for various tasks.
+THE ANATOMY OF A WIRE
+A trip through the wire catalogs will reveal a plethora
+of wire sizes and types as well as cables made up from
+bundles of individual wires. There are hundreds of
+military specifications written for the purpose of de-
+scribing and obtaining special and perhaps not so
+special wires for specific tasks. Wire has experienced a
+myriad of evolutionary stages over the last 50 years.
+Actually, the basic wire is pretty much the same but the
+insulations which cover the wires have evolved a great
+deal. Indeed, insulation is still the arena where great
+strides will be made in reducing the size an electrical
+system installation.
+ Weight will not be greatly im-
+proved upon; the copper conductor is already the
+major proportion of the weight and there is simply no
+practical way to do with less copper with current
+technology.
+Most wire used for interconnection in a vehicle will
+start with a core of pure copper. The metal is relative-
+ly cheap compared to materials which conduct better
+than copper. Silver is probably the only pure metal that
+is equally suited mechanically and conducts better than
+copper. If anyone is really interested in wiring their
+airplane with silver wire, I can put you in touch with a
+manufacturer who would be delighted to sell you what
+you need! For the rest of us po' folk, copper will
+remain the material of choice. There is no material
+more economical than copper for any given wiring task.
+Some brief flirtations have been made with aluminum
+conductors for wiring in both the aircraft industry and
+in wiring houses with mixed results. Aluminum is less
+expensive than copper but it does not conduct electron
+flow as well as copper. However, even when the size of
+the conductor is increased to compensate for the
+higher resistance of aluminum, the weight of the in-
+stalled aluminum conductor is still less than for its
+electrically equivalent copper counterpart. This tanta-
+lizing fact has prompted a number of engineers to use
+aluminum battery cables in airplanes manufactured by
+both Piper and Cessna. I am aware of no such at-
+Pageand Install~tion
+Wire Selection and Installation
+tempts at Beech or Mooney but I'm sure that they have
+at least considered the possibilities.
+The majority of factory installed aluminum cables have
+now been replaced and for one basic reason. Alumi-
+num suited to the manufacture of wire has to be very
+soft. Soft aluminum will readily "work harden" when
+stressed beyond its elastic limit causing it to become
+brittle and subject to cracking. The connectors that are
+crimped onto the wire cause the metal to be upset in
+compression and the first beginnings of material work
+hardening take place. This makes the terminations
+sensitive to both vibration and corrosion. In a few
+cases, the aluminum wire installations were not ade-
+quately supported along their installed length and
+vibration began to work harden the conductors during
+the airplane's first flight hour. The hassles of maintain-
+ing good termination quality and preventing conductor
+failure under vibration has proved to be not worth the
+effort for the few ounces of weight savings. The metal
+airframe itself has proven to be the only conductor of
+electrons that could be suitably made from aluminum.
+FABRICATION FOR SURVIVAL
+The form the copper takes may vary from a single,
+solid strand to a twisted combination of many fine
+strands of wire. Most houses are wired with solid wire,
+while the wire used in the cord for a hand tool like a
+drill motor or electric iron is finely stranded. The
+reason for this is FLEXIBILITY. Along with flexibility
+comes a resistance to breaking from being flexed. The
+logic for this can be understood better by looking at
+Figure 8-1. I have shown two diameters of copper wire
+wrapped 360 degrees around a quarter-inch diameter
+rod. The larger strand of wire is 10 gauge wire having a
+diameter of 102 mils (102/1000 of an inch or 0.102").
+The smaller is a 22 gauge wire having a diameter of 25
+mils or 0.025". When you bend any material, the side
+of the material that faces the inside of the bend is in
+compression while the side that is outside the bend is
+in tension. The stresses in the material are variable. As
+you move inward on the bend radius, tension stresses
+go down until at some point inside the core of the
+strand, the stress is zero. The stress changes to com-
+pression from this point and rises in magnitude until
+the maximum compression stress is encountered on the
+inside of the bend where the strand is in contact with
+the rod. In the scenario depicted, let us assume that
+the stress in the 10 gauge wire is zero exactly in the
+8-1
+The Aero-Electric Connection
+center or 0.05" off the surface of the 0.250" rod. The
+circumference of the circle through the center of the
+wire is pi times 0.350" or 1.01"inch. The circumference
+of the rod is pi times 0.250" or .785". The circumfer-
+ence of the circle at the outside of the wire is pi times
+0.450" or 1.414". In this example we have taken 1.00
+inches of wire and caused reduction of length in
+compression of 23% on the inside and a 41% extension
+of length in tension on the outside. Copper is a very
+ductile material. The initial formation of a piece of 10
+gauge wire around the quarter-inch rod will result in
+very little loss of structural integrity in the copper.
+However, copper too will work harden. If you bend and
+unbend the strand a few times, the ductility goes down
+and cracks will begin to appear in the surface. A few
+more bends and the cracks will go all the way through
+and the strand fails. Let's suppose we wanted to make
+an equivalent wire in an electrical sense by twisting say,
+19 strands of a smaller wire together. Why 19? I'll get
+to that later. It so happens that if I combine 19 strands
+of 22 gauge wire in a bundle, I will have about the
+same cross sectional area of copper as a 10 gauge wire.
+Suppose we bend a 22 gauge, 0.025" diameter wire over
+the same quarter-inch rod. This yields circumferences
+of .785", 0.864" and 0.942" respectively. This means
+that a 0.863 inch piece of wire has been compressed
+inside the bend for a 9% reduction and stretched
+outside the bend for an elongation of 9%. As you can
+see, a reduction of wire strand diameter produces an
+approximately proportional reduction of stress in the
+wire for the same bending scenario. The ultimate
+example of flexibility and resistance to breaking from
+flexing can be found in welder's cable wherein large
+effective diameters of wire for several hundreds of
+Amps of load are made from hundreds of strands of
+fine wire.
+Now that the utility of stranding wire for flexibility and
+resistance to breakage has been established, let's talk
+about that number "19". If you take a compass and a
+sheet of paper and draw groups of equal diameter
+circles around a central circle, you find that six circles
+will just fit around the one in the middle and that every
+circle is exactly tangent to any adjacent circle. This
+illustrates the first common value of "7" for the strand-
+ing of wire. Continue to add circles around this array
+and you will find that twelve more circles fit neatly
+around the first seven for a total of nineteen. This is
+the next higher number found in the wire catalogs for
+stranding. This discussion has been illustrated in
+Figure 8-2. The exercise can be carried out many more
+steps but for our purposes, 19 is enough. The smallest
+wire used in airframe wiring applications is 22 gauge
+PageWire Selection and Installation
+which is made up from 7 strands of 30 gauge or 19
+strands of 43 gauge. Of the two, the 19-strand wire is
+much preferred over the 7-strand wire.
+Okay, our best choice for wire thus far is to make it
+from copper and to have at least 7 strands in its make-
+up. The next layer up on our construction project is the
+plating of the wire. Many automotive wires do not
+bother to plate the individual copper strands before
+twisting them together. If you cut away the plastic
+insulation from the middle of an old battery cable
+(some distance away from the corrosion caused by
+migration of the acid under the end of the insulation)
+you will note that while the wire is basically intact, it
+may be a far cry from the bright copper that was used
+to make up the cable. There are several reasons for
+this.
+First, copper is a very active metal. By 'active' I mean
+that it reacts very readily with oxygen in the air com-
+bined with moisture and the nasties that float around in
+it. A copper tea kettle sitting in the open air of a
+kitchen will last but a few weeks before needing anoth-
+er pass with the copper polish. Second, when you
+strand a wire, there is no practical way to totally seal
+the air circulation from between the strands. Third,
+most plastic insulations are not perfect barriers for the
+protection of wire from the environment, especially
+when hydrocarbons are present. The design life of an
+automotive system is something on the order of 7 to 10
+years. We build airplanes for much longer life spans so
+using a plated wire under our insulation is in order.
+Tin is the metal of choice. It is easily applied and much
+more resistant to chemical activity than bare copper.
+KEEPING THE "JUICE" INSIDE THE "PIPE"
+The next layer up is the insulation. Here is where we
+find the most striking evolution in construction over
+the past 50 years. If you think vehicle systems present
+some tough design situations, find a book in the library
+on the laying of the first transatlantic cables. These
+cables were laid by combination steamer/sailing ships
+that burned wood or coal. Oil and the by-products
+thereof were not around yet. Designing a conductor
+for both electrical characteristics
+ and mechanical
+strength was difficult enough; covering the wire to
+protect it from the salt water at thousands of feet of
+depth was entirely another matter. The fibers available
+were organic as were the sealers. Many layers of tars,
+jute-like fibers and shellac in varied combinations were
+tried. Millions of dollars of 1890's money were literally
+dumped into the Atlantic ocean before the first really
+8-2
+The Aero-Electric Connection
+Wire Selection and Installation
+.2!S. DIAMETER ROO FORMS INSIDE OF
+WIRE TO A aRCUWFERENCE OF .78S.
+FOR A COUPRESSIONOF' 23X
+ZERO STRESS UNE lHROUGH CENlER OF WIRE
+FORI.tS A NOMINAL DIAMETER OF' .350· WHlat
+WEANS lHA T 1HE ORIGINAL LENGlH OF' 'THE
+WIRE WAS 1.01-.
+lHE OUTERMOSTSURFACE OF lliE WIRE FORUS
+A DIMtETER OF .450- Willi A QRCUMFERENCE
+OF 1.41· FOR ANELONCAllON OF' 41"-
+.2!S- DIAMETERROO FORMS INSIDE OF
+WIRE TO A CIRCUMFERENCEOF .71S
+FOR A COMPRESSIONOF 9S
+ZERO STRESS UNE lHROUGH CENlER OF WIRE
+FORMS A NOMINAL DIAMETER OF' .275- WHlai
+MEANS THAT THE ORIGINAL l£NGlH OF 'THE YfRE WAS .884-
+THE OUTERMOSTSURFACE OF THE WIRE FORMS
+A DIAMETEROf' .300- 'MlH A QRCUMFERENCE
+OF .942"" FOR AN ELONCAllON OF ex
+Figure 8-1. Wire Stresses Versus Wire Diameter.
+Page 8-3
+The Aero-Electric Connection
+ Wire Selection and Installation
+WIRE7-SlRAND
+CROSS-SECl1ON
+19-5lRAND
+WIRE CROSS SECllON
+Figure 8-2. Common Layup ConfIgurationssuccessful cables were built and laid. I found the story
+of the fabrication and laying of the fIrst transatlantic
+cables fascinating; I recommend it to you for times of
+poor flying weather.
+The wires that are found on the early airplanes are a
+product of the 20's, 30's and 40's when rubber was
+extruded over the twisted strands. Cotton was braided
+over the rubber and then sealed with a kind of shellac.
+If any of you have been involved in the restoration of a
+1940's airplane or automobile, you have had a fIrst-
+hand experience with this stuff! Any of this wire still in
+place today has become brittle and insulation may fly
+off of the wire in little pieces when the wire is flexed.
+The cotton over rubber insulations had another disad-
+vantage. Being organic, fungi liked this stuff a whole
+lot! Military equipment of the period had to be treated
+with special fungicides to prevent death by athlete's
+foot. The 50's and 60's brought us the petroleum based
+plastics for insulation; much more stable with age and
+they gave the fungi heartburn.
+ Derivatives of these
+materials are still around today in the form of PVC
+plastics used in most appliance and automotive wiring
+insulations. In the 60's, the wire of choice was insulat-
+ed first with PVC and then a thin jacket of nylon was
+extruded over it. This combination had a service life of
+Pagefor Stranded Wire.
+5 to 10 times longer than the cotton braid over extrud-
+ed rubber. Military aircraft wire of this era might
+include some synthetic fiber over-braids either as a top
+layer over the PVC or perhaps between the layers of
+PVC and nylon. This type of treatment provided addi-
+tional abrasion resistance.
+I made a statement about plastic insulations not being
+a 'perfect' barrier for the protection of the wire inside.
+A good example of the phenomenon can be experi-
+enced fIrsthand: a piece of fIsh dropped into a ziplock
+baggie can be detected by the nose from outside the
+bag after a few hours of containment. Of course the
+nose is a pretty sensitive instrument; it can detect
+concentrations of some odors in concentrations down
+to a few parts per billion. Another example of the
+'porosity' of plastics can be found in laboratories where
+precise amounts of some chemicals are to be dumped
+into the otherwise healthful environment in a cage of
+critters. A plastic tube containing the nasty stuff is run
+through the sealed environment. If one knows the
+make-up of the chemical and the plastic tube the
+migration rate of the chemical through the walls of the
+tube is very predictable. The dosage of the nasty stuff
+given to the hapless critters is known and controllable.
+This is the reason for the phenomenon I mentioned
+8-4
+The Aero-Electric Connection
+previously: unplated copper wires will corrode in spite
+of an intact layer of PVC plastic insulation!
+Another breed of plastics was brought into the market-
+place about 1960 and they all started with "TEFl. The
+first was teflon and it was truly an amazing advance-
+ment. The stuff stayed flexible and soft down to the
+big minus temperatures and would not melt in 400-500
+degree F environments either. The major disadvantage
+was its abrasion resistance in that you could dig into
+the material with your thumbnail. However, because it
+was so slick, it was easily bundled inside pvc jacket for
+general abrasion protection of multiwire avionics
+harnesses. It was (and still is) expensive wire, partly
+because of the need for silver or nickel plating the
+copper before extruding the teflon over it. I'm not sure
+of the exact reason but I believe it involves a reaction
+between tin and hot teflon in the process which ex-
+trudes the insulation onto the wire.
+So much for history. If you were going to pick a wire
+insulation for a new or restored airplane, the choices
+are really rather few and happily so. But let's review
+the requirements that we want to place on the wiring
+insulation for an airplane. The most obvious applica-
+tion of insulation is to keep the electrons from getting
+out of the wire before they get to the other end! So the
+first requirement is to prevent the wire from coming
+into undesired contact with conductors of electric
+current which includes other wires or metalic parts of
+the airframe. The next requirement is that the insula-
+tion must be durable to a suitable degree. A properly
+installed wire should not be subject to much mechani-
+cal abuse but just the act of installing a wire or wire
+bundle can inflict damage to a poorly insulated wire.
+Insulation creep-back or melting while soldering a wire
+is undesirable. The insulation must have a reasonable
+characteristic at temperature extremes. When subject-
+ed to the lowest expected operating temperature, the
+insulation must remain flexible enough so as not to
+crack under stress; at the upper extreme, it must not
+melt, deform or lose so much strength that the wire
+migrates within.
+Wire migration inside an insulating jacket is a rare
+phenomenon but I have seen it happen. We had a rash
+of OMNI antenna failures in a series of aircraft at
+Cessna back in the early 60's. The problem centered
+on shorted coaxial cables used to interconnect the
+antenna on the vertical fin with the receiver on the
+instrument panel. The cable routing called for a par-
+ticularly tight radius bend of the cable through some
+structure. This bend caused the center conductor of
+PageWire Selection and Installation
+the coax to put a stress on the insulation such that with
+time, vibration, temperature cycles, etc ....
+ the wire
+slowly moved from its nominal center within the center
+of the cable outward to the braided shield until it fmal-
+ly penetrated the insulation and shorted. The process
+took two to five years to occur. A change of the mate-
+rial from which the cable was made combined with a
+rerouted installation path cured the problem. Most
+coaxial cables today use a stranded center conductor
+which is very unlikely to migrate.
+The last requirement is that the insulation should have
+some longevity in the environment to which it is ex-
+posed. This relates back to the design service life and
+ideally your airplane should last forever, right? Well,
+perhaps not but a goal of 20 years is not unreasonable.
+There are few variations of environmental extremes
+within the airplane itself. Wires routed through spaces
+not in the engine compartment experience temperature
+extremes ranging from the coldest to the hottest that
+the weather and the sun can produce. Minus 40 to plus
+180 degrees F is a reasonable range to consider for
+these spaces. Wires in the engine compartment are
+subject to radiation and conduction heating from
+engine components that may take a wire to 300 degrees
+F or more! However, it is usually not difficult to pre-
+clude the possibility of this upper extreme. Resistance
+to chemical attack is a factor as well. Wires can be
+subjected to the effects of fuel, oil, hydraulic fluids,
+deicer fluids, products of combustion, topped off by
+cleaners and solvents used to remove dirt and oil. An
+especially reactive addition to this recipe is ozone
+which creeps out of the fitting on the ignition system.
+PICKING THE WIRE SUITABLE THE TASK
+The wire of choice today is insulated with a material
+called "tefzel". The wire is put up for the military
+under specification MIL-W-22759. Tefzel is a close
+cousin to teflon. It proved to be preferable to teflon for
+most applications due to its superior abrasion resist-
+ance; you cannot dig into it with a fingernail like you
+can with teflon. Its temperature rating is, I believe,
+somewhat lower than teflon but there should be no
+routing for wire in an airplane that will push tefzel even
+close to its limits! MIL-W-22759 wire may be available
+to you in assorted sizes and lengths from avionics
+shops. However, MIL-W-22759 is not the only wire
+suited to aircraft applications; it just happens to be the
+wire of choice. Let's look at some options:
+PVC insulated wires can be used quite satisfactorily in
+most areas except the engine compartment. There are
+8-5
+The Aero-Electric Connection
+two common types of PVC insulation available. One is
+rated at 80 degrees C. The other, having been exposed
+to intense radiation during manufacture is rated at 105
+degrees C. The lower temperature wire is not quite as
+tough and "creeps" away from a soldered connection
+rather badly. If you plan to use only crimped connec-
+tions, the lower temp stuff is okay. If you want to use
+soldered connections (see section on wiring intercon-
+nections) then the irradiated, higher temp variety is
+recommended.
+ Teflon wire may also be found at
+reasonable prices through surplus dealers. Teflon
+insulation is a little tougher to strip neatly. This job is
+greatly facilitate by purchasing a pair of strippers with
+blades specifically designed for stripping teflon.
+Some extra care should be used in installing either
+PVC or Teflon wires to prevent abrasion or localized
+pressures on the insulation. Adequate support and
+additional overwrap in potential abrasion areas will
+take care of the first hazard. Localized pressure is a
+condition that is not so well understood. Most plastics,
+if kept under a constant pressure above a certain value,
+will flow over time to relieve that pressure. The pres-
+sure can come from some obvious source like bending
+a wire bundle around a corner. Even if the bundle is
+immobilized, a constant unrelenting pressure can cause
+the insulation to flow from under the pressure point
+and cause one or more wires to become uninsulated. If
+that corner happens to be some aluminum structure in
+a metal airplane, then the system supported by the
+compromised wire will cease to function when the
+breaker pops. Abnormal pressure can come from
+other sources; some are pretty surprising. I have seen
+string ties and the plastic tye-wraps applied so tightly to
+a bundle of wires that the insulation on the wires was
+extruded sufficiently to expose the conductors within!
+Use some care and judgment when "immobilizing" your
+wires lest you strangle them as well!
+EXPLORING THE "UNKNOWN"
+Suppose you have a spool of good looking wire in your
+hot little hands and you would like to use it in your air-
+plane. The spool bears no markings that would tell you
+what the wire's pedigree is. You can tell some things
+about it for yourself. First, strip back the insulation
+and check the interior stranding. Is it 7 strands? Okay.
+Is it 19 strands? Great. Is it a plated wire and not bare
+copper. Is the wire indeed made of copper? It may
+seem to be a silly question but if you shop around
+military or industrial surplus outlets you should be
+wary of unmarked or otherwise unidentifiable materi-
+als; people have had all sorts of special weird wires
+PageWire Selection and Installation
+made. Now about the insulation ... Tin the strands of
+the wire with a soldering iron and some solder. Does
+the insulation crawl back from the hot end or drip? If it
+doesn't melt with normal soldering procedures, try
+touching the iron directly to the insulation. If it doesn't
+melt then the wire is probably insulated with one of the
+"TEF's". Soak a piece in Avgas or Mogas for a week;
+does the insulation swell up or get soft?
+If the stuff is obviously not teflon or tefzel, but all the
+answers to the foregoing questions are ones you like,
+then it's probably okay for everything except the hottest
+spots under the cowl. I'll never forget an experience
+about 23 years ago when I was moving with a pregnant
+wife from Pittsburgh, PA, back to Wichita in the dead
+of winter. I figured I'd do a tune up on the old '57
+Chevy before we left just as a precaution against igni-
+tion problems. Went down to the parts store and
+bought the usual goodies. Then I saw "it"; a display of
+beautiful red transparent ignition wires. What the
+heck, the old harness WAS a couple of years old....
+About a 100 miles down the road the car began to run
+badly and smell worse! We nursed it into a little town
+in West Virginia and opened the hood. The insulation
+on the pretty red harness was dripping onto the exhaust
+manifold, causing much smoke and letting all of the
+sparks out of the wires too. Bought a new (and very
+expensive) harness made of the ugly 01' black stuff; got
+to install it in front of a parts store in the dark and in
+the rain! Moral: If you don't know what kind of
+product it is then find out ....
+ before you put it on
+your airplane.
+Wires come in made up assemblies too. You can buy
+spools of multi-strand cables with a jacket extruded
+over the whole bundle. It's handy to be able to pull a
+smooth bundle of wires that are already protected from
+abrasion though the netherworld of structure under the
+floorboards of an airplane as opposed to a hand made
+bundle that is all lumpy with string ties or tye-wraps!
+You can almost never fmd exactly the bundle you want;
+made up from say, two 14 gauge wires, three 16's and
+eight 22's. There is a way to make use of these pre-
+bundled cables which I will describe later in this sec-
+tion.
+SIZING A WIRE TO THE TASK
+There are two factors to consider when selecting a wire
+size. To most folk, the first is pretty obvious. One must
+consider the CURRENT that the wire will carry. The
+second and not so obvious is the VoltAGE DROP in
+8-6
+The Aero-Electric Connection
+the length of wire required for a specific task. Exam-
+ple: 14 AWG wire used in house wiring is supplied
+from a 15-Amp breaker. The implication here is that
+this size is adequate for supplying loads up to the rating
+of the breakers: 15 Amps. But suppose you wanted to
+run a 1500 Watt electric heater in your hangar and the
+hangar was 250 feet from the house. The heater will
+draw 1500 (Watts) divided by 115 (Volts) which equals
+13.1 Amps (See equation 4 in Figure 1-3 and solve for
+Amps. While we are at it, let us solve for the resistance
+of the heater. Use equation 5. Plug in 115 Volts 1500
+Watts and solve for Ohms. I get 8.82 Ohms. More on
+that later.) Ha! let's go get a box of 14/2 Romex house
+wire and run it out to the hangar, it will carry 13.1
+Amps with no problems .....
+Looking at the wire data table in Figure 8-3 we see that
+14 AWG wire has a resistance of 2.53 Ohms per 1000
+feet. It is a 500 foot round trip to the hangar and back.
+Then perhaps we need to add another 50 foot round
+trip from the outlet on the back porch to the breaker
+box. Let's see .....
+ 550 times 2.53 divided by 1000 is
+1.39 Ohms. Adding that to the figure of 8.82 Ohms for
+the heater, we get a total circuit resistance of 10.2
+Ohms. Using equation 2, with 10.2 Ohms and 115 Volts
+plugged in, we can solve for a new circuit current of
+11.27 Amps. Using equation 1 again we can calculate
+that the Voltage across the heater is 8.82 Ohms times
+11.27 Amps or 99.40 Volts. Using equation 4 we can
+calculate that the heater with 99.40 Volts at 11.27
+Amps dissipated in it will generate only 1120 Watts.
+There is 115 minus 99.4 Volts or 15.6 Volts dropped in
+just the wiring! Using equation 4 again: 15.6 Volts
+times 11.27 Amps is 175.8 Watts of power (or 13% of
+the total) lost in the wire in spite of the fact that the
+wire is not being overloaded!
+Let's assume for this example that we were willing to
+lose 5% of our energy in conducting it from house to
+hangar. Looking at equation 6 in Figure 1-3, we note
+that power is the product of Ohms times Amps
+squared. If 5% of the total energy in the circuit is
+allowed to be dissipated in the wire then we can say
+that Watts dissipated in the heater is 19 times greater
+than the Watts dissipated in the wire. Using equation 6
+twice, we can say that 19 times the wire Ohms times
+the square of the Amps of current is equal to the
+heater Ohms times the square of the Amps. Divide
+both sides by Amps squared and we are left with:
+Heater Ohms is equal to 19 times the allowable wire
+Ohms. Solving for wiring Ohms we get 8.82/19 = 0.46
+Ohms.
+Wire Selection and Installation
+If our 550 foot run of wire can have a drop of 0.46
+Ohms then a 1000 foot run of the same wire would
+have: 0.46 divided by 550 times 1000 or 0.84 Ohms.
+Looking in the table again we see that an 9 AWG wire
+is smallest wire that will yield a resistance of 0.84
+Ohms per 1000 feet or less. 9 AWG is not one of the
+commonly stocked sizes so we would probably have to
+buy 8 AWG In short runs inside a house, 8 AWG wire
+can be loaded to 40 Amps! But because of Voltage
+drop considerations, we need to use 8 AWG wire to
+supply a 13 Amp load at the remote hangar location.
+There is another lesson here ... suppose we were to
+run 230 Volts to the hangar instead of 115. Would 14
+gauge wire handle a 1500 Watt heater with less than
+5% loss of power in the interconnect wiring? Does this
+exercise suggest why a 28 Volt electrical system might
+have some advantages over a 14 Volt one?
+Remember the example of Voltage drop in the landing
+light circuit in Section 1? The same reasoning was
+applied to that case as the one we just did on the
+hangar heater. Let's look at the wire table again and
+see what it has to tell us. The first column is the AWG
+No. which stands for American Wire Gauge Number.
+Don't ask me why the 0000 and the 000 wires are in the
+table that way. One would think that they could have
+made the four zeros guy equal to AWG 0 and then
+moved all the rest of the numbers
+ down
+accordingly.... zero, zero, zero what kind of number is
+that? Especially for a BIG wire! Any how, the next
+column is the diameter of the wire in Mils or l/loooth
+of an inch. The next column is the area in "Circular
+Mils" (??????) Here's another toe stubber. Note that
+the circular mill area is the simply the square of the
+diameter value in mils. Just to make life easier for
+someone, somewhere, they decided that the area of a
+wire didn't have to be expressed in real area by includ-
+ing pi in the equation; just squaring the diameter would
+yield a number that was PROPORTIONAL to the real
+area. Good enough for the purpose of those who
+would learn to speak "wire-ese" and confuse the rest of
+the world. The fourth column is based on the real
+cross sectional area of the wire and states the resist-
+ance of a strand in Ohms per 1000 Feet. The last
+column is also based on real world area and gives Feet
+per Pound.
+Note that the numbers for diameter apply to a solid,
+single strand of wire. However, for a stranded wire to
+be rated as 22 A WG it must have the same electrical
+characteristics as 22 AWG solid wire. The total cross
+Page 8-7
+The Aero- Electric Connection
+289
+ 204
+ 229
+ 162
+ 114
+ 325
+ 129
+ 144
+ 257
+ 182
+ ---------
+ 274
+ 206
+ 162
+ 102
+ 345
+ 365
+ 413
+ 486
+ 5
+ lOA
+ 12.5A
+ 146
+ 128
+ 100A
+ 7A
+ meter
+ 64
+ 36
+ 81
+ 22A
+ 32
+ 664
+ 54A
+ per
+ CMA
+ 15A
+ 72A
+ ---------
+ current
+ Crise
+ 40A
+ 30A
+ 10 9
+25.2
+ 1
+ 7
+ mp
+ --,----------
+ -_._---------
+ Dia-
+ 12.8
+ 13,090
+ ------ 41,700
+ 105,500
+ 16,510
+ 1,28.8
+ Circular
+ 1,624
+ 3,257
+ 66,400
+ 20.0
+ 7.91
+ 3.13
+ 2.48
+ 31.8
+ 1.56
+ 6.28
+ 3.95
+ 15.9
+ 12.6
+ ,110
+ 60
+ 9.98
+ 1.97
+ 0
+ 5.7
+ 6.1
+ 50.6
+ ,583
+ Pound
+ ,530
+ ,048
+ ,022
+ 3,100
+ 3,700
+ 33,100
+ 11,600
+ 67,800
+ 2,600
+ ,180
+ 6,250
+ ,230
+ Feet
+ 63.8
+ 80.4
+ .98
+ ,820
+ .4.01
+ .3
+ ,380
+ rea
+ Deg
+ 323
+ 514
+ _._------
+ 400
+ Mils
+ 256
+ 203
+ 8.05
+ per
+ 648
+ 5.06
+ 2.00
+ 10.2
+ 817
+ 404
+ 3.18
+ 161
+ 101
+ 2.53
+ 800
+ 1.26
+ 1.59
+ 6.39
+ Ohms
+ Feet
+ 642
+ 509
+ 128
+ .1
+ ------_._---
+ per
+ -----------
+ .078
+ .098
+ .999
+ .628
+ .313
+ .062
+ .156
+ .792
+ .395
+ .124
+ .498
+ .249
+ .197
+ .049
+ ----
+ 1000
+-
+Wire Selection and Installation
+-
+Figure 8-3. Wire Table for American Standard Wire Gauges
+sectional area of the strands must have a circular mil
+area (CMA) of 642 or perhaps a little more. This
+means that the resistance and weight of the stranded
+wire will be the same as for the solid wire. The only
+thing that is not the same is the diameter. A stranded
+wire will be slightly larger in diameter than its single
+strand cousin.
+Here are some other things to note about the wire
+table. First, every three steps in wire gauge corre-
+sponds to a factor of 2 in the CMA of the wire. 13
+AWG wire is one half the CMA and twice the resist-
+ance of a 10 AWG wire. 19 AWG wire is one-half the
+resistance and twice the CMA of 22 AWG wire.
+Second, note that 10 AWG wire is almost exactly 1
+miliOhm per foot. And last, note that 10 AWG has a
+diameter of .1 inch. With these three facts committed
+to memory, you now have a wire table in your head!
+Suppose you were trying to figure the suitability of 16
+AWG wire for some application. Since it is six steps
+from 10 AWG its resistance will be four times that of
+10 AWG wire or .004 Ohms per foot. If you are trying
+Page 8-8
+The Aero-Electric Connection
+to figure a problem involving 18 AWG wire you know
+that 19 AWG is nine steps from 10 AWG. Take one
+half for every three steps .... 1/2, 1/4, 1/8 the CMA
+and 8 times the resistance of 10 AWG or 8 miliOhms
+per foot. Drop down about a third of the interval
+between 19 AWG and 16 AWG resistance and you
+have about 6.66 miliOhms per foot for 18 AWG.
+Referring to the wire table again we read the real
+number to be 6.39 miliOhms per foot. ....
+ 6.66 mi-
+liOhms is good enough for estimating; amaze your
+friends by appearing to have memorized the wire table!
+Now, for picking a wire size I can tell you that no air-
+frame system wire should be smaller in cross-section
+than 22 A WG just as a practical matter for ease of
+installation and mechanical durability. 22 AWG wire
+may be loaded as heavily as 5 Amps. Therefore, the
+breaker feeding a 22 gauge wire should be 5-Amps or
+less. Figure 8-4 shows a graphical depiction of the
+continuous load ratings for temperature rises of 10
+degrees C and 35 degrees C of a single strand in free
+space. I have taken the numbers for selected gauges
+from the graph and included them in the data in Figure
+8-3.
+TWICE AS BIG DOES NOT MEAN TWICE AS
+STRONG
+Lets explore the term 'capacity'. A close look at the
+numbers in the charts and graphs will show thatjust
+because a wire has twice the cross section of another
+wire, its capacity does not double. We know that no
+wire has zero Ohms resistance, therefore, some energy
+is lost as the flow of electrons run down the wire. The
+energy lost comes off in heat. The ability to reject heat
+is a function of the surface area of the wire which
+grows in direct proportion to the diameter. The appar-
+ent ability carry current grows with the area of the wire
+which is proportional to the square of diameter. So as
+a wire gets larger, its ability to reject the heat generat-
+ed within does not go up as fast as its apparent ability
+to carry current. Hence the circular mils per Amp
+loading of larger wires is larger than small wires be-
+cause the ultimate limit on a wire is its insulation and
+environmental surroundings which are temperature
+limited.
+When the heating is tolerable, the wire does no
+damage to its own insulation when operated at rated
+capacity in its rated environment. PVC's are rated to
+105 degrees C, tIter' types to 300 degrees C. The
+numbers are valid for a single wire supported in still
+air. Now, if we bundle some wires up such that some
+PageWire Selection and Installation
+wires buried deep in the bundle are pushed to near
+their maximum ratings, we might find it necessary to
+de-rate the wire further to avoid exceeding insulation
+temperature limits. Figure 8-4 also shows a derating
+curve for a 10 degree C rise in wire temperature. For
+bundling wires the free air temperature rise current
+ratings are often used to insure that the wire does not
+overheat when buried inside a bundle of other wires.
+Note that the rated capacity of a wire has only to do
+with the safety issue of wire protection and does not
+address any performance issues. Homebuilders may
+indeed have to de-rate a wire to insure that suffIcient
+energy is conducted to the far end to insure proper
+performance of the powered device.
+WHEN IS AN OVERLOAD NOT AN OVERLOAD?
+Now that we've laid out the "rules" we can discuss how
+and why they are sometimes broken. If you were to
+run 10 Amps through a length of 22 gauge wire, does
+this imply that you are going to come spinning out of
+the sky trailing black smoke like the victim of a dog-
+fight? No, specially if the wire is short for low energy
+loss in spite of overload, well ventilated to control
+temperature rise, or is subject to an overload for only
+short durations. In fact there are specifIc cases where
+short term overloading is designed into an aircraft
+system and the excess losses are considered tolerable.
+The starter cable in an airplane is generally not sized to
+present an ideal situation with respect to energy lost in
+the wiring. The starter cable carries current for only a
+few seconds per flight and most designers will allow the
+losses in this wire to be "excessive" by normal stand-
+ards. As a rule of thumb, I would consider a drop of
+1.5 to 2 Volts in starter system wiring to be a livable
+situation if the cables are long and a weight savings can
+be realized. Looking at the numbers for this situation,
+suppose that the battery can deliver 200 Amps at 10
+Volts and we'll say that a 2-Volt drop is to be experi-
+enced in the starter wiring at this level of current draw.
+This leaves 8 Volts for the starter to run on which will
+probably get you a successful start in all but the coldest
+weather. A two-Volt drop out of 10 means that 20% of
+the energy available from the battery is lost in wiring.
+Another 20-25% is being lost internal to the battery
+itself! Remember from earlier discussions that the
+battery is chemically a 12-Volt device and its inability
+to deliver 12-Volts under heavy load is due to internal
+resistance (read internal losses).
+Necessity has been called "the mother of invention" but
+I suggest that compromise is "the father of success".
+The point of this discussion is that the rules are not
+8-9
+The Aero-Electric Connection
+S S A 200
+ 50
+ 10 2
+~~
+ A0 0
+ N 0
+ M
+ T
+ U
+ P N
+ L C
+ ~
+ I 100 ~
+5
+ ~
+ ---
+ ~
+ ..••....••..
+ ~
+ ....-
+ ~
+ .•...•.••• B --- ~
+ ~
+ @
+ 1..?0o"
+ ~
+ -----
+.....-
+Wire Selection and Installation
+~
+22
+ 20
+ 18
+ 16
+ 14
+ 12
+ 10
+ 8
+ 6
+ 4
+ 2
+ o
+AMERICAN
+ WIRE GAUGE
+ (AWG)
+Revision -A-
+ 02-02-06
+Figure 8-4. Wire Current Capacity Versus Wire Guage and Temperature Rise.
+carved in stone and you as the system designer can
+make some intelligent decisions as to when the rules
+are bendable.
+SPECIAL WIRES FOR SPECIAL APPLICATIONS
+I haven't mentioned shielded wire yet and I won't go
+into details in this section because shielding is part of
+the topic on electrical noise to be thrashed severely in a
+later section. As a portent of things to come I will have
+you ponder this statement in the interim: "The magneto
+wires are the only airframe electrical system wires
+worth shielding and in their case, the shield will be
+used in an unorthodox fashion. Only selected avionics
+and instrumentation wires require shielding and these
+should be disclosed to you in the instructions of the
+manufacturer of the product to be protected." More
+on this later.
+WIRE BUNDLE FABRICATION
+AND INSTALLATION
+Looking though the airplanes at Oshkosh, one can fmd
+many examples of ways to wire (or not to wire) an
+. airplane. Some projects show up with neatly sculptured
+wiring while others look like the web of a drunk spider
+created in a hurricane. Both techniques are obviously
+functional, at least to the extent that both airplanes
+made it to Oshkosh! And to some extent, the spider
+web is easier to modify: every wire is mostly visible and
+accessible. But there are at least two good reasons for
+taking the time to do it up tight. One is that it simply
+looks better. If you have a hand-crafted fmish on your
+airplane that you are particularly proud of, there's no
+reason not to have neat wiring to go with it. The
+second reason is more important. Consider the fact
+that a single 22 gauge wire hanging in space between
+two points is free to move with g-forces and vibration.
+A single strand of wire is not especially strong by itself
+when hung out in the breeze and is more vulnerable to
+accident. A formed and secured bundle of wires yields
+strength in numbers. A half inch diameter bundle of
+wires may be made up of many strands of different
+gauge wire, no one strand of which is very rigid.
+However, the sum total of the wires is quite resistant to
+flexing and individual strands are much less subject to
+being snagged and damaged by accident.
+Page 8-10
+The Aero-Electric Connection
+MAKE YOUR MISTAKES ON PAPER
+In planning the various issues of The 'Connection,
+there was a section to be devoted to the discussion of
+schematics, wiring diagrams and general tips on wire
+installation. Many of you are working on the electrical
+systems installations now. So, what follows is a preview
+of the material to be presented in greater detail in
+follow-on issues of The 'Connection.
+The first step in wiring your airplane is planning.
+Certainly if you can make detailed drawings of your
+intended installation, by all means do so. Perhaps no
+drawings are needed if you can plan out the system in
+you head but some sketches would be helpful to most
+of us! Your wire drawings are most helpful in this
+planning effort. I might make a distinction here
+between schematics and wiring diagrams. Figures 7-7
+and 7-8 are examples of the contrast between the two
+kinds of drawings. A schematic is the kind of drawing
+used most often in this publication; types of compo-
+nents and their interconnections are depicted without
+regard to the placement with respect to each other or
+the airplane. The wiring diagram is most useful for
+installation information while the schematic is the best
+for acquiring an understanding of how a circuit func-
+tions. You should make both types of drawings in
+planning your electrical system and its wiring. A set of
+schematics are planned for a later issue but for now,
+begin with a loose leaf binder and make a schematic
+for every individual system you plan to install beginning
+at the bus. For example, you should end up with a
+single page to describe the connections for the landing
+light beginning with the landing light circuit breaker,
+though the switch and to the fixture to ground. Show
+any intended disconnects in the wires such as a wing
+root connector to permit removal of the wing. Another
+separate page should be used to describe the alternator
+system with its two breakers, field switch, Voltage
+regulator and o.v. relay. Still another page might have
+the battery and battery master switch wiring. By de-
+picting each system on its own page, anyone schematic
+is relatively simple and one may be revised or replaced
+without messing up a big, single sheet drawing. Until
+schematics are published in The 'Connection, look
+though a service manual for a single engine Cessna or
+Beechcraft. These are good examples of what a book-
+form schematic should look like.
+After each schematic is done, pick wire sizes and
+appropriate breakers for each circuit and give each
+wire segment a number on the drawing, even if you
+choose not to number them in the airplane. It is a good
+PageWire Selection and Installation
+idea to number the actual wires as well; close to where
+they terminate at each end. The Digi-Key Catalog lists
+rolls of narrow tape with the digits 0-9 for marking
+wires.
+Begin a wiring diagram over a top view sketch of the
+airplane. For this you need a big piece of durable
+paper, the 24" wide Kraft or butcher paper works well.
+If your airplane plans are large, but less than 36" wide,
+consider having roll sized Xerox copies made at a blue
+print company. The wire routings can be made directly
+on actual views already provided by the designer. The
+wiring diagram needs to be fairly large because a lot of
+detail is squeezed into the area around the wire bun-
+dles.
+Planning the wire bundle routes is something like
+planning major streets though neighborhoods.
+ The
+object is to decide where the bundles will allow short
+fan-outs of the leads to individual components and
+instruments. The wire route decisions are also driven
+by support and access considerations. That is to say,
+you don't want long lengths of wire, bundled or not,
+hanging free in space. Further, wire routes must follow
+paths that are accessible to you after the airplane has
+been assembled. Some designers build wire routing
+considerations (like conduits and extra holes) into their
+airframes. When areas are likely to become inaccessi-
+ble after assembly, they will have you route wires or
+perhaps install conduits during the airframe fabrication
+process.
+ALL ROADS MAY LEAD TO ROME BUT ALL
+WIRES LEAD TO THE BREAKER PANEL
+I would start wire routing plans at the circuit breaker
+or fuse panel. Every electrical device in the airplane
+has wiring that connects to the bus. Major routes to the
+engine compartment and any remotely mounted avion-
+ics components must be decided. In many designs, the
+battery is installed on opposite ends of the airplane for
+weight and/or volume considerations.
+ If a conduit
+system such as I have described in the previous section
+on grounding has been used, the major wire routes are
+already established.
+Once the major wiring highways are mapped in your
+airplane, how does one get started? The heavy iron
+bird builders make their harnesses on harness boards
+that are evolved and fine tuned over the first few
+production runs of an airplane. Since you are probably
+in a "production run" of one only, your wire bundles
+will have to be developed in place on the finished
+8-11
+The Aero-Electric Connection
+ Wire Selection and Installation
+NA\1CAllON
+ UGHTS
+- - - - - -
+LANDING UGHT
+TAXI UGHT
+DOUE UGHT
+II
+Figure 8-5. Schematic Diagram, Lighting System
+Page 8-12
+The Aero-Electric Connection
+Wire Selection and Installation
+LT
+WING.
+,P-
+ ~,
+..L
+ -
+ -
+I
+CABIN
+5
+111-.-oJ
+FUSELAGE
+'6
+ TAIL
+CONE
+~
+- .J..
+ 17
+ -
+INSlRUMENT
+PANEL
+CABIN
+- - - -
+TT
+6¢
+Figure 8-6. Wiring Diagram, Lighting System.
+Page 8-13
+· The Aero-Electric Connection
+product. The first strand of wire laid into place is not
+likely to stay by itself! Nor the second, or third ....
+Until a number of strands are tied together, the 'hig-
+hways' may be more like wandering streams, very
+poorly defmed. There are a few simple tools that make
+it easy: string or cable lace, tye-wraps, and masking
+tape. String specifically designed for lacing cables is
+made by a number of firms. The stuff is usually made
+of Dacron and is waxed. It is often supplied in a thin,
+flat form. For temporary tying while building a wire
+bundle, ordinary cotton string will suffice. If you plan
+to use string as the major bundle tie material, the
+synthetic cable lace is called for.
+There is another wire tying product in the form of a
+flat plastic strap with a sort of ratcheting buckle on one
+end. These devices are single-shot in that once they
+are installed up tight, they cannot be loosened. Tye-
+Wrap is a trade name for one of the major manufac-
+turers of these things but many people in the Wichita
+aircraft industry refer to all brands of plastic ties as
+Tye- Wraps. These may be found in several of the
+catalogs listed in Appendix A. Masking tape is another
+temporary fastening device that will be useful in rout-
+ing wires.
+CONSIDER
+ THE PREASSEMBLED
+ WIRE
+PRODUCTS
+I mentioned pre-bundled cables earlier. These materi-
+als are widely used in the communications and control
+industries. It is not unusual to find large spools of
+multi-conductor cable in surplus houses. Most multi-
+conductor cables you will find in surplus come from
+situations where 22 or 20 gauge wires are used in
+quantity. First, if you find a bundle of 20's, a 20 gauge
+wire can be substituted for a 22; there is no prohibition
+for making a wire larger than necessary except for
+weight considerations, which in this case are minuscule.
+The 20 gauge wire which replaces a 22 gauge wire may
+also be protected with a 5 Amp breaker. As a hypothet-
+ical case, let us assume that you need the combination
+of wires I mentioned earlier to run from the switch
+panel to the engine compartment of an Eze: two 14
+gauge wires, three 16's and eight 22's. Looking into the
+wire table, we find that a 16 gauge wire is four times
+the CMA of a 22 gauge wire and a 14 gauge is seven
+times the CMA of a 22 gauge. Two 14's will require
+fourteen strands of 22, two 16'5 will require eight more
+and the eight 22's bring the total to 30. In my trusty
+wire catalog I fmd that cables having fifteen pairs of 22
+wires can be had in an outside diameter of just over 0.5
+inch! The wires in the prefab cable are color coded to
+PageWire Selection and Installation
+facilitate assembling the multiple 22 gauge wires into
+equivalents of their larger cousins. Paralleling of
+strands into larger combinations assumes two things:
+first, the wires must be very close to the same length
+(no particular problem when they come prebundled)
+and second, the joints at the ends are of very good
+electrical quality (to be covered in detail in the next
+section).
+If you are using conduits, pull wires into these first with
+plenty of overhang at each end for later connection.
+Don't make conduit routed wires into tied bundles, just
+pull (or push) them through all at one time. It is much
+easier to do this than to try put the last wire though a
+conduit that already has 15 or 20 wires already in
+place! This same admonition applies to situations
+where conduits are not used but the routing is long and
+difficult, like down the fuselage of a Long-Eze. In this
+case, bundle up the portion of the wires that runs
+through the airplane's netherworld and pull it in one
+whack. Then beginning with the breaker and switch
+panel, route wires from this most densely populated
+area out to the equipment to be powered.
+While the bundles are first taking form, combinations
+of string, tape and tye-wraps may be used to hold them
+near their final configuration. I often put tye-wraps
+pulled up tight on a wire bundle to hold it in shape and
+cut them off later as more wires and new tye-wraps are
+added.
+KEEP 'EM DANCING TOGETHER
+Once your bundles are complete they should be
+mounted to the airframe often enough to prevent them
+from flopping around. There are various techniques
+for accomplishing this. A classic wire retainer is the
+"Adel" clamp, named in honor of the company that
+used to make most of the wire and tube clamps used
+here in Wichita. They are supplied to the military
+under specification MS21919. These are metal strap
+clamps lined with rubber or plastic. An example is
+shown in Figure 8-7. These clamps are available in
+1/16th inch increments from 3/16 up to sizes larger
+than you'll ever need for wires. The size is depicted in
+their part number by the last digits. A MS21919DG6 is
+for gripping wire bundles 6/16" or 3/8" in diameter; an
+MS21919DG12 is for 3/4" jobs. These clamps are
+designed to be used directly on a wire bundle or piece
+of tubing without need for additional protection of the
+bundle or tube from the clamp's metal structure.
+Check the catalogs and the Fly Market in Oshkosh for
+these critters. You've got to learn to love these things!
+8-14
+The Aero-Electric Connection
+SOFT RUBBER OR PlASTIC
+FORWED UETAL C1.AUP
+BUNDLE OF WIRES
+lWO CLMAPS ARE OFTEN E:ASlER TO
+SIZE 1HAN A. SINGLE ClAMP •
+. FURTHER. ONE ClAWP COULD SUPPORT
+WIRES AND A. SECOND ONE USED TO
+SUPPORT A. LIQUID UN£.
+THE US21919 CLAMP IS
+A REAl. nNJ<ER-TOY
+ IN
+rrs ASSEMBLY VERSAllU1Y.
+Wire Selection and Installation
+AIRFRAME OR ENGINE
+,MOUNTING
+ lUBE
+A. SINGLE CLAWP AROUND
+A. STRUCTURAL TUBE MAY
+BE USED TO SUPPORT 1WO
+OR WORE WIRE BUNDLE/
+TUBING SUPPORT ClAMPS.
+Figure 8-7. Applications of the MS21919 Padded Clamps.
+If the clamp is properly sized to the job, it takes three
+hands to hold one closed with a pair of duckbill pli-
+ers, insert the screw from one side and put the nut on
+the other. I don't know how many screws I have
+launched into oblivion when the duckbills slipped!
+However, they are an excellent product and worth
+learning how to use.
+There are also wire bundle clamps made of plastic
+which are acceptable everywhere except the engine
+compartment. A a general rule, I wouldn't use plastic
+clamps in any area of the airplane that is not period-
+icly looked at and touched. Wire routings with ina-
+cessable or seldom inspected locations should use the
+padded metal clamps.
+A major tenet of wire bundle immobilization states,
+"Never support a bundle of wires in a manner that
+presses the primary insulation of the wires against
+the structure or a metallic clamping device". In a
+welded tube airplane or in the engine compartment,
+it is perfectly acceptable to string tie or tye-wrap a
+bundle along a structural tube. At each tie point, a
+Pagebuffer between the clamping device and primary
+insulation of the wires must be provided.
+Consider using heat shrinkable tubing available from
+many of the sources listed in appendix A. Slip a short
+piece of heat shrink over the wire bundle for each
+tye-wrap location and shrink it down in the proper
+location as you install the tye-wrap or clamp. You
+might even want to use two pieces of heat shrink per
+location. Pick a larger size for the second piece if
+necessary; two layers of tubing will provide enhanced
+abbrasion resistance.
+If you are using a prefabricated cable material dis-
+cussed previously, the extra protection is already in
+place and these bundles may be tied directly to struc-
+tural tubes. Caution with those strings and tye-wraps:
+just snug 'em up, don't strangle the bundle.
+In a fiberglass airplane laid up over foam, I have suc-
+cessfully used rivnuts installed though the plys as
+though they were sheet metal. The resulting threaded
+hole then provides mounting support for wire bun-
+8-15
+The Aero- Electric Connection
+cUes. Speaking of rivnuts, the term "rivnut" is the
+trademark of the manufacturer that pioneered the
+technology, the name escapes me at the moment.
+Since the orgininal products were brought onto the
+market, many similar products have appeared. Most
+are quite good but beware of cheap imitations. I
+have personally tested some of the offerings at the
+Fly Market and found them lacking. In general, don't
+use any rivnut that is made of aluminum unless you
+have a reputable manufacturer's application data for
+the product and you adhere to it. The best rivnuts
+are made of mild steel.
+Common practice dictates that you do not tie wires
+up with any liquid lines such as brake fluid, primer
+lines, oil pressure or fuel pressure gauge lines. The
+prohibition against this is simple: a wire burning in
+two from some electrical fault could cause a leak of a
+flammable liquid and ruin your day completely. The
+likelihood of this scenario is extremely remote. Your
+wires are will be protected against burning by proper
+use of breakers and fuses. Most installations I have
+seen by homehuilders have liquid lines in more
+danger of leaks from abrasions due to poor support
+than from electrical faults! Were it my personal
+airplane, I would have no problems with tying the
+liquid lines into the wire bundles that run down the
+sides of airplanes like Long-Eze's if it will ensure the
+mechanical security for both the wires and tubes. Of
+course, if you are using a conduit ground system, you
+don't want to run the liquid lines down the limited
+conduit space. In this instance the conduit may
+become a structural support for liquid lines. As
+always, use clamps, tye-wraps and or string to hold
+liquid lines to the outside of the conduit. Use the
+same care with liquid lines as with wires; use a buffer
+wrap or padding to prevent the liquid line from
+chafmg on the conduit at the support points.
+As an aside on this topic, the only liquid line that
+runs up the side of a Long-Eze containing a really
+dangerous fluid is the tubing used to plumb up the
+engine primer. Consider an electrically operated
+primer like the Beech Skipper (and possibly
+others).
+Wire Selection and Installation
+This system uses a small electrically operated valve in
+the engine compartment to connect the pressure side
+of the electric boost pump into the primer system
+though a small orifice. Therefore, primer lines are
+not brought into the cabin. The engine is primed by a
+few seconds operation of the valve while the boost
+pump is running. I like that concept whole lotI
+A CONNECTOR ADDS THREE NEW "JOINTS"
+TO EVERY WIRE
+There are a number of popular designs for circuit
+breaker panels and switch panels that can be preas-
+sembled on the bench. Many use stub pendant cables
+terminated in plastic connectors with crimp-on pins
+to facilitate later installation in the airplane. Person-
+ally, this is a mixed bag. Every connector introduces
+three joints in each wire passing through the connec-
+tor. One for each crimp to a pin and a third where
+the two pins mate with each other. If properly ap-
+plied, connectors can be a great help; the automotive
+world has been using wire bundle connectors for
+many years to facilitate prefabrication for later instal-
+lation on an assembly line. However, if the connector
+installation technique is marginal, then many possible
+points of failure have been introduced. In the next
+few sections we will discuss wire termination tech-
+niques and the design of circuit protection systems.
+LAST MINUTE HOT FLASH BEFORE GOING
+TO PRESS ..
+Many of you have indicated to me by phone and mail
+that the Mil-W-22759 wire can be found in avionics
+shops but only in sizes used in avionics installations.
+The larger airframe sizes, particularly the large ones
+used for starter and battery cable are more difficult
+to find. Consider using electric welding cable avail-
+able from most welding shops. It is only slightly
+heavier than the aircraft grade wire but it is quite
+flexible and easy to work with. Furthermore, its
+outer jacket is specifically designed for nasty envi-
+ronments!

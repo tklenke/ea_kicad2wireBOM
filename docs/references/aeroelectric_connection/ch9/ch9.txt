@@ -1,0 +1,571 @@
+Wire TerminationI have been putting off writing this section until last;
+having difficulty coming up with the best words to
+describe some things that really need to be shown in
+pictures and/or demonstrations. We spent some of
+your subscription money last week on an accessory for
+our cameras; a bellows attachment that let us do some
+really close up photography on some small subjects.
+We're planning a series of slides for the seminars at
+Oshkosh '89 to show HOW TO and HOW NOT TO
+terminate wires. The needed details are beyond our
+present illustration capability and we're not set up yet
+to include photographs in this publication. So, until the
+photographic update of this section is in print, we'll
+take a whack at it with our best command of the King's
+English. . . . .
+The act of reliably connecting a wire to another wire or
+to an electrical component is probably the easiest task
+to accomplish in your wiring installation. But until you
+understand what you are trying to accomplish and
+master a few techniques for doing it, it's easy to make
+joints that come apart; usually at inopportune times!
+There are three requirements for making the lasting
+connection: first, the connection must be electrically
+sound. Second, the joint must be mechanically secure.
+Third, unless the metallic conductor exposed in the
+process of making the joint is located in a very benign
+environment it must be protected from the environ-
+ment.
+All of you have probably seen the crimp on terminals
+that are sold in virtually every hardware and automo-
+tive store. A plastic case containing an assortment of
+terminals along with a crimping tool can be had for a
+few dollars. And, if you understand how they can be
+properly applied, even these el-cheapo tools and their
+terminals may have application in your electrical
+system installation. You may also find yourself faced
+with terminating a bundle of wires into a connector of
+one or more pins that mates in turn with one of your
+system's components. Strobe light power supplies
+come to mind as an example. Certainly, your avionics
+black boxes will have multi-pin connectors on the rear
+which you will have to deal with. Many times these
+units will come with some verbal or illustrated instruc-
+tions for the application of connectors, but more often
+they do not. They were originally marketed to the
+aircraft manufacturers and fixed base dealers who,
+after they had fotched up their first few installations,
+presumably learned how not to fotch up the rest of
+PageWire Termination and Connectors
+and Connectors
+them. Since many of you are only going to want one
+shot at this, let us see if we can do it right the first
+time!
+The one thing you never do is wrap the end of a
+stripped wire around a threaded shank and mash it
+down under a nut or head of a screw! This may meet
+the intent of rule #1 for awhile but it misses #2 badly.
+I had a boss who told me once that ten "attaboys" in a
+row would get me a raise but that one "awshit" would
+wipe out all of the "attaboys" you had saved up and you
+had to start over. So in keeping with the spirit of col-
+lecting only attaboys, let's make connections that don't
+break off under stress and vibration a month after the
+airplane is all buttoned up.
+RING TERMINALS FOR SINGLE STRANDS -
+SOLDERED
+The only way to go to any threaded post with a wire is
+with a ring terminal soldered or crimped on the end.
+Solder? Did I say solder? I remember my first lesson in
+soldering. I was spending the summer fresh out of the
+third grade with an uncle who possessed an electrical
+engineering degree and was an employee of the local
+power company. He empathized with my interest in
+electronics although it was a long way from his particu-
+lar field of expertise. I remember looking at a con-
+struction article, I think it was a one-tube radio in one
+of the Boy Scout publications; a merit badge project. i
+had been scrounging parts (albeit some incorrect or
+defective) and I was short the tools and skills to solder
+the stuff together. Uncle Bill got out his trusty 250
+watt electric iron (about the size of a policeman's billy
+club) and a roll of solder. The solder was about the
+size of 10 gauge wire. He showed me a text book he
+had on the subject; the pictures gave step by step in-
+structions for splicing and insulating house wiring and
+wires on power poles! We spread out on the basement
+floor and proceeded to stick the things together. It
+didn't work when I finished it but it didn't matter.
+Uncle Bill seemed satisfied enough with my perform-
+ance that he allowed me to use the tools solo. Thus
+began my experience with a new technique. It was
+many years later before I truly understood the stuff and
+became really proficient with it. I now possess at least
+six different kinds of soldering tools and three or four
+different kinds of solder. Let me share some of what I
+have learned with you here and perhaps we can cut
+several years off of your learning curve.
+9-1
+The Aero-Electric Connection
+ Wire Termination and Connectors
+Soldering, unlike welding, is a means for making a
+metallic joint between two metals made up of possibly
+different alloys using still a third alloy, the solder itself.
+Solder obviously melts and flows at temperatures much
+below the melting point of the metals being joined.
+Welding involves heating the two parts to be joined up
+to their melting points and then filling the gap with a
+filler rod of the same material. Solders are available in
+a variety of alloys for specialized tasks but the solder
+we are going to need is made from tin and lead. If you
+visit a well stocked solder supplier, you can find solder
+in bars, sheets, wire ranging from cat whisker thin to
+perhaps 1/2" in diameter and powdered. The ratio of
+tin to lead may vary from 5 percent tin/95 percent lead
+to perhaps 70 percent tin/30 percent dead. You may
+even find special solders with a little silver, bismuth or
+antimony in it. That just covers the metal aspect of
+solder, then we get into fluxes. Flux is used to break
+down the oxides (rust or corrosion) of the metals to be
+joined to make clean bare metal available to the
+molten solder. Fluxes also are used to coat the surface
+of the molten solder and keep it from oxidizing too.
+All metals react more readily with the air as their
+temperatures are increased in the soldering proce-
+dures. There are dozens of fluxes for soldering of
+various materials in as many different applications.
+Now, just what is it that the solder does? It is not a glue
+or adhesive. Nor does it make connection by simply
+surrounding and gripping the materials to be joined.
+Solder achieves connection by actually dissolving a
+smdl quantity of the base material into itself. Think of
+solder as a solvent for solid copper. If you were to
+make a micro cross-section of two wires twisted to-
+gether and then soldered you will get a situation which
+is depicted in Figure 9-1. Note that in the interface
+between the tin/lead solder and the copper wire, tjiere
+is a region where a small amount of the copper has
+actually become dissolved into and alloyed with the
+tin/lead solder. This layer isn't very thick because as
+the copper migrates into the solder, it alters its alloy
+and raises the alloy's melting temperature. So, the
+hotter the iron you solder with, the deeper the copper
+penetrates into the solder but at most the interface is
+only a few molecules thick!
+Let's look at the topic of melting point for a moment.
+Figure 9-2 shows the nature of solder's melting point as
+its alloy is varied. The figure also depicts another
+characteristic of the various alloys of solder. Notice
+that an alloy of 63% tin has the lowest melting point of
+all the tin/lead solders. Note also that with all solders
+Pageother than 63/37 there is an intermediate plastic phase
+between the liquid and solid phases. This 63/37 ratio
+is known as a eutectic alloy; it has little or no plastic
+range in the transition from liquid to solid upon cool-
+ing. Ever heard the term "cold solder joint"? What is
+being described is a joint wherein the solder has a dull
+gray crystalline appearance; is weak and almost literally
+crumbles when stressed. The way that the joint got
+that way was because of two factors: First, a non-eutec-
+tic alloy of solder was used. Second, the joint was
+moved while the solder was in the plastic range as the
+joint was cooling. Solution to the problem? Use the
+right kind of solder. For most of your applications, an
+electronic grade solder of 63/37 alloy, 0.062" in diame-
+ter and having an active, non-corrosive flux is recom-
+mended. Spend the few extra bucks and get a good
+name brand, my own personal favorite is 63/37 Kester
+Resin "44" in an 0.032" diameter. It might seem expen-
+sive at about $8 per pound but a pound will last you a
+long, long time and the quality is unquestionable. I've
+used the Ersin Multi-core electronic solders with pleas-
+ing results too. However, whichever solder you choose
+63/37 is the MAGIC number to insist on.
+The melting point figure also illustrates the phenome-
+non I mentioned earlier about the alloy shift raising the
+melting point as the copper molecules begin to dissolve
+into the molten solder. Note that as the alloy shifts
+away from eutectic, not only does its plastic range grow
+wider, its melting point increases as well. A little bit of
+copper causes the melting point in the solder/copper
+interface to take quite a jump thus preventing the wire
+from dissolving completely into the molten solder.
+Neat, huh? What are all the other kinds of solder for?
+Well, in my younger days it was a big deal to remove
+all the chrome from your car and fill in the molded
+channels with a material called body solder. In this
+case, the body man needed a very wide plastic range so
+he could sculpture with it. A 30/60 alloy was more to
+his liking. Eutectic solder would have been totally
+useless for this application! Here is an opportunity for
+a high tech practical joke, slip a bar of 63/37 into a
+body man's tool box. He'll go nuts trying to mold the
+stuff into any kind of shape! Just about the time it
+starts to soften it'll fall on the floor.
+Now, as you make perfect joint after perfect joint with
+the right kind of solder, you can imagine all those little
+molecules of copper swimming out into a rapidly thick-
+ening quagmire of molten metal. You'll also know that
+the probability of a "cold" joint is almost zero as the
+joint cools.
+9-2
+A THIN LAYER OF SOLDER ALLOYED
+1M1H A TRAO OF COPPER. MICKNESS
+EXAGERATED HERE FOR CLARITY.
+LAYER OF PURE SOLDER
+\
+ q
+;:f;;'{/>
+Figure 9-1. Anatomy of a Soldered Wire Joint.
+PURE
+COPPER
+WRE
+: , "]j)}jj"!t""""^
+! "'
+ "%q ":i4?z,zr"""
+i J:" " ""r"t:"", \ \\j
+DECREAS1NG TIN m
+ 6 37 O _
+ b ll|mEA8NG 11n
+Figure 9-2. Solder Charactersitics Versus Temperature and Alloy.
+Page 9-3
+The Aero-Electric Connection
+ Wire Termination and Connectors
+Once the alloying process is understood, the need for
+dean metal and a good flux is more apparent. Oxides
+of the metal do not alloy with the solder and indeed
+prevent alloying by the good metal underneath. The
+flux helps carry away small amounts of oxides that have
+formed since the metal was last deaned. If you follow
+the rule in the previous section about using only tinned
+wire, deaning will not be a serious issue for you. Tin is
+a very stable material compared to copper and a fresh-
+ly stripped, tin plated wire is ready to solder with no
+further concerns about deaning.
+The reason for all this discussion about solder is
+because when properly applied, soldering is a very
+versatile, low-cost method for terminating wires.
+Figure 9-3 shows a solder lug available from electronic
+supply houses that has a shape of particular interest to
+homebuilders. The unsymmetrical, dog-bone shape
+lends itself very nicely to being soldered to the end of a
+wire and then having the joint protected by a length of
+heat shrink tubing (see the Digi-Key Catalog). The
+shape allows the shrunk tubing to get a good grip on
+the assembly and provides coverage for some distance
+either side of the solder joint. If you would rather not
+invest in crimp on terminals and associated tools, this
+method of terminating wires in ring type terminals is
+most acceptable, perhaps even preferable, for use in
+airplanes!
+RING TERMINALS FOR SINGLE STRANDS -
+CRIMPED
+The tradeoffs between soldering and crimping are not
+terribly compelling to the homebuilder. Crimped
+terminals are the product of choice for factories.
+There is no heat involved so careless applications of
+soldering irons to paint, plastiq carpets and upholstery
+is not a problem. Crimped terminals are also a bit
+more compact and look better than their soldered and
+heat shrink covered cousins. But, they are more
+expensive, they perform no better and they require
+proficiency in another kind of skill.
+Hand tools for applying crimped terminals range from
+$10 to $200. The differences in them lie in the quality
+of the end result. Expensive crimp tools have precision
+dies which are brought closed against hard stops thus
+insuring the proper upset of the metals in the
+terminal/wire interface. These tools also feature
+ratchets in their mechanisms that insure that the tool is
+operated through a full crimp cycle thus preventing
+inadvertent under-crimping. I own several such tools.
+I also own some of the $10 variety and over the years, I
+have acquired the skill and knowledge needed to
+produce adequate crimps with these tools as well. It
+takes a bit of practice and some knowledge as to
+proper application which we'll get into now.
+If you are going to use crimped terminals, consider the
+AMP Preinsulated, Diamond Grip (PIDG) products in
+the Digi-Key catalog. There are also some lower cost
+ring terminals in the catalog by the 3M company.
+These are roughly equal to AMP's Plasti-grip line of
+insulated terminals. I don't recommend these but I
+would prohibit them only in the engine compartment.
+Here's why: when crimping any preinsulated terminal
+on a wire there are TWO crimps to consider. The first
+is about-one third of the length of the insulator back
+from the ring end of the terminal. This crimp forms
+the metallic barrel of terminal down onto the exposed
+wire, the second crimp is about two thirds of the way
+along the insulator from the ring and it forms the
+insulation of the terminal around the insulation of the
+wire. Mind you that the second crimp does not have to
+get a death-hold grip on the wire like the first crimp
+does. All you are needing to do 'with the second crimp
+is immobilize the wire behind the first crimp so that
+vibration doesn't put additional stresses on a wire that
+you have just stressed by mashing it!
+If you look in the wire end of a new PIDG terminal,
+you will find a thin copper liner inside the plastic insu-
+lation grip. The plastic portion of a preinsulated termi-
+nal forms rather nicely around a wire at room tempera-
+ture but at elevated temperatures found in an engine
+compartment, the plastic tends to return to its original
+BC (before crimping), round shape! The support for
+tjie wire is thus degraded or lost completely. The
+PIDG terminal has a metal sleeve in its insulation grip
+that prevents the terminal's wire grip from digressing
+due to temperature extremes. The terminals sold in
+automotive stores are almost assuredly of the pure
+plastic form of insulation grip. I won't tell you not to
+use them but I don't like 'em for airplanes.
+Now about these low cost tools. The dies shown on the
+tool in Figure 9-4 are of the type that are used on the
+preinsulated terminals. These jaws are shown on the
+opposite side of tool's pivot from the handles but I
+have seen tools where these dies are on the inside of
+the handles; it doesn't matter. Do not use any crimp
+tool that penetrates the side of the terminal. There are
+a number of low cost tools for crimping uninsulated
+terminals that punch a sort of indentation on the side
+Page 9-4
+The Aero-Electric Connection
+g
+a
+Q
+ :
+Wire Termination and Connectors
+1HE "D=ONE" 1EmNAL NIH BUILT IN
+AVAILABLE TFIROUW aEcTRoNIcs WPPLY Haj=
+D)
+double wall heat sirink has a yarABLE
+WHlW IS SQUEEZED m TFE 1MRE, JOINT
+AND TERMINAL DUHNG TFE APPL1CKTION pms&
+\d
+VIARE SOLDERED TO 1ERldlNAL
+Figure 9-3. The "Dogbone' Terminal for Soldered Wire Terminations.
+INSULATUN ~ DIE (0P¶ONAL, MOST TOOL MFO'S
+INTEND THAT THE INSJLATON BE EliFED M1H
+I—me same 0(e as 1he wire).
+O)
+t
+}
+\_
+10-12 A1NG WE (YELLOW PSDG) (op¶0Nd
+BECAUX OF LARGER FORCES REQURED
+to auw yellow 1erminaia few low cost
+/DOLS NLL INCLUDE MS SZE).
+16-18 AWG DE (BLUE PIDG)
+22-18 AWG DIE (RED P¶DG)
+Figure 9-4, Tooling for Preinsulated Ring Terminals.
+Page 9-5
+The Aero-Electric Connection
+of the wire grip of an uninsulated terminal. Neither
+these tools nor the uninsulated terminals should be
+used on an airplane.
+First, study the terminal you are about to crimp on the
+wire. It is the right size for the wire? A red insulator
+on a PIDG terminal indicates an 18 to 22 AWG wire
+range, a blue insulator is for the 12 to 16 AWG wires
+and a yellow is for 8 to 10 AWG wires. Are there dies
+on the jaws of your tool marked to suggest which die is
+appropriate for the terminal? Insert the wire into the
+terminal; the insulation should bottom out against the
+back of the wire grip portion of the terminal and inside
+the insulator such that the bare strands just barely
+emerge from the ring side of the wire grip. Study the
+situation for each type of terminal you use and learn
+the proper strip length for each.
+Now, with the wire firmly bottomed out in the insula-
+tor, grip the terminal in the crimping tool with the tool
+centered over the wire grip and with the jaws parallel
+to the plane of the ring. Put a squeeze on it. Relax the
+squeeze a little and try to pull the wire out. Put a 5-
+pound or so pull on it. If the wire pulls loose, you
+didn't squeeze hard enough. If the wire stays in, take
+the terminal out of the tool and look at your crimp.
+Did the plastic extrude out from under the tool so that
+any metal is exposed? Did the plastic crack down the
+sides? Does the thing just look squashed? If so, you
+squeezed too hard! Cut the terminal off and try again.
+The object is to "calibrate" your squeeze to the task; its
+not diRicult but it does take some practice and a little
+critical observation of your results. There is a wide
+range between too little and too much for our pur-
+poses.
+Once the wire grip crimp is mastered you are 95% of
+the way there. Next, using the next smaller die opening
+or perhaps a special die designated on your tool for the
+purpose, put another crimp on the terminal's insulator
+to close it snugly down around the insulation of the
+wire. Now look at the finished terminal installation.
+Are the two crimps nicely spaced on the insulator and
+are they both parallel to the plane of the ring? This
+isn't a critical issue but it is one of craftsmanship. In
+airplanes that would otherwise have taken show hon-
+ors, I have seen the good PIDG terminals applied with
+a pair of Vise-Grips. Were I on the judging committee
+I have the errant builder go wash and wax the winner's
+airplane and then we'd talk about the rework needed to
+make his own airplane's electrical system reliable as
+well as neat.
+Wire Termination and Connectors
+TERMINALS FOR THE BIG GUYS
+The red, blue and yellow PIDG terminals will take care
+of most of your wire-to-stud terminations but how
+about those big honkers that run from the battery to
+the starter contactor? There are PIDG terminals for
+these wires too but eyen the production hand tools for
+these wires is a hydraulic actuated ram! Consider
+getting these terminals installed for you by a local FBO
+or perhaps an electrical contractor. I've seen these
+tools and terminals for big wires used by many wire
+installers in the various buildings I have been employed
+in. Just cut your wire to exact length required; allow for
+the addition to length when the terminal is added. I
+suspect that a local contractor could provide and apply
+PIDG terminals (or their equivalent) for a few dollars
+per end. There is a home brew alternative to the PIDG
+'
+ terminations. ·
+You can make custom terminals for big wires by select-
+ing a drill just larger than the bundle of stripped wire
+strands. Cut a 1" piece of 1/2 or perhaps 3/4-inch soft
+copper tubing and mash it flat in a vise with the shank
+of the drill inside. You'll find it not difficult to pull the
+tubing down tight over the drill stem mandrel thus
+forming a flat shape with a tubular passage down one
+side. Drill an appropriately sized hole in the flat to go
+over your contactor terminal. Use a spotfacer and/or
+get a good grip on the thing with a vise or Visegrips
+when drilling. The copper is soft and likes to snag on
+the drill. A spotfacer makes a nice hole with much less
+tendency to snag.
+Strip the cable back 1" and put the flag terminal on it.
+Use a large iron (200 watts or more) or a low flame on
+a propane torch to solder the terminal to the wire.
+"What I!!!", you say, "What about insulation support?"
+In these bigger wires, adequate vibration protection
+can be achieved by supporting the wire against struc-
+ture close to the terminal. A PIDG terminal would be
+nice and do it all in one whack but a homemade flag
+terminal is just fine too and very inexpensive.
+Years ago my first mobile ham radio installation was in
+a 6-volt, 1941 Pontiac coupe. My transmitter was in
+the trunk of the car and used a 600 volt dynamotor to
+produce the necessary high voltage for the output stage
+vacuum tubes. The dynamotor draw was just over 40
+amps (with a 25 amp generator, I didn't get into long-
+winded transmissions, especially at night!). I remem-
+ber using soft copper tubing to fabricate flag terminals
+that were soldered to the cable that ran back to the
+Page 9-6
+The Aero-Eiectric Connection
+ Wire Termination and Connectors
+f¶ece of meet copper or soft copper
+TUBING. USE K± OR
+ fN A
+PRESS TO FORM OVER MANDm. THAT WILL
+just admit me wre strands —\ub
+"""""isattery souiNaD
+TERMINAL POST
+LOCK WASHER
+IE "
+1jj"wrr wre
+T"®"""""""""""""
+.040
+ SOLDER
+ FEED
+ HOLES
+two or
+ more on both
+SK OF WIRE BARRLL
+"
+STRANDS
+ID HOMEMADE FLAG
+terminal
+Figure 9-5. Home Made 'Flag" Terminals for Big Wires.
+noie h mmi. jaw dww v|kno ams 1h£ ¶ps of 1he
+mE WP BAac INTO ME &7ER OF 1FE S1RANDNG
+j1
+'\L MARE ep IXE (EAW
+NLLt
+USUALL:¢OVIDE
+AT LEAST TWO SZES). BE SURE TO UX THE ONE
+APPROPROPKIATE m 1H£ TERMINAL BBNG INSTALLED.
+THE NS1JLA¶ON GRIP DIE MAY BE IDENTICAL
+IN MAPE AND SUW7LY UFFERENT IN SZE FRW
+THE 1MRE GRIP DIE R ST COULD HAVE A SPEQAL *APE
+CHEQC 1HE MANUFACTURERS |NsTURcnoNs ON ME
+PROPER USE OF THE TOOL
+Figure 9-6. Tooling for Sheet Formed Pin and Socket Connectors.
+Page 9-7
+The Aero-Electric Connection
+.
+trunk. When your system only runs 6.9 volts to begin
+with, a few hundred millivolts drop was a significant
+percentage of total system voltage. Let's see. . . 4
+AWG wire is 6 AWG steps from 10 AWG that means
+1/4th milliohm per foot. R-feet from battery to trunk
+yields 3 milliohms of wire. 40 amps times 3 milliohms
+was 120 millivolts drop in that wire. In 1960, I hadn't
+the foggiest notion of how that analysis would come
+out. Furthermore, I didn't have any instruments accu-
+rate enough to see how bad the drop was. It is interest-
+ing to note 28 years later that the 4 AWG wire (the
+biggest I could find at the Boeing surplus yards) had
+been a pretty good choice!
+MULTI-WIRE CONNECTORS
+It is almost a sure bet that you will have to deal with
+some multi-wire connectors at some point in the
+completion of your airplane. Many of the avionics
+products will have connectors which pass multiple
+wires from the airframe systems into the interior of the
+black boxes. The Whelan Strobes use AMP Mate-N-
+Locks. You might also find it expedient to use a multi-
+wire connector at say, the wing root for convenient
+opening of a wire bundle when removing a wing.
+Cessna starting using the AMP Mate-N-LocK series
+plastic connectors while I was in their employ in the
+late 60's. Many eyebrows were raised, mine included
+when we saw these sheet metal, crimp on pins support-
+ed in plastic housings. Up to that time, wires bundles
+needing occasional breaking were fabricated with mil
+standard metal shelled connectors with soldered pins
+or a perhaps a sleeved knife splice (See the Digi-Key
+catalog PIDG listings) was put into every strand in the
+bundle. More oRen than not, the wires that ran out to
+removable portions of the airframe, like a wing, were
+run in unbroken strands. The poor guy in the field had
+to 'deal with cutting and splicing the wires if he re-
+moved a wing.
+Wire Termination and Connectors
+Cessna, like the automotive industry, was finding it
+more efficient to install wire bundles in the assembly
+stations for the various pieces of structure and some
+economical but reliable form of connector was needed.
+The Mate-N-Locks filled the bill nicely. Digi-Key
+stocks these connectors along with the Molex brand
+multi-wire devices. They also have low cost tools for
+terminal application. The dies for these tools are illus-
+trated in Figure 9-6. These are very different from the
+dies for a PIDG installation. Note that the pins for
+both the Mate-N-LocKs and the Molex connectors are
+formed from hard copper sheet. The pins have both
+insulation and wire grips. The funny looking dies are
+shaped so that during the crimp, the sheet metal tabs
+on the wire grip are rolled back into the center of the
+wire strands. The same form is applied to the insula-
+tion grip. Another nice feature of these types of plastic
+connector is that the pins are installed by simply push-
+ing them into the back side of the housing until they
+"click" into place. Furthermore, they may be removed
+for replacement of damaged pins by means of extrac-
+tion tools which are also handy if you have "clicked" a
+wire in to the wrong hole!
+Until we can give photographic coverage to the proper
+installation of the sheet metal pins in the Molex and
+Mate-N-LocK type connectors, experiment with them a
+bit. They are inexpensive enough that you can afford
+to sacrifice a few housings and pins in your education.
+Take some scraps of wire and put some pins on them.
+Look at your results. Two grips; one for the wire and
+one for the insulation. The pins are listed as different
+part numbers for different sized wires. Make sure that
+you observe the limits on these and don't try to use the
+wrong size pin on a wire. It is possible to put two or
+even three wires into a single pin on these connectors;
+just pick a pin that has enough wire and insulation grip
+capacity to get its 'arms' around all the strands and
+their insulations.
+Page 9-8

@@ -1,0 +1,26 @@
+DC and Wiring Fundamentals
+1-7Figure 1-8. Various Lamp Symbols - plus examples of
+supporting data included in many of our drawings. 
+of this symbology to put as much meaning into the
+drawings you produce for your project.Switches come in a variety of styles and functionalcapabilities. These devices are discussed in more detaillater in this book.  It’s relatively easy to depict functionalityin the  device’s wiring symbol and it’s no sin to craft orrevise a symbol in a way that clarifies meaning. Forexample, I first encountered progressive transfer, two-pole,on-on-on switches  at Cessna about 1965.  I was editing aservice manual for an ARC autopilot. The engineeringdrawings provided to me drew a two-pole, progressivetransfer switch looked just like an ordinary two-pole, threeposition, on-off-on switch.
+There was a written note on the drawing that tried to
+explain the special functionality of this switch.  I decided itwould be helpful to craft a modified symbol exactly likethat shown in figure 1-7.  My boss about had a cow . . .NOT because he disagreed with value of addedunderstanding offered by the “new” symbol . . . but becauseI had the temerity to ADD a word to a language describedin great detail in “approved”military specification designlanguage dictionaries.
+LAMPS : The symbol for an incandescent lamp is another
+one of those graphics that nicely depicts the physical realityof an incandescent lamp. The symbol shows an envelope(glass) surrounding a curlicue (filament) inside. The othercommon light source depicted in our drawings is the lightemitting diode (LED) that is shown as a diode inside acircle.  If the lamp is to have a specific color, then it’s oftenshown adjacent to or inside the symbol.  Another symbolyou may encounter in our drawings is for the classic, press-to-test fixture that doesn’t even show the lamp but doesshow how to hook up the three leads from the fixture inorder to make the press-to-test feature work.   
+Additionally, I’ve illustrated  data items commonly found
+on wiring diagrams.  When you choose a particular part orpiece of equipment for your pr oject’s electrical system, you
+should build a list of such parts and assign a referencedesignator to the part. Your list, or bill-of-materials, can bequite verbose in describing the part, its part number,manufacturer, ratings, etc. You don’t want to put all thatdata on the face of a drawing . . . this is where the referencedesignator comes in. In my drawings, I enclose thedesignator in a hex box . . . this is not a standard convention,other folk use variations on the theme but they’ll be easilyrecognized for what they are; a label that speaks nothingabout the part’s ratings or number . . . it’s simply a pointerto a more verbose part description in another document.
+In this case you see A1 and I1 as reference designators next
+to the symbol for a press-to-test lamp fixture.  If you went toa bill of materials to look for A1, you might find that it’s anMS-XXXX fixture.  The symbol I1 might take you to acallout for a #330 lamp.
+Another feature of my drawings is to add a panel label for
+the device. Switches and lights may have a shadow-boxadjacent to the symbol to display suggested words that mightbe placarded on the panel to describe the device’s function.
+The odd-ball among lamps is the light emitting diode or
+LED. These solid state light emitters are rapidly replacingincandescent lamps in many aircraft illuminationapplications.  The symbol for an LED is the diode with acircle around it.
+Finally, if the light emitter is to be assigned a specific color,
+it’s easy to add this to your diagram too. Note the press-to-test fixture is an amber colored device.  I might include asmall “R” , “G”, “A” etc inside the circle of a lamp symbolto call out red, green, amber, etc. colors for that particulardevice. 
+RESISTORS : We’ve already had some discussion about
+resistance as an impediment to the free flow of electronswhich always warms things up and turns otherwise usefulelectrical energy into wasted heat.
+From time to time, there are instances when we  WANT to
+do a little considered “wasting” and there are thousands ofvarieties of resistors available to do just that. Check theblister-pak racks of any Radio Shack store and you’ll find aselection of wired devices ranging from 250 milliwatts ofdissipation rating to 10 watts or more.  The power rating ofthe resistor is determined by its ability to reject the heatdissipated in operation without getting so hot that the partself-destructs.  As you might well expect, a 10 watt resistoris much larger than a 25 milliwatt device.
+Resistors come in a huge range of sizes. The surface mount
+devices in your cell phone may be only 0.030" by 0.060"and  rated for 100 milliwatts of dissipation.  The dynamicbraking resistors in a diesel-electric locomotive wouldn’t fit

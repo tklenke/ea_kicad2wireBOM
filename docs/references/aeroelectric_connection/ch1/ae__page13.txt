@@ -1,0 +1,17 @@
+DC and Wiring Fundamentals
+1-11Figure 1-14. Relays and ContactorsThe first thing I do when planning an aircraft’s power
+distribution system is to draw up the busses. Whetherdistributed to breakers or fuses, it doesn’t matter. Everydevice needing power in the airplane has to pick it off ofsome protected circuit and that circuit is generally fed by a“bus”.
+Make a drawing for each bus and list every breaker or fuse
+attached to it along with the fuse’s reference designator,size, function, size of wire attached to it and then somelead-off label that tells you what page the system  will befound on.  The first pages of your wirebook become thebasis for planning a load analysis for your electricalsystem’s various sources. These pages also become anindex for the rest of the book - find the breaker thatsupplies the system of interest and follow the lead-out labelto find the page were the system is described.
+On each system page,
+the bus and circuitprotector are repeatedwith just a segment ofthe bus illustrated. Thesegment needs to belabeled as to whichbus the protection isfed from which leadsyou back to the“index” page.
+This figure also shows
+a ground bus . . . nobreakers or fuses, justa place where the suiteof grounds assigned tothat bus can bebrought to a singlelocation. Later in thebook we’ll discuss theimportance of “singlepoint ground systems”.
+So, there’s nothing
+magic about a “bus” . .. in early Pipers, thebus was simply a pieceof solid copper wire soldered to a row of fuseholders.  Anydistribution or commoning bus should be built such that nosingle failure along the bus will disconnect the rest of theloads.  For example, I have a bus bar and circuit breakerassembly removed from a “certified” and many timesannualed single engine Piper. The “bus” is fabricated fromthree separate pieces of aluminum strip that  runs along therow of screws behind the circuit breaker panel. Looseningof any screw at the joint between the three pieces wouldcause electrical continuity to the remaining downstreamloads to be lost as well. I’ ve also seen builders crimpterminals on a handful of 2-inch wire segments and then
+daisy-chain them down the row of breakers . . . these multi-piece fabrication techniques negate the purpose of a bus.Insofar as you can, busses should be cut from single piecesof metal. Even in a multi-row breaker panel, you can cutstrips of brass or copper to build the bus structure and thensolder the strips together where they would otherwise beheld together by a threaded fastener.
+RELAYS and CONTACTORS : Just about every airplane
+will have at least two contactors. One for the battery and onefor the starter. Contactors (and relays) are remotelycontrolled switches that operate because you apply power toa coil of wire (see the inductor symbols) which in turncreates a strong magnetic field. Magnets attract magneticmaterials and in this case, the magnetic material is  mounted
+on the movable contacts of some form of switch.
+The schematic symbols for contactors and relays are
+strongly suggestive of their construction. Relays aregenerally smaller and designed to switch currents of up to 30amps. Contactors are much beefier devices and rated toswitch loads of 50 to  hundreds of amps and carry loads inthe hundreds of amps. You can see how the starter andbattery contactor symbols suggest that a magnetized coil ofwire pull down on a shorting bar to make electrical

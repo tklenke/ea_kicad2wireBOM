@@ -1,0 +1,13 @@
+DC and Wiring Fundamentals
+1-10Figure 1-12. Inductor Symbols
+Figure 1-13. Fuses Breakers and Bus BarsYou won’t find the symbol used very much in this book.
+Inductors as unique components that you install toaccomplish some task are rarely used or needed at theairplane system assembly level.
+In the chapter on noise we’ll speak to the use of inductors
+to fabricate noise filters that can reduce or prevent noisefrom propagating into or out of some part of your electricalsystem.  The places I’ll most often use the symbol is in thedepiction of internal workings of devices that utilizeinductors such as motors andalternators.
+FUSES, CIRCUIT
+BREAKERS AND BUSBARS:  I get a lot of
+questions about “bus bars”and “busses” . the word isused a lot in aviationvernacular but I’m not sure itswell understood. The generalterm “bus” refers to acommon connection ordistribution mechanism for avariety of power and/or signalconnections. For example, ourairplanes have data busses . .. a means by which multiplecomponents talk to each otheron a common connectingstructure. That structure couldbe a wire, a coax cable, atwisted pair of wires, even afiber optic link. Bussingthings together speaks moreto a concept than to a piece ofhardware.
+Buses discussed in this work
+are more narrowly confined todiscussions about
+powerdistribution.We’ll speak ofbattery busses,main busses,essential busses,auxiliary bussesand groundbusses. In somecases we mayhave need tofabricate alighting bus.  Ineach of thesecases, the bus is
+simply a technique by which a number of loads can receivedistributed power or a number of ground returns can cometo a common point. The bus may be a strip of metal drilledat intervals to accommodate interconnection of a row ofcircuit breakers. In our favorite fuse blocks, the bus is a partof the purchased device that runs down the center of thefuseblock and provides power distribution for a suite ofplastic fuses. The symbology you will find in this work isillustrated in figure 1-13. 

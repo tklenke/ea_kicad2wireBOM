@@ -1,0 +1,20 @@
+DC and Wiring Fundamentals
+1-8Figure 1-10. Diode SymbolsFigure 1-9. Resistor Symbols
+into a 35 gallon drum and are designed to turn tens of
+thousands of watts of electrical energy into heat.
+The electrical symbol for all of these devices is the same.
+You will find this symbol used very seldom on our powerdistribution diagrams . . . potentiometers are used to dimpanel lights and the occasional resistor may show up as acurrent limiting device to be used in lieu of a fuse in someapplications.  By-in-large, resistors will show up only ascomponents internal to some appliance like an audiodistribution amplifier or other “black box”. 
+DIODES : Diodes will appear in most of our drawings for
+two purposes. (1) Spike catcher diodes are connectedacross the coil terminals of some relays and contactors and(2) Power control or steering diodes are used between themain bus and essential bus of our drawings to make up thenormal power feed path for the essential bus.
+A diode is an electrical check valve. Current will flow
+through one direction of the diode and not if it’s reversed.Alternators use diodes inside to rectify the AC voltage ofthe power output
+windings into DCvoltage. A variationof the diode symbol isalso used with lightemitting diodes asdescribed earlier.
+The silicon junction
+diode is the mostmaturesemiconductor devicein your electricalsystem. Powerversions of the devicewere incorporatedinto automotivealternators back in the60's.  Compared to
+their vacuum tube and selenium rectifier ancestors, theyARE a lightyear ahead in terms of efficiency andcompactness.
+Diodes come in lots of sizes and packages. Surface mounted
+devices for electronics can be as small as 0.030" in diameterand 0.080" long. These diminutive devices may be rated ata few hundred milliamperes forward conduction current and50 to 100 reverse volts.  Diodes used  locomotives  can bethe size of a gallon bucket, rated for thousands of amperesand have reverse voltage ratings in the killovolts range.
+A diode is not a perfect check valve . . . when current flows
+through the device in the forward (conductive) direction,there is a relatively fixed voltage drop on the order of 0.6 to0.8 volts.  Generally speaking, this has little if any practicaleffect on system performance but it does mean that thecritter gets warm.
+For example: a steering diode between the main bus and
+essential bus insures that the e-bus is powered any time themain bus is up.  Assume an e-bus continuous load of 6 amps.

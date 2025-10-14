@@ -1,0 +1,24 @@
+DC and Wiring Fundamentals
+1-4Figure 1-5. Wire and Wiring Symbolsdesigned with the knowledge that it is not practical to
+supply power to the product with wire so large as to haveinsignificant resistance. We must compromise and selectedwire that is reasonable in size and wastes a tolerableamount of power.  How much power? Applying formula(4):
+Watts = 11.54 Amps x 1.1 Voltsand Watts = 11.78Not too bad considering; 150 watts of energy DOES get to
+the lamp's filament! But you can see there is a compromisethat says an 8% or so loss of power IS acceptable.
+Open the switch and the path is broken. No flow (amps) can
+occur. The voltage is still there as a potential for keepingthe lamp's filament hot but you cannot stuff electrons intoone end of a device without having some place for them togo out the other end. Figure 1-5 shows what the voltagereadings would be when the lamp is off. 
+Wirebook and Schematic Symbols
+WIRES : We’ve already used some symbols to described an
+electrical circuit  for purpos es of explaining how the units
+of electrical measurement  are related to each other. Let’sstart with those devices and work up.
+The most rudimentary component for herding electrons isa wire or other conductor used to covey electrons from one
+place to another. This symbol is a line. Like road maps forcars, conductor maps for electrons may embellish the linewith variations in width, style or color. There are no hardconventions or rules for variations on a theme of diagraminga wire or any other component. If you compare  the wiringdiagram for a European automobile with a similar diagramfor an American or Japanese product, you’ll see somestriking differences in presentation philosophy and someminor variations in how the same kinds of components areportrayed. By-and-large, these variations are simplevariations of “linguistics” akin to the use of “pancake,flapjack or griddlecake” being used to describe the sameitem of food.
+The style I’ve developed for the AeroElectric Connection is
+a blend  of my experiences in  electronics and aircraft power
+distribution. In 40 years I’ve worked with many styles ofschematic and wiring diagrams. Some features (in my not sohumble opinion) detracted from  ready understanding ofmeaning. Other features were not esthetically pleasing.However, like mathematics, wiring diagrams  andschematics have a degree of commonality that crosses allbarriers of spoken language.
+Because the ‘Connection is not yet printed in color,
+variations in our schematic representations for wire will belimited to weight of the line combined with some label thatwill convey additional information about the wire’s size,color and position in the system. For example, if you see a
+wire label like this: -----20AWG- ----- 
+You may deduce that
+this conductor is a size20 American WireGage conductor. Youcan assign noadditional meaning tothis label. In manycases, this is all that’sneeded.  Suppose yousee this:
+ ------- RED22 ------Here we’ll suggest that
+the wire is 22 gage insize and red in color.This is about as far aswe need to go forlabeling wires in ourrelatively rudimentarydrawings.
+Wiring diagrams
