@@ -7,6 +7,8 @@ This document defines acronyms used throughout the ea_tools project.
 - **EA** - Experimental Aircraft
 - **BOM** - Bill of Materials
 - **KiCad** - Open-source electronics design automation suite
+- **EAWMS** - Wire Marking Standard for EA.  file is ea_wire_marking_standard.md
+- **OFI** - Opportunities For Improvement
 
 ## Domain-Specific Terms
 

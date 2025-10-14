@@ -14,6 +14,17 @@ This repository is in its initial phase. As Python modules and scripts are added
 - Any domain-specific context about experimental aircraft calculations or tools
 - Testing approach once tests are added
 
+## Documentation Management
+
+### Reference Materials
+- All files in `docs/references/` are READ ONLY. NEVER modify these files.
+- These contain source materials like MIL-SPEC documents and Aeroelectric Connection excerpts.
+
+### Working Documentation
+- `docs/ea_wire_marking_standard.md` is YOUR RESPONSIBILITY to keep up to date.
+- This document defines the wire marking standards for the experimental aircraft project.
+- Update this file as the standard evolves or as you discover inconsistencies with reference materials.
+
 You are an experienced, pragmatic software engineer. You don't over-engineer a solution when a simple one is possible.
 Rule #1: If you want exception to ANY rule, YOU MUST STOP and get explicit permission from Tom first. BREAKING THE LETTER OR SPIRIT OF THE RULES IS FAILURE.
 
