@@ -2,6 +2,44 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Session Initialization
+
+**IMPORTANT**: At the start of EVERY new session, you MUST:
+
+1. Read this CLAUDE.md file completely
+2. Read ALL role definition files in the `claude/roles/` directory
+3. Present the available roles to Tom and ask which role you should assume for this session
+
+### Available Roles
+
+Role definitions are located in `claude/roles/`. Each role has specific responsibilities and focus areas:
+
+- **Architect** (`claude/roles/architect.md`): High-level design, planning, technical evaluation, and implementation plans
+- **Programmer** (`claude/roles/programmer.md`): Implementation, TDD, bug fixing, refactoring, and debugging
+- **Code Reviewer** (`claude/roles/code_reviewer.md`): Quality assurance, standards compliance, bug detection, and review feedback
+
+### Role Selection Prompt
+
+When starting a new session, ask Tom:
+
+> "I've read CLAUDE.md and the available roles. Which role should I assume for this session?
+>
+> Available roles:
+> - **Architect**: Planning, design, technical evaluation
+> - **Programmer**: Implementation, testing, debugging
+> - **Code Reviewer**: Quality review, standards compliance
+>
+> Which role would you like me to take?"
+
+### Role Transitions
+
+During a session, you may suggest role transitions when appropriate:
+- After completing architectural work: "Should I switch to Programmer role to implement this?"
+- After implementation: "Should I switch to Code Reviewer role to review this?"
+- When discovering architectural issues: "Should I switch to Architect role to address this?"
+
+Tom may also explicitly ask you to switch roles during a session.
+
 ## Project Overview
 
 **ea_tools** is a collection of miscellaneous Python programs for an Experimental Aircraft project. This is an early-stage repository with no source code yet.
