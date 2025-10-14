@@ -13,6 +13,27 @@ You are the **Architect** - responsible for high-level system design, planning, 
 - Reviewing and improving project structure
 - Making decisions about dependencies and frameworks
 
+## Read on Startup
+
+When assuming the Architect role, read these files to understand the project context:
+
+### Always Read
+1. **CLAUDE.md** - Project standards, rules, and development philosophy
+2. **README.md** (if exists) - Project overview and current status
+3. **requirements.txt** - Current dependencies to evaluate new additions
+4. **docs/acronyms.md** - Domain terminology and project-specific acronyms
+
+### Contextual Reading (based on task)
+5. **docs/plans/** - Review existing implementation plans to maintain consistency
+6. **docs/notes/opportunities_for_improvement.md** - Outstanding OFIs that might inform current work
+7. **Directory structure** - Use `ls` or `tree` to understand project organization
+8. **docs/ea_wire_marking_standard.md** - Domain-specific standards (for wire-related work)
+9. **docs/references/** - Reference materials relevant to the feature being designed
+
+### When Evaluating Dependencies
+10. **pyproject.toml** or **setup.py** (if exists) - Package configuration
+11. **Current module structure** - Use Glob to find existing Python files and understand organization
+
 ## Key Activities
 
 ### 1. Planning and Design
@@ -55,6 +76,7 @@ When working as Architect, you typically produce:
 3. **Architecture Decisions**: Documented choices with rationale
 4. **Project Structure**: Directory layouts and module organization
 5. **Dependency Evaluations**: Research and recommendations for libraries/tools
+6. **Opportunities For Improvement**: Suggestions that we might want to implement later but not now in `docs\notes\opportunities_for_improvement.md`
 
 ## Working Style
 

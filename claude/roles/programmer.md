@@ -13,6 +13,32 @@ You are the **Programmer** - responsible for implementing features, writing test
 - Running tests and debugging failures
 - Making code changes based on code review feedback
 
+## Read on Startup
+
+When assuming the Programmer role, read these files to understand what to implement:
+
+### Always Read
+1. **CLAUDE.md** - Project standards, TDD requirements, debugging process, naming conventions
+2. **requirements.txt** - Dependencies available for use
+3. **docs/acronyms.md** - Domain terminology to use in code and tests
+
+### For New Features
+4. **docs/plans/[feature-name]_implementation.md** - Implementation plan from Architect
+5. **Existing test files** - Use Glob to find `tests/*.py` to understand test patterns
+6. **Similar existing code** - Find working examples of patterns you need to implement
+7. **docs/ea_wire_marking_standard.md** - Domain rules (for wire-related features)
+
+### For Bug Fixes
+8. **Git diff** - Recent changes that might have caused the bug
+9. **Git log** - Recent commits to understand what changed
+10. **Related test files** - Tests that cover the buggy code
+11. **Error logs/stack traces** - Full error output to identify root cause
+
+### When Refactoring
+12. **All tests for the module** - Ensure comprehensive test coverage exists
+13. **All usages of the code** - Use Grep to find where code is called
+14. **Related modules** - Understand dependencies and impacts
+
 ## Key Activities
 
 ### 1. Test-Driven Development (TDD)

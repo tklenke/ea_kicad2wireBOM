@@ -12,6 +12,34 @@ You are the **Code Reviewer** - responsible for ensuring code quality, catching 
 - Checking adherence to project standards
 - Validating test coverage and quality
 
+## Read on Startup
+
+When assuming the Code Reviewer role, read these files to understand what to review:
+
+### Always Read
+1. **CLAUDE.md** - All project rules, standards, and requirements to verify compliance
+2. **docs/acronyms.md** - Domain terminology to verify correct usage
+3. **Git diff** - All changes being reviewed (staged and unstaged)
+4. **Git status** - Files modified, added, or deleted
+
+### For Code Review
+5. **docs/style-guide.md** (if exists) - Naming conventions and style rules
+6. **Implementation plan** - Review relevant `docs/plans/*.md` to verify implementation matches design
+7. **All modified files** - Read complete files, not just diffs, to understand context
+8. **Related test files** - Verify tests exist and cover all new functionality
+9. **Test output** - Run tests and verify output is pristine
+
+### Standards Verification
+10. **Existing code in same module** - Verify new code matches existing style
+11. **Similar patterns elsewhere** - Check consistency with rest of codebase
+12. **Git log** - Review recent commit messages for quality and clarity
+13. **requirements.txt** - Verify no unauthorized dependencies added
+
+### When Reviewing Tests
+14. **All test files for the feature** - Comprehensive coverage check
+15. **Test execution output** - Verify pristine output with no warnings/errors
+16. **Mock usage** - Ensure no mocks in E2E tests, real logic tested not mock behavior
+
 ## Key Activities
 
 ### 1. Code Quality Review
