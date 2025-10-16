@@ -71,8 +71,26 @@ The wire's physical properties are not included in the main code but must be rec
 | :--- | :--- | :--- |
 | **Wire Gauge** | Wiring Log / Schematic Notes | **20 AWG** (must be noted for proper current rating) |
 | **Insulation Type** | Wiring Log / Installation Standard | e.g., **Teflon/Tefzel (MIL-W-22759)** |
-| **Primary Wire Color** | Visual Inspection / Schematic | Red (often used for main power) |
+| **Primary Wire Color** | System Code Convention (see below) / Schematic | Red (power system), White (lighting), etc. |
 | **Endpoints** | Derived from Schematic | **Main Bus** to **ANL Fuse** (for segment A) |
+
+#### Standard Wire Color by System Code
+
+To aid in visual identification and reduce installation errors, wire colors should follow system code conventions where practical:
+
+| System Code | System Type | Standard Wire Color |
+| :--- | :--- | :--- |
+| **L** | Lighting | White |
+| **P** | Power (DC) | Red |
+| **G** | Ground | Black |
+| **R** | Radio/Nav | Gray |
+| **A** | Avionics | Blue |
+
+**Notes:**
+- These color conventions are recommendations for primary insulation color
+- Color coding supplements but does not replace wire marking labels
+- Multi-conductor bundles or harnesses may use different colors for individual wires
+- Always verify connections against schematic - color coding is a visual aid, not the primary identification method
 
 ***
 

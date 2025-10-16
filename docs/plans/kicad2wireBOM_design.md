@@ -53,8 +53,8 @@ Component physical location and electrical characteristics are encoded in the **
 - **Original Footprint**: Standard KiCad footprint designation
 - **Delimiter**: `|` separates footprint from encoded data
 - **Coordinates**: `(fs,wl,bl)` - aircraft coordinates in inches (decimals supported, negative values for left side)
-  - **FS** (Fuselage Station): Longitudinal position from datum
-  - **WL** (Waterline): Vertical position from datum
+  - **FS** (Fuselage Station): Longitudinal position from datum (+forward/-aft)
+  - **WL** (Waterline): Vertical position from datum (+above/-below)
   - **BL** (Buttline): Lateral position from centerline (+right/-left)
 - **Type Letter**: Single character indicating electrical role
   - **L**: Load - component consumes power (lights, radios, motors)
@@ -87,36 +87,47 @@ Package_SO:SOIC-8|(100.5,25.0,-5.0)L3.2
 - **Unambiguous**: Simple regex parsing, clear structure
 - **KiCad-compatible**: Footprint field exports reliably to netlist
 
-### 2.3 Optional Custom Fields on Nets
+### 2.3 Circuit Identification Strategy
 
-- **Circuit_ID**: Explicit EAWMS circuit number (overrides parsing from net name)
-- **System_Code**: Explicit system letter (overrides parsing from net name)
+**Circuit ID (Circuit Number)**:
+- Use KiCad's automatic net code directly as the circuit ID
+- KiCad assigns sequential numeric codes (1, 2, 3...) to each net
+- Example: KiCad net code 105 → Circuit ID = "105"
+- No parsing required - simple and reliable
 
-### 2.4 Net Naming Convention
+**System Code (System Letter)**:
+- Determined by analyzing components and net characteristics
+- Algorithm (in priority order):
+  1. **Load components** (highest priority): Check ref prefix for system type
+     - "LIGHT", "LAMP", "LED" → "L" (Lighting)
+     - "RADIO", "NAV", "COM", "XPNDR" → "R" (Radio/Nav/Comm)
+     - "GPS", "EFIS", "EMS", "AHRS" → "A" (Avionics)
+     - "FUEL", "OIL", "CHT", "EGT" → "E" (Engine Instruments)
+     - "ALT", "ASI", "VSI" → "F" (Flight Instruments)
+  2. **Source components**: "BAT", "ALT", "GEN" → "P" (Power)
+  3. **Net name analysis**:
+     - Contains "GND", "GROUND", "RTN", "RETURN" → "G" (Ground)
+     - Contains "PWR", "POWER", "BUS" → "P" (Power)
+  4. **Pass-through components** (switches, fuses, breakers):
+     - Parse ref designator for keywords: "FUEL_PUMP_SW", "LANDING_LIGHT_CB", etc.
+     - Check description/value field for system hints
+  5. **Fallback**: Use "U" (Miscellaneous) with warning if unable to determine
 
-If Circuit_ID field not present on net:
+**System Code Mapping** (extensible):
+- Implemented as configurable lookup tables in `reference_data.py`
+- Easy to add new component type patterns and keywords
+- Pattern matching is case-insensitive substring search
 
-- **Preferred format**: `Net-L105` (system letter + circuit number)
-- Parser attempts to extract system code and circuit number from various formats
-- Falls back to error if unable to parse and no Circuit_ID field present
+**Net Name and Net Type**:
+- Capture `net_name` field from KiCad netlist → include in wire notes/BOM
+- Capture `net_type` field from KiCad netlist → include in wire notes/BOM only if value is NOT "DEFAULT"
+- These fields provide documentation context but are not used for circuit identification
 
-### 2.5 Field Export Verification
+### 2.4 Field Export Verification
 
 **CONFIRMED**: KiCad v9 reliably exports the full Footprint field content to netlists, including embedded data after the `|` delimiter. The delimiter characters `,|{}[]#!` all export correctly.
 
 **Validation**: Implementation plan includes test fixtures with actual KiCad netlists containing footprint-encoded data to verify parsing logic.
-
-### 2.6 Optional Configuration File
-
-Projects may include `.kicad2wireBOM.yaml` or `.kicad2wireBOM.json` configuration file for project-specific defaults:
-
-- Custom wire resistance tables
-- Custom color mappings
-- Default system voltage
-- Default slack length
-- Custom ampacity tables
-
-Configuration file is optional; tool works with built-in defaults and command-line options.
 
 ---
 
@@ -142,11 +153,37 @@ Length = |FS₁ - FS₂| + |WL₁ - WL₂| + |BL₁ - BL₂| + slack
 - Slack ensures adequate wire for termination, strain relief, and routing adjustments
 
 **Multi-node Nets**:
-For nets connecting 3+ components:
-- Detect topology from spatial coordinates (star vs daisy-chain)
-- Calculate segments between adjacent nodes
-- Warn user that routing assumptions were made
-- Log informational message during processing
+For nets connecting 3+ components, assume **star topology** (central hub with spokes to other components).
+
+**Hub Component Detection (priority order)**:
+1. **Tier 1 (Highest Priority)**:
+   - **BUS** or **BUSS** - Power distribution bus
+   - **BAT** - Battery (often central to power distribution)
+   - **GND** - Ground bus/point
+2. **Tier 2**:
+   - **FUSE** - Fuse block/panel
+   - **CB** - Circuit breaker panel
+   - **PANEL** - Generic panel designation
+3. **Tier 3**:
+   - **J** prefix with Rating ≥ 20A - High-capacity source connectors
+   - **CONN** with Rating ≥ 20A - High-capacity generic connectors
+4. **Tier 4 (Fallback)**:
+   - Component with highest Rating value
+   - If ratings equal, component closest to origin (0,0,0)
+
+**Hub Identification**:
+- Case-insensitive substring match on reference designator
+- First match in priority order becomes hub
+- All other components become spokes connecting to hub
+
+**Wire Segments**:
+- Create one segment from hub to each spoke
+- Segment labeling: A, B, C... in order of spoke distance from hub
+
+**Error Handling**:
+- **Strict mode**: Error if no identifiable hub in 3+ node net
+- **Permissive mode**: Warning + use highest-rated component as hub
+- Log informational message noting star topology assumption
 
 ### 3.2 Wire Gauge Calculation
 
@@ -172,11 +209,11 @@ For nets connecting 3+ components:
 
 ### 3.3 Wire Color Assignment
 
-**Method**: Auto-assign based on system code using standard mapping from EAWMS/Aeroelectric Connection documentation.
+**Method**: Auto-assign based on system code using standard mapping from EAWMS documentation.
 
 **Fallback**: If system code unmapped, flag warning and assign default color (white or user-specified in config).
 
-**Color Mapping Source**: Extract from `docs/ea_wire_marking_standard.md` and/or Aeroelectric Connection reference materials.
+**Color Mapping Source**: Extract from `docs/ea_wire_marking_standard.md` 
 
 ### 3.4 Wire Label Generation (EAWMS Format)
 
@@ -211,7 +248,10 @@ For circuits with multiple physical wire runs:
 
 **Permissive Mode** (`--permissive` flag):
 - Use defaults with warnings for missing data
-- Missing coordinates: Default to origin (0, 0, 0) with warning
+- Missing coordinates: Default to (-9, -9, -9) with warning
+  - Clearly invalid coordinates (easy to identify in output)
+  - Slack length (24") ensures non-zero wire lengths even with identical coordinates
+  - All components with missing coords stack at same location for easy identification
 - Missing Load/Rating: Default to 0A with warning
 - Continue processing and generate BOM with warning annotations
 - Useful for iterative design and draft BOMs
@@ -1310,57 +1350,13 @@ The design is considered successfully implemented when:
 
 ---
 
-## 12. Future Enhancements (Out of Scope)
+## 12. Acronyms and Terminology
 
-These features are NOT part of this design but may be considered later:
-
-1. **Wire Specification Overrides**: Allow users to override calculated wire gauge, color, and type in schematic
-   - Add optional fields to footprint encoding: `WIRE_GAUGE`, `WIRE_COLOR`, `WIRE_TYPE`
-   - Parser validates overrides against calculated minimums
-   - Useful for design constraints (matching existing harness, specific color schemes)
-2. **GUI Interface**: Graphical tool for non-CLI users
-3. **KiCad Plugin**: Direct integration with KiCad schematic editor
-4. **Interactive Mode**: Prompt user for missing fields during processing
-5. **BOM Comparison**: Compare revisions, highlight changes
-6. **Auto-populate from Database**: Look up component loads from part number database
-7. **3D Visualization**: Show wire routing in 3D aircraft model
-8. **Cost Estimation**: Calculate wire costs from supplier pricing
-9. **Weight Calculation**: Estimate harness weight for W&B
-10. **Length from PCB Coordinates**: Use actual component placement if available
-11. **Multiple Netlist Support**: Process entire KiCad project at once
-12. **Export to Other Formats**: Excel, PDF, CAD formats
-13. **Temperature Derating**: Adjust ampacity for high-temperature environments
+See `docs/acronyms.md` for complete project acronyms and domain-specific terminology.
 
 ---
 
-## 13. Acronyms and Terminology
-
-**Acronyms**:
-- **AWG**: American Wire Gauge - wire sizing standard
-- **BL**: Buttline - lateral aircraft coordinate (inches from centerline)
-- **BOM**: Bill of Materials
-- **EAWMS**: Experimental Aircraft Wire Marking Standard
-- **FS**: Fuselage Station - longitudinal aircraft coordinate (inches from datum)
-- **TDD**: Test-Driven Development
-- **WL**: Waterline - vertical aircraft coordinate (inches from datum)
-- **YAGNI**: You Aren't Gonna Need It
-
-**Terminology**:
-- **Ampacity**: Current-carrying capacity of a wire
-- **Load**: Current drawn by a consuming device
-- **Manhattan Distance**: Sum of absolute differences in each axis (taxicab metric)
-- **Net**: Electrical connection in a schematic
-- **Netlist**: File describing all connections in a schematic
-- **Node**: Connection point (component pin) in a net
-- **Rating**: Maximum current capacity of a pass-through device
-- **Segment**: Individual physical wire run within a circuit
-- **Signal Flow**: Direction of electrical current from source to load
-- **System Code**: Single-letter identifier for circuit function (L, P, R, etc.)
-- **Topology**: Physical routing arrangement (star, daisy-chain, etc.)
-
----
-
-## 14. References
+## 13. References
 
 1. **MIL-W-5088L**: Military Specification - Wiring, Aerospace Vehicle
    Location: `docs/references/milspecs/MIL-STD-5088L.txt`
@@ -1380,7 +1376,7 @@ These features are NOT part of this design but may be considered later:
 
 ---
 
-## Document History
+## 14. Document History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|

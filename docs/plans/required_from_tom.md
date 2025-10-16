@@ -19,7 +19,7 @@ This document tracks items that need Tom's input, decisions, or action before im
 - `docs/plans/implementation/00_overview_and_contracts.md` - Module interface contracts
 - `docs/plans/implementation/01_reference_data.md` through `10_cli_and_integration.md` - Individual work packages
 
-**Action:** `[ ]` Review all documents and add inline comments
+**Action:** `[~]` In progress - Claude reviewing documents one by one
 
 **Format:** Use `@@TOM:` or `@@Tom:` markers for questions/corrections
 
@@ -46,7 +46,7 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 #### 1. Minimal Two-Component Circuit
 **Filename:** `tests/fixtures/test_01_minimal_two_component.net`
 
-**Status:** `[ ]` Not created
+**Status:** `[x]` Complete - File created in tests/fixtures directory
 
 **Description:** Simplest possible circuit - connector to switch
 
@@ -239,9 +239,9 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 
 ### System Code Color Mapping
 
-**Status:** `[ ]` Not extracted
+**Status:** `[x]` Complete
 
-**Source:** `docs/ea_wire_marking_standard.md`
+**Source:** `docs/ea_wire_marking_standard.md` - Section 3 now includes standard wire color mappings by system code
 
 **Task:** Create complete mapping of system letter codes → wire colors
 
@@ -263,16 +263,11 @@ A (Avionics) → Blue
 
 ### Default Wire Type
 
-**Status:** `[ ]` Decision needed
+**Status:** `[x]` Decided: M22759/16
 
-**Question:** What default wire specification should the tool use?
+**Decision:** Use M22759/16 as the default wire specification (most common aircraft wire)
 
-**Options:**
-- M22759/16 (most common aircraft wire)
-- M22759/32 (higher temperature rating)
-- Other?
-
-**Current assumption:** M22759/16 (can be changed later)
+**Confirmed:** M22759/16 is the standard default, can be overridden via configuration if needed
 
 ---
 
@@ -290,36 +285,6 @@ A (Avionics) → Blue
 
 **Confirmed:** 24" (12" per end) is reasonable default
 
----
-
-## Implementation Priorities
-
-### Which Work Package to Start First?
-
-**Status:** `[ ]` Decision needed
-
-**Question:** If implementing yourself (Programmer role), which package should you start with?
-
-**Recommendation:** Start with foundational packages in Phase 1:
-- Package 01 (Reference Data) - 8-12 hours
-- Package 02 (Component Model) - 6-8 hours
-
-These have no dependencies and let other work proceed in parallel later.
-
-**Alternative:** Start with Package 03 (Parser) if you want to see data flowing through the system quickly.
-
----
-
-### Multiple Programmers?
-
-**Status:** `[ ]` Decision needed
-
-**Question:** Will this be:
-- Solo implementation (you as Programmer)?
-- Team implementation (distributing packages)?
-- Hybrid (you do some, others do some)?
-
-**Impact:** Affects which packages to prioritize and coordination strategy
 
 ---
 
