@@ -17,6 +17,8 @@ class Component:
         bl: Butt Line coordinate (inches)
         load: Load current in amps (for consuming devices), None if not a load
         rating: Current rating in amps (for pass-through devices), None if not pass-through
+        value: Component value field from schematic (e.g., "Landing Light")
+        desc: Component description field from schematic
     """
     ref: str
     fs: float
@@ -24,6 +26,8 @@ class Component:
     bl: float
     load: Optional[float]
     rating: Optional[float]
+    value: str = ''
+    desc: str = ''
 
     @property
     def coordinates(self) -> Tuple[float, float, float]:

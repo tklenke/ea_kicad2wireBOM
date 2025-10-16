@@ -97,15 +97,19 @@ def determine_min_gauge(current: float, length_inches: float, system_voltage: fl
 
 def detect_system_code(components: List[Component], net_name: str) -> str:
     """
-    Detect system code based on component references and net name.
+    Detect system code based on component fields.
+
+    Search priority (Tom's requirement):
+    1. Component description fields
+    2. Component value fields
+    3. Component reference designators
+    4. Net name
+    Default → "U" (Unknown)
 
     Patterns:
-    - Component ref prefix "L" (lamp/light) → "L" (Lighting)
-    - LIGHT, LAMP, LED keywords → "L" (Lighting)
-    - BAT, BATT, BATTERY → "P" (Power)
-    - Check net name for hints
-    - Check switch/fuse refs for keywords
-    - Default → "U" (Unknown)
+    - LIGHT, LAMP, LED → "L" (Lighting)
+    - BAT, BATT, BATTERY, PWR, POWER → "P" (Power)
+    - RADIO, NAV, COM, XPNDR → "R" (Radio/Nav/Comm)
 
     Args:
         components: List of components in the circuit
@@ -114,28 +118,56 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
     Returns:
         Single-letter system code
     """
-    # Check component ref prefixes for loads
+    # Define keyword patterns for each system
+    lighting_keywords = ['LIGHT', 'LAMP', 'LED']
+    power_keywords = ['BAT', 'BATT', 'BATTERY', 'PWR', 'POWER']
+    radio_keywords = ['RADIO', 'NAV', 'COM', 'XPNDR']
+
+    # 1. Check description fields first (highest priority)
     for comp in components:
+        desc_upper = comp.desc.upper()
+        if any(keyword in desc_upper for keyword in lighting_keywords):
+            return 'L'
+        if any(keyword in desc_upper for keyword in power_keywords):
+            return 'P'
+        if any(keyword in desc_upper for keyword in radio_keywords):
+            return 'R'
+
+    # 2. Check value fields
+    for comp in components:
+        value_upper = comp.value.upper()
+        if any(keyword in value_upper for keyword in lighting_keywords):
+            return 'L'
+        if any(keyword in value_upper for keyword in power_keywords):
+            return 'P'
+        if any(keyword in value_upper for keyword in radio_keywords):
+            return 'R'
+
+    # 3. Check reference designators
+    for comp in components:
+        ref_upper = comp.ref.upper()
+        # Check for load component ref prefixes
         if comp.is_load:
-            # Check if lamp/light (L prefix)
-            if comp.ref.upper().startswith('L'):
+            if ref_upper.startswith('L'):
                 return 'L'
-            # Check if radio/nav/comm (R, NAV, COM, etc.)
-            if any(comp.ref.upper().startswith(prefix) for prefix in ['R', 'NAV', 'COM', 'XPNDR']):
+            if any(ref_upper.startswith(prefix) for prefix in ['R', 'NAV', 'COM', 'XPNDR']):
                 return 'R'
+        # Check for keywords in ref
+        if any(keyword in ref_upper for keyword in lighting_keywords):
+            return 'L'
+        if any(keyword in ref_upper for keyword in power_keywords):
+            return 'P'
+        if any(keyword in ref_upper for keyword in radio_keywords):
+            return 'R'
 
-    # Combine all text to search for keywords
-    search_text = net_name.upper()
-    for comp in components:
-        search_text += " " + comp.ref.upper()
-
-    # Check for lighting keywords
-    if any(keyword in search_text for keyword in ['LIGHT', 'LAMP', 'LED']):
+    # 4. Check net name (lowest priority)
+    net_name_upper = net_name.upper()
+    if any(keyword in net_name_upper for keyword in lighting_keywords):
         return 'L'
-
-    # Check for power/battery patterns
-    if any(keyword in search_text for keyword in ['BAT', 'BATT', 'BATTERY', 'PWR', 'POWER']):
+    if any(keyword in net_name_upper for keyword in power_keywords):
         return 'P'
+    if any(keyword in net_name_upper for keyword in radio_keywords):
+        return 'R'
 
     # Default to Unknown
     return 'U'

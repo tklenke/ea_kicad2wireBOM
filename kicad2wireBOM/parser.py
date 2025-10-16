@@ -58,13 +58,17 @@ def extract_components(parsed_netlist: Any) -> List[Dict[str, str]]:
         List of dicts, each containing:
             - ref: Component reference designator (e.g., "J1", "SW1")
             - footprint: Full footprint field string (including encoding)
+            - value: Component value field (e.g., "Landing Light", "Conn_01x02")
+            - desc: Component description field
     """
     components = []
 
     for comp in parsed_netlist.parts:
         comp_dict = {
             'ref': comp.ref,
-            'footprint': comp.footprint
+            'footprint': comp.footprint,
+            'value': getattr(comp, 'value', ''),
+            'desc': getattr(comp, 'desc', '')
         }
         components.append(comp_dict)
 

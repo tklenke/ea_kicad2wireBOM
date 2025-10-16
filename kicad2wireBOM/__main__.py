@@ -79,7 +79,9 @@ def main():
                 wl=encoding['wl'],
                 bl=encoding['bl'],
                 load=load,
-                rating=rating
+                rating=rating,
+                value=comp_raw.get('value', ''),
+                desc=comp_raw.get('desc', '')
             )
             components.append(comp)
 
