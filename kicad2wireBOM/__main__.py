@@ -8,8 +8,9 @@ from pathlib import Path
 
 from kicad2wireBOM.parser import parse_netlist_file, extract_components, parse_footprint_encoding
 from kicad2wireBOM.component import Component
-from kicad2wireBOM.wire_calculator import calculate_length, determine_min_gauge, detect_system_code, generate_wire_label
-from kicad2wireBOM.wire_bom import WireConnection, WireBOM
+from kicad2wireBOM.circuit import build_circuits, determine_signal_flow, create_wire_segments
+from kicad2wireBOM.wire_calculator import detect_system_code
+from kicad2wireBOM.wire_bom import WireBOM
 from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG
 
@@ -86,44 +87,34 @@ def main():
             print("Error: Need at least 2 components to generate wire BOM", file=sys.stderr)
             return 1
 
-        # For Phase 1: Simple two-component circuit
-        # In future phases, this will handle multiple circuits
-        comp1 = components[0]
-        comp2 = components[1]
-
-        # Calculate wire specs
-        slack = DEFAULT_CONFIG['slack_length']
-        length = calculate_length(comp1, comp2, slack)
-
-        # Determine current (use minimum rating for now)
-        current = min(comp1.rating or 0, comp2.rating or 0)
-        if current == 0:
-            current = max(comp1.load or 0, comp2.load or 0)
-
-        system_voltage = DEFAULT_CONFIG['system_voltage']
-        wire_gauge = determine_min_gauge(current, length, system_voltage)
-
-        # Detect system and generate label
-        system_code = detect_system_code(components, "circuit-1")
-        wire_label = generate_wire_label(system_code, '1', 'A')
+        # Build circuits from nets
+        circuits = build_circuits(parsed, components)
 
         # Create BOM
         bom = WireBOM(config=DEFAULT_CONFIG)
-        warnings = []
-        if system_code == 'U':
-            warnings.append('Unknown system code - manual verification required')
 
-        wire = WireConnection(
-            wire_label=wire_label,
-            from_ref=comp1.ref,
-            to_ref=comp2.ref,
-            wire_gauge=wire_gauge,
-            wire_color='White',  # Default for Phase 1
-            length=length,
-            wire_type='Standard',
-            warnings=warnings
-        )
-        bom.add_wire(wire)
+        # Process each circuit
+        for circuit in circuits:
+            # Determine signal flow
+            ordered_components = determine_signal_flow(circuit.components)
+
+            # Detect system code
+            system_code = detect_system_code(ordered_components, circuit.net_name)
+
+            # Use net code as circuit ID
+            circuit_id = circuit.net_code
+
+            # Create wire segments
+            segments = create_wire_segments(ordered_components, system_code, circuit_id, DEFAULT_CONFIG)
+
+            # Add warnings for unknown system codes
+            for segment in segments:
+                if system_code == 'U':
+                    segment.warnings.append('Unknown system code - manual verification required')
+
+            # Add all segments to BOM
+            for segment in segments:
+                bom.add_wire(segment)
 
         # Write output
         write_builder_csv(bom, args.dest)
