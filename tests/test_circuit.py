@@ -80,3 +80,41 @@ def test_build_circuits_empty_components():
     circuits = build_circuits(parsed, [])
 
     assert circuits == []
+
+
+def test_determine_signal_flow_simple_load():
+    """Test signal flow detection for simple load circuit: source -> passthrough -> load"""
+    from kicad2wireBOM.circuit import determine_signal_flow
+
+    # Create components: J1 (source/rating) -> SW1 (passthrough/rating) -> L1 (load)
+    j1 = Component(ref='J1', fs=50.0, wl=20.0, bl=0.0, load=None, rating=30.0)
+    sw1 = Component(ref='SW1', fs=100.0, wl=25.0, bl=0.0, load=None, rating=20.0)
+    l1 = Component(ref='L1', fs=200.0, wl=35.0, bl=10.0, load=2.5, rating=None)
+
+    components = [sw1, l1, j1]  # Deliberately out of order
+
+    # Determine signal flow
+    ordered = determine_signal_flow(components)
+
+    # Should be ordered: source (J1) -> passthrough (SW1) -> load (L1)
+    assert len(ordered) == 3
+    assert ordered[0].ref == 'J1'  # Source first
+    assert ordered[1].ref == 'SW1'  # Passthrough middle
+    assert ordered[2].ref == 'L1'  # Load last
+
+
+def test_determine_signal_flow_two_components():
+    """Test signal flow with just two components: source -> load"""
+    from kicad2wireBOM.circuit import determine_signal_flow
+
+    j1 = Component(ref='J1', fs=100.0, wl=25.0, bl=0.0, load=None, rating=15.0)
+    sw1 = Component(ref='SW1', fs=150.0, wl=30.0, bl=0.0, load=None, rating=20.0)
+
+    components = [sw1, j1]
+
+    ordered = determine_signal_flow(components)
+
+    # Both are rating type, use heuristic (J prefix suggests source)
+    assert len(ordered) == 2
+    assert ordered[0].ref == 'J1'
+    assert ordered[1].ref == 'SW1'

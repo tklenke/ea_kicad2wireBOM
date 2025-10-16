@@ -16,6 +16,46 @@ class Circuit:
     segments: List[Any] = field(default_factory=list)
 
 
+def determine_signal_flow(components: List[Component]) -> List[Component]:
+    """
+    Order components by signal flow direction: source -> passthrough(s) -> load.
+
+    Uses heuristics to determine signal flow:
+    1. Load components (has load attribute) go last
+    2. Source components (rating with J prefix) go first
+    3. Passthrough components (rating, switches, etc.) go in middle
+
+    Args:
+        components: Unordered list of components in a circuit
+
+    Returns:
+        Ordered list of components by signal flow direction
+    """
+    if len(components) <= 1:
+        return components[:]
+
+    # Categorize components
+    loads = []
+    sources = []
+    passthroughs = []
+
+    for comp in components:
+        if comp.is_load:
+            loads.append(comp)
+        elif comp.is_passthrough:
+            # Heuristic: J prefix suggests source (connector)
+            if comp.ref.startswith('J'):
+                sources.append(comp)
+            else:
+                passthroughs.append(comp)
+        else:
+            # Component has neither load nor rating
+            passthroughs.append(comp)
+
+    # Assemble in order: sources -> passthroughs -> loads
+    return sources + passthroughs + loads
+
+
 def build_circuits(parsed_netlist: Any, components: List[Component]) -> List[Circuit]:
     """
     Build Circuit objects from parsed netlist and component list.
