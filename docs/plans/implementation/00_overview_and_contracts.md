@@ -81,10 +81,6 @@ class Component:
     bl: float                         # Buttline (inches)
     load: Optional[float] = None      # Current drawn (amps)
     rating: Optional[float] = None    # Current capacity (amps)
-    wire_type: Optional[str] = None
-    wire_color: Optional[str] = None
-    wire_gauge: Optional[str] = None
-    connector_type: Optional[str] = None
 
     @property
     def coordinates(self) -> tuple[float, float, float]:
@@ -143,9 +139,23 @@ def parse_netlist_file(file_path: Path) -> object:
     """
     pass
 
+def parse_footprint_encoding(footprint: str) -> Optional[dict]:
+    """
+    Parse component data from footprint field encoding.
+
+    Format: <footprint>|(fs,wl,bl)<L|R><amps>
+    Example: "LED_THT:LED_D5.0mm|(200.0,35.5,10.0)L2.5"
+
+    Returns: dict with keys: footprint, fs, wl, bl, load, rating
+             or None if no encoding present
+    Raises: ValueError for malformed encoding
+    """
+    pass
+
 def extract_components(parsed_netlist: object) -> list[Component]:
     """
     Extract components from parsed netlist.
+    Parses footprint field encoding for component data.
 
     Returns: List of Component objects
     """
@@ -399,13 +409,6 @@ def validate_required_fields(
     permissive_mode: bool
 ) -> list[ValidationResult]:
     """Validate components have required fields"""
-    pass
-
-def validate_wire_gauge(
-    wire: WireConnection,
-    calculated_min_gauge: int
-) -> Optional[ValidationResult]:
-    """Validate specified gauge meets minimum"""
     pass
 
 def validate_rating_vs_load(

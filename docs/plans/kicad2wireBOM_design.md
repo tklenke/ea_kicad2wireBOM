@@ -43,30 +43,56 @@ Default to strict validation (encourage complete schematics) with permissive mod
 
 KiCad netlist file (`.net` or `.xml` format, v9+) exported from schematic.
 
-### 2.2 Required Custom Fields on Components
+### 2.2 Component Data Encoding in Footprint Field
 
-All components in the schematic must have:
+Component physical location and electrical characteristics are encoded in the **Footprint** field using a compact, human-readable format.
 
-- **FS** (Fuselage Station): Aircraft longitudinal coordinate in inches from datum
-- **WL** (Waterline): Vertical coordinate in inches from datum
-- **BL** (Buttline): Lateral coordinate in inches from centerline (positive right, negative left)
-- **Load** OR **Rating**: Current in amperes
-  - **Load**: For consuming devices (lights, avionics, motors) - current drawn
-  - **Rating**: For pass-through devices (connectors, switches, breakers) - maximum current capacity
+**Format**: `<original_footprint>|(<fs>,<wl>,<bl>)<L|R><amps>`
 
-### 2.3 Optional Custom Fields on Components
+**Components**:
+- **Original Footprint**: Standard KiCad footprint designation
+- **Delimiter**: `|` separates footprint from encoded data
+- **Coordinates**: `(fs,wl,bl)` - aircraft coordinates in inches (decimals supported, negative values for left side)
+  - **FS** (Fuselage Station): Longitudinal position from datum
+  - **WL** (Waterline): Vertical position from datum
+  - **BL** (Buttline): Lateral position from centerline (+right/-left)
+- **Type Letter**: Single character indicating electrical role
+  - **L**: Load - component consumes power (lights, radios, motors)
+  - **R**: Rating - pass-through device capacity (switches, breakers, connectors)
+- **Amperage**: Numeric value for load or rating
 
-- **Wire_Type**: Wire specification (e.g., M22759/16, M22759/32) - if omitted, uses system default
-- **Wire_Color**: Override auto-assigned color based on system code
-- **Wire_Gauge**: Explicit wire gauge specification (e.g., "20 AWG") - tool validates against calculated minimum
-- **Connector_Type**: Type/style of connector for documentation purposes
+**Examples**:
+```
+LED_THT:LED_D5.0mm|(200.0,35.5,10.0)L2.5
+  → Light at FS=200.0, WL=35.5, BL=10.0, drawing 2.5A
 
-### 2.4 Optional Custom Fields on Nets
+Button_Switch_THT:SW_PUSH_6mm|(150.0,30.0,0.0)R20
+  → Switch at FS=150.0, WL=30.0, BL=0.0 (centerline), rated 20A
+
+Connector:Conn_01x02|(100.5,25.0,-12.5)R15
+  → Connector at FS=100.5, WL=25.0, BL=-12.5 (left side), rated 15A
+
+Package_SO:SOIC-8|(100.5,25.0,-5.0)L3.2
+  → Avionics unit at FS=100.5, WL=25.0, BL=-5.0, drawing 3.2A
+```
+
+**Parsing**:
+- Regex pattern: `\|([-\d.]+),([-\d.]+),([-\d.]+)\)([LR])([\d.]+)`
+- Missing encoding (no `|` present): Component has no data (handled in permissive mode)
+- Invalid encoding: Parse error with helpful message
+
+**Design Rationale**:
+- **Compact**: ~20 chars for typical encoding
+- **Human-typeable**: Minimal special characters, logical grouping
+- **Unambiguous**: Simple regex parsing, clear structure
+- **KiCad-compatible**: Footprint field exports reliably to netlist
+
+### 2.3 Optional Custom Fields on Nets
 
 - **Circuit_ID**: Explicit EAWMS circuit number (overrides parsing from net name)
 - **System_Code**: Explicit system letter (overrides parsing from net name)
 
-### 2.5 Net Naming Convention
+### 2.4 Net Naming Convention
 
 If Circuit_ID field not present on net:
 
@@ -74,13 +100,13 @@ If Circuit_ID field not present on net:
 - Parser attempts to extract system code and circuit number from various formats
 - Falls back to error if unable to parse and no Circuit_ID field present
 
-### 2.6 Field Export Verification
+### 2.5 Field Export Verification
 
-**IMPORTANT**: Implementation plan must include experimental validation of which custom fields KiCad reliably exports to netlist format. This may vary by KiCad version and export settings.
+**CONFIRMED**: KiCad v9 reliably exports the full Footprint field content to netlists, including embedded data after the `|` delimiter. The delimiter characters `,|{}[]#!` all export correctly.
 
-Test with actual KiCad schematics to verify field names and formats that appear in exported netlist.
+**Validation**: Implementation plan includes test fixtures with actual KiCad netlists containing footprint-encoded data to verify parsing logic.
 
-### 2.7 Optional Configuration File
+### 2.6 Optional Configuration File
 
 Projects may include `.kicad2wireBOM.yaml` or `.kicad2wireBOM.json` configuration file for project-specific defaults:
 
@@ -148,8 +174,6 @@ For nets connecting 3+ components:
 
 **Method**: Auto-assign based on system code using standard mapping from EAWMS/Aeroelectric Connection documentation.
 
-**Override**: Component/net `Wire_Color` field takes precedence over auto-assignment.
-
 **Fallback**: If system code unmapped, flag warning and assign default color (white or user-specified in config).
 
 **Color Mapping Source**: Extract from `docs/ea_wire_marking_standard.md` and/or Aeroelectric Connection reference materials.
@@ -207,34 +231,27 @@ For circuits with multiple physical wire runs:
 - Apply defaults
 - Continue processing
 
-#### 4.2.2 Wire Gauge Validation
-
-If `Wire_Gauge` specified in schematic:
-- Verify it meets or exceeds calculated minimum gauge
-- **Action**: Warn if undersized, note in output warnings column
-- Do not block BOM generation
-
-#### 4.2.3 Rating vs Load Validation
+#### 4.2.2 Rating vs Load Validation
 
 - Trace circuit path from source through switches/breakers to load
 - Verify no component rating is exceeded by downstream loads
 - **Action**: Warn if load exceeds any rating in path
 - Example: 15A load through 10A switch → Warning
 
-#### 4.2.4 Wire Gauge Progression Validation
+#### 4.2.3 Wire Gauge Progression Validation
 
 - Check that wire gauge doesn't inappropriately decrease along circuit path
 - **Action**: Warn if downstream wire is heavier gauge than upstream
 - This usually indicates a design error (heavier wire feeding lighter wire)
 
-#### 4.2.5 Multi-node Net Detection
+#### 4.2.4 Multi-node Net Detection
 
 - Identify nets connecting 3+ components
 - **Action**: Log informational message during processing
 - Note in output that routing topology was inferred from coordinates
 - Recommend designer review for accuracy
 
-#### 4.2.6 Source/Load Identification
+#### 4.2.5 Source/Load Identification
 
 Attempt to identify signal flow using:
 - Component type (J-designators, BAT prefix = sources)
@@ -568,10 +585,12 @@ The `kicad2wireBOM/` package contains 11 modules:
 
 - `extract_components(parsed_netlist)`:
   - Extract component list from parsed netlist
-  - Parse custom fields: FS, WL, BL, Load, Rating, Wire_Type, Wire_Color, Wire_Gauge, Connector_Type
+  - Parse footprint field encoding: `|(fs,wl,bl)<L|R><amps>`
+  - Extract FS, WL, BL coordinates
+  - Extract Load or Rating based on type letter (L/R)
   - Create Component objects
   - Return list of Component objects
-  - Handle missing/malformed fields gracefully (return None for missing)
+  - Handle missing/malformed encoding gracefully (return None for missing)
 
 - `extract_nets(parsed_netlist)`:
   - Extract net list with node connections
@@ -579,13 +598,17 @@ The `kicad2wireBOM/` package contains 11 modules:
   - Return structured net data (name, code, nodes with ref/pin)
   - Return list of dicts: `{'name': str, 'code': str, 'nodes': [{'ref': str, 'pin': str}], 'circuit_id': str|None, 'system_code': str|None}`
 
-- `parse_custom_field(component, field_name, field_type)`:
-  - Helper to extract and type-convert custom fields
-  - Handle various field name variations KiCad might use
-  - Return typed value or None if field not present
-  - Handle common format variations (e.g., "20 AWG" vs "20AWG" vs "20")
+- `parse_footprint_encoding(footprint: str)`:
+  - Helper to parse footprint field with embedded data
+  - Regex pattern: `\|([-\d.]+),([-\d.]+),([-\d.]+)\)([LR])([\d.]+)`
+  - Extract original footprint (before `|`)
+  - Extract coordinates (fs, wl, bl)
+  - Extract type letter (L or R)
+  - Extract amperage value
+  - Return dict or None if no encoding present
+  - Raise ValueError for malformed encoding
 
-**Important Note**: Implementation plan must include experimental validation step to determine which field formats KiCad reliably exports. Test with actual KiCad v9 schematics.
+**Important Note**: Test fixtures must include actual KiCad netlists with footprint-encoded data to verify field export and parsing.
 
 ---
 
@@ -605,12 +628,6 @@ The `kicad2wireBOM/` package contains 11 modules:
   - **Load/Rating** (mutually exclusive):
     - `load`: Current drawn (float, amps) - for consuming devices
     - `rating`: Current capacity (float, amps) - for pass-through devices
-
-  - **Optional fields**:
-    - `wire_type`: Wire specification string (e.g., "M22759/16")
-    - `wire_color`: Override color string
-    - `wire_gauge`: Specified gauge string (e.g., "20 AWG")
-    - `connector_type`: Connector style/type string
 
   - **Derived properties**:
     - `coordinates` → tuple (fs, wl, bl)
@@ -920,13 +937,6 @@ The `kicad2wireBOM/` package contains 11 modules:
   - In strict mode: Return errors for missing fields
   - In permissive mode: Return warnings for missing fields
   - Return list of ValidationResult objects
-
-- `validate_wire_gauge(wire, calculated_min_gauge)`:
-  - If wire.wire_gauge specified:
-    - Parse AWG size from string
-    - Compare to calculated_min_gauge
-    - If specified < calculated: Create warning
-  - Return ValidationResult or None
 
 - `validate_rating_vs_load(circuit_path)`:
   - Trace path from source to load
@@ -1304,18 +1314,22 @@ The design is considered successfully implemented when:
 
 These features are NOT part of this design but may be considered later:
 
-1. **GUI Interface**: Graphical tool for non-CLI users
-2. **KiCad Plugin**: Direct integration with KiCad schematic editor
-3. **Interactive Mode**: Prompt user for missing fields during processing
-4. **BOM Comparison**: Compare revisions, highlight changes
-5. **Auto-populate from Database**: Look up component loads from part number database
-6. **3D Visualization**: Show wire routing in 3D aircraft model
-7. **Cost Estimation**: Calculate wire costs from supplier pricing
-8. **Weight Calculation**: Estimate harness weight for W&B
-9. **Length from PCB Coordinates**: Use actual component placement if available
-10. **Multiple Netlist Support**: Process entire KiCad project at once
-11. **Export to Other Formats**: Excel, PDF, CAD formats
-12. **Temperature Derating**: Adjust ampacity for high-temperature environments
+1. **Wire Specification Overrides**: Allow users to override calculated wire gauge, color, and type in schematic
+   - Add optional fields to footprint encoding: `WIRE_GAUGE`, `WIRE_COLOR`, `WIRE_TYPE`
+   - Parser validates overrides against calculated minimums
+   - Useful for design constraints (matching existing harness, specific color schemes)
+2. **GUI Interface**: Graphical tool for non-CLI users
+3. **KiCad Plugin**: Direct integration with KiCad schematic editor
+4. **Interactive Mode**: Prompt user for missing fields during processing
+5. **BOM Comparison**: Compare revisions, highlight changes
+6. **Auto-populate from Database**: Look up component loads from part number database
+7. **3D Visualization**: Show wire routing in 3D aircraft model
+8. **Cost Estimation**: Calculate wire costs from supplier pricing
+9. **Weight Calculation**: Estimate harness weight for W&B
+10. **Length from PCB Coordinates**: Use actual component placement if available
+11. **Multiple Netlist Support**: Process entire KiCad project at once
+12. **Export to Other Formats**: Excel, PDF, CAD formats
+13. **Temperature Derating**: Adjust ampacity for high-temperature environments
 
 ---
 
