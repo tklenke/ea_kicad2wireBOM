@@ -394,6 +394,121 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
+## Phase 6.5: Comprehensive System Code Detection Enhancement
+
+**Goal:** Implement comprehensive system code detection based on 657CZ real-world component analysis
+
+**Reference Documents:**
+- `docs/plans/system_code_analysis.md` - Initial analysis and component categorization
+- `docs/plans/keyword_extraction_from_657CZ.md` - Complete keyword lists extracted from real 657CZ schematic (163 components)
+
+**Background:**
+The Architect analyzed Tom's real 657CZ aircraft schematic and discovered that the current implementation will misclassify ~95% of components. The analysis identified 74 LRU (avionics) components and categorized all 163 components into 6 system codes.
+
+### Tasks
+
+- `[ ]` **6.5.1: Expand System R (Radio/Avionics) Keywords**
+  - **Priority:** CRITICAL - 74 LRU components currently undetected
+  - In `wire_calculator.py`, expand `radio_keywords` list:
+    - Add Garmin model patterns: G5, G3X, GAD, GDU, GEA, GMA, GMC, GMU, GNX, GSA, GSU, GTR
+    - Add device types: ADAHRS, AUDIO_PANEL, AUDIO, AUTOPILOT, SERVO, EIS, ELT, HSI, MAGNETOMETER, NAV_INTERFACE, NAV_INTRFCE, PFD, TRANSPONDER, XPONDER, VHF, COMM, COMMUNICATION
+    - Add manufacturers: ARTEX, GARMIN, AVIONICS
+  - Reference: `docs/plans/keyword_extraction_from_657CZ.md` - "System R" section
+  - Write comprehensive tests for all new keywords
+  - **Expected Result:** 74 LRU components → System R (not U)
+
+- `[ ]` **6.5.2: Expand System P (Power) Keywords**
+  - **Priority:** HIGH - ~45 power components need better detection
+  - In `wire_calculator.py`, expand `power_keywords` list:
+    - Power generation: ALTERNATOR, ALT
+    - Protection/distribution: BREAKER, CB, CONTACTOR, FUSE, FUSELINK, FUSE_LINK, FUSE_HOLDER, BUS, BATTERY_BUS, MAIN_BUS, SYSTEM_BUS, ENDURANCE_BUS
+    - Components: STARTER, RELAY, SPDT, REGULATOR, VOLTAGE_REGULATOR, SHUNT, LOADMETER, OVERVOLTAGE, CROWBAR, CURRENT_LIMITER, ANL
+    - Ground power: GROUND_POWER, GND_PWR, RECEPTACLE
+    - Descriptors: BROWNOUT, AUX_ALT, ALT_FLD, ALT_FEED
+  - Reference: `docs/plans/keyword_extraction_from_657CZ.md` - "System P" section
+  - Write tests for each keyword category
+  - **Expected Result:** Alternators, breakers, relays, buses → System P
+
+- `[ ]` **6.5.3: Add System K (Engine Control) Detection**
+  - **Priority:** MEDIUM - New system code for ignition, fuel systems
+  - In `wire_calculator.py`, add `engine_control_keywords` list:
+    - IGNITION, ELEC_IGNITION, ELECTRONIC_IGNITION
+    - MAGNETO, IMPULSE, NON_IMPULSE
+    - PRIME_VALVE, PRIMER, BOOST_PUMP, FUEL_PUMP
+    - ENGINE_CONTROL
+  - Add System K to detection logic (search desc → value → ref → net name)
+  - Reference: `docs/plans/keyword_extraction_from_657CZ.md` - "System K" section
+  - Write tests for engine control components
+  - **Expected Result:** Ignition, magneto, fuel pumps → System K
+
+- `[ ]` **6.5.4: Add System M (Miscellaneous Electrical) Detection**
+  - **Priority:** MEDIUM - New system code for actuators, fans, ground buses
+  - In `wire_calculator.py`, add `misc_electrical_keywords` list:
+    - Ground: GROUND_BUS, GROUND_BLOCK, GB, GROUNDING, DSUB
+    - Diodes: DIODE, 1N4005, 1N5400
+    - Comfort/utility: HEATER, CABIN_HEATER, FAN, BLOWER, CASE_FAN, PANEL_FAN
+    - Actuators: ACTUATOR, LINEAR_ACTUATOR, CANOPY, LANDING_BRAKE, BRAKE, NOSE_GEAR, GEAR
+    - Sensors: PITOT_PROBE, PITOT
+    - Shielding: SHIELD, SHIELD_CONNECTION
+  - Add System M to detection logic
+  - Reference: `docs/plans/keyword_extraction_from_657CZ.md` - "System M" section
+  - Write tests for miscellaneous components
+  - **Expected Result:** Ground buses, actuators, heaters → System M
+
+- `[ ]` **6.5.5: Add System E (Engine Instruments) Detection**
+  - **Priority:** MEDIUM - New system code for fuel probes, sensors
+  - In `wire_calculator.py`, add `engine_instrument_keywords` list:
+    - FUEL_PROBE, FUEL_SENDER, POTENTIOMETER, POT
+    - CHT, EGT, OIL_PRESSURE, OIL_TEMP, OIL_SENSOR
+    - FUEL_FLOW, FUEL_PRESSURE, TACH, TACHOMETER, RPM
+    - MANIFOLD_PRESSURE, MAP, SENSOR, SENDER
+  - Add System E to detection logic
+  - Reference: `docs/plans/keyword_extraction_from_657CZ.md` - "System E" section
+  - Write tests for engine instrument components
+  - **Expected Result:** Fuel probes, sensors → System E
+
+- `[ ]` **6.5.6: Expand System L (Lighting) Keywords**
+  - **Priority:** LOW - Current detection is good, but add specific light types
+  - In `wire_calculator.py`, expand `lighting_keywords` list:
+    - Specific types: INTERIOR_LIGHT, INTERIOR, LANDING_LIGHT, LANDING, NAV_LIGHT, NAVIGATION_LIGHT, STROBE, TAXI_LIGHT, TAXI, ILLUMINATION
+  - Reference: `docs/plans/keyword_extraction_from_657CZ.md` - "System L" section
+  - Write tests for specific light types
+  - **Expected Result:** Landing lights, strobes, nav lights → System L
+
+- `[ ]` **6.5.7: Update System Color Map**
+  - In `reference_data.py`, expand `SYSTEM_COLOR_MAP`:
+    - Add: E → TBD (Engine Instruments)
+    - Add: K → TBD (Engine Control)
+    - Add: M → TBD (Miscellaneous)
+  - **Note:** Colors for new systems need Tom's input
+  - Write test for expanded color map
+
+- `[ ]` **6.5.8: Comprehensive System Code Tests**
+  - Create `tests/test_system_code_detection_comprehensive.py`
+  - Test all 6 system codes with real 657CZ component examples
+  - Test keyword priority (description → value → ref → net name)
+  - Test edge cases and conflicts (NAV_LIGHT vs NAV)
+  - Verify detection coverage: ~95%+ of 657CZ components correctly categorized
+  - **Acceptance:** All tests pass with real component data
+
+**Acceptance Criteria:**
+- 6 system codes implemented (L, P, R, E, K, M)
+- ~95%+ detection coverage for 657CZ components (163 total)
+- 74 LRU components correctly identified as System R
+- Power components (alternators, breakers, relays) correctly identified as System P
+- Engine control/instruments correctly categorized
+- All tests pass with real component examples
+
+**Commit:** "Implement comprehensive system code detection based on 657CZ analysis"
+
+**Reference for Next Phase:**
+After completing this phase, the Programmer should review `docs/plans/keyword_extraction_from_657CZ.md` for implementation notes about:
+- Keyword normalization (handling hyphens, underscores, spaces)
+- Detection priority order
+- Special cases and conflicts
+
+---
+
 ## Phase 7: Test Fixture 08 - Realistic Complex System
 
 **Goal:** Full end-to-end integration with CLI
