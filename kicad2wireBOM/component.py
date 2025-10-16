@@ -39,3 +39,8 @@ class Component:
     def is_passthrough(self) -> bool:
         """Return True if component has a rating value (pass-through device)"""
         return self.rating is not None
+
+    @property
+    def is_source(self) -> bool:
+        """Return True if component is a source (connector with J prefix and rating)"""
+        return self.ref.startswith('J') and self.rating is not None

@@ -69,6 +69,9 @@ def create_wire_segments(ordered_components: List[Component],
     Each adjacent pair of components gets a wire segment with a unique label
     using sequential letters (A, B, C, ...).
 
+    Wire sizing is based on the load current requirement for the circuit,
+    not the ratings of intermediate components.
+
     Args:
         ordered_components: Components ordered by signal flow
         system_code: System code for wire labels (L, P, U, etc.)
@@ -80,6 +83,20 @@ def create_wire_segments(ordered_components: List[Component],
     """
     if len(ordered_components) < 2:
         return []
+
+    # Determine circuit current based on load
+    # Find the load component (should be last in ordered list)
+    circuit_current = 0
+    for comp in ordered_components:
+        if comp.is_load:
+            circuit_current = comp.load
+            break
+
+    # If no load found, fall back to smallest rating
+    if circuit_current == 0:
+        ratings = [c.rating for c in ordered_components if c.rating is not None]
+        if ratings:
+            circuit_current = min(ratings)
 
     segments = []
 
@@ -94,22 +111,8 @@ def create_wire_segments(ordered_components: List[Component],
         slack = config['slack_length']
         length = calculate_length(comp1, comp2, slack)
 
-        # Determine current based on component ratings/loads
-        # Use the smaller rating if both have ratings
-        current = 0
-        if comp1.rating is not None and comp2.rating is not None:
-            current = min(comp1.rating, comp2.rating)
-        elif comp1.rating is not None:
-            current = comp1.rating
-        elif comp2.rating is not None:
-            current = comp2.rating
-        elif comp1.load is not None:
-            current = comp1.load
-        elif comp2.load is not None:
-            current = comp2.load
-
         system_voltage = config['system_voltage']
-        wire_gauge = determine_min_gauge(current, length, system_voltage)
+        wire_gauge = determine_min_gauge(circuit_current, length, system_voltage)
 
         # Generate wire label
         wire_label = generate_wire_label(system_code, circuit_id, segment_letter)

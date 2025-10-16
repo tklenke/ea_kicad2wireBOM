@@ -176,3 +176,37 @@ def test_create_wire_segments_two_components():
     assert segments[0].wire_label == 'U-1-A'
     assert segments[0].from_ref == 'J1'
     assert segments[0].to_ref == 'SW1'
+
+
+def test_create_wire_segments_uses_load_current():
+    """Test that wire gauge is determined by load current, not ratings"""
+    from kicad2wireBOM.circuit import create_wire_segments
+    from kicad2wireBOM.reference_data import DEFAULT_CONFIG
+    from kicad2wireBOM.wire_calculator import determine_min_gauge
+
+    # Circuit: J1 (R30) -> SW1 (R20) -> L1 (L2.5)
+    # Should size all wires for 2.5A load, not the ratings
+    j1 = Component(ref='J1', fs=50.0, wl=20.0, bl=0.0, load=None, rating=30.0)
+    sw1 = Component(ref='SW1', fs=100.0, wl=25.0, bl=0.0, load=None, rating=20.0)
+    l1 = Component(ref='L1', fs=200.0, wl=35.0, bl=10.0, load=2.5, rating=None)
+
+    ordered_components = [j1, sw1, l1]
+    system_code = 'L'
+    circuit_id = '105'
+
+    segments = create_wire_segments(ordered_components, system_code, circuit_id, DEFAULT_CONFIG)
+
+    # Both segments should be sized for 2.5A load
+    slack = DEFAULT_CONFIG['slack_length']
+    from kicad2wireBOM.wire_calculator import calculate_length
+
+    # Segment A: J1 -> SW1
+    length_a = calculate_length(j1, sw1, slack)
+    expected_gauge_a = determine_min_gauge(2.5, length_a, DEFAULT_CONFIG['system_voltage'])
+
+    # Segment B: SW1 -> L1
+    length_b = calculate_length(sw1, l1, slack)
+    expected_gauge_b = determine_min_gauge(2.5, length_b, DEFAULT_CONFIG['system_voltage'])
+
+    assert segments[0].wire_gauge == expected_gauge_a
+    assert segments[1].wire_gauge == expected_gauge_b
