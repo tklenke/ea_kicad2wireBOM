@@ -72,7 +72,7 @@ ea_tools/
 ### What is a KiCad Netlist?
 
 A **netlist** is a text file that describes all electrical connections in a schematic:
-- **Components**: Resistors, connectors, switches, etc.
+- **Components**: Batteries, switches, Line Replaceable Units (LRU), Lights
 - **Nets**: Electrical connections between component pins
 - **Pin associations**: Which pins connect to which nets
 
