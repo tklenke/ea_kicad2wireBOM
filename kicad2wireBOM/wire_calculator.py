@@ -99,8 +99,9 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
     """
     Detect system code based on component references and net name.
 
-    Basic patterns for Phase 1:
-    - LIGHT, LAMP, LED → "L" (Lighting)
+    Patterns:
+    - Component ref prefix "L" (lamp/light) → "L" (Lighting)
+    - LIGHT, LAMP, LED keywords → "L" (Lighting)
     - BAT, BATT, BATTERY → "P" (Power)
     - Check net name for hints
     - Check switch/fuse refs for keywords
@@ -113,12 +114,22 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
     Returns:
         Single-letter system code
     """
-    # Combine all text to search
+    # Check component ref prefixes for loads
+    for comp in components:
+        if comp.is_load:
+            # Check if lamp/light (L prefix)
+            if comp.ref.upper().startswith('L'):
+                return 'L'
+            # Check if radio/nav/comm (R, NAV, COM, etc.)
+            if any(comp.ref.upper().startswith(prefix) for prefix in ['R', 'NAV', 'COM', 'XPNDR']):
+                return 'R'
+
+    # Combine all text to search for keywords
     search_text = net_name.upper()
     for comp in components:
         search_text += " " + comp.ref.upper()
 
-    # Check for lighting patterns
+    # Check for lighting keywords
     if any(keyword in search_text for keyword in ['LIGHT', 'LAMP', 'LED']):
         return 'L'
 
