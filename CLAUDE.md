@@ -46,11 +46,24 @@ Tom may also explicitly ask you to switch roles during a session.
 
 ## Project Status
 
-This repository is in its initial phase. As Python modules and scripts are added, update this file with:
-- Directory structure and module organization
-- Common commands for running scripts
-- Any domain-specific context about experimental aircraft calculations or tools
-- Testing approach once tests are added
+This repository is currently in the design and planning phase. The primary project is **kicad2wireBOM**, a tool to generate wire Bills of Materials from KiCad netlists for experimental aircraft electrical systems.
+
+### Current Structure
+
+- `docs/plans/` - Design specifications and implementation plans
+  - `kicad2wireBOM_design.md` - Complete design specification
+  - `implementation/` - Modular implementation plans (10 work packages)
+  - `required_from_tom.md` - Items needed before implementation
+- `docs/ea_wire_marking_standard.md` - Wire marking standard (EAWMS)
+- `docs/references/` - Reference materials (READ ONLY)
+- `data/` - Test fixtures and example data
+
+### Next Steps
+
+As implementation begins:
+- Create `kicad2wireBOM/` package directory
+- Create `tests/` directory with fixtures
+- Update this section with module organization and usage examples
 
 ## Documentation Management
 
