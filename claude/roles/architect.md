@@ -61,6 +61,12 @@ When assuming the Architect role, read these files to understand the project con
 - Create clear examples and usage patterns
 - Maintain CLAUDE.md with project standards
 
+### 5. Decision Tracking and @@TOM Flags
+- When Tom makes architectural decisions in response to `@@TOM:` flags, document the decision immediately
+- Remove or replace the `@@TOM:` flag from the document after documenting the decision
+- Add the decision to the appropriate section in `docs/plans/required_from_tom.md`
+- Mark the decision status as `[x]` Complete with the decision details
+
 ## What You DON'T Do
 
 - Write production code (that's the Programmer's job)

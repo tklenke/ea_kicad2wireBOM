@@ -25,8 +25,8 @@ This document tracks items that need Tom's input, decisions, or action before im
 
 **Example:**
 ```markdown
-The tool calculates wire gauge using 5% voltage drop.
-@@TOM: Should this be configurable per-circuit or just globally?
+The system uses default wire type M22759/16.
+@@TOM: Should we also support M22759/32 as an option?
 ```
 
 **When complete:** Let Claude know so comments can be extracted and addressed
@@ -285,6 +285,15 @@ A (Avionics) → Blue
 
 **Confirmed:** 24" (12" per end) is reasonable default
 
+---
+
+### Voltage Drop Percentage
+
+**Status:** `[x]` Decided: 5% global default (configurable via CLI)
+
+**Decision:** Voltage drop percentage will be a global configuration setting, not per-circuit
+
+**Confirmed:** Single global value (default 5%) can be overridden with `--max-voltage-drop` flag
 
 ---
 
