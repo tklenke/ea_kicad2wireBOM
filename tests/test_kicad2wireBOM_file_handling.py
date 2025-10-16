@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import os
+import shutil
 from pathlib import Path
 
 
@@ -28,11 +29,13 @@ def test_missing_source_file_fails_gracefully():
 def test_existing_destination_prompts_for_confirmation():
     """Test that existing destination file prompts user before overwriting"""
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Use real test fixture
+        fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
         strSourceFile = os.path.join(tmpdir, "source.net")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
-        # Create both files
-        Path(strSourceFile).write_text("dummy netlist content")
+        # Copy fixture and create destination file
+        shutil.copy(fixture_path, strSourceFile)
         Path(strDestFile).write_text("existing output")
 
         # Run with 'n' (no) response to overwrite prompt
@@ -52,11 +55,13 @@ def test_existing_destination_prompts_for_confirmation():
 def test_force_flag_skips_overwrite_confirmation():
     """Test that -f flag overwrites without prompting"""
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Use real test fixture
+        fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
         strSourceFile = os.path.join(tmpdir, "source.net")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
-        # Create both files
-        Path(strSourceFile).write_text("dummy netlist content")
+        # Copy fixture and create destination file
+        shutil.copy(fixture_path, strSourceFile)
         Path(strDestFile).write_text("existing output")
 
         result = subprocess.run(
@@ -72,11 +77,13 @@ def test_force_flag_skips_overwrite_confirmation():
 def test_successful_processing_with_new_destination():
     """Test that processing succeeds with non-existent destination file"""
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Use real test fixture
+        fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
         strSourceFile = os.path.join(tmpdir, "source.net")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
-        # Create only source file
-        Path(strSourceFile).write_text("dummy netlist content")
+        # Copy fixture to temp location
+        shutil.copy(fixture_path, strSourceFile)
 
         result = subprocess.run(
             [sys.executable, "-m", "kicad2wireBOM", strSourceFile, strDestFile],
@@ -84,5 +91,7 @@ def test_successful_processing_with_new_destination():
             text=True
         )
 
-        # Should succeed (for now, even with dummy content)
+        # Should succeed
         assert result.returncode == 0
+        # Verify output file was created
+        assert Path(strDestFile).exists()
