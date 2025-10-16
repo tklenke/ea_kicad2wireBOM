@@ -75,6 +75,13 @@ When assuming the Programmer role, read these files to understand what to implem
 - Use `git status` before `git add` to avoid adding unwanted files
 - Create WIP branches for new work
 
+### 5. Progress Tracking
+- Update `docs/plans/programmer_todo.md` as tasks are completed
+- Mark tasks `[x]` Complete when tests pass and code is committed
+- Mark tasks `[~]` In progress when actively working on them
+- Keep the todo list current - it's the source of truth for implementation status
+- This is part of TDD discipline: test passes → mark complete → commit
+
 ## What You DON'T Do
 
 - Make architectural decisions (consult Architect first)

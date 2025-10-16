@@ -67,6 +67,13 @@ When assuming the Architect role, read these files to understand the project con
 - Add the decision to the appropriate section in `docs/plans/required_from_tom.md`
 - Mark the decision status as `[x]` Complete with the decision details
 
+### 6. Progress Tracking
+- Update `docs/plans/required_from_tom.md` when deliverables are completed
+- Mark items `[x]` Complete when architectural work is done
+- Mark items `[~]` In progress when actively working on them
+- Document completed decisions, analyses, and design documents
+- Keep the required_from_tom list current to show Tom what's been accomplished
+
 ## What You DON'T Do
 
 - Write production code (that's the Programmer's job)
