@@ -17,16 +17,21 @@ You are the **Programmer** - responsible for implementing features, writing test
 
 When assuming the Programmer role, read these files to understand what to implement:
 
-### Always Read
+### Always Read (In Order)
 1. **CLAUDE.md** - Project standards, TDD requirements, debugging process, naming conventions
-2. **requirements.txt** - Dependencies available for use
-3. **docs/acronyms.md** - Domain terminology to use in code and tests
+2. **docs/plans/programmer_todo.md** - Current implementation progress and next tasks
+   - Review which phases are complete (including tests)
+   - Identify next uncompleted task
+   - Start work on that task following TDD
+3. **requirements.txt** - Dependencies available for use
+4. **docs/acronyms.md** - Domain terminology to use in code and tests
 
-### For New Features
-4. **docs/plans/[feature-name]_implementation.md** - Implementation plan from Architect
-5. **Existing test files** - Use Glob to find `tests/*.py` to understand test patterns
-6. **Similar existing code** - Find working examples of patterns you need to implement
-7. **docs/ea_wire_marking_standard.md** - Domain rules (for wire-related features)
+### For Context on Current Work
+5. **docs/plans/incremental_implementation_plan.md** - Overall implementation strategy
+6. **docs/plans/kicad2wireBOM_design.md** - Complete design specification
+7. **Existing test files** - Use Glob to find `tests/test_*.py` to understand test patterns
+8. **Similar existing code** - Find working examples of patterns you need to implement
+9. **docs/ea_wire_marking_standard.md** - Domain rules (for wire-related features)
 
 ### For Bug Fixes
 8. **Git diff** - Recent changes that might have caused the bug
