@@ -118,3 +118,61 @@ def test_determine_signal_flow_two_components():
     assert len(ordered) == 2
     assert ordered[0].ref == 'J1'
     assert ordered[1].ref == 'SW1'
+
+
+def test_create_wire_segments_three_components():
+    """Test wire segment creation for 3-component circuit"""
+    from kicad2wireBOM.circuit import create_wire_segments
+    from kicad2wireBOM.reference_data import DEFAULT_CONFIG
+
+    # Create ordered components: J1 -> SW1 -> L1
+    j1 = Component(ref='J1', fs=50.0, wl=20.0, bl=0.0, load=None, rating=30.0)
+    sw1 = Component(ref='SW1', fs=100.0, wl=25.0, bl=0.0, load=None, rating=20.0)
+    l1 = Component(ref='L1', fs=200.0, wl=35.0, bl=10.0, load=2.5, rating=None)
+
+    ordered_components = [j1, sw1, l1]
+    system_code = 'L'
+    circuit_id = '105'
+
+    # Create wire segments
+    segments = create_wire_segments(ordered_components, system_code, circuit_id, DEFAULT_CONFIG)
+
+    # Should create 2 segments: J1->SW1 (A) and SW1->L1 (B)
+    assert len(segments) == 2
+
+    # First segment: J1 -> SW1, labeled L-105-A
+    seg1 = segments[0]
+    assert seg1.wire_label == 'L-105-A'
+    assert seg1.from_ref == 'J1'
+    assert seg1.to_ref == 'SW1'
+    assert seg1.wire_gauge in [12, 16, 18, 20]
+    assert seg1.length > 0
+
+    # Second segment: SW1 -> L1, labeled L-105-B
+    seg2 = segments[1]
+    assert seg2.wire_label == 'L-105-B'
+    assert seg2.from_ref == 'SW1'
+    assert seg2.to_ref == 'L1'
+    assert seg2.wire_gauge in [12, 16, 18, 20]
+    assert seg2.length > 0
+
+
+def test_create_wire_segments_two_components():
+    """Test wire segment creation for 2-component circuit"""
+    from kicad2wireBOM.circuit import create_wire_segments
+    from kicad2wireBOM.reference_data import DEFAULT_CONFIG
+
+    j1 = Component(ref='J1', fs=100.0, wl=25.0, bl=0.0, load=None, rating=15.0)
+    sw1 = Component(ref='SW1', fs=150.0, wl=30.0, bl=0.0, load=None, rating=20.0)
+
+    ordered_components = [j1, sw1]
+    system_code = 'U'
+    circuit_id = '1'
+
+    segments = create_wire_segments(ordered_components, system_code, circuit_id, DEFAULT_CONFIG)
+
+    # Should create 1 segment: J1->SW1 (A)
+    assert len(segments) == 1
+    assert segments[0].wire_label == 'U-1-A'
+    assert segments[0].from_ref == 'J1'
+    assert segments[0].to_ref == 'SW1'

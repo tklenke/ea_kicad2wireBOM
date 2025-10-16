@@ -2,8 +2,11 @@
 # ABOUTME: Builds circuits from netlist data and manages wire segmentation
 
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import List, Any, Dict
 from kicad2wireBOM.component import Component
+from kicad2wireBOM.wire_bom import WireConnection
+from kicad2wireBOM.wire_calculator import calculate_length, determine_min_gauge, generate_wire_label
+from string import ascii_uppercase
 
 
 @dataclass
@@ -54,6 +57,77 @@ def determine_signal_flow(components: List[Component]) -> List[Component]:
 
     # Assemble in order: sources -> passthroughs -> loads
     return sources + passthroughs + loads
+
+
+def create_wire_segments(ordered_components: List[Component],
+                        system_code: str,
+                        circuit_id: str,
+                        config: Dict[str, Any]) -> List[WireConnection]:
+    """
+    Create wire segments between adjacent components in signal flow order.
+
+    Each adjacent pair of components gets a wire segment with a unique label
+    using sequential letters (A, B, C, ...).
+
+    Args:
+        ordered_components: Components ordered by signal flow
+        system_code: System code for wire labels (L, P, U, etc.)
+        circuit_id: Circuit identifier for wire labels
+        config: Configuration dictionary with slack_length and system_voltage
+
+    Returns:
+        List of WireConnection objects representing wire segments
+    """
+    if len(ordered_components) < 2:
+        return []
+
+    segments = []
+
+    for i in range(len(ordered_components) - 1):
+        comp1 = ordered_components[i]
+        comp2 = ordered_components[i + 1]
+
+        # Generate segment letter: A, B, C, ...
+        segment_letter = ascii_uppercase[i]
+
+        # Calculate wire specs
+        slack = config['slack_length']
+        length = calculate_length(comp1, comp2, slack)
+
+        # Determine current based on component ratings/loads
+        # Use the smaller rating if both have ratings
+        current = 0
+        if comp1.rating is not None and comp2.rating is not None:
+            current = min(comp1.rating, comp2.rating)
+        elif comp1.rating is not None:
+            current = comp1.rating
+        elif comp2.rating is not None:
+            current = comp2.rating
+        elif comp1.load is not None:
+            current = comp1.load
+        elif comp2.load is not None:
+            current = comp2.load
+
+        system_voltage = config['system_voltage']
+        wire_gauge = determine_min_gauge(current, length, system_voltage)
+
+        # Generate wire label
+        wire_label = generate_wire_label(system_code, circuit_id, segment_letter)
+
+        # Create wire segment
+        wire = WireConnection(
+            wire_label=wire_label,
+            from_ref=comp1.ref,
+            to_ref=comp2.ref,
+            wire_gauge=wire_gauge,
+            wire_color='White',  # Default for Phase 2
+            length=length,
+            wire_type='Standard',
+            warnings=[]
+        )
+        segments.append(wire)
+
+    return segments
 
 
 def build_circuits(parsed_netlist: Any, components: List[Component]) -> List[Circuit]:
