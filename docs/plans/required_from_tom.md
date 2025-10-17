@@ -35,9 +35,14 @@ The system uses default wire type M22759/16.
 
 ## Test Fixtures / Example Netlists
 
-### KiCad Netlist Fixtures with Footprint Encoding
+### KiCad Netlist Fixtures with Footprint Encoding **[REVISED - 2025-10-17]**
 
 We need actual KiCad v9 netlists with footprint-encoded component data for testing.
+
+**CRITICAL REQUIREMENT:** All net names MUST follow the pattern `/[SYSTEM][CIRCUIT][SEGMENT]`
+- Example: `/L1A` = Lighting system, circuit 1, segment A
+- Example: `/P12B` = Power system, circuit 12, segment B
+- Example: `/G1A` = Ground system, circuit 1, segment A
 
 **Naming Convention:** `test_<complexity>_<description>.net`
 
@@ -46,7 +51,7 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 #### 1. Minimal Two-Component Circuit
 **Filename:** `tests/fixtures/test_01_minimal_two_component.net`
 
-**Status:** `[x]` Complete - File created in tests/fixtures directory
+**Status:** `[~]` Needs revision - Old version exists, needs SD-defined net names
 
 **Description:** Simplest possible circuit - connector to switch
 
@@ -56,72 +61,83 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 - SW1: Switch at (150.0, 30.0, 0.0), rated 20A
   - Footprint: `Button_Switch_THT:SW_PUSH_6mm|(150.0,30.0,0.0)R20`
 
-**Nets:**
-- Net-P12: Connects J1 pin 1 to SW1 pin 1
+**Nets:** **[REVISED]**
+- `/P1A`: Connects J1 pin 1 to SW1 pin 1 (Power system, circuit 1, segment A)
 
-**Purpose:** Basic parser validation, simplest case
+**Purpose:** Basic parser validation, simplest case, net name parsing
 
 ---
 
-#### 2. Simple Load Circuit
+#### 2. Simple Load Circuit (Multi-Segment with Shielded Wire)
 **Filename:** `tests/fixtures/test_02_simple_load.net`
 
-**Status:** `[ ]` Not created
+**Status:** `[x]` Complete - Using `docs/input/input_01_simple_lamp.net`
 
-**Description:** Complete circuit from source through switch to load
+**Description:** Complete battery → switch → lamp circuit with ground return and shielded wire
 
 **Components:**
-- J1: Connector (source) at (50.0, 20.0, 0.0), rated 30A
-  - Footprint: `Connector:Conn_01x02|(50.0,20.0,0.0)R30`
-- SW1: Switch at (100.0, 25.0, 0.0), rated 20A
-  - Footprint: `Button_Switch_THT:SW_PUSH_6mm|(100.0,25.0,0.0)R20`
-- LIGHT1: LED (load) at (200.0, 35.0, 10.0), drawing 2.5A
-  - Footprint: `LED_THT:LED_D5.0mm|(200.0,35.0,10.0)L2.5`
+- BT1: Battery at (10, 0, 0), "B" type, 40A rating
+  - Footprint: `|(10,0,0)B40`
+- SW1: Switch "Landing Light" at (100.0, 25.0, 0.0), rated 20A
+  - Footprint: `|(100.0,25.0,0.0)R20`
+- L1: Lamp at (20, 0, 0), drawing 3.5A
+  - Footprint: `|(20,0,0)L3.5`
 
 **Nets:**
-- Net-L105: Connects J1→SW1 (segment A), SW1→LIGHT1 (segment B)
+- `/L1A` (class "Default"): BT1(+) to SW1 (Lighting system, circuit 1, segment A)
+- `/L1B` (class "Shielded,Default"): SW1 to L1 (Lighting system, circuit 1, segment B) **[SHIELDED]**
+- `/G1A` (class "Default"): L1 to BT1(-) (Ground return)
 
-**Purpose:** Test wire segmentation (A, B), load calculations, label generation
+**Purpose:**
+- Multi-segment circuits (A, B segments)
+- Load calculations (3.5A lamp load)
+- Shielded wire handling (net class parsing)
+- Ground return circuit
+- System code validation (L vs G)
+
+**Special:** Tests net class "Shielded" → should set wire type to "M22759/16 (Shielded)"
 
 ---
 
-#### 3. Multi-Node Circuit (Star Topology)
-**Filename:** `tests/fixtures/test_03_multi_node_star.net`
+#### 3. Multi-Node Circuit Warning Test **[REVISED - 2025-10-17]**
+**Filename:** `tests/fixtures/test_03_multi_node_warning.net`
 
 **Status:** `[ ]` Not created
 
-**Description:** One net connecting 4 components in star arrangement (hub + 3 spokes)
+**Description:** Net with 3+ components to trigger multi-node warning
 
 **Components:**
 - J1: Hub connector at (100.0, 25.0, 0.0), rated 30A
 - SW1: Spoke 1 at (150.0, 25.0, 0.0), rated 10A
 - SW2: Spoke 2 at (100.0, 50.0, 0.0), rated 10A
-- SW3: Spoke 3 at (50.0, 25.0, 0.0), rated 10A
 
-**Nets:**
-- Net-P20: Connects all 4 components
+**Nets:** **[REVISED]**
+- `/P1A`: Connects J1, SW1, and SW2 (3 components - should trigger warning)
 
-**Purpose:** Test multi-node topology detection (star pattern)
+**Purpose:** Test multi-node net validation warning (3+ components on single net)
+**Expected Warning:** "Net /P1A connects 3 components. Consider splitting into separate nets with different segment letters."
 
 ---
 
-#### 4. Multi-Node Circuit (Daisy-Chain)
-**Filename:** `tests/fixtures/test_04_multi_node_daisy.net`
+#### 4. System Code Validation Test **[NEW - 2025-10-17]**
+**Filename:** `tests/fixtures/test_04_system_code_validation.net`
 
 **Status:** `[ ]` Not created
 
-**Description:** One net connecting 4 components in linear sequence
+**Description:** Net with mismatched system code to test validation warning
 
 **Components:**
-- BAT1: Battery at (25.0, 15.0, 0.0), rated 50A
-- CB1: Circuit breaker at (75.0, 20.0, 0.0), rated 30A
-- SW1: Switch at (125.0, 25.0, 0.0), rated 20A
-- LOAD1: Load device at (200.0, 35.0, 5.0), drawing 15A
+- J1: Connector at (50.0, 20.0, 0.0), rated 30A
+  - Footprint: `Connector:Conn_01x02|(50.0,20.0,0.0)R30`
+- RADIO1: Radio at (120.0, 30.0, 0.0), drawing 8A
+  - Value: "Garmin GTR 20"
+  - Footprint: `LRU:LRU_2x|(120.0,30.0,0.0)L8`
 
 **Nets:**
-- Net-P10: Connects BAT1→CB1→SW1→LOAD1
+- `/L1A`: Connects J1 to RADIO1 (Net marked as Lighting but component is Radio)
 
-**Purpose:** Test multi-node topology detection (daisy-chain pattern), signal flow ordering
+**Purpose:** Test system code validation - parsed "L" vs inferred "R"
+**Expected Warning:** "Net /L1A system code 'L' (Lighting) doesn't match component analysis. Components suggest 'R' (Radio)."
 
 ---
 
@@ -130,24 +146,24 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 
 **Status:** `[ ]` Not created
 
-**Description:** 3 separate circuits in one netlist (Lighting, Power, Ground)
+**Description:** Multiple separate circuits with different system codes
 
 **Components:**
-- J1: Main connector (source) at (50.0, 20.0, 0.0)
+- J1: Main connector (source) at (50.0, 20.0, 0.0), rated 30A
 - LIGHT1: Landing light at (200.0, 40.0, 15.0), 5A load
 - LIGHT2: Nav light at (180.0, 35.0, -15.0), 2A load
 - RADIO1: Radio at (120.0, 30.0, -5.0), 8A load
 - GND_BUS: Ground bus at (60.0, 15.0, 0.0)
 
-**Nets:**
-- Net-L105: Landing light circuit (J1→LIGHT1)
-- Net-L110: Nav light circuit (J1→LIGHT2)
-- Net-R200: Radio circuit (J1→RADIO1)
-- Net-G001: Ground return (LIGHT1→GND_BUS)
-- Net-G002: Ground return (LIGHT2→GND_BUS)
-- Net-G003: Ground return (RADIO1→GND_BUS)
+**Nets:** **[REVISED - SD defines system codes]**
+- `/L1A`: Landing light circuit (J1→LIGHT1)
+- `/L2A`: Nav light circuit (J1→LIGHT2)
+- `/R1A`: Radio circuit (J1→RADIO1)
+- `/G1A`: Ground return (LIGHT1→GND_BUS)
+- `/G2A`: Ground return (LIGHT2→GND_BUS)
+- `/G3A`: Ground return (RADIO1→GND_BUS)
 
-**Purpose:** Test multiple systems (L, R, G), system code parsing, BOM grouping/sorting
+**Purpose:** Test multiple systems (L, R, G), system code parsing from net names, BOM grouping/sorting by system
 
 ---
 
@@ -156,17 +172,17 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 
 **Status:** `[ ]` Not created
 
-**Description:** Components with missing footprint encodings
+**Description:** Components with missing footprint encodings AND bad net name
 
 **Components:**
 - J1: Has encoding - `Connector:Conn_01x02|(100.0,25.0,0.0)R15`
 - SW1: Missing encoding - `Button_Switch_THT:SW_PUSH_6mm` (no `|` data)
 - LIGHT1: Missing encoding - `LED_THT:LED_D5.0mm`
 
-**Nets:**
-- Net-L105: Connects J1→SW1→LIGHT1
+**Nets:** **[REVISED - include bad net name test]**
+- `Net-(J1-Pin_1)`: Auto-generated KiCad net name (doesn't follow `/[SYSTEM][CIRCUIT][SEGMENT]` pattern)
 
-**Purpose:** Test permissive mode (defaults, warnings), strict mode (errors)
+**Purpose:** Test permissive mode (defaults, warnings), strict mode (errors), net name format validation, fallback label generation
 
 ---
 
@@ -178,15 +194,15 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 **Description:** Components with negative BL (left side of aircraft)
 
 **Components:**
-- J1: Centerline at (100.0, 25.0, 0.0)
+- J1: Centerline at (100.0, 25.0, 0.0), rated 30A
 - LIGHT_L: Left wing light at (200.0, 35.0, -50.0), 2.5A load (negative BL)
 - LIGHT_R: Right wing light at (200.0, 35.0, 50.0), 2.5A load (positive BL)
 
-**Nets:**
-- Net-L105: J1→LIGHT_L
-- Net-L110: J1→LIGHT_R
+**Nets:** **[REVISED]**
+- `/L1A`: J1→LIGHT_L
+- `/L2A`: J1→LIGHT_R
 
-**Purpose:** Test negative coordinate handling (BL=-50.0), symmetrical left/right
+**Purpose:** Test negative coordinate handling (BL=-50.0), symmetrical left/right wire calculations
 
 ---
 
@@ -205,9 +221,14 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 - Multiple loads (lights, avionics, instruments)
 - Ground bus
 - Various wire lengths (short and long runs)
-- Mix of system codes (P, L, R, G, A)
+- Mix of system codes (P, L, R, G, E, K, M)
 
-**Purpose:** Integration testing, realistic calculations, end-to-end validation
+**Nets:** **[REVISED - must follow naming pattern]**
+- All nets must use `/[SYSTEM][CIRCUIT][SEGMENT]` format
+- Example: `/P1A`, `/P1B`, `/L1A`, `/R1A`, `/G1A`, etc.
+- Multi-segment circuits split into separate nets: `/L1A`, `/L1B`, `/L1C`
+
+**Purpose:** Integration testing, realistic calculations, end-to-end validation, label format options (compact vs dashes)
 
 ---
 
@@ -352,13 +373,45 @@ A (Avionics) → Blue
 
 ---
 
+## Design Revisions
+
+### Design Revision 1.1 - Net Name Parsing (2025-10-17)
+
+**Status:** `[x]` Complete
+
+**Decision:** SD embeds wire marking codes directly in net names (e.g., `/L1A`, `/P12B`, `/G1A`)
+
+**Rationale:**
+- Analysis of `docs/input/input_01_simple_lamp.net` revealed SD names nets with complete system/circuit/segment codes
+- More reliable and deterministic than inferring from components
+- Simpler implementation path
+- Puts semantic control with SD (where it belongs)
+
+**Design Changes:**
+- **Section 2.3**: Rewritten for net name parsing as primary, component analysis as validation
+- **Section 3.4**: Wire labels extracted from net names (not generated from inferred data)
+- **Section 4.2**: Added 4 new validation checks (net format, duplicate labels, multi-node, system code validation)
+- **Section 6**: Added `--label-format` CLI flag (compact/dashes)
+
+**Documents Updated:**
+- `docs/plans/kicad2wireBOM_design.md` - Design Revision History + `[REVISED]` markers
+- `docs/plans/programmer_todo.md` - Revised Phase 1, 4, 6, 6.5 tasks with revision notices
+- `claude/roles/architect.md` - Added `[REVISED]` methodology
+- `claude/roles/programmer.md` - Added Circle K protocol for design inconsistencies
+
+**Impact on Programmer:**
+- Simpler primary path (parse vs infer)
+- Component analysis still needed for validation quality checks
+- Phase 6.5 comprehensive keywords still valuable for catching SD mistakes
+- No work wasted - all analysis repurposed for validation
+
+---
+
 ## Next Steps
 
-1. **Tom reviews documents** - Add `@@TOM:` markers for questions/corrections
-2. **Tom creates test fixtures** - Generate KiCad netlists with footprint encoding
-3. **Claude extracts review comments** - Pull all `@@TOM:` markers and address them
-4. **Tom decides implementation approach** - Solo vs team, which packages first
-5. **Begin implementation** - Switch to Programmer role and start with Phase 1
+1. **Tom reviews revised documents** - Check `[REVISED]` sections for any concerns
+2. **Tom creates test fixtures** - Generate KiCad netlists with net names following `/[SYSTEM][CIRCUIT][SEGMENT]` pattern
+3. **Begin implementation** - Switch to Programmer role and start with Phase 0
 
 ---
 
@@ -368,3 +421,4 @@ A (Avionics) → Blue
 - Check boxes `[x]` indicate completion
 - Add new items to appropriate sections as they come up
 - Use `@@TOM:` markers in this document too if you have questions about what's needed
+- **Watch for `[REVISED - YYYY-MM-DD]` markers** in design docs to track changes

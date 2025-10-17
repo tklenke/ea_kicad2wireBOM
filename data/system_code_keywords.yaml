@@ -1,0 +1,285 @@
+# System Code Detection Keywords for kicad2wireBOM
+#
+# This file defines keywords for detecting aircraft electrical system codes
+# from component descriptions, values, and reference designators.
+#
+# Source: Extracted from real 657CZ aircraft schematic (163 components)
+# See: docs/plans/keyword_extraction_from_657CZ.md for detailed analysis
+#
+# Usage: Keywords are matched case-insensitively against:
+#   1. Component description field (highest priority)
+#   2. Component value field
+#   3. Component reference designator (lowest priority)
+#
+# Format:
+#   Each system code has:
+#   - description: Full name per MIL-W-5088L
+#   - color: Standard wire color for this system
+#   - keywords: List of detection keywords (case-insensitive substring match)
+
+system_codes:
+  L:
+    description: "Lighting - Illumination"
+    color: "White"
+    keywords:
+      # Basic
+      - LIGHT
+      - LAMP
+      - LED
+      # Specific types
+      - INTERIOR_LIGHT
+      - INTERIOR
+      - LANDING_LIGHT
+      - LANDING
+      - NAV_LIGHT
+      - NAVIGATION_LIGHT
+      - STROBE
+      - TAXI_LIGHT
+      - TAXI
+      - ILLUMINATION
+
+  P:
+    description: "Power - DC Generation & Distribution"
+    color: "Red"
+    keywords:
+      # Basic power
+      - BAT
+      - BATT
+      - BATTERY
+      - PWR
+      - POWER
+      # Generation
+      - ALTERNATOR
+      - ALT
+      # Protection & distribution
+      - BREAKER
+      - CB
+      - CONTACTOR
+      - FUSE
+      - FUSELINK
+      - FUSE_LINK
+      - FUSE_HOLDER
+      - BUS
+      - BATTERY_BUS
+      - MAIN_BUS
+      - SYSTEM_BUS
+      - ENDURANCE_BUS
+      # Components
+      - STARTER
+      - RELAY
+      - SPDT
+      - REGULATOR
+      - VOLTAGE_REGULATOR
+      - SHUNT
+      - LOADMETER
+      - OVERVOLTAGE
+      - CROWBAR
+      - CURRENT_LIMITER
+      - ANL
+      # Ground power
+      - GROUND_POWER
+      - GND_PWR
+      - RECEPTACLE
+      # Descriptors
+      - BROWNOUT
+      - AUX_ALT
+      - ALT_FLD
+      - ALT_FEED
+
+  R:
+    description: "Radio - Navigational and Communication"
+    color: "Gray"
+    keywords:
+      # Basic
+      - RADIO
+      - NAV
+      - COM
+      - XPNDR
+      - TRANSPONDER
+      - XPONDER
+      - AVIONICS
+      # Garmin model patterns
+      - G5
+      - G3X
+      - GAD
+      - GDU
+      - GEA
+      - GMA
+      - GMC
+      - GMU
+      - GNX
+      - GSA
+      - GSU
+      - GTR
+      # Device types
+      - ADAHRS
+      - AUDIO_PANEL
+      - AUDIO
+      - AUTOPILOT
+      - SERVO
+      - EIS
+      - ELT
+      - HSI
+      - MAGNETOMETER
+      - NAV_INTERFACE
+      - NAV_INTRFCE
+      - PFD
+      - VHF
+      - COMM
+      - COMMUNICATION
+      # Manufacturers
+      - ARTEX
+      - GARMIN
+
+  G:
+    description: "Ground - Return Path"
+    color: "Black"
+    keywords:
+      - GROUND
+      - GND
+      - RTN
+      - RETURN
+      - GROUND_BUS
+      - GROUND_BLOCK
+
+  E:
+    description: "Engine Instruments"
+    color: "Brown"  # Tom to confirm
+    keywords:
+      - FUEL_PROBE
+      - FUEL_SENDER
+      - POTENTIOMETER
+      - POT
+      - CHT
+      - EGT
+      - OIL_PRESSURE
+      - OIL_TEMP
+      - OIL_SENSOR
+      - FUEL_FLOW
+      - FUEL_PRESSURE
+      - TACH
+      - TACHOMETER
+      - RPM
+      - MANIFOLD_PRESSURE
+      - MAP
+      - SENSOR
+      - SENDER
+
+  K:
+    description: "Engine Control"
+    color: "Orange"  # Tom to confirm
+    keywords:
+      - IGNITION
+      - ELEC_IGNITION
+      - ELECTRONIC_IGNITION
+      - MAGNETO
+      - IMPULSE
+      - NON_IMPULSE
+      - PRIME_VALVE
+      - PRIMER
+      - BOOST_PUMP
+      - FUEL_PUMP
+      - ENGINE_CONTROL
+
+  M:
+    description: "Miscellaneous - Electrical"
+    color: "Yellow"  # Tom to confirm
+    keywords:
+      # Ground connections
+      - GROUND_BUS
+      - GROUND_BLOCK
+      - GB
+      - GROUNDING
+      - DSUB
+      # Diodes
+      - DIODE
+      - 1N4005
+      - 1N5400
+      # Comfort & utility
+      - HEATER
+      - CABIN_HEATER
+      - FAN
+      - BLOWER
+      - CASE_FAN
+      - PANEL_FAN
+      # Actuators
+      - ACTUATOR
+      - LINEAR_ACTUATOR
+      - CANOPY
+      - LANDING_BRAKE
+      - BRAKE
+      - NOSE_GEAR
+      - GEAR
+      # Sensors
+      - PITOT_PROBE
+      - PITOT
+      # Shielding
+      - SHIELD
+      - SHIELD_CONNECTION
+
+  A:
+    description: "Avionics - Additional"
+    color: "Blue"
+    keywords:
+      - GPS
+      - EFIS
+      - EMS
+      - AHRS
+
+  F:
+    description: "Flight Instruments"
+    color: "Green"  # Tom to confirm
+    keywords:
+      - ASI
+      - AIRSPEED
+      - AIR_SPEED
+      - ALTIMETER
+      - ALTITUDE
+      - ATTITUDE
+      - VSI
+      - VERTICAL_SPEED
+      - TURN_COORDINATOR
+      - HEADING
+      - G_METER
+      - AOA
+
+  W:
+    description: "Warning and Emergency"
+    color: "Red/White"  # Tom to confirm
+    keywords:
+      - WARNING
+      - ALARM
+      - ANNUNCIATOR
+      - EMERGENCY
+      - CAUTION
+      - STALL_WARNING
+      - LOW_VOLTAGE
+      - LOW_FUEL
+
+  U:
+    description: "Miscellaneous - Unclassified"
+    color: "White"
+    keywords: []  # Fallback system code
+
+# Special handling notes:
+#
+# 1. NAV_LIGHT vs NAV:
+#    - NAV_LIGHT, NAVIGATION_LIGHT → System L (lighting)
+#    - NAV, NAV_INTERFACE → System R (radio)
+#    - Detection priority (description first) handles this correctly
+#
+# 2. EIS (Engine Information System):
+#    - GEA 24 - EIS → System R (it's a Garmin avionics display)
+#    - Generic ENGINE_INSTRUMENT → System E
+#
+# 3. Ground Bus:
+#    - Listed in both G and M systems
+#    - Context determines: electrical ground bus → M, return path → G
+#
+# 4. Hyphenated terms:
+#    - Keywords like FUEL_PROBE also match "FUEL PROBE" and "FUEL-PROBE"
+#    - Normalization recommended in implementation
+#
+# 5. System code priority when multiple matches:
+#    - Use first match in priority order: description → value → ref
+#    - For validation warnings, report all potential matches

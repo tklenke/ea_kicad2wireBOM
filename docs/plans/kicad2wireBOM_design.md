@@ -4,9 +4,44 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 1.0
-**Date**: 2025-10-15
-**Status**: Design Complete - Ready for Implementation Planning
+**Version**: 1.1
+**Date**: 2025-10-17
+**Status**: Design Revised - Ready for Implementation
+
+---
+
+## Design Revision History
+
+### Revision 1.1 - 2025-10-17: Net Name Parsing
+
+**WHY**: Analysis of real KiCad netlist (`docs/input/input_01_simple_lamp.net`) revealed that the Schematic Designer (SD) embeds complete wire marking codes directly in net names (e.g., `/L1A`, `/G1A`). This is more reliable and simpler than inferring system codes from component analysis.
+
+**WHAT CHANGED**:
+1. **Section 2.3 (Circuit Identification)** - Complete rewrite
+   - PRIMARY: Parse system code, circuit ID, segment ID from net names
+   - VALIDATION: Use component analysis to validate SD's system code choices
+   - Net name parsing replaces complex inference algorithm
+
+2. **Section 3.4 (Wire Label Generation)** - Simplified
+   - Parse labels from net names instead of generating from inferred data
+   - Support flexible input formats (`/L1A`, `/L-1-A`, `/L001A`)
+   - Standardize output format via CLI flag (default: compact `L1A`)
+
+3. **Section 4.2 (Validation Checks)** - Enhanced
+   - Added: Net name format validation
+   - Added: Duplicate wire label detection (error in strict mode)
+   - Added: Multi-node net warning (3+ components unexpected for wire-to-wire)
+   - Added: System code validation (compare parsed vs inferred)
+
+4. **Module 5 (wire_calculator.py)** - Purpose shift
+   - System code detection becomes validation aid, not primary detection
+   - Phase 6.5 comprehensive keywords still valuable for quality checks
+
+**IMPACT ON IMPLEMENTATION**:
+- Simpler, more reliable primary path (parse vs infer)
+- Component analysis still needed for validation and quality assurance
+- Better error messages to help SD catch mistakes
+- Puts semantic control where it belongs (with the SD)
 
 ---
 
@@ -87,41 +122,76 @@ Package_SO:SOIC-8|(100.5,25.0,-5.0)L3.2
 - **Unambiguous**: Simple regex parsing, clear structure
 - **KiCad-compatible**: Footprint field exports reliably to netlist
 
-### 2.3 Circuit Identification Strategy
+### 2.3 Circuit Identification Strategy **[REVISED - 2025-10-17]**
 
-**Circuit ID (Circuit Number)**:
-- Use KiCad's automatic net code directly as the circuit ID
-- KiCad assigns sequential numeric codes (1, 2, 3...) to each net
-- Example: KiCad net code 105 → Circuit ID = "105"
-- No parsing required - simple and reliable
+The Schematic Designer (SD) embeds complete wire marking information directly in KiCad net names following the EAWMS format: `[SYSTEM][CIRCUIT][SEGMENT]`
 
-**System Code (System Letter)**:
-- Determined by analyzing components and net characteristics
+#### Net Name Format Requirements
+
+**Expected Format**: `/[SYSTEM][CIRCUIT][SEGMENT]`
+- `SYSTEM`: Single letter system code (L, P, G, R, E, K, M, W, A, F, U)
+- `CIRCUIT`: Numeric circuit identifier (1, 2, 3... or 001, 002...)
+- `SEGMENT`: Single letter segment identifier (A, B, C...)
+
+**Examples**:
+- `/L1A` → Lighting system, circuit 1, segment A
+- `/P12B` → Power system, circuit 12, segment B
+- `/G001A` → Ground system, circuit 001, segment A
+- `/L-105-A` → Lighting system, circuit 105, segment A (with separators)
+
+#### Parsing Strategy
+
+**1. Primary Detection (Parse from Net Name)**:
+- Regex pattern: `/([A-Z])-?(\d+)-?([A-Z])/`
+  - Matches: `/L1A`, `/L-1-A`, `/L001A`, `/L-001-A`
+  - Captures: system code, circuit number, segment letter
+- If net name matches pattern:
+  - Extract system code, circuit ID, segment ID
+  - Validate system code against known codes (L, P, G, R, E, K, M, W, A, F, U)
+  - Warning if system code unrecognized, continue processing
+
+**2. Validation (Component Analysis)**:
+- For each net, analyze connected components to infer expected system code
+- Compare inferred system code vs parsed system code
+- If mismatch: Generate validation warning with suggestion
 - Algorithm (in priority order):
-  1. **Load components** (highest priority): Check ref prefix for system type
+  1. **Load components** (highest priority): Check ref/desc/value for system type
      - "LIGHT", "LAMP", "LED" → "L" (Lighting)
-     - "RADIO", "NAV", "COM", "XPNDR" → "R" (Radio/Nav/Comm)
-     - "GPS", "EFIS", "EMS", "AHRS" → "A" (Avionics)
-     - "FUEL", "OIL", "CHT", "EGT" → "E" (Engine Instruments)
-     - "ALT", "ASI", "VSI" → "F" (Flight Instruments)
-  2. **Source components**: "BAT", "ALT", "GEN" → "P" (Power)
-  3. **Net name analysis**:
+     - "RADIO", "NAV", "COM", "XPNDR", "GPS", "EFIS", "ADAHRS", "AUDIO" → "R" (Radio/Nav/Comm)
+     - "FUEL", "OIL", "CHT", "EGT", "SENSOR", "SENDER" → "E" (Engine Instruments)
+     - "IGNITION", "MAGNETO", "FUEL_PUMP", "PRIMER" → "K" (Engine Control)
+     - "BREAKER", "ALT", "BATTERY", "CONTACTOR", "RELAY", "FUSE" → "P" (Power)
+  2. **Net name substring analysis**:
      - Contains "GND", "GROUND", "RTN", "RETURN" → "G" (Ground)
-     - Contains "PWR", "POWER", "BUS" → "P" (Power)
-  4. **Pass-through components** (switches, fuses, breakers):
-     - Parse ref designator for keywords: "FUEL_PUMP_SW", "LANDING_LIGHT_CB", etc.
-     - Check description/value field for system hints
-  5. **Fallback**: Use "U" (Miscellaneous) with warning if unable to determine
+  3. **Fallback**: Unable to infer (validation skip for this net)
+
+**3. Fallback (Unparseable Net Names)**:
+- If net name doesn't match EAWMS pattern (e.g., `Net-(BT1-Pin_1)`):
+  - **Strict mode**: Error with suggestion to rename net
+  - **Permissive mode**:
+    - Attempt component analysis to infer system code
+    - Use inferred system code + KiCad net code + "A" as fallback label
+    - Example: Components suggest "L" → fallback label "L-{net_code}-A"
+    - Warning: "Net name doesn't follow EAWMS format, using inferred label"
 
 **System Code Mapping** (extensible):
 - Implemented as configurable lookup tables in `reference_data.py`
+- Used for validation, not primary detection
 - Easy to add new component type patterns and keywords
 - Pattern matching is case-insensitive substring search
+- See Phase 6.5 in programmer_todo.md for comprehensive keyword lists
 
-**Net Name and Net Type**:
-- Capture `net_name` field from KiCad netlist → include in wire notes/BOM
-- Capture `net_type` field from KiCad netlist → include in wire notes/BOM only if value is NOT "DEFAULT"
-- These fields provide documentation context but are not used for circuit identification
+#### Wire Label Generation
+
+**Output Format** (configurable via `--label-format` CLI flag):
+- `compact` (default): `L1A` (no separators)
+- `dashes`: `L-1-A` (dash separators)
+- Format standardizes output regardless of input variation
+
+**Net Name and Net Class**:
+- Capture `net_name` field from KiCad netlist → document in engineering mode
+- Capture `net_class` field from KiCad netlist → include if value is NOT "Default"
+- These fields provide context but are not used for wire marking
 
 ### 2.4 Field Export Verification
 
@@ -215,25 +285,32 @@ For nets connecting 3+ components, assume **star topology** (central hub with sp
 
 **Color Mapping Source**: Extract from `docs/ea_wire_marking_standard.md` 
 
-### 3.4 Wire Label Generation (EAWMS Format)
+### 3.4 Wire Label Generation (EAWMS Format) **[REVISED - 2025-10-17]**
 
-**Format**: `SYSTEM-CIRCUIT-SEGMENT`
+**Format**: `SYSTEM-CIRCUIT-SEGMENT` or `SYSTEMCIRCUITSEGMENT`
 
-**Example**: `L-105-A`
-- `L` = Lighting system
-- `105` = Circuit 105
-- `A` = First segment
+**Examples**:
+- Compact (default): `L105A`, `P12B`, `G1A`
+- Dashes (optional): `L-105-A`, `P-12-B`, `G-1-A`
 
-**Component Extraction**:
-- **System Code**: Letter extracted from net name or `System_Code` field
-- **Circuit Number**: Numeric portion extracted from net name or `Circuit_ID` field
-- **Segment Letter**: Sequential A, B, C... ordered by signal flow from source to load
+**Label Extraction (from Net Name)**:
+- Parse net name to extract: system code, circuit number, segment letter
+- See Section 2.3 for net name parsing details
+- Regex: `/([A-Z])-?(\d+)-?([A-Z])/` captures all three components
+
+**Output Format Control**:
+- Controlled by `--label-format` CLI flag:
+  - `compact` (default): `L105A` (no separators)
+  - `dashes`: `L-105-A` (dash separators)
+- Input format flexible: `/L1A`, `/L-1-A`, `/L001A` all accepted
+- Output format standardized based on flag
 
 **Multi-segment Circuits**:
-For circuits with multiple physical wire runs:
-- First segment: `-A`
-- Second segment: `-B`
-- And so on...
+The SD creates separate nets for each physical wire segment:
+- `/L1A` → First segment (Battery to Switch)
+- `/L1B` → Second segment (Switch to Lamp)
+- Each net connects exactly 2 components (wire-to-wire connection)
+- Tool validates and warns if net has 3+ components
 
 ---
 
@@ -256,9 +333,63 @@ For circuits with multiple physical wire runs:
 - Continue processing and generate BOM with warning annotations
 - Useful for iterative design and draft BOMs
 
-### 4.2 Validation Checks
+### 4.2 Validation Checks **[REVISED - 2025-10-17]**
 
-#### 4.2.1 Required Field Validation
+#### 4.2.1 Net Name Format Validation **[NEW]**
+
+**Check**: Net names follow EAWMS format `/[SYSTEM][CIRCUIT][SEGMENT]`
+
+**In Strict Mode**:
+- Error if net name doesn't match pattern
+- Error message: "Net 'Net-(BT1-Pin_1)' doesn't follow EAWMS format. Expected: /[SYSTEM][CIRCUIT][SEGMENT] (e.g., /L1A)"
+- Suggestion: "Rename net to follow pattern, e.g., /L1A for Lighting circuit 1 segment A"
+- Abort processing with exit code 1
+
+**In Permissive Mode**:
+- Warning if net name doesn't match pattern
+- Attempt to infer system code from components
+- Generate fallback label using inferred system code + KiCad net code + "A"
+- Continue processing with warning in output
+
+#### 4.2.2 Duplicate Wire Label Detection **[NEW]**
+
+**Check**: No two wires should have identical wire labels
+
+**In Strict Mode**:
+- Error if duplicate labels detected
+- Error message: "Duplicate wire label 'L1A' found on nets: /L1A, /L-1-A"
+- Suggestion: "Each wire segment must have unique label. Check circuit numbering and segment letters."
+- Abort processing with exit code 1
+
+**In Permissive Mode**:
+- Warning if duplicate labels detected
+- Append suffix to make unique: `L1A`, `L1A-2`, `L1A-3`
+- Continue processing with warning in output
+
+#### 4.2.3 Multi-Node Net Detection **[NEW]**
+
+**Check**: Nets connecting 3+ components (unexpected for wire-to-wire)
+
+**Action**: Always warn (both strict and permissive modes)
+- Warning message: "Net '/L1A' connects 3 components: J1, SW1, LIGHT1"
+- Suggestion: "For wire harnesses, split into multiple nets with different segment letters (e.g., /L1A, /L1B)"
+- Continue processing but flag in output
+
+**Rationale**: Unlike PCBs where multi-node nets are common, wire harnesses typically have point-to-point connections. 3+ components suggest the SD may need to split the circuit into explicit segments.
+
+#### 4.2.4 System Code Validation **[NEW]**
+
+**Check**: Parsed system code matches component analysis inference
+
+**Action**: Always warn on mismatch (both strict and permissive modes)
+- Warning message: "Net '/L105A' system code 'L' (Lighting) doesn't match component analysis"
+- Detail: "Components on net: RADIO1 (suggests system 'R' - Radio/Nav/Comm)"
+- Suggestion: "Verify net name or component placement. This may be correct if wire is power feed to the component."
+- Continue processing but flag in output
+
+**Rationale**: Helps SD catch mistakes while allowing intentional exceptions (e.g., power feed to lighting).
+
+#### 4.2.5 Required Field Validation
 
 **In Strict Mode**:
 - All components must have FS, WL, BL coordinates
@@ -271,27 +402,20 @@ For circuits with multiple physical wire runs:
 - Apply defaults
 - Continue processing
 
-#### 4.2.2 Rating vs Load Validation
+#### 4.2.6 Rating vs Load Validation
 
 - Trace circuit path from source through switches/breakers to load
 - Verify no component rating is exceeded by downstream loads
 - **Action**: Warn if load exceeds any rating in path
 - Example: 15A load through 10A switch → Warning
 
-#### 4.2.3 Wire Gauge Progression Validation
+#### 4.2.7 Wire Gauge Progression Validation
 
 - Check that wire gauge doesn't inappropriately decrease along circuit path
 - **Action**: Warn if downstream wire is heavier gauge than upstream
 - This usually indicates a design error (heavier wire feeding lighter wire)
 
-#### 4.2.4 Multi-node Net Detection
-
-- Identify nets connecting 3+ components
-- **Action**: Log informational message during processing
-- Note in output that routing topology was inferred from coordinates
-- Recommend designer review for accuracy
-
-#### 4.2.5 Source/Load Identification
+#### 4.2.8 Source/Load Identification
 
 Attempt to identify signal flow using:
 - Component type (J-designators, BAT prefix = sources)
@@ -455,6 +579,9 @@ python -m kicad2wireBOM input.net  # Auto-generates output_REV001.csv
 - `--system-voltage VOLTS`: System voltage for calculations (default: 12)
 - `--slack-length INCHES`: Extra wire length per segment (default: 24)
 - `--format {csv,md}`: Explicitly specify output format (overrides file extension)
+- `--label-format {compact,dashes}`: Wire label format (default: compact) **[NEW - 2025-10-17]**
+  - `compact`: `L1A`, `P12B` (no separators)
+  - `dashes`: `L-1-A`, `P-12-B` (dash separators)
 - `--config FILE`: Path to configuration file (overrides default .kicad2wireBOM.yaml search)
 
 ### 6.4 Usage Examples

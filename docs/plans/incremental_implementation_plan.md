@@ -1,8 +1,10 @@
-# kicad2wireBOM: Incremental Implementation Plan
+# kicad2wireBOM: Incremental Implementation Plan **[REVISED - 2025-10-17]**
 
 ## Overview
 
 This plan uses a **thin vertical slice** approach instead of horizontal layers. We build end-to-end functionality incrementally, validating against real KiCad netlists at each step.
+
+**DESIGN REVISION NOTE (2025-10-17):** This plan reflects the net name parsing approach where Schematic Designer (SD) embeds wire codes in net names (e.g., `/L1A`). System code inference is used for validation, not primary detection. See `docs/plans/kicad2wireBOM_design.md` Design Revision History for details.
 
 **Philosophy:**
 - Start with minimal spike to prove KiCad data extraction works
@@ -72,12 +74,15 @@ This plan uses a **thin vertical slice** approach instead of horizontal layers. 
    - Reference data: wire resistance and ampacity tables (stub with hardcoded values for now)
    - Voltage drop calculation (5% max)
    - Select minimum AWG size
-5. **NEW: System code detection**
-   - Implement basic algorithm (ref prefix matching)
-   - Start with simple patterns: "LIGHT" → "L", "BAT" → "P"
-6. **NEW: Wire label generation**
-   - Format: `{system_code}-{circuit_id}-{segment_letter}`
-   - Example: `P-12-A`
+5. **NEW: Net name parsing and system code extraction** **[REVISED - 2025-10-17]**
+   - Parse net name with regex: `/([A-Z])-?(\d+)-?([A-Z])/`
+   - Extract: system code, circuit ID, segment letter
+   - Implement basic inference for validation: "LIGHT" → "L", "BAT" → "P", "GND" → "G"
+   - Compare parsed vs inferred for validation warnings
+6. **NEW: Wire label formatting** **[REVISED - 2025-10-17]**
+   - Extract from net name (not generate)
+   - Format options: compact `L1A` or dashes `L-1-A`
+   - Example: `/L1A` → `L1A` (compact) or `L-1-A` (dashes)
 7. **NEW: Simple CSV output**
    - Headers: Wire Label, From, To, Wire Gauge, Length, Wire Type
    - One row per wire segment
@@ -164,23 +169,37 @@ This plan uses a **thin vertical slice** approach instead of horizontal layers. 
 
 ---
 
-## Phase 4: Test Fixture 06 - Missing Data (Permissive Mode)
+## Phase 4: Test Fixture 06 - Missing Data (Permissive Mode) **[REVISED - 2025-10-17]**
 
 **Fixture:** `tests/fixtures/test_06_missing_data.net`
 - Components with missing footprint encodings
-- Tests: Permissive mode, default values, warnings
+- Tests: Permissive mode, default values, warnings, net name validation
 
 **Features to Add:**
-1. **Strict mode validation**
+1. **Net name format validation** **[NEW - 2025-10-17]**
+   - Check net names match `/[SYSTEM][CIRCUIT][SEGMENT]` pattern
+   - Strict mode: Error if no match
+   - Permissive mode: Warning + fallback label generation
+2. **Duplicate label detection** **[NEW - 2025-10-17]**
+   - Check for duplicate wire labels
+   - Strict mode: Error if found
+   - Permissive mode: Warning + append suffix
+3. **Multi-node net validation** **[NEW - 2025-10-17]**
+   - Warn when net connects 3+ components
+   - Suggestion: Split into separate nets with different segments
+4. **System code validation** **[NEW - 2025-10-17]**
+   - Compare parsed system code vs inferred from components
+   - Warn on mismatch (both modes)
+5. **Strict mode validation**
    - Error on missing FS/WL/BL
    - Error on missing Load/Rating
    - Abort processing with helpful error messages
-2. **Permissive mode**
+6. **Permissive mode**
    - CLI flag: `--permissive`
    - Default missing coordinates to (-9, -9, -9)
    - Default missing Load/Rating to 0A
    - Generate warnings but continue processing
-3. **Warning system**
+7. **Warning system**
    - Collect warnings during processing
    - Include in CSV output (Warnings column)
    - Log to console
@@ -233,16 +252,17 @@ This plan uses a **thin vertical slice** approach instead of horizontal layers. 
 - Tests: System code parsing, BOM grouping/sorting
 
 **Features to Add:**
-1. **Enhanced system code detection**
+1. **Enhanced system code inference (for validation)** **[REVISED - 2025-10-17]**
+   - Load keywords from `data/system_code_keywords.yaml`
    - Expand component type patterns:
      - "RADIO", "NAV", "COM", "XPNDR" → "R"
      - "GPS", "EFIS", "EMS", "AHRS" → "A"
      - "FUEL", "OIL", "CHT", "EGT" → "E"
-   - Net name analysis:
+   - Net name substring analysis:
      - "GND", "GROUND", "RTN", "RETURN" → "G"
      - "PWR", "POWER", "BUS" → "P"
    - Pass-through component analysis (parse ref for keywords)
-   - Fallback to "U" (Unknown/Miscellaneous)
+   - **PURPOSE:** Validation comparison with parsed system codes
 2. **Reference data extraction**
    - Extract complete wire resistance table
    - Extract complete ampacity table
@@ -329,6 +349,7 @@ After all test fixtures pass, complete remaining functionality:
   - `--system-voltage` (default 12V)
   - `--slack-length` (default 24")
   - `--format {csv,md}`
+  - `--label-format {compact,dashes}` (default: compact) **[NEW - 2025-10-17]**
 - **Exit codes:**
   - 0 = success
   - 1 = error

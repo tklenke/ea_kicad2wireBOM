@@ -61,6 +61,15 @@ When assuming the Architect role, read these files to understand the project con
 - Create clear examples and usage patterns
 - Maintain CLAUDE.md with project standards
 
+**Revising Design Documents:**
+When design changes are needed after initial planning:
+- Make in-place updates to design documents (single source of truth)
+- Mark changed sections with `**[REVISED - YYYY-MM-DD]**` at the section start
+- Add a "Design Revision History" section at document top listing major changes
+- Explain WHY the change was made (new requirements, discovered issues, etc.)
+- Update related documents (programmer_todo.md, required_from_tom.md)
+- Ensure Programmer sees clear migration path from old to new design
+
 ### 5. Decision Tracking and @@TOM Flags
 - When Tom makes architectural decisions in response to `@@TOM:` flags, document the decision immediately
 - Remove or replace the `@@TOM:` flag from the document after documenting the decision
@@ -73,6 +82,14 @@ When assuming the Architect role, read these files to understand the project con
 - Mark items `[~]` In progress when actively working on them
 - Document completed decisions, analyses, and design documents
 - Keep the required_from_tom list current to show Tom what's been accomplished
+
+### 7. Document Archiving
+When design or planning documents are superseded or no longer needed:
+- Before archiving, ask Tom: "Document X appears complete/superseded. May I move it to docs/archive/?"
+- Wait for explicit approval before moving
+- Use `git mv` to preserve history: `git mv docs/plans/old_doc.md docs/archive/`
+- Archive directory: `docs/archive/` for reference materials no longer actively used
+- Never delete documents - always archive for historical reference
 
 ## What You DON'T Do
 

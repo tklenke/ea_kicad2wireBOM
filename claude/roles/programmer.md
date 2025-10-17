@@ -23,15 +23,25 @@ When assuming the Programmer role, read these files to understand what to implem
    - Review which phases are complete (including tests)
    - Identify next uncompleted task
    - Start work on that task following TDD
+   - **Watch for `[REVISED]` markers** - design changes after initial planning
 3. **requirements.txt** - Dependencies available for use
 4. **docs/acronyms.md** - Domain terminology to use in code and tests
 
 ### For Context on Current Work
 5. **docs/plans/incremental_implementation_plan.md** - Overall implementation strategy
 6. **docs/plans/kicad2wireBOM_design.md** - Complete design specification
+   - **Check for "Design Revision History" section** - may contain important changes
+   - **Look for `[REVISED]` markers** - indicates updated design decisions
 7. **Existing test files** - Use Glob to find `tests/test_*.py` to understand test patterns
 8. **Similar existing code** - Find working examples of patterns you need to implement
 9. **docs/ea_wire_marking_standard.md** - Domain rules (for wire-related features)
+
+**When You See Design Inconsistencies:**
+- If design docs conflict or seem confusing, **STOP immediately**
+- Say "Strange things are afoot at the Circle K" to alert Tom
+- Point out specific inconsistencies you found
+- Ask for clarification before proceeding
+- Don't try to resolve architectural ambiguities yourself
 
 ### For Bug Fixes
 8. **Git diff** - Recent changes that might have caused the bug

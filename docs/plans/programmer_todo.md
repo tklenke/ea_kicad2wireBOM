@@ -1,10 +1,33 @@
-# kicad2wireBOM: Programmer Implementation Checklist
+# kicad2wireBOM: Programmer Implementation Checklist **[REVISED - 2025-10-17]**
 
 ## Purpose
 
 This document tracks implementation progress for kicad2wireBOM following the incremental, fixture-driven approach documented in `incremental_implementation_plan.md`.
 
 **Important:** When assuming the Programmer role, read this document to understand what's been completed and what needs to be done next.
+
+---
+
+## **DESIGN REVISION NOTICE - READ FIRST!**
+
+**Date**: 2025-10-17
+**What Changed**: Net name parsing approach (simpler, more reliable)
+
+**WHY**: Analysis of real KiCad netlist revealed that Schematic Designer (SD) embeds complete wire codes in net names (e.g., `/L1A`). This is more reliable than inferring system codes from component analysis.
+
+**KEY CHANGES FOR PROGRAMMER**:
+1. **Primary detection**: Parse system code/circuit/segment from net name (regex)
+2. **Secondary validation**: Use component analysis to validate SD's choices
+3. **Simpler implementation**: Less complex inference, more straightforward validation
+4. **New validation checks**: Net name format, duplicate labels, multi-node nets, system code validation
+
+**AFFECTED TASKS**:
+- Phase 1 Task 1.4 - System code detection (now parsing + validation)
+- Phase 1 Task 1.5 - Wire label generation (now extraction from net name)
+- Phase 6 Task 6.2 - Enhanced system code detection (now for validation, not primary detection)
+- Phase 6.5 - Still valuable for validation quality checks
+
+**See**: `docs/plans/kicad2wireBOM_design.md` Section 2.3 and Design Revision History for full details
 
 ---
 
@@ -17,13 +40,20 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
-## Phase 0: Initial Spike (Validate Foundation)
+## Phase 0: Initial Spike (Validate Foundation) **[REVISED - 2025-10-17]**
 
-**Goal:** Prove we can extract data from KiCad netlists with footprint encoding
+**Goal:** Prove we can extract data from KiCad netlists with footprint encoding AND net name parsing
 
-**Test Fixture:** `tests/fixtures/test_01_minimal_two_component.net`
+**Test Fixture:** `tests/fixtures/test_01_minimal_two_component.net` (needs revision - see below)
+
+**IMPORTANT:** The existing `test_01_minimal_two_component.net` in `tests/fixtures/` was created before the design revision. It uses old-style net names (`Net-P12`). You must remove or replace it with a new version that uses SD-defined net names (`/P1A`). See `docs/plans/required_from_tom.md` for updated test fixture requirements.
 
 ### Tasks
+
+- `[ ]` **0.0: Remove old test fixture** **[NEW - 2025-10-17]**
+  - Remove or archive old `tests/fixtures/test_01_minimal_two_component.net` (if it exists)
+  - Wait for Tom to provide new version with net names following `/[SYSTEM][CIRCUIT][SEGMENT]` pattern
+  - DO NOT proceed with testing until new fixture is available
 
 - `[ ]` **0.1: Project setup**
   - Create `kicad2wireBOM/` package directory
@@ -32,11 +62,13 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - Set up pytest configuration (pytest.ini)
   - Create `kicad2wireBOM/__init__.py`
 
-- `[ ]` **0.2: Minimal netlist parser**
+- `[ ]` **0.2: Minimal netlist parser** **[REVISED - 2025-10-17]**
   - Create `kicad2wireBOM/parser.py` with ABOUTME comments
   - Write function: `parse_netlist_file(file_path)` → returns kinparse object
   - Write function: `extract_nets(parsed_netlist)` → returns list of net dicts
-  - Extract: net code, net name, net type
+  - Extract: net code, net name, net class **[NEW: net class]**
+  - Parse net class attribute: `(net (code "N") (name "name") (class "value"))`
+  - Default to "Default" if class attribute missing
   - Write basic test: `tests/test_parser.py`
 
 - `[ ]` **0.3: Component extraction**
@@ -60,28 +92,32 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - Add properties: `coordinates`, `is_load`, `is_passthrough`
   - Write test: `tests/test_component.py`
 
-- `[ ]` **0.6: Spike integration test**
+- `[ ]` **0.6: Spike integration test** **[REVISED - 2025-10-17]**
   - Create `tests/test_spike.py`
-  - Parse `test_01_minimal_two_component.net`
+  - Parse `test_01_minimal_two_component.net` (must use NEW version with `/P1A` net name)
   - Extract and print all data to console
-  - Verify: net codes, component refs, coordinates, load/rating values
+  - Verify: net names (pattern match), net codes, component refs, coordinates, load/rating values
+  - Parse net name with regex: `/([A-Z])-?(\d+)-?([A-Z])/`
   - Manual verification (visual inspection of console output)
 
 **Acceptance Criteria:**
 - Can parse KiCad netlist ✓
+- Can extract net names following `/[SYSTEM][CIRCUIT][SEGMENT]` pattern ✓
 - Can extract net codes ✓
 - Can extract footprint encoding ✓
 - Can parse coordinates and load/rating ✓
 
-**Commit:** "Initial spike: Parse KiCad netlist and extract footprint data"
+**Commit:** "Initial spike: Parse KiCad netlist with net name pattern extraction"
 
 ---
 
-## Phase 1: Test Fixture 01 - Minimal Two-Component Circuit
+## Phase 1: Test Fixture 01 - Minimal Two-Component Circuit **[REVISED - 2025-10-17]**
 
-**Goal:** Generate simple CSV with basic wire calculations
+**Goal:** Generate simple CSV with basic wire calculations using net name parsing
 
-**Test Fixture:** `tests/fixtures/test_01_minimal_two_component.net`
+**Test Fixture:** `tests/fixtures/test_01_minimal_two_component.net` (MUST use new version with `/P1A` net name)
+
+**REMINDER:** Do NOT proceed with Phase 1 until Tom provides the revised test fixture with SD-defined net names. The old fixture will cause tests to fail.
 
 ### Tasks
 
@@ -106,20 +142,29 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - Check both voltage drop (5%) and ampacity constraints
   - Write tests for gauge calculation
 
-- `[ ]` **1.4: System code detection (basic)**
-  - In `wire_calculator.py`, add function: `detect_system_code(components, net_name)` → str
-  - Implement basic patterns: "LIGHT" → "L", "BAT" → "P", "SW" → check ref for hints
-  - Fallback to "U" (Unknown) with warning
-  - Write test for system code detection
+- `[ ]` **1.4: Net name parsing and system code extraction** **[REVISED - 2025-10-17]**
+  - In `wire_calculator.py`, add function: `parse_net_name(net_name)` → dict or None
+  - Regex pattern: `/([A-Z])-?(\d+)-?([A-Z])/`
+  - Captures: system_code, circuit_id, segment_letter
+  - Handles: `/L1A`, `/L-1-A`, `/L001A`, `/L-001-A`
+  - Returns: `{'system': 'L', 'circuit': '1', 'segment': 'A'}` or None if no match
+  - Add function: `infer_system_code_from_components(components, net_name)` → str or None
+  - Basic inference patterns: "LIGHT" → "L", "BAT" → "P", "GND" in name → "G"
+  - Used for validation comparison
+  - Write tests for both parsing and inference
 
-- `[ ]` **1.5: Wire label generation**
-  - In `wire_calculator.py`, add function: `generate_wire_label(system_code, circuit_id, segment_letter)` → str
-  - Format: `{system_code}-{circuit_id}-{segment_letter}`
-  - Write test for label formatting
+- `[ ]` **1.5: Wire label generation** **[REVISED - 2025-10-17]**
+  - In `wire_calculator.py`, add function: `format_wire_label(system_code, circuit_id, segment_letter, format='compact')` → str
+  - Format options:
+    - `compact`: `L1A` (default)
+    - `dashes`: `L-1-A`
+  - Write tests for both formats
 
-- `[ ]` **1.6: Wire BOM data model**
+- `[ ]` **1.6: Wire BOM data model** **[REVISED - 2025-10-17]**
   - Create `kicad2wireBOM/wire_bom.py` with ABOUTME comments
-  - Define WireConnection dataclass with fields: wire_label, from_ref, to_ref, wire_gauge, wire_color, length, wire_type, warnings
+  - Define WireConnection dataclass with fields:
+    - wire_label, from_ref, to_ref, wire_gauge, wire_color, length
+    - wire_type, net_class **[NEW]**, net_name, warnings
   - Define WireBOM class with: wires list, config dict
   - Add method: `add_wire(wire)`
   - Write test: `tests/test_wire_bom.py`
@@ -148,11 +193,13 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
-## Phase 2: Test Fixture 02 - Simple Load Circuit
+## Phase 2: Test Fixture 02 - Simple Load Circuit with Shielded Wire **[REVISED - 2025-10-17]**
 
-**Goal:** Multi-segment circuits with load calculations
+**Goal:** Multi-segment circuits with load calculations and shielded wire handling
 
-**Test Fixture:** `tests/fixtures/test_02_simple_load.net`
+**Test Fixture:** `tests/fixtures/test_02_simple_load.net` (use `docs/input/input_01_simple_lamp.net`)
+
+**Special Feature:** Net `/L1B` has class "Shielded,Default" - must parse and apply shielded wire type
 
 ### Tasks
 
@@ -180,28 +227,38 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - In `wire_calculator.py`, update gauge calculation to use load current
   - Write test for load-based gauge calculation
 
-- `[ ]` **2.5: Enhanced system code detection**
-  - In `wire_calculator.py`, expand patterns:
-    - "LIGHT", "LAMP", "LED" → "L"
-    - "RADIO", "NAV" → "R"
-  - Parse net name prefix for system code hint (e.g., "L_" prefix)
-  - Write test for enhanced detection
+- `[ ]` **2.5: Net class wire type handling** **[NEW - 2025-10-17]**
+  - In `wire_calculator.py`, add function: `determine_wire_type(net_class: str, config)` → str
+  - Check if net_class contains "Shielded" → return "M22759/16 (Shielded)"
+  - Check config for custom class mappings (future extensibility)
+  - Default: return "M22759/16"
+  - Write test for shielded and non-shielded wires
 
-- `[ ]` **2.6: Integration test for fixture 02**
+- `[ ]` **2.6: Enhanced system code inference** **[REVISED - 2025-10-17]**
+  - In `wire_calculator.py`, expand `infer_system_code_from_components()`:
+    - Add component patterns: "LAMP" → "L", "BATTERY" → "P"
+    - Net name analysis: "GND", "GROUND" → "G"
+    - Make extensible (will load from `data/system_code_keywords.yaml` in Phase 6)
+  - Write tests for inference (used for validation)
+
+- `[ ]` **2.7: Integration test for fixture 02** **[REVISED - 2025-10-17]**
   - Create `tests/test_fixture_02.py`
-  - Parse netlist with 3 components
-  - Verify 2 segments created (J1→SW1, SW1→LIGHT1)
-  - Verify segment labels (L-105-A, L-105-B)
-  - Verify load current used for both segments
+  - Parse netlist with 3 components (BT1, SW1, L1)
+  - Verify 3 nets/wires created: `/L1A`, `/L1B`, `/G1A`
+  - Verify segment labels parsed from net names (L1A, L1B, G1A)
+  - Verify `/L1B` has wire_type = "M22759/16 (Shielded)"
+  - Verify `/L1A` and `/G1A` have wire_type = "M22759/16"
+  - Verify load current (3.5A) used for L1A and L1B gauge calculation
   - Test passes ✓
 
 **Acceptance Criteria:**
-- CSV output has two rows (two segments)
-- Segments labeled A and B correctly
-- Both segments use load current for gauge calculation
-- System code "L" detected from LIGHT1 component
+- CSV output has three rows (L1A, L1B, G1A)
+- Segments labeled from net names correctly
+- `/L1B` shows as shielded wire
+- Load current used for lighting segments
+- System codes parsed from net names (L, G)
 
-**Commit:** "Complete Phase 2: Multi-segment circuit with load calculation"
+**Commit:** "Complete Phase 2: Multi-segment circuit with shielded wire and ground return"
 
 ---
 
@@ -252,9 +309,9 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
-## Phase 4: Test Fixture 06 - Missing Data (Permissive Mode)
+## Phase 4: Test Fixture 06 - Missing Data (Permissive Mode) **[REVISED - 2025-10-17]**
 
-**Goal:** Validation modes (strict and permissive)
+**Goal:** Validation modes (strict and permissive) including net name validation
 
 **Test Fixture:** `tests/fixtures/test_06_missing_data.net`
 
@@ -262,11 +319,37 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 - `[ ]` **4.1: Validator module**
   - Create `kicad2wireBOM/validator.py` with ABOUTME comments
-  - Define ValidationResult dataclass: component_ref, severity, message, suggestion
+  - Define ValidationResult dataclass: component_ref, net_name, severity, message, suggestion
   - Write function: `validate_required_fields(components, permissive)` → list of ValidationResult
   - Write test: `tests/test_validator.py`
 
-- `[ ]` **4.2: Strict mode validation**
+- `[ ]` **4.2: Net name format validation** **[NEW - 2025-10-17]**
+  - In `validator.py`, add function: `validate_net_name_format(nets, permissive)` → list of ValidationResult
+  - Check net names match pattern `/[SYSTEM][CIRCUIT][SEGMENT]`
+  - Strict mode: Error if no match
+  - Permissive mode: Warning if no match
+  - Write test for net name validation
+
+- `[ ]` **4.3: Duplicate label detection** **[NEW - 2025-10-17]**
+  - In `validator.py`, add function: `validate_unique_labels(wires, permissive)` → list of ValidationResult
+  - Check for duplicate wire labels
+  - Strict mode: Error if duplicates found
+  - Permissive mode: Warning + append suffix to make unique
+  - Write test for duplicate detection
+
+- `[ ]` **4.4: Multi-node net validation** **[NEW - 2025-10-17]**
+  - In `validator.py`, add function: `validate_node_count(nets)` → list of ValidationResult
+  - Check for nets with 3+ components
+  - Always warn (both modes): "Net connects 3+ components, consider splitting into segments"
+  - Write test for multi-node detection
+
+- `[ ]` **4.5: System code validation** **[NEW - 2025-10-17]**
+  - In `validator.py`, add function: `validate_system_codes(nets, components)` → list of ValidationResult
+  - Compare parsed system code vs inferred system code
+  - Always warn on mismatch (both modes): "Net system code doesn't match component analysis"
+  - Write test for system code validation
+
+- `[ ]` **4.6: Strict mode validation**
   - In `validator.py`, implement strict mode checks:
     - Error on missing FS/WL/BL
     - Error on missing Load/Rating
@@ -274,24 +357,26 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - Return error ValidationResults
   - Write test for strict mode errors
 
-- `[ ]` **4.3: Permissive mode defaults**
+- `[ ]` **4.7: Permissive mode defaults**
   - In `parser.py`, add function: `apply_permissive_defaults(components)`
   - Default missing coordinates to (-9, -9, -9)
   - Default missing Load/Rating to 0.0
   - Generate warnings for applied defaults
   - Write test for permissive defaults
 
-- `[ ]` **4.4: Warning system**
+- `[ ]` **4.8: Warning system**
   - In `wire_bom.py`, add `warnings` field to WireConnection
   - In `validator.py`, add function: `collect_warnings(bom)` → list of warnings
   - Include warnings in CSV output (Warnings column)
   - Write test for warning collection
 
-- `[ ]` **4.5: Integration test for fixture 06**
+- `[ ]` **4.9: Integration test for fixture 06**
   - Create `tests/test_fixture_06.py`
   - Test strict mode: Verify errors and no output
   - Test permissive mode: Verify BOM generated with warnings
   - Verify default coordinates (-9, -9, -9)
+  - Test net name validation
+  - Test duplicate label handling
   - Test passes ✓
 
 **Acceptance Criteria:**
@@ -299,8 +384,12 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 - Permissive mode produces BOM with warnings
 - Missing coords default to (-9, -9, -9)
 - Warnings appear in CSV output
+- Net name format validated
+- Duplicate labels detected
+- Multi-node nets flagged
+- System code mismatches warned
 
-**Commit:** "Complete Phase 4: Strict and permissive modes with validation"
+**Commit:** "Complete Phase 4: Strict and permissive modes with comprehensive validation"
 
 ---
 
@@ -335,9 +424,9 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
-## Phase 6: Test Fixture 05 - Multiple Independent Circuits
+## Phase 6: Test Fixture 05 - Multiple Independent Circuits **[REVISED - 2025-10-17]**
 
-**Goal:** Complete system code detection and wire colors
+**Goal:** Complete wire color assignment and system code inference (for validation)
 
 **Test Fixture:** `tests/fixtures/test_05_multiple_circuits.net`
 
@@ -351,19 +440,20 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - Source: Extract from `docs/references/aeroelectric_connection/` and `docs/ea_wire_marking_standard.md`
   - Write test verifying all data present
 
-- `[ ]` **6.2: Enhanced system code detection**
-  - In `wire_calculator.py`, expand `detect_system_code()`:
+- `[ ]` **6.2: Enhanced system code inference (for validation)** **[REVISED - 2025-10-17]**
+  - In `wire_calculator.py`, expand `infer_system_code_from_components()`:
     - Add component patterns: "RADIO", "NAV", "COM", "XPNDR" → "R"
     - Add: "GPS", "EFIS", "EMS", "AHRS" → "A"
     - Add: "FUEL", "OIL", "CHT", "EGT" → "E"
     - Net name analysis: "GND", "GROUND" → "G", "PWR", "POWER" → "P"
     - Pass-through analysis: Parse switch/fuse refs for keywords
     - Make extensible (configurable patterns in reference_data)
+  - **PURPOSE**: Validation comparison, not primary detection
   - Write comprehensive tests for all patterns
 
-- `[ ]` **6.3: Wire color assignment**
+- `[ ]` **6.3: Wire color assignment** **[REVISED - 2025-10-17]**
   - In `wire_calculator.py`, add function: `assign_wire_color(system_code)` → str
-  - Look up system_code in SYSTEM_COLOR_MAP
+  - Look up system_code (parsed from net name) in SYSTEM_COLOR_MAP
   - Default to "White" if not found, with warning
   - Write test for color assignment
 
@@ -394,9 +484,9 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
-## Phase 6.5: Comprehensive System Code Detection Enhancement
+## Phase 6.5: Comprehensive System Code Detection Enhancement **[REVISED - 2025-10-17]**
 
-**Goal:** Implement comprehensive system code detection based on 657CZ real-world component analysis
+**Goal:** Implement comprehensive system code inference for high-quality validation
 
 **Reference Documents:**
 - `docs/plans/system_code_analysis.md` - Initial analysis and component categorization
@@ -404,6 +494,14 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 **Background:**
 The Architect analyzed Tom's real 657CZ aircraft schematic and discovered that the current implementation will misclassify ~95% of components. The analysis identified 74 LRU (avionics) components and categorized all 163 components into 6 system codes.
+
+**DESIGN REVISION NOTE:**
+After the 2025-10-17 design revision, system code detection is NO LONGER the primary method for wire labeling. Instead:
+- **Primary**: Parse system codes from net names (SD-provided)
+- **Secondary**: Infer system codes from components for validation comparison
+
+**WHY THIS PHASE IS STILL VALUABLE:**
+The comprehensive keywords enable high-quality validation warnings. When the SD makes a mistake in net naming (e.g., labels a Radio net as Lighting), the inference engine will catch it and warn them. This helps the SD learn system codes and catch errors early.
 
 ### Tasks
 
