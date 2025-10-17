@@ -12,6 +12,7 @@ This document defines acronyms used throughout the ea_tools project.
 - **AWG** - American Wire Gauge - wire sizing standard
 - **TDD** - Test-Driven Development
 - **YAGNI** - You Aren't Gonna Need It
+- **SD** - Schematic Designer, the person who is designing the electrical system and is running KiCAD.  Also known as the Builder 
 
 ## Aircraft Coordinate System
 
