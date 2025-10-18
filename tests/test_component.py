@@ -61,18 +61,18 @@ def test_component_neither_load_nor_rating():
 
 def test_component_is_source_property():
     """Test is_source property for components"""
-    # J prefix with rating -> source
-    j1 = Component(ref='J1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=30.0)
-    assert j1.is_source
+    # Component with source field -> is source
+    bt1 = Component(ref='BT1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None, source=40.0)
+    assert bt1.is_source
 
-    # J prefix without rating -> not source
-    j2 = Component(ref='J2', fs=0.0, wl=0.0, bl=0.0, load=5.0, rating=None)
-    assert not j2.is_source
-
-    # Other prefix with rating -> not source
-    sw1 = Component(ref='SW1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=20.0)
+    # Component with rating but no source -> not source
+    sw1 = Component(ref='SW1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=20.0, source=None)
     assert not sw1.is_source
 
     # Load component -> not source
-    l1 = Component(ref='L1', fs=0.0, wl=0.0, bl=0.0, load=2.5, rating=None)
+    l1 = Component(ref='L1', fs=0.0, wl=0.0, bl=0.0, load=2.5, rating=None, source=None)
     assert not l1.is_source
+
+    # Component with no load/rating/source -> not source
+    c1 = Component(ref='C1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None, source=None)
+    assert not c1.is_source

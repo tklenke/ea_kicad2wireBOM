@@ -79,7 +79,7 @@ def parse_footprint_encoding(footprint_str: str) -> Optional[Dict[str, Any]]:
     """
     Parse footprint encoding from footprint field string.
 
-    Format: |(fs,wl,bl)<L|R><amps>
+    Format: |(fs,wl,bl)<L|R|S><amps>
     Example: "Connector:Conn_01x02|(100.0,25.0,0.0)R15"
 
     Args:
@@ -90,12 +90,12 @@ def parse_footprint_encoding(footprint_str: str) -> Optional[Dict[str, Any]]:
             - fs: Fuselage Station (float)
             - wl: Water Line (float)
             - bl: Butt Line (float)
-            - type: 'L' for Load or 'R' for Rating
+            - type: 'L' for Load, 'R' for Rating, 'S' for Source
             - amperage: Amperage value (float)
     """
-    # Pattern: |(fs,wl,bl)<L|R><amps>
+    # Pattern: |(fs,wl,bl)<L|R|S><amps>
     # Coordinates can be negative, amperage can be decimal
-    pattern = r'\|\(([-\d.]+),([-\d.]+),([-\d.]+)\)([LR])([-\d.]+)'
+    pattern = r'\|\(([-\d.]+),([-\d.]+),([-\d.]+)\)([LRS])([-\d.]+)'
 
     match = re.search(pattern, footprint_str)
     if not match:

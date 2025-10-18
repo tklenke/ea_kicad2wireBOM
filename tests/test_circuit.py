@@ -30,7 +30,7 @@ def test_circuit_dataclass_creation():
 
 def test_build_circuits_from_fixture_02():
     """Test building circuits from test_02 fixture with 3 components"""
-    fixture_path = Path(__file__).parent / "fixtures" / "test_02_simple_load.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_02.net"
     parsed = parse_netlist_file(fixture_path)
     components_raw = extract_components(parsed)
 
@@ -42,6 +42,7 @@ def test_build_circuits_from_fixture_02():
 
         load = encoding['amperage'] if encoding['type'] == 'L' else None
         rating = encoding['amperage'] if encoding['type'] == 'R' else None
+        source = encoding['amperage'] if encoding['type'] == 'S' else None
 
         comp = Component(
             ref=comp_raw['ref'],
@@ -49,7 +50,8 @@ def test_build_circuits_from_fixture_02():
             wl=encoding['wl'],
             bl=encoding['bl'],
             load=load,
-            rating=rating
+            rating=rating,
+            source=source
         )
         components.append(comp)
 
@@ -74,7 +76,7 @@ def test_build_circuits_from_fixture_02():
 
 def test_build_circuits_empty_components():
     """Test that build_circuits handles empty component list"""
-    fixture_path = Path(__file__).parent / "fixtures" / "test_02_simple_load.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_02.net"
     parsed = parse_netlist_file(fixture_path)
 
     circuits = build_circuits(parsed, [])

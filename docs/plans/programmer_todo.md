@@ -50,55 +50,46 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ### Tasks
 
-- `[ ]` **0.0: Remove old test fixture** **[NEW - 2025-10-17]**
-  - Remove or archive old `tests/fixtures/test_01_minimal_two_component.net` (if it exists)
-  - Wait for Tom to provide new version with net names following `/[SYSTEM][CIRCUIT][SEGMENT]` pattern
-  - DO NOT proceed with testing until new fixture is available
+- `[x]` **0.0: Remove old test fixture** **[NEW - 2025-10-17]**
+  - Old fixture files did not exist (codebase was ahead of documentation)
+  - Tom provided new fixtures: `test_fixture_01.net` and `test_fixture_02.net` with proper net names
 
-- `[ ]` **0.1: Project setup**
-  - Create `kicad2wireBOM/` package directory
-  - Create `tests/` directory structure
-  - Install kinparse dependency in requirements.txt
-  - Set up pytest configuration (pytest.ini)
-  - Create `kicad2wireBOM/__init__.py`
+- `[x]` **0.1: Project setup**
+  - Project structure already existed from previous work
+  - All directories, dependencies, and configurations in place
 
-- `[ ]` **0.2: Minimal netlist parser** **[REVISED - 2025-10-17]**
-  - Create `kicad2wireBOM/parser.py` with ABOUTME comments
-  - Write function: `parse_netlist_file(file_path)` → returns kinparse object
-  - Write function: `extract_nets(parsed_netlist)` → returns list of net dicts
-  - Extract: net code, net name, net class **[NEW: net class]**
-  - Parse net class attribute: `(net (code "N") (name "name") (class "value"))`
-  - Default to "Default" if class attribute missing
-  - Write basic test: `tests/test_parser.py`
+- `[x]` **0.2: Minimal netlist parser** **[REVISED - 2025-10-17]**
+  - ✓ `parser.py` exists with ABOUTME comments
+  - ✓ `parse_netlist_file()` implemented
+  - ✓ `extract_nets()` implemented with net class support
+  - ✓ Tests passing in `tests/test_parser.py`
 
-- `[ ]` **0.3: Component extraction**
-  - In `parser.py`, add function: `extract_components(parsed_netlist)`
-  - Extract component refs, footprint field (full string)
-  - Return list of component dicts
-  - Write test for component extraction
+- `[x]` **0.3: Component extraction**
+  - ✓ `extract_components()` implemented in `parser.py`
+  - ✓ Tests passing
 
-- `[ ]` **0.4: Footprint encoding parser**
-  - In `parser.py`, add function: `parse_footprint_encoding(footprint_str)`
-  - Regex to extract: `|(fs,wl,bl)<L|R><amps>`
-  - Parse coordinates (FS, WL, BL) as floats
-  - Parse type letter (L or R)
-  - Parse amperage value as float
-  - Return dict or None if no encoding
-  - Write test with various encoding formats
+- `[x]` **0.4: Footprint encoding parser** **[UPDATED - 2025-10-18]**
+  - ✓ `parse_footprint_encoding()` implemented
+  - ✓ **Added 'S' type support for Source** (was only L|R, now L|R|S)
+  - ✓ Parses coordinates (FS, WL, BL) as floats
+  - ✓ Parses type letter (L, R, or S)
+  - ✓ Parses amperage value as float
+  - ✓ Tests passing including 'S' type test
 
-- `[ ]` **0.5: Component data model**
-  - Create `kicad2wireBOM/component.py` with ABOUTME comments
-  - Define Component dataclass with fields: ref, fs, wl, bl, load, rating
-  - Add properties: `coordinates`, `is_load`, `is_passthrough`
-  - Write test: `tests/test_component.py`
+- `[x]` **0.5: Component data model** **[UPDATED - 2025-10-18]**
+  - ✓ `component.py` exists with ABOUTME comments
+  - ✓ Component dataclass defined
+  - ✓ **Added `source` field for Source components**
+  - ✓ **Updated `is_source` property to check source field** (not just J prefix + rating)
+  - ✓ Properties: `coordinates`, `is_load`, `is_passthrough`, `is_source`
+  - ✓ Tests passing in `tests/test_component.py`
 
-- `[ ]` **0.6: Spike integration test** **[REVISED - 2025-10-17]**
-  - Create `tests/test_spike.py`
-  - Parse `test_01_minimal_two_component.net` (must use NEW version with `/P1A` net name)
-  - Extract and print all data to console
-  - Verify: net names (pattern match), net codes, component refs, coordinates, load/rating values
-  - Parse net name with regex: `/([A-Z])-?(\d+)-?([A-Z])/`
-  - Manual verification (visual inspection of console output)
+- `[x]` **0.6: Spike integration test** **[UPDATED - 2025-10-18]**
+  - ✓ `tests/test_spike.py` exists and passing
+  - ✓ Parses `test_fixture_01.net` with new net names (`/P1A`, `/G1A`)
+  - ✓ Extracts and verifies all data
+  - ✓ Verifies Source type components (BT1 with S40)
+  - ✓ Manual verification complete
 
 **Acceptance Criteria:**
 - Can parse KiCad netlist ✓
@@ -142,16 +133,16 @@ This document tracks implementation progress for kicad2wireBOM following the inc
   - Check both voltage drop (5%) and ampacity constraints
   - Write tests for gauge calculation
 
-- `[ ]` **1.4: Net name parsing and system code extraction** **[REVISED - 2025-10-17]**
-  - In `wire_calculator.py`, add function: `parse_net_name(net_name)` → dict or None
-  - Regex pattern: `/([A-Z])-?(\d+)-?([A-Z])/`
-  - Captures: system_code, circuit_id, segment_letter
-  - Handles: `/L1A`, `/L-1-A`, `/L001A`, `/L-001-A`
-  - Returns: `{'system': 'L', 'circuit': '1', 'segment': 'A'}` or None if no match
-  - Add function: `infer_system_code_from_components(components, net_name)` → str or None
-  - Basic inference patterns: "LIGHT" → "L", "BAT" → "P", "GND" in name → "G"
-  - Used for validation comparison
-  - Write tests for both parsing and inference
+- `[x]` **1.4: Net name parsing and system code extraction** **[COMPLETED - 2025-10-18]**
+  - ✓ `parse_net_name()` implemented in `wire_calculator.py`
+  - ✓ Regex pattern: `/([A-Z])-?(\d+)-?([A-Z])/`
+  - ✓ Handles: `/L1A`, `/L-1-A`, `/L001A`, `/L-001-A`, `/P1A`, `/G1A`
+  - ✓ Returns: `{'system': 'L', 'circuit': '1', 'segment': 'A'}` or None
+  - ✓ `infer_system_code_from_components()` implemented for validation
+  - ✓ Basic inference patterns: "LIGHT" → "L", "BAT" → "P", "GND" → "G", etc.
+  - ✓ `detect_system_code()` updated to use net name parsing as PRIMARY method
+  - ✓ Component inference as FALLBACK if net name parsing fails
+  - ✓ Comprehensive tests passing (7 new tests added)
 
 - `[ ]` **1.5: Wire label generation** **[REVISED - 2025-10-17]**
   - In `wire_calculator.py`, add function: `format_wire_label(system_code, circuit_id, segment_letter, format='compact')` → str

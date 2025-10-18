@@ -30,7 +30,7 @@ def test_existing_destination_prompts_for_confirmation():
     """Test that existing destination file prompts user before overwriting"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use real test fixture
-        fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+        fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
         strSourceFile = os.path.join(tmpdir, "source.net")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
@@ -56,7 +56,7 @@ def test_force_flag_skips_overwrite_confirmation():
     """Test that -f flag overwrites without prompting"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use real test fixture
-        fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+        fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
         strSourceFile = os.path.join(tmpdir, "source.net")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
@@ -78,7 +78,7 @@ def test_successful_processing_with_new_destination():
     """Test that processing succeeds with non-existent destination file"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use real test fixture
-        fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+        fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
         strSourceFile = os.path.join(tmpdir, "source.net")
         strDestFile = os.path.join(tmpdir, "output.csv")
 

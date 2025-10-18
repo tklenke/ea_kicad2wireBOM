@@ -3,7 +3,15 @@
 
 import pytest
 from kicad2wireBOM.component import Component
-from kicad2wireBOM.wire_calculator import calculate_length, calculate_voltage_drop, determine_min_gauge, detect_system_code, generate_wire_label
+from kicad2wireBOM.wire_calculator import (
+    calculate_length,
+    calculate_voltage_drop,
+    determine_min_gauge,
+    parse_net_name,
+    infer_system_code_from_components,
+    detect_system_code,
+    generate_wire_label
+)
 
 
 def test_calculate_length_simple():
@@ -118,6 +126,62 @@ def test_determine_min_gauge_returns_smallest_suitable():
 
     # Should be AWG 20 (smallest wire that meets requirements)
     assert min_gauge == 20
+
+
+def test_parse_net_name_compact():
+    """Test parsing net name in compact format (no dashes)"""
+    result = parse_net_name('/P1A')
+    assert result is not None
+    assert result['system'] == 'P'
+    assert result['circuit'] == '1'
+    assert result['segment'] == 'A'
+
+
+def test_parse_net_name_dashed():
+    """Test parsing net name with dashes"""
+    result = parse_net_name('/L-105-B')
+    assert result is not None
+    assert result['system'] == 'L'
+    assert result['circuit'] == '105'
+    assert result['segment'] == 'B'
+
+
+def test_parse_net_name_leading_zeros():
+    """Test parsing net name with leading zeros"""
+    result = parse_net_name('/G-001-A')
+    assert result is not None
+    assert result['system'] == 'G'
+    assert result['circuit'] == '001'
+    assert result['segment'] == 'A'
+
+
+def test_parse_net_name_mixed():
+    """Test parsing net name with partial dashes"""
+    result = parse_net_name('/R12-C')
+    assert result is not None
+    assert result['system'] == 'R'
+    assert result['circuit'] == '12'
+    assert result['segment'] == 'C'
+
+
+def test_parse_net_name_invalid():
+    """Test parsing invalid net names returns None"""
+    assert parse_net_name('Net-(J1-Pin_1)') is None
+    assert parse_net_name('/P1') is None  # Missing segment
+    assert parse_net_name('/PA') is None  # Missing circuit
+    assert parse_net_name('P1A') is None  # Missing leading slash
+    assert parse_net_name('') is None
+
+
+def test_detect_system_code_from_net_name():
+    """Test system code detection from properly formatted net names"""
+    comp = Component(ref='C1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None, source=None)
+
+    # Should detect from net name (primary method)
+    assert detect_system_code([comp], '/P1A') == 'P'
+    assert detect_system_code([comp], '/L-105-B') == 'L'
+    assert detect_system_code([comp], '/G1A') == 'G'
+    assert detect_system_code([comp], '/R3C') == 'R'
 
 
 def test_detect_system_code_light():

@@ -17,6 +17,7 @@ class Component:
         bl: Butt Line coordinate (inches)
         load: Load current in amps (for consuming devices), None if not a load
         rating: Current rating in amps (for pass-through devices), None if not pass-through
+        source: Source capacity in amps (for power sources), None if not a source
         value: Component value field from schematic (e.g., "Landing Light")
         desc: Component description field from schematic
     """
@@ -26,6 +27,7 @@ class Component:
     bl: float
     load: Optional[float]
     rating: Optional[float]
+    source: Optional[float] = None
     value: str = ''
     desc: str = ''
 
@@ -46,5 +48,5 @@ class Component:
 
     @property
     def is_source(self) -> bool:
-        """Return True if component is a source (connector with J prefix and rating)"""
-        return self.ref.startswith('J') and self.rating is not None
+        """Return True if component has a source value (power source)"""
+        return self.source is not None

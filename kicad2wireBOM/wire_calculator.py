@@ -1,7 +1,8 @@
 # ABOUTME: Wire calculation functions for length, gauge, and specifications
 # ABOUTME: Implements Manhattan distance, voltage drop, and ampacity calculations
 
-from typing import List
+from typing import List, Optional, Dict
+import re
 from kicad2wireBOM.component import Component
 from kicad2wireBOM.reference_data import WIRE_RESISTANCE, WIRE_AMPACITY, STANDARD_AWG_SIZES, DEFAULT_CONFIG
 
@@ -95,33 +96,69 @@ def determine_min_gauge(current: float, length_inches: float, system_voltage: fl
         return min(STANDARD_AWG_SIZES)  # Return largest wire as fallback
 
 
-def detect_system_code(components: List[Component], net_name: str) -> str:
-    """
-    Detect system code based on component fields.
+def parse_net_name(net_name: str) -> Optional[Dict[str, str]]:
+    r"""
+    Parse net name to extract system code, circuit ID, and segment letter.
 
-    Search priority (Tom's requirement):
+    Pattern: /([A-Z])-?(\d+)-?([A-Z])/
+    Handles: /L1A, /L-1-A, /L001A, /L-001-A, /P1A, /G1A
+
+    Args:
+        net_name: Net name from KiCad netlist (e.g., "/P1A", "/L-105-B")
+
+    Returns:
+        Dict with 'system', 'circuit', 'segment' keys, or None if no match
+        Example: {'system': 'L', 'circuit': '1', 'segment': 'A'}
+    """
+    # Pattern: /([A-Z])-?(\d+)-?([A-Z])
+    # - Starts with /
+    # - System code: single uppercase letter
+    # - Optional dash
+    # - Circuit ID: one or more digits
+    # - Optional dash
+    # - Segment letter: single uppercase letter
+    pattern = r'/([A-Z])-?(\d+)-?([A-Z])'
+
+    match = re.search(pattern, net_name)
+    if not match:
+        return None
+
+    return {
+        'system': match.group(1),
+        'circuit': match.group(2),
+        'segment': match.group(3)
+    }
+
+
+def infer_system_code_from_components(components: List[Component], net_name: str) -> Optional[str]:
+    """
+    Infer system code from component analysis for validation purposes.
+
+    This is used to validate the SD's system code choices from net names.
+    Search priority:
     1. Component description fields
     2. Component value fields
     3. Component reference designators
-    4. Net name
-    Default → "U" (Unknown)
+    4. Net name keywords
 
     Patterns:
     - LIGHT, LAMP, LED → "L" (Lighting)
     - BAT, BATT, BATTERY, PWR, POWER → "P" (Power)
     - RADIO, NAV, COM, XPNDR → "R" (Radio/Nav/Comm)
+    - GND, GROUND → "G" (Ground)
 
     Args:
         components: List of components in the circuit
         net_name: Name of the net
 
     Returns:
-        Single-letter system code
+        Single-letter system code or None if unknown
     """
     # Define keyword patterns for each system
     lighting_keywords = ['LIGHT', 'LAMP', 'LED']
     power_keywords = ['BAT', 'BATT', 'BATTERY', 'PWR', 'POWER']
     radio_keywords = ['RADIO', 'NAV', 'COM', 'XPNDR']
+    ground_keywords = ['GND', 'GROUND']
 
     # 1. Check description fields first (highest priority)
     for comp in components:
@@ -132,6 +169,8 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
             return 'P'
         if any(keyword in desc_upper for keyword in radio_keywords):
             return 'R'
+        if any(keyword in desc_upper for keyword in ground_keywords):
+            return 'G'
 
     # 2. Check value fields
     for comp in components:
@@ -142,6 +181,8 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
             return 'P'
         if any(keyword in value_upper for keyword in radio_keywords):
             return 'R'
+        if any(keyword in value_upper for keyword in ground_keywords):
+            return 'G'
 
     # 3. Check reference designators
     for comp in components:
@@ -159,6 +200,8 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
             return 'P'
         if any(keyword in ref_upper for keyword in radio_keywords):
             return 'R'
+        if any(keyword in ref_upper for keyword in ground_keywords):
+            return 'G'
 
     # 4. Check net name (lowest priority)
     net_name_upper = net_name.upper()
@@ -168,6 +211,37 @@ def detect_system_code(components: List[Component], net_name: str) -> str:
         return 'P'
     if any(keyword in net_name_upper for keyword in radio_keywords):
         return 'R'
+    if any(keyword in net_name_upper for keyword in ground_keywords):
+        return 'G'
+
+    # Unknown
+    return None
+
+
+def detect_system_code(components: List[Component], net_name: str) -> str:
+    """
+    Detect system code from net name (primary) or component analysis (fallback).
+
+    Per Design Revision 2025-10-17:
+    - PRIMARY: Parse system code from net name (e.g., /P1A → 'P')
+    - FALLBACK: Infer from component analysis if net name parsing fails
+
+    Args:
+        components: List of components in the circuit
+        net_name: Name of the net (e.g., "/P1A", "/L-105-B")
+
+    Returns:
+        Single-letter system code (default 'U' for Unknown)
+    """
+    # PRIMARY: Try to parse system code from net name
+    parsed = parse_net_name(net_name)
+    if parsed:
+        return parsed['system']
+
+    # FALLBACK: Infer from component analysis
+    inferred = infer_system_code_from_components(components, net_name)
+    if inferred:
+        return inferred
 
     # Default to Unknown
     return 'U'

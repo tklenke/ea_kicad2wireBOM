@@ -14,11 +14,11 @@ from kicad2wireBOM.reference_data import DEFAULT_CONFIG
 
 def test_fixture_02_integration(tmp_path):
     """
-    Integration test for fixture 02: J1 -> SW1 -> L1 circuit.
+    Integration test for fixture 02: BT1 -> SW1 -> L1 circuit.
 
     Validates complete pipeline for 3-component circuit:
     1. Parse netlist
-    2. Extract components with coordinates
+    2. Extract components with coordinates (including Source type)
     3. Build circuits from nets
     4. Determine signal flow
     5. Create wire segments (2 segments: A and B)
@@ -26,7 +26,7 @@ def test_fixture_02_integration(tmp_path):
     7. Write CSV output
     """
     # 1. Parse netlist
-    fixture_path = Path(__file__).parent / "fixtures" / "test_02_simple_load.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_02.net"
     parsed = parse_netlist_file(fixture_path)
     components_raw = extract_components(parsed)
 
@@ -40,6 +40,7 @@ def test_fixture_02_integration(tmp_path):
 
         load = encoding['amperage'] if encoding['type'] == 'L' else None
         rating = encoding['amperage'] if encoding['type'] == 'R' else None
+        source = encoding['amperage'] if encoding['type'] == 'S' else None
 
         comp = Component(
             ref=comp_raw['ref'],
@@ -47,18 +48,19 @@ def test_fixture_02_integration(tmp_path):
             wl=encoding['wl'],
             bl=encoding['bl'],
             load=load,
-            rating=rating
+            rating=rating,
+            source=source
         )
         components.append(comp)
 
     # Verify we have the expected components
-    j1 = next(c for c in components if c.ref == 'J1')
+    bt1 = next(c for c in components if c.ref == 'BT1')
     sw1 = next(c for c in components if c.ref == 'SW1')
     l1 = next(c for c in components if c.ref == 'L1')
 
-    assert j1.rating == 30.0
+    assert bt1.source == 40.0
     assert sw1.rating == 20.0
-    assert l1.load == 2.5
+    assert l1.load == 3.5
 
     # 3. Build circuits from nets
     circuits = build_circuits(parsed, components)
@@ -71,13 +73,13 @@ def test_fixture_02_integration(tmp_path):
 
     # For the integration test, we'll manually combine them into one circuit
     # as the Phase 2 implementation focuses on individual net processing
-    all_components = [j1, sw1, l1]
+    all_components = [bt1, sw1, l1]
 
     # 4. Determine signal flow
     ordered_components = determine_signal_flow(all_components)
 
     assert len(ordered_components) == 3
-    assert ordered_components[0].ref == 'J1'  # Source
+    assert ordered_components[0].ref == 'BT1'  # Source
     assert ordered_components[1].ref == 'SW1'  # Passthrough
     assert ordered_components[2].ref == 'L1'  # Load
 
@@ -93,10 +95,10 @@ def test_fixture_02_integration(tmp_path):
 
     assert len(segments) == 2
 
-    # Segment A: J1 -> SW1
+    # Segment A: BT1 -> SW1
     seg_a = segments[0]
     assert seg_a.wire_label == 'L-105-A'
-    assert seg_a.from_ref == 'J1'
+    assert seg_a.from_ref == 'BT1'
     assert seg_a.to_ref == 'SW1'
     assert seg_a.wire_gauge in [12, 16, 18, 20]
     assert seg_a.length > 0
@@ -109,7 +111,7 @@ def test_fixture_02_integration(tmp_path):
     assert seg_b.wire_gauge in [12, 16, 18, 20]
     assert seg_b.length > 0
 
-    # Both should be sized for 2.5A load
+    # Both should be sized for 3.5A load
     assert seg_a.wire_gauge == seg_b.wire_gauge
 
     # 7. Create BOM and write CSV output
@@ -135,7 +137,7 @@ def test_fixture_02_integration(tmp_path):
     # Verify first row
     row_a = rows[0]
     assert row_a['Wire Label'] == 'L-105-A'
-    assert row_a['From'] == 'J1'
+    assert row_a['From'] == 'BT1'
     assert row_a['To'] == 'SW1'
     assert int(row_a['Wire Gauge']) in [12, 16, 18, 20]
 

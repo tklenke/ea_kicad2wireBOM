@@ -8,7 +8,7 @@ from kicad2wireBOM.parser import parse_netlist_file, extract_nets, extract_compo
 
 def test_parse_netlist_file():
     """Test that parse_netlist_file returns a kinparse object"""
-    fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
     result = parse_netlist_file(fixture_path)
 
     # kinparse returns a ParseResults object with various sections
@@ -19,7 +19,7 @@ def test_parse_netlist_file():
 
 def test_extract_nets():
     """Test extraction of net information from parsed netlist"""
-    fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
     parsed = parse_netlist_file(fixture_path)
     nets = extract_nets(parsed)
 
@@ -40,13 +40,13 @@ def test_extract_nets():
 
 def test_extract_components():
     """Test extraction of component information from parsed netlist"""
-    fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
     parsed = parse_netlist_file(fixture_path)
     components = extract_components(parsed)
 
     # Should extract list of component dicts
     assert isinstance(components, list)
-    assert len(components) == 2  # J1 and SW1
+    assert len(components) == 2  # BT1 and L1
 
     # Each component should have ref and footprint
     comp = components[0]
@@ -55,16 +55,16 @@ def test_extract_components():
 
     # Verify expected components
     refs = [c['ref'] for c in components]
-    assert 'J1' in refs
-    assert 'SW1' in refs
+    assert 'BT1' in refs
+    assert 'L1' in refs
 
     # Verify footprint field contains full string including encoding
-    j1 = next(c for c in components if c['ref'] == 'J1')
-    assert '|(100.0,25.0,0.0)R15' in j1['footprint']
+    bt1 = next(c for c in components if c['ref'] == 'BT1')
+    assert '|(10,0,0)S40' in bt1['footprint']
 
 
 def test_parse_footprint_encoding():
-    """Test parsing of footprint encoding format: |(fs,wl,bl)<L|R><amps>"""
+    """Test parsing of footprint encoding format: |(fs,wl,bl)<L|R|S><amps>"""
 
     # Test Load type (L)
     result = parse_footprint_encoding("Connector:Conn_01x02|(100.0,25.0,0.0)L15")
@@ -83,6 +83,15 @@ def test_parse_footprint_encoding():
     assert result['bl'] == 0.0
     assert result['type'] == 'R'
     assert result['amperage'] == 20.0
+
+    # Test Source type (S)
+    result = parse_footprint_encoding("Device:Battery|(10,0,0)S40")
+    assert result is not None
+    assert result['fs'] == 10.0
+    assert result['wl'] == 0.0
+    assert result['bl'] == 0.0
+    assert result['type'] == 'S'
+    assert result['amperage'] == 40.0
 
     # Test with negative coordinates
     result = parse_footprint_encoding("SomeFootprint|(10.5,-20.3,5.0)L5")

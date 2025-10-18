@@ -13,11 +13,11 @@ from kicad2wireBOM.reference_data import DEFAULT_CONFIG
 
 def test_fixture_01_integration(tmp_path):
     """
-    Integration test for fixture 01: J1 to SW1 minimal circuit.
+    Integration test for fixture 01: BT1 to L1 minimal circuit.
 
     Validates complete pipeline:
     1. Parse netlist
-    2. Extract components with coordinates
+    2. Extract components with coordinates (including Source type)
     3. Calculate wire length
     4. Determine wire gauge
     5. Detect system code
@@ -26,7 +26,7 @@ def test_fixture_01_integration(tmp_path):
     8. Write CSV output
     """
     # 1. Parse netlist
-    fixture_path = Path(__file__).parent / "fixtures" / "test_01_minimal_two_component.net"
+    fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
     parsed = parse_netlist_file(fixture_path)
     components_raw = extract_components(parsed)
 
@@ -40,6 +40,7 @@ def test_fixture_01_integration(tmp_path):
 
         load = encoding['amperage'] if encoding['type'] == 'L' else None
         rating = encoding['amperage'] if encoding['type'] == 'R' else None
+        source = encoding['amperage'] if encoding['type'] == 'S' else None
 
         comp = Component(
             ref=comp_raw['ref'],
@@ -47,52 +48,53 @@ def test_fixture_01_integration(tmp_path):
             wl=encoding['wl'],
             bl=encoding['bl'],
             load=load,
-            rating=rating
+            rating=rating,
+            source=source
         )
         components.append(comp)
 
-    j1 = next(c for c in components if c.ref == 'J1')
-    sw1 = next(c for c in components if c.ref == 'SW1')
+    bt1 = next(c for c in components if c.ref == 'BT1')
+    l1 = next(c for c in components if c.ref == 'L1')
 
     # 3. Calculate wire length
     slack = DEFAULT_CONFIG['slack_length']
-    length = calculate_length(j1, sw1, slack)
+    length = calculate_length(bt1, l1, slack)
 
-    # J1: (100.0, 25.0, 0.0), SW1: (150.0, 30.0, 0.0)
-    # Manhattan: |150-100| + |30-25| + |0-0| = 55
-    # Plus slack: 55 + 24 = 79
-    assert length == 79.0
+    # BT1: (10, 0, 0), L1: (20, 0, 0)
+    # Manhattan: |20-10| + |0-0| + |0-0| = 10
+    # Plus slack: 10 + 24 = 34
+    assert length == 34.0
 
     # 4. Determine wire gauge
-    # Both are Rating type, so use the smaller rating (15A from J1)
-    current = min(j1.rating, sw1.rating)
+    # L1 is a load drawing 1.5A
+    current = l1.load
     system_voltage = DEFAULT_CONFIG['system_voltage']
     wire_gauge = determine_min_gauge(current, length, system_voltage)
 
-    # Should select appropriate gauge for 15A over 79 inches
-    assert wire_gauge in [12, 16, 18, 20]
+    # Should select appropriate gauge for 1.5A over 34 inches
+    assert wire_gauge in [18, 20, 22]
 
     # 5. Detect system code
-    system_code = detect_system_code([j1, sw1], "Net-(J1-Pin_1)")
+    system_code = detect_system_code([bt1, l1], "/P1A")
 
-    # No clear lighting/power indicators, should be Unknown
-    assert system_code == 'U'
+    # Should detect Power system from net name /P1A
+    assert system_code == 'P'
 
     # 6. Generate wire label
     wire_label = generate_wire_label(system_code, '1', 'A')
-    assert wire_label == 'U-1-A'
+    assert wire_label == 'P-1-A'
 
     # 7. Create BOM
     bom = WireBOM(config=DEFAULT_CONFIG)
     wire = WireConnection(
         wire_label=wire_label,
-        from_ref='J1',
-        to_ref='SW1',
+        from_ref='BT1',
+        to_ref='L1',
         wire_gauge=wire_gauge,
-        wire_color='White',  # Default for Unknown
+        wire_color='Red',  # Power system color
         length=length,
         wire_type='Standard',
-        warnings=['Unknown system code - manual verification required'] if system_code == 'U' else []
+        warnings=[]
     )
     bom.add_wire(wire)
 
@@ -113,17 +115,15 @@ def test_fixture_01_integration(tmp_path):
     row = rows[0]
 
     # Verify all fields
-    assert row['Wire Label'] == 'U-1-A'
-    assert row['From'] == 'J1'
-    assert row['To'] == 'SW1'
-    assert int(row['Wire Gauge']) in [12, 16, 18, 20]
-    assert row['Wire Color'] == 'White'
-    assert float(row['Length']) == 79.0
+    assert row['Wire Label'] == 'P-1-A'
+    assert row['From'] == 'BT1'
+    assert row['To'] == 'L1'
+    assert int(row['Wire Gauge']) in [18, 20, 22]
+    assert row['Wire Color'] == 'Red'
+    assert float(row['Length']) == 34.0
     assert row['Wire Type'] == 'Standard'
-    assert 'Unknown system code' in row['Warnings']
 
     print("\n=== FIXTURE 01 INTEGRATION TEST PASSED ===")
     print(f"Generated wire: {row['Wire Label']}")
     print(f"  From {row['From']} to {row['To']}")
     print(f"  AWG {row['Wire Gauge']}, {row['Wire Color']}, {row['Length']} inches")
-    print(f"  Warnings: {row['Warnings']}")
