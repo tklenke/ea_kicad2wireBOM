@@ -9,226 +9,126 @@ This document tracks items that need Tom's input, decisions, or action before im
 
 ---
 
+## CRITICAL: Architecture Change - Schematic-Based Parsing
+
+**Date**: 2025-10-18
+**Status**: `[x]` Complete - Design rewritten
+
+**Decision**: Parse KiCAD schematic files (`.kicad_sch`) instead of netlists (`.net`)
+
+**Rationale**:
+- Netlists collapse wires into nets based on electrical connectivity
+- Wire harness manufacturing needs physical wire-level granularity
+- Two wires connecting to same terminal = electrically one net, but physically two distinct wires
+- Schematic preserves wire segment information before net consolidation
+
+**Impact**:
+- Previous netlist-based design archived to `docs/archive/`
+- New design specification created: `docs/plans/kicad2wireBOM_design.md` v2.0
+- Different parsing approach: S-expressions vs XML
+- Different data model: Wire-centric vs net-centric
+- Label association by spatial proximity
+
+**Old Documents Archived**:
+- `docs/archive/kicad2wireBOM_design.md` (v1.0, v1.1 - netlist-based)
+- `docs/archive/incremental_implementation_plan.md`
+- `docs/archive/programmer_todo.md`
+- `docs/archive/system_code_analysis.md`
+- `docs/archive/keyword_extraction_from_657CZ.md`
+- `docs/archive/architect_todo.md`
+
+---
+
 ## Review and Feedback
 
 ### Design Document Review
 
 **Files to review:**
-- `docs/plans/kicad2wireBOM_design.md` - Complete design specification
-- `docs/plans/implementation/README.md` - Implementation plan overview
-- `docs/plans/implementation/00_overview_and_contracts.md` - Module interface contracts
-- `docs/plans/implementation/01_reference_data.md` through `10_cli_and_integration.md` - Individual work packages
+- `docs/plans/kicad2wireBOM_design.md` v2.0 - NEW schematic-based design
 
-**Action:** `[~]` In progress - Claude reviewing documents one by one
+**Status:** `[ ]` Awaiting Tom's review
 
-**Format:** Use `@@TOM:` or `@@Tom:` markers for questions/corrections
+**Action:** Review the new schematic-based design document
 
-**Example:**
-```markdown
-The system uses default wire type M22759/16.
-@@TOM: Should we also support M22759/32 as an option?
-```
+**Key Sections to Focus On**:
+1. **Section 0** - "Critical Architectural Decision" - Why we changed from netlists
+2. **Section 2.3** - Wire segment labels and circuit identification
+3. **Section 3** - Schematic data extraction (s-expression parsing)
+4. **Section 3.4** - Label association by proximity
+5. **Section 4** - Wire connection analysis
+6. **Section 14** - Programmer implementation notes
 
-**When complete:** Let Claude know so comments can be extracted and addressed
-
----
-
-## Test Fixtures / Example Netlists
-
-### KiCad Netlist Fixtures with Footprint Encoding **[REVISED - 2025-10-17]**
-
-We need actual KiCad v9 netlists with footprint-encoded component data for testing.
-
-**CRITICAL REQUIREMENT:** All net names MUST follow the pattern `/[SYSTEM][CIRCUIT][SEGMENT]`
-- Example: `/L1A` = Lighting system, circuit 1, segment A
-- Example: `/P12B` = Power system, circuit 12, segment B
-- Example: `/G1A` = Ground system, circuit 1, segment A
-
-**Naming Convention:** `test_<complexity>_<description>.net`
-
-**Required Fixtures:**
-
-#### 1. Minimal Two-Component Circuit
-**Filename:** `tests/fixtures/test_01_minimal_two_component.net`
-
-**Status:** `[~]` Needs revision - Old version exists, needs SD-defined net names
-
-**Description:** Simplest possible circuit - connector to switch
-
-**Components:**
-- J1: Connector at (100.0, 25.0, 0.0), rated 15A
-  - Footprint: `Connector:Conn_01x02|(100.0,25.0,0.0)R15`
-- SW1: Switch at (150.0, 30.0, 0.0), rated 20A
-  - Footprint: `Button_Switch_THT:SW_PUSH_6mm|(150.0,30.0,0.0)R20`
-
-**Nets:** **[REVISED]**
-- `/P1A`: Connects J1 pin 1 to SW1 pin 1 (Power system, circuit 1, segment A)
-
-**Purpose:** Basic parser validation, simplest case, net name parsing
+**Questions to Consider**:
+- Does the schematic-based approach address your wire granularity problem?
+- Is the label-to-wire proximity association approach sound?
+- Are there any schematic features we're missing?
+- Does the footprint encoding format still make sense?
 
 ---
 
-#### 2. Simple Load Circuit (Multi-Segment with Shielded Wire)
-**Filename:** `tests/fixtures/test_02_simple_load.net`
+## Test Fixtures / Example Schematics
 
-**Status:** `[x]` Complete - Using `docs/input/input_01_simple_lamp.net`
+### KiCAD Schematic Fixtures **[UPDATED FOR SCHEMATIC APPROACH]**
 
-**Description:** Complete battery → switch → lamp circuit with ground return and shielded wire
+We need actual KiCAD `.kicad_sch` files (NOT `.net` netlists) for testing.
 
-**Components:**
-- BT1: Battery at (10, 0, 0), "B" type, 40A rating
-  - Footprint: `|(10,0,0)B40`
-- SW1: Switch "Landing Light" at (100.0, 25.0, 0.0), rated 20A
-  - Footprint: `|(100.0,25.0,0.0)R20`
-- L1: Lamp at (20, 0, 0), drawing 3.5A
-  - Footprint: `|(20,0,0)L3.5`
+**Good News**: You already have three test fixtures!
+- `tests/fixtures/test_01_fixture.kicad_sch` ✓
+- `tests/fixtures/test_02_fixture.kicad_sch` ✓
+- `tests/fixtures/test_03_fixture.kicad_sch` ✓
 
-**Nets:**
-- `/L1A` (class "Default"): BT1(+) to SW1 (Lighting system, circuit 1, segment A)
-- `/L1B` (class "Shielded,Default"): SW1 to L1 (Lighting system, circuit 1, segment B) **[SHIELDED]**
-- `/G1A` (class "Default"): L1 to BT1(-) (Ground return)
+**Status:** `[x]` Basic fixtures exist
 
-**Purpose:**
-- Multi-segment circuits (A, B segments)
-- Load calculations (3.5A lamp load)
-- Shielded wire handling (net class parsing)
-- Ground return circuit
-- System code validation (L vs G)
+**Review Needed**: `[ ]` Verify fixtures have required data
 
-**Special:** Tests net class "Shielded" → should set wire type to "M22759/16 (Shielded)"
+**Required Elements in Each Fixture**:
+1. **Wire segments** with `(wire ...)` blocks
+2. **Labels** on wires with circuit IDs (e.g., "P1A", "G1A", "L2B")
+3. **Components** with Footprint field encoding: `|(fs,wl,bl)<type><amps>`
+4. **Component pins** with connections to wire endpoints
+5. **(Optional)** Junctions showing where multiple wires meet
 
----
+**Analysis from Existing Fixtures**:
 
-#### 3. Multi-Node Circuit Warning Test **[REVISED - 2025-10-17]**
-**Filename:** `tests/fixtures/test_03_multi_node_warning.net`
+From my analysis of your three test fixtures:
 
-**Status:** `[ ]` Not created
+**test_01_fixture.kicad_sch**:
+- ✓ 6 wire segments with UUIDs
+- ✓ 2 labels: "G1A", "P1A"
+- ✓ Components: BT1 (battery), L1 (lamp)
+- ✓ Footprint encoding: `|(10,0,0)S40`, `|(20,0,0)L1.5`
+- ⚠ Need to verify labels are positioned close to wires
 
-**Description:** Net with 3+ components to trigger multi-node warning
+**test_02_fixture.kicad_sch**:
+- ✓ 7 wire segments
+- ✓ 3 labels: "L2B", "L2A", "G1A"
+- ✓ Components: BT1 (battery), L1 (lamp), SW1 (switch)
+- ✓ Footprint encoding present
+- ✓ More complex routing
 
-**Components:**
-- J1: Hub connector at (100.0, 25.0, 0.0), rated 30A
-- SW1: Spoke 1 at (150.0, 25.0, 0.0), rated 10A
-- SW2: Spoke 2 at (100.0, 50.0, 0.0), rated 10A
+**test_03_fixture.kicad_sch**:
+- ✓ 4 wire segments
+- ✓ 1 junction at (144.78, 86.36)
+- ✓ 2 labels: "P1A", "P2A"
+- ✓ Components: SW1, SW2 (switches), J1 (connector)
+- ✓ **Perfect example of multi-wire junction** - exactly the problem we're solving!
 
-**Nets:** **[REVISED]**
-- `/P1A`: Connects J1, SW1, and SW2 (3 components - should trigger warning)
+**Action Items**:
 
-**Purpose:** Test multi-node net validation warning (3+ components on single net)
-**Expected Warning:** "Net /P1A connects 3 components. Consider splitting into separate nets with different segment letters."
+1. **Verify Label Placement** `[ ]`
+   - Open each schematic in KiCAD
+   - Verify labels are visually close to their intended wire segments
+   - Default threshold is 10mm - labels should be within ~10mm of wire
 
----
+2. **Add Missing Fixtures** `[ ]` (Optional - start with existing three)
+   - Missing labels fixture (test permissive mode)
+   - Orphaned labels fixture (label far from any wire)
+   - Complex multi-circuit fixture
 
-#### 4. System Code Validation Test **[NEW - 2025-10-17]**
-**Filename:** `tests/fixtures/test_04_system_code_validation.net`
-
-**Status:** `[ ]` Not created
-
-**Description:** Net with mismatched system code to test validation warning
-
-**Components:**
-- J1: Connector at (50.0, 20.0, 0.0), rated 30A
-  - Footprint: `Connector:Conn_01x02|(50.0,20.0,0.0)R30`
-- RADIO1: Radio at (120.0, 30.0, 0.0), drawing 8A
-  - Value: "Garmin GTR 20"
-  - Footprint: `LRU:LRU_2x|(120.0,30.0,0.0)L8`
-
-**Nets:**
-- `/L1A`: Connects J1 to RADIO1 (Net marked as Lighting but component is Radio)
-
-**Purpose:** Test system code validation - parsed "L" vs inferred "R"
-**Expected Warning:** "Net /L1A system code 'L' (Lighting) doesn't match component analysis. Components suggest 'R' (Radio)."
-
----
-
-#### 5. Multiple Independent Circuits
-**Filename:** `tests/fixtures/test_05_multiple_circuits.net`
-
-**Status:** `[ ]` Not created
-
-**Description:** Multiple separate circuits with different system codes
-
-**Components:**
-- J1: Main connector (source) at (50.0, 20.0, 0.0), rated 30A
-- LIGHT1: Landing light at (200.0, 40.0, 15.0), 5A load
-- LIGHT2: Nav light at (180.0, 35.0, -15.0), 2A load
-- RADIO1: Radio at (120.0, 30.0, -5.0), 8A load
-- GND_BUS: Ground bus at (60.0, 15.0, 0.0)
-
-**Nets:** **[REVISED - SD defines system codes]**
-- `/L1A`: Landing light circuit (J1→LIGHT1)
-- `/L2A`: Nav light circuit (J1→LIGHT2)
-- `/R1A`: Radio circuit (J1→RADIO1)
-- `/G1A`: Ground return (LIGHT1→GND_BUS)
-- `/G2A`: Ground return (LIGHT2→GND_BUS)
-- `/G3A`: Ground return (RADIO1→GND_BUS)
-
-**Purpose:** Test multiple systems (L, R, G), system code parsing from net names, BOM grouping/sorting by system
-
----
-
-#### 6. Missing/Incomplete Data (Permissive Mode Test)
-**Filename:** `tests/fixtures/test_06_missing_data.net`
-
-**Status:** `[ ]` Not created
-
-**Description:** Components with missing footprint encodings AND bad net name
-
-**Components:**
-- J1: Has encoding - `Connector:Conn_01x02|(100.0,25.0,0.0)R15`
-- SW1: Missing encoding - `Button_Switch_THT:SW_PUSH_6mm` (no `|` data)
-- LIGHT1: Missing encoding - `LED_THT:LED_D5.0mm`
-
-**Nets:** **[REVISED - include bad net name test]**
-- `Net-(J1-Pin_1)`: Auto-generated KiCad net name (doesn't follow `/[SYSTEM][CIRCUIT][SEGMENT]` pattern)
-
-**Purpose:** Test permissive mode (defaults, warnings), strict mode (errors), net name format validation, fallback label generation
-
----
-
-#### 7. Negative Coordinates
-**Filename:** `tests/fixtures/test_07_negative_coords.net`
-
-**Status:** `[ ]` Not created
-
-**Description:** Components with negative BL (left side of aircraft)
-
-**Components:**
-- J1: Centerline at (100.0, 25.0, 0.0), rated 30A
-- LIGHT_L: Left wing light at (200.0, 35.0, -50.0), 2.5A load (negative BL)
-- LIGHT_R: Right wing light at (200.0, 35.0, 50.0), 2.5A load (positive BL)
-
-**Nets:** **[REVISED]**
-- `/L1A`: J1→LIGHT_L
-- `/L2A`: J1→LIGHT_R
-
-**Purpose:** Test negative coordinate handling (BL=-50.0), symmetrical left/right wire calculations
-
----
-
-#### 8. Realistic Complex System
-**Filename:** `tests/fixtures/test_08_realistic_system.net`
-
-**Status:** `[ ]` Not created
-
-**Description:** Full aircraft electrical panel subset (10-15 components, 8-12 circuits)
-
-**Suggested Components:**
-- BAT1: Main battery
-- ALT1: Alternator
-- MSTR_SW: Master switch
-- Multiple circuit breakers (CB1, CB2, CB3...)
-- Multiple loads (lights, avionics, instruments)
-- Ground bus
-- Various wire lengths (short and long runs)
-- Mix of system codes (P, L, R, G, E, K, M)
-
-**Nets:** **[REVISED - must follow naming pattern]**
-- All nets must use `/[SYSTEM][CIRCUIT][SEGMENT]` format
-- Example: `/P1A`, `/P1B`, `/L1A`, `/R1A`, `/G1A`, etc.
-- Multi-segment circuits split into separate nets: `/L1A`, `/L1B`, `/L1C`
-
-**Purpose:** Integration testing, realistic calculations, end-to-end validation, label format options (compact vs dashes)
+3. **Document Expected Outputs** `[ ]`
+   - For each test fixture, create expected BOM output
+   - CSV format with expected wire list
+   - Use for validation during testing
 
 ---
 
@@ -242,7 +142,17 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 
 **Task:** Extract resistance values (ohms per foot) for AWG sizes 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
 
-**Note:** Can be done by programmer during implementation (Task 1.1 in reference_data package), but having it ready would speed things up.
+**Format Needed**:
+```python
+WIRE_RESISTANCE = {
+    22: 0.016,  # ohms per foot
+    20: 0.010,
+    18: 0.0064,
+    # ... etc
+}
+```
+
+**Note:** Programmer can extract during implementation, but having it ready speeds things up.
 
 ---
 
@@ -254,7 +164,17 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 
 **Task:** Extract max current ratings (amps) for AWG sizes 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
 
-**Note:** Use **bundled wire** values (conservative), not free-air values
+**Important:** Use **bundled wire** values (conservative), not free-air values
+
+**Format Needed**:
+```python
+WIRE_AMPACITY = {
+    22: 5,    # max amps
+    20: 7.5,
+    18: 10,
+    # ... etc
+}
+```
 
 ---
 
@@ -262,21 +182,18 @@ We need actual KiCad v9 netlists with footprint-encoded component data for testi
 
 **Status:** `[x]` Complete
 
-**Source:** `docs/ea_wire_marking_standard.md` - Section 3 now includes standard wire color mappings by system code
+**Source:** `docs/ea_wire_marking_standard.md` - Section 3 includes standard wire color mappings
 
-**Task:** Create complete mapping of system letter codes → wire colors
-
-**Example format:**
+**Format**:
+```python
+SYSTEM_COLOR_MAP = {
+    'L': 'White',     # Lighting
+    'P': 'Red',       # Power
+    'G': 'Black',     # Ground
+    'R': 'Gray',      # Radio/Nav
+    # ... etc
+}
 ```
-L (Lighting) → White
-P (Power) → Red
-G (Ground) → Black
-R (Radio/Nav) → Gray
-A (Avionics) → Blue
-... etc
-```
-
-**Note:** Can be done by programmer, but having it verified by Tom ensures correctness
 
 ---
 
@@ -288,15 +205,13 @@ A (Avionics) → Blue
 
 **Decision:** Use M22759/16 as the default wire specification (most common aircraft wire)
 
-**Confirmed:** M22759/16 is the standard default, can be overridden via configuration if needed
-
 ---
 
 ### Default System Voltage
 
 **Status:** `[x]` Decided: 12V (configurable via CLI)
 
-**Confirmed:** 12V default is fine, users can override with `--system-voltage` flag
+**Confirmed:** 12V default, users can override with `--system-voltage` flag
 
 ---
 
@@ -308,110 +223,221 @@ A (Avionics) → Blue
 
 ---
 
-### Voltage Drop Percentage
+### Label Association Distance Threshold
 
-**Status:** `[x]` Decided: 5% global default (configurable via CLI)
+**Status:** `[ ]` Needs decision
 
-**Decision:** Voltage drop percentage will be a global configuration setting, not per-circuit
+**Question:** What maximum distance (in mm) should we allow between a label and wire for association?
 
-**Confirmed:** Single global value (default 5%) can be overridden with `--max-voltage-drop` flag
+**Suggestion:** 10mm (about 0.4 inches in schematic)
+
+**Considerations**:
+- Too small: Labels might not associate with intended wires
+- Too large: Labels might associate with wrong wires
+- Visual inspection: How far do you typically place labels from wires in your schematics?
+
+**Action:** Tom checks test fixtures, suggests appropriate threshold
 
 ---
 
-## KiCad Schematic Templates
+## S-Expression Parsing Library Choice
 
-### Reusable Component Template
+### Python Library for Parsing KiCAD Schematics
+
+**Status:** `[ ]` Needs decision
+
+**Options**:
+
+**Option 1: sexpdata library**
+- Pros: Mature, well-tested, simple API
+- Cons: External dependency
+- PyPI: https://pypi.org/project/sexpdata/
+- Usage: `import sexpdata; data = sexpdata.loads(text)`
+
+**Option 2: Custom parser**
+- Pros: No external dependencies, full control, learning experience
+- Cons: More work, potential bugs, need to handle edge cases
+- Complexity: Moderate (s-expressions are simpler than XML)
+
+**Option 3: PyParsing-based**
+- Pros: Powerful parsing framework, good error messages
+- Cons: Heavier dependency, steeper learning curve
+- PyPI: https://pypi.org/project/pyparsing/
+
+**Recommendation:** Option 1 (sexpdata) for speed and reliability
+
+**Decision Needed:** Tom prefers minimal dependencies or quick implementation?
+
+---
+
+## Pin Position Calculation Strategy
+
+### How Precisely Do We Need Component Pin Positions?
+
+**Status:** `[ ]` Needs decision
+
+**Context**: Wire endpoints connect to component pins. To find connections, we need to know pin positions in the schematic.
+
+**Challenge**: Component pins are defined in symbol libraries with relative positions. Symbol instances in schematics have:
+- Position: `(at x y rotation)`
+- Rotation can be 0, 90, 180, 270 degrees
+- Sometimes mirroring
+
+**Options**:
+
+**Option 1: Use component position only** (SIMPLE)
+- Treat all pins of a component as being at component center
+- Wire endpoint matching: "Does this wire end near this component?"
+- Pros: Simple, fast, works for most cases
+- Cons: Can't distinguish between pins on same component
+
+**Option 2: Calculate exact pin positions** (PRECISE)
+- Parse symbol library to get pin relative positions
+- Apply rotation/mirroring transforms
+- Calculate absolute pin positions in schematic
+- Pros: Precise pin-to-pin connections
+- Cons: Complex, requires parsing symbol libraries, rotation math
+
+**Option 3: Hybrid approach** (PRAGMATIC)
+- Use component position for initial matching
+- If component has multiple pins, look up pin numbers from schematic
+- Match wire endpoints to pin numbers without needing exact positions
+- Pros: Good accuracy without complex math
+- Cons: Still needs some pin data extraction
+
+**Recommendation:** Start with Option 1, add precision later if needed
+
+**Question for Tom**:
+- Do you have components with multiple wires connecting to different pins? (e.g., multi-pin connectors)
+- If so, do labels distinguish which pin? (e.g., "J1-1" vs "J1-2" in component ref)
+
+---
+
+## Hierarchical Schematic Support
+
+### Do You Use KiCAD Hierarchical Sheets?
+
+**Status:** `[ ]` Needs information
+
+**Question:** Are your aircraft electrical schematics:
+- **Flat**: Single `.kicad_sch` file with all circuits
+- **Hierarchical**: Multiple sheets with interconnections
+
+**Impact**:
+- Flat schematics: Can implement immediately
+- Hierarchical: Need to defer this feature to later phase
+
+**Current Design**: Assumes flat schematics, notes hierarchical as future enhancement
+
+**Action:** Tom confirms schematic structure
+
+---
+
+## Test Fixture Documentation
+
+### Expected BOM Outputs for Test Fixtures
+
+**Status:** `[ ]` Not created
+
+**Need:** For each test fixture, create expected BOM output for validation
+
+**Format:** CSV files showing expected wire list
+
+**Example for test_01_fixture.kicad_sch**:
+```csv
+Wire Label,From,To,Wire Gauge,Wire Color,Length,Wire Type,Warnings
+P1A,BT1-1,L1-1,22 AWG,Red,46 inches,M22759/16,
+G1A,L1-2,BT1-2,22 AWG,Black,46 inches,M22759/16,
+```
+
+**Calculation**:
+- BT1 at (10,0,0), L1 at (20,0,0)
+- Manhattan distance: |20-10| + |0-0| + |0-0| = 10 inches
+- + 24" slack = 34 inches
+- (Need to recalculate based on actual fixture coordinates)
+
+**Action:** Tom creates expected output CSVs for test fixtures OR defers to programmer
+
+---
+
+## Schematic Creation Guidelines
+
+### Reusable Component Templates
 
 **Status:** `[ ]` Optional but helpful
 
-**Description:** A KiCad schematic template with pre-configured footprint encoding examples that Tom can copy/paste
+**Description:** Pre-configured KiCAD components with footprint encoding examples
 
-**Would include:**
-- Example connector with footprint: `Connector:Conn_01x02|(100.0,25.0,0.0)R15`
-- Example switch with footprint: `Button_Switch_THT:SW_PUSH_6mm|(150.0,30.0,0.0)R20`
-- Example load with footprint: `LED_THT:LED_D5.0mm|(200.0,35.0,10.0)L2.5`
-- Instructions in schematic notes field
+**Would Include**:
+- Battery: `|(10,0,0)B40`
+- Switch: `|(100,25,0)R20`
+- Lamp: `|(200,35,10)L2.5`
+- Connector: `|(50,20,0)R15`
+- Instructions as schematic text notes
 
 **Benefit:** Speeds up creating test fixtures and real schematics
 
----
-
-## Architectural Analysis
-
-### System Code Detection Analysis
-
-**Status:** `[x]` Complete
-
-**Deliverables:**
-- `docs/plans/system_code_analysis.md` - Preliminary analysis of component categorization
-- `docs/plans/keyword_extraction_from_657CZ.md` - Comprehensive keyword extraction from real 657CZ schematic
-
-**Summary:**
-- Analyzed all 163 components from 657CZ schematic
-- Categorized components into 6 system codes (L, P, R, E, K, M)
-- Extracted comprehensive keyword lists for detection
-- Identified 74 LRU (avionics) components requiring Garmin-specific keywords
-- Documented critical gaps in programmer's current implementation
-- Ready-to-implement keyword lists provided for programmer
+**Action:** Tom decides if this would be useful
 
 ---
 
-## Documentation Clarifications
+## Implementation Approach
 
-### Anything Unclear in Plans?
+### Test-Driven Development Checkpoints
 
-**Status:** `[x]` Complete - No @@TOM flags remain in design documents
+**Status:** `[ ]` Planning needed
 
-**Action:** Review documents and mark any:
-- Unclear explanations
-- Missing information
-- Technical questions
-- Implementation concerns
-- Timeline concerns
+**Question:** Should implementation proceed in strict TDD phases, or more exploratory?
 
-**Result:** All @@TOM flags resolved
+**Option A: Strict TDD**
+- Write failing test first, always
+- Implement minimal code to pass
+- Refactor, repeat
+- Pros: High confidence, good coverage
+- Cons: Slower initial progress
 
----
+**Option B: Spike-then-test**
+- Explore with proof-of-concept code
+- Once approach validated, write tests and refactor
+- Pros: Faster initial exploration
+- Cons: Risk of untested code
 
-## Design Revisions
+**Option C: Hybrid**
+- Core algorithms: Strict TDD (wire calculations, label association)
+- Parsing/I/O: Spike-then-test (rapid prototyping)
+- Pros: Balance speed and quality
 
-### Design Revision 1.1 - Net Name Parsing (2025-10-17)
+**Recommendation:** Option C (Hybrid)
 
-**Status:** `[x]` Complete
-
-**Decision:** SD embeds wire marking codes directly in net names (e.g., `/L1A`, `/P12B`, `/G1A`)
-
-**Rationale:**
-- Analysis of `docs/input/input_01_simple_lamp.net` revealed SD names nets with complete system/circuit/segment codes
-- More reliable and deterministic than inferring from components
-- Simpler implementation path
-- Puts semantic control with SD (where it belongs)
-
-**Design Changes:**
-- **Section 2.3**: Rewritten for net name parsing as primary, component analysis as validation
-- **Section 3.4**: Wire labels extracted from net names (not generated from inferred data)
-- **Section 4.2**: Added 4 new validation checks (net format, duplicate labels, multi-node, system code validation)
-- **Section 6**: Added `--label-format` CLI flag (compact/dashes)
-
-**Documents Updated:**
-- `docs/plans/kicad2wireBOM_design.md` - Design Revision History + `[REVISED]` markers
-- `docs/plans/programmer_todo.md` - Revised Phase 1, 4, 6, 6.5 tasks with revision notices
-- `claude/roles/architect.md` - Added `[REVISED]` methodology
-- `claude/roles/programmer.md` - Added Circle K protocol for design inconsistencies
-
-**Impact on Programmer:**
-- Simpler primary path (parse vs infer)
-- Component analysis still needed for validation quality checks
-- Phase 6.5 comprehensive keywords still valuable for catching SD mistakes
-- No work wasted - all analysis repurposed for validation
+**Action:** Tom's preference?
 
 ---
 
 ## Next Steps
 
-1. **Tom reviews revised documents** - Check `[REVISED]` sections for any concerns
-2. **Tom creates test fixtures** - Generate KiCad netlists with net names following `/[SYSTEM][CIRCUIT][SEGMENT]` pattern
-3. **Begin implementation** - Switch to Programmer role and start with Phase 0
+1. **Tom reviews new schematic-based design** `[ ]`
+   - Check `docs/plans/kicad2wireBOM_design.md` v2.0
+   - Flag any concerns or questions
+
+2. **Tom verifies test fixtures** `[ ]`
+   - Open in KiCAD to check label placement
+   - Confirm they have all required elements
+
+3. **Tom decides on open questions** `[ ]`
+   - Label distance threshold
+   - S-expression parser library choice
+   - Pin position calculation strategy
+   - Hierarchical schematic support (now or later)
+
+4. **Architect creates implementation plan** `[ ]`
+   - Break design into work packages
+   - Sequence tasks for TDD approach
+   - Create programmer guidance document
+
+5. **Switch to Programmer role and begin implementation** `[ ]`
+   - Start with s-expression parsing foundation
+   - Build up test fixtures and data models
+   - Implement wire extraction and label association
 
 ---
 
@@ -419,6 +445,6 @@ A (Avionics) → Blue
 
 - This document will be updated as items are completed or new needs identified
 - Check boxes `[x]` indicate completion
+- Tilde `[~]` indicates in progress
 - Add new items to appropriate sections as they come up
-- Use `@@TOM:` markers in this document too if you have questions about what's needed
-- **Watch for `[REVISED - YYYY-MM-DD]` markers** in design docs to track changes
+- **MAJOR CHANGE**: Netlist-based approach abandoned, schematic-based approach adopted

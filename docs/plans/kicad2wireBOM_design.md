@@ -4,44 +4,30 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 1.1
-**Date**: 2025-10-17
-**Status**: Design Revised - Ready for Implementation
+**Version**: 2.0 (Schematic-Based Architecture)
+**Date**: 2025-10-18
+**Status**: Design - Ready for Implementation
 
 ---
 
-## Design Revision History
+## Critical Architectural Decision
 
-### Revision 1.1 - 2025-10-17: Net Name Parsing
+**INPUT FORMAT CHANGE**: This tool parses **KiCAD schematic files** (`.kicad_sch`), NOT netlists (`.net`).
 
-**WHY**: Analysis of real KiCad netlist (`docs/input/input_01_simple_lamp.net`) revealed that the Schematic Designer (SD) embeds complete wire marking codes directly in net names (e.g., `/L1A`, `/G1A`). This is more reliable and simpler than inferring system codes from component analysis.
+**Why**: KiCAD netlists collapse wires into nets based on electrical connectivity. For wire harness manufacturing, we need **physical wire-level granularity**:
+- Two wires connecting to the same terminal are electrically one net
+- But they are physically two distinct wires requiring separate labels, lengths, and BOM entries
+- The schematic preserves wire segment information before net consolidation
 
-**WHAT CHANGED**:
-1. **Section 2.3 (Circuit Identification)** - Complete rewrite
-   - PRIMARY: Parse system code, circuit ID, segment ID from net names
-   - VALIDATION: Use component analysis to validate SD's system code choices
-   - Net name parsing replaces complex inference algorithm
+**Example Problem**:
+```
+Schematic shows:
+  Wire 1 (labeled P1A): SW1 pin 1 → TB1 pin 1
+  Wire 2 (labeled P2A): SW2 pin 1 → TB1 pin 1
 
-2. **Section 3.4 (Wire Label Generation)** - Simplified
-   - Parse labels from net names instead of generating from inferred data
-   - Support flexible input formats (`/L1A`, `/L-1-A`, `/L001A`)
-   - Standardize output format via CLI flag (default: compact `L1A`)
-
-3. **Section 4.2 (Validation Checks)** - Enhanced
-   - Added: Net name format validation
-   - Added: Duplicate wire label detection (error in strict mode)
-   - Added: Multi-node net warning (3+ components unexpected for wire-to-wire)
-   - Added: System code validation (compare parsed vs inferred)
-
-4. **Module 5 (wire_calculator.py)** - Purpose shift
-   - System code detection becomes validation aid, not primary detection
-   - Phase 6.5 comprehensive keywords still valuable for quality checks
-
-**IMPACT ON IMPLEMENTATION**:
-- Simpler, more reliable primary path (parse vs infer)
-- Component analysis still needed for validation and quality assurance
-- Better error messages to help SD catch mistakes
-- Puts semantic control where it belongs (with the SD)
+Netlist collapses to:
+  Net "Power_1": {SW1-1, SW2-1, TB1-1}  ← Wire-level info LOST
+```
 
 ---
 
@@ -49,20 +35,23 @@
 
 ### 1.1 Purpose
 
-Generate comprehensive wire Bills of Materials (BOMs) from KiCad schematic netlists for experimental aircraft electrical systems. The tool automates wire specification by combining schematic connectivity data with physical installation details (aircraft coordinates, component loads/ratings) to calculate appropriate wire gauges, estimate lengths, assign colors per standards, and produce builder-ready documentation.
+Generate comprehensive wire Bills of Materials (BOMs) from KiCAD schematic files for experimental aircraft electrical systems. The tool automates wire specification by parsing individual wire segments with their labels and calculating appropriate wire gauges, lengths, and colors based on physical installation requirements.
 
 ### 1.2 Key Innovation
 
-Rather than requiring manual wire specification, the tool leverages custom fields added to KiCad schematics (component locations in aircraft coordinates, electrical loads/ratings, optional wire specifications) to automatically calculate:
+**Wire-Level Parsing**: Unlike PCB tools that work with nets, kicad2wireBOM extracts individual wire segments from schematics, preserving:
+- Wire labels placed directly on wire segments in the schematic
+- Physical routing between component pins
+- Multiple wires on the same electrical net (common at junction points)
 
-- **Wire lengths** using Manhattan distance between fuselage station/waterline/buttline coordinates
-- **Minimum wire gauge** based on current load, wire length, and voltage drop constraints (5% max)
-- **Wire colors** per system code following experimental aircraft standards
-- **EAWMS-compliant wire labels** (SYSTEM-CIRCUIT-SEGMENT format)
+**Custom Footprint Encoding**: Physical installation data is encoded in component Footprint fields:
+- Aircraft coordinates (FS/WL/BL) for wire length calculations
+- Electrical load/rating for wire gauge calculations
+- Source type identification for special handling
 
 ### 1.3 Target Users
 
-Experimental aircraft builders using KiCad for electrical system design who need accurate wire harness BOMs for construction and regulatory compliance.
+Experimental aircraft builders using KiCAD for electrical system design who need accurate wire harness BOMs for construction and regulatory compliance.
 
 ### 1.4 Core Philosophy
 
@@ -76,134 +65,321 @@ Default to strict validation (encourage complete schematics) with permissive mod
 
 ### 2.1 Primary Input
 
-KiCad netlist file (`.net` or `.xml` format, v9+) exported from schematic.
+KiCAD schematic file (`.kicad_sch` format, KiCAD v8+) in s-expression format.
+
+**Format**: Lisp-style s-expressions, human-readable text format.
+
+**File Structure**:
+```lisp
+(kicad_sch
+  (version 20250114)
+  (generator "eeschema")
+  (lib_symbols ...)
+  (wire ...)
+  (wire ...)
+  (label ...)
+  (junction ...)
+  (symbol ...)
+)
+```
 
 ### 2.2 Component Data Encoding in Footprint Field
 
 Component physical location and electrical characteristics are encoded in the **Footprint** field using a compact, human-readable format.
 
-**Format**: `<original_footprint>|(<fs>,<wl>,<bl>)<L|R><amps>`
+**Format**: `<original_footprint>|(<fs>,<wl>,<bl>)<type><value>`
 
 **Components**:
-- **Original Footprint**: Standard KiCad footprint designation
+- **Original Footprint**: Standard KiCAD footprint designation (optional, can be empty)
 - **Delimiter**: `|` separates footprint from encoded data
 - **Coordinates**: `(fs,wl,bl)` - aircraft coordinates in inches (decimals supported, negative values for left side)
   - **FS** (Fuselage Station): Longitudinal position from datum (+forward/-aft)
   - **WL** (Waterline): Vertical position from datum (+above/-below)
   - **BL** (Buttline): Lateral position from centerline (+right/-left)
-- **Type Letter**: Single character indicating electrical role
+- **Type Letter**: Single character indicating electrical role/type
   - **L**: Load - component consumes power (lights, radios, motors)
   - **R**: Rating - pass-through device capacity (switches, breakers, connectors)
-- **Amperage**: Numeric value for load or rating
+  - **S**: Source - power source (battery, alternator, generator)
+  - **B**: Battery - special source type (for topology detection)
+- **Value**: Numeric amperage value for load/rating/source capacity
 
 **Examples**:
 ```
-LED_THT:LED_D5.0mm|(200.0,35.5,10.0)L2.5
+|(200.0,35.5,10.0)L2.5
   → Light at FS=200.0, WL=35.5, BL=10.0, drawing 2.5A
 
-Button_Switch_THT:SW_PUSH_6mm|(150.0,30.0,0.0)R20
+|(150.0,30.0,0.0)R20
   → Switch at FS=150.0, WL=30.0, BL=0.0 (centerline), rated 20A
 
-Connector:Conn_01x02|(100.5,25.0,-12.5)R15
-  → Connector at FS=100.5, WL=25.0, BL=-12.5 (left side), rated 15A
+|(10,0,0)B40
+  → Battery at FS=10, WL=0, BL=0, 40A capacity
 
-Package_SO:SOIC-8|(100.5,25.0,-5.0)L3.2
-  → Avionics unit at FS=100.5, WL=25.0, BL=-5.0, drawing 3.2A
+|(0,10,0)L2.1
+  → Load at FS=0, WL=10, BL=0, drawing 2.1A
 ```
 
 **Parsing**:
-- Regex pattern: `\|([-\d.]+),([-\d.]+),([-\d.]+)\)([LR])([\d.]+)`
-- Missing encoding (no `|` present): Component has no data (handled in permissive mode)
+- Regex pattern: `\|([-\d.]+),([-\d.]+),([-\d.]+)\)([LRSB])([\d.]+)`
+- Missing encoding (no `|` present): Component has no physical data (handled in permissive mode)
 - Invalid encoding: Parse error with helpful message
 
 **Design Rationale**:
 - **Compact**: ~20 chars for typical encoding
 - **Human-typeable**: Minimal special characters, logical grouping
 - **Unambiguous**: Simple regex parsing, clear structure
-- **KiCad-compatible**: Footprint field exports reliably to netlist
+- **KiCAD-compatible**: Footprint field exports reliably to schematic
 
-### 2.3 Circuit Identification Strategy **[REVISED - 2025-10-17]**
+### 2.3 Wire Segment Labels
 
-The Schematic Designer (SD) embeds complete wire marking information directly in KiCad net names following the EAWMS format: `[SYSTEM][CIRCUIT][SEGMENT]`
+Wires in the schematic have labels attached that identify the circuit per EAWMS (Experimental Aircraft Wire Marking Standard) format.
 
-#### Net Name Format Requirements
+**Label Format**: Circuit IDs following pattern `[SYSTEM][CIRCUIT][SEGMENT]`
 
-**Expected Format**: `/[SYSTEM][CIRCUIT][SEGMENT]`
-- `SYSTEM`: Single letter system code (L, P, G, R, E, K, M, W, A, F, U)
-- `CIRCUIT`: Numeric circuit identifier (1, 2, 3... or 001, 002...)
-- `SEGMENT`: Single letter segment identifier (A, B, C...)
+**Components**:
+- **SYSTEM**: Single letter system code (L, P, G, R, E, K, M, W, A, F, U)
+- **CIRCUIT**: Numeric circuit identifier (1, 2, 3... or 001, 002...)
+- **SEGMENT**: Single letter segment identifier (A, B, C...)
 
 **Examples**:
-- `/L1A` → Lighting system, circuit 1, segment A
-- `/P12B` → Power system, circuit 12, segment B
-- `/G001A` → Ground system, circuit 001, segment A
-- `/L-105-A` → Lighting system, circuit 105, segment A (with separators)
+- `L1A` → Lighting system, circuit 1, segment A
+- `P12B` → Power system, circuit 12, segment B
+- `G1A` → Ground system, circuit 1, segment A
 
-#### Parsing Strategy
+**Label Placement**:
+- Labels are placed on wire segments in the KiCAD schematic
+- A wire segment may have multiple labels (circuit ID + notes)
+- Only labels matching circuit ID pattern are used for wire marking
+- Other labels are treated as notes/comments
 
-**1. Primary Detection (Parse from Net Name)**:
-- Regex pattern: `/([A-Z])-?(\d+)-?([A-Z])/`
-  - Matches: `/L1A`, `/L-1-A`, `/L001A`, `/L-001-A`
-  - Captures: system code, circuit number, segment letter
-- If net name matches pattern:
-  - Extract system code, circuit ID, segment ID
-  - Validate system code against known codes (L, P, G, R, E, K, M, W, A, F, U)
-  - Warning if system code unrecognized, continue processing
+**Label Association**:
+- Tool calculates spatial proximity between label positions and wire segments
+- Label is associated with closest wire segment (within threshold)
+- Distance threshold: 10mm in schematic units (configurable)
 
-**2. Validation (Component Analysis)**:
-- For each net, analyze connected components to infer expected system code
-- Compare inferred system code vs parsed system code
-- If mismatch: Generate validation warning with suggestion
-- Algorithm (in priority order):
-  1. **Load components** (highest priority): Check ref/desc/value for system type
-     - "LIGHT", "LAMP", "LED" → "L" (Lighting)
-     - "RADIO", "NAV", "COM", "XPNDR", "GPS", "EFIS", "ADAHRS", "AUDIO" → "R" (Radio/Nav/Comm)
-     - "FUEL", "OIL", "CHT", "EGT", "SENSOR", "SENDER" → "E" (Engine Instruments)
-     - "IGNITION", "MAGNETO", "FUEL_PUMP", "PRIMER" → "K" (Engine Control)
-     - "BREAKER", "ALT", "BATTERY", "CONTACTOR", "RELAY", "FUSE" → "P" (Power)
-  2. **Net name substring analysis**:
-     - Contains "GND", "GROUND", "RTN", "RETURN" → "G" (Ground)
-  3. **Fallback**: Unable to infer (validation skip for this net)
-
-**3. Fallback (Unparseable Net Names)**:
-- If net name doesn't match EAWMS pattern (e.g., `Net-(BT1-Pin_1)`):
-  - **Strict mode**: Error with suggestion to rename net
-  - **Permissive mode**:
-    - Attempt component analysis to infer system code
-    - Use inferred system code + KiCad net code + "A" as fallback label
-    - Example: Components suggest "L" → fallback label "L-{net_code}-A"
-    - Warning: "Net name doesn't follow EAWMS format, using inferred label"
-
-**System Code Mapping** (extensible):
-- Implemented as configurable lookup tables in `reference_data.py`
-- Used for validation, not primary detection
-- Easy to add new component type patterns and keywords
-- Pattern matching is case-insensitive substring search
-- See Phase 6.5 in programmer_todo.md for comprehensive keyword lists
-
-#### Wire Label Generation
-
-**Output Format** (configurable via `--label-format` CLI flag):
-- `compact` (default): `L1A` (no separators)
-- `dashes`: `L-1-A` (dash separators)
-- Format standardizes output regardless of input variation
-
-**Net Name and Net Class**:
-- Capture `net_name` field from KiCad netlist → document in engineering mode
-- Capture `net_class` field from KiCad netlist → include if value is NOT "Default"
-- These fields provide context but are not used for wire marking
-
-### 2.4 Field Export Verification
-
-**CONFIRMED**: KiCad v9 reliably exports the full Footprint field content to netlists, including embedded data after the `|` delimiter. The delimiter characters `,|{}[]#!` all export correctly.
-
-**Validation**: Implementation plan includes test fixtures with actual KiCad netlists containing footprint-encoded data to verify parsing logic.
+**Multiple Labels on Same Wire**:
+- If multiple circuit ID labels on one wire: Warning (ambiguous)
+- If circuit ID + note labels: Use circuit ID, ignore notes
+- Circuit ID detection: Regex pattern `^[A-Z]\d+[A-Z]$` (compact) or `^[A-Z]-\d+-[A-Z]$` (dashes)
 
 ---
 
-## 3. Calculation Logic
+## 3. Schematic Data Extraction
 
-### 3.1 Wire Length Calculation
+### 3.1 S-Expression Parsing
+
+**Library**: Use Python `sexpdata` library or write custom recursive parser.
+
+**Parsing Strategy**:
+1. Read `.kicad_sch` file as text
+2. Parse s-expressions into nested Python data structures
+3. Extract relevant top-level elements: `wire`, `label`, `junction`, `symbol`
+
+**Data Structures**:
+```python
+# Wire segment from schematic
+(wire
+  (pts
+    (xy 83.82 52.07)
+    (xy 92.71 52.07)
+  )
+  (stroke (width 0) (type default))
+  (uuid "0ed4cddd-6a3a-4c19-b7d6-4bb20dd7ebbd")
+)
+
+# Label from schematic
+(label "G1A"
+  (at 107.95 60.96 0)
+  (effects (font (size 1.27 1.27)) (justify left bottom))
+  (uuid "4c75cce0-2c4a-4ce2-be43-76f5f6f3eb7b")
+)
+
+# Junction point (where multiple wires meet)
+(junction
+  (at 144.78 86.36)
+  (diameter 0)
+  (color 0 0 0 0)
+  (uuid "51609a84-6043-4d22-9ef7-15e32380f2f0")
+)
+
+# Component symbol with pins
+(symbol
+  (lib_id "Device:Battery")
+  (at 95.25 77.47 90)
+  (uuid "028846d9-a6f8-4001-a8de-13fb5c844305")
+  (property "Reference" "BT1" ...)
+  (property "Footprint" "|(10,0,0)S40" ...)
+  (pin "1" (uuid "..."))
+  (pin "2" (uuid "..."))
+)
+```
+
+### 3.2 Wire Segment Extraction
+
+**Parse Wire Elements**:
+- Extract all `(wire ...)` blocks from schematic
+- Each wire has:
+  - Start point: `(xy x1 y1)`
+  - End point: `(xy x2 y2)`
+  - UUID: Unique identifier
+  - Stroke properties (optional)
+
+**Create WireSegment Objects**:
+```python
+@dataclass
+class WireSegment:
+    uuid: str
+    start_point: tuple[float, float]  # (x, y) in mm
+    end_point: tuple[float, float]    # (x, y) in mm
+    labels: list[str]                 # Associated labels
+    connected_pins: list[ComponentPin] # Pins at endpoints
+    circuit_id: str | None            # Extracted circuit ID
+```
+
+**Endpoint Detection**:
+- Wire endpoints may connect to:
+  - Component pins (match pin coordinates)
+  - Other wire segments (match coordinates)
+  - Junction points (match junction coordinates)
+
+### 3.3 Component and Pin Extraction
+
+**Parse Symbol Elements**:
+- Extract all `(symbol ...)` blocks from schematic
+- Each symbol has:
+  - Reference designator: `(property "Reference" "BT1" ...)`
+  - Footprint with encoded data: `(property "Footprint" "|(10,0,0)S40" ...)`
+  - Position: `(at x y rotation)`
+  - Pin definitions with numbers
+
+**Create Component Objects**:
+```python
+@dataclass
+class Component:
+    ref: str                    # Reference designator (e.g., "BT1", "SW1")
+    fs: float                   # Fuselage station (inches)
+    wl: float                   # Waterline (inches)
+    bl: float                   # Buttline (inches)
+    source_type: str | None     # "L", "R", "S", "B"
+    amperage: float             # Load, rating, or source capacity
+    schematic_position: tuple[float, float]  # (x, y) in schematic
+    pins: list[ComponentPin]    # Pin locations and connections
+```
+
+**Pin Position Calculation**:
+- Pin definitions in symbol library give relative positions
+- Symbol instance gives component position and rotation
+- Calculate absolute pin positions: `pin_abs = component_pos + rotate(pin_relative, component_rotation)`
+
+**Create ComponentPin Objects**:
+```python
+@dataclass
+class ComponentPin:
+    component_ref: str          # Parent component
+    pin_number: str             # Pin number (e.g., "1", "2")
+    position: tuple[float, float]  # Absolute (x, y) in schematic
+    connected_wires: list[str]  # UUIDs of connected wire segments
+```
+
+### 3.4 Label Extraction and Association
+
+**Parse Label Elements**:
+- Extract all `(label ...)` blocks from schematic
+- Each label has:
+  - Text content
+  - Position: `(at x y rotation)`
+  - UUID: Unique identifier
+
+**Label to Wire Association Algorithm**:
+
+1. **For each label**:
+   - Check if text matches circuit ID pattern: `^[A-Z]\d+[A-Z]$` or `^[A-Z]-\d+-[A-Z]$`
+   - If not a circuit ID: Skip (it's a note)
+
+2. **Calculate distance to each wire segment**:
+   - Point-to-line-segment distance formula
+   - Find minimum distance from label position to wire
+
+3. **Associate label with closest wire**:
+   - If distance ≤ threshold (default 10mm): Associate label with that wire
+   - If distance > threshold: Warning (orphaned label)
+
+4. **Handle multiple labels on same wire**:
+   - If multiple circuit ID labels on one wire: Warning (ambiguous)
+   - If circuit ID + note labels: Keep circuit ID only
+
+**Distance Calculation**:
+```python
+def point_to_segment_distance(point, seg_start, seg_end):
+    # Calculate perpendicular distance from point to line segment
+    # Handle cases where perpendicular falls outside segment endpoints
+    # Return minimum distance (to segment or endpoints)
+```
+
+### 3.5 Junction Detection
+
+**Parse Junction Elements**:
+- Extract all `(junction ...)` blocks from schematic
+- Junction position: `(at x y)`
+
+**Purpose**:
+- Identify where multiple wires physically meet at one point
+- Important for topology analysis
+- May indicate star routing (hub at junction)
+
+**Create Junction Objects**:
+```python
+@dataclass
+class Junction:
+    position: tuple[float, float]  # (x, y) in schematic
+    connected_wires: list[str]     # UUIDs of wires meeting at junction
+```
+
+---
+
+## 4. Wire Connection Analysis
+
+### 4.1 Building Wire-to-Component Connections
+
+**Algorithm**:
+
+1. **For each wire segment**:
+   - Get start_point and end_point coordinates
+
+2. **For each endpoint**:
+   - Search for component pins at that position (within tolerance, e.g., 0.1mm)
+   - If pin found: Record connection (wire ↔ component-pin)
+   - If no pin found: Check for junction at that position
+   - If junction found: Record junction connection
+
+3. **Build connectivity graph**:
+   - Each wire knows which component pins it connects
+   - Each component pin knows which wires connect to it
+
+**Coordinate Matching Tolerance**:
+- Exact match unlikely due to floating-point precision
+- Use tolerance: `distance < 0.1mm` for "same position"
+
+### 4.2 Circuit Identification
+
+**Extract Circuit ID from Label**:
+- Parse label text: `L1A` → system="L", circuit="1", segment="A"
+- Regex: `^([A-Z])-?(\d+)-?([A-Z])$`
+- Captures: system code, circuit number, segment letter
+
+**Validate System Code**:
+- Check against known codes: L, P, G, R, E, K, M, W, A, F, U
+- If unrecognized: Warning, continue processing
+
+**Handle Missing Labels**:
+- **Strict mode**: Error - wire has no circuit ID label
+- **Permissive mode**: Warning - generate fallback label
+  - Fallback format: `UNK{wire_index}A` (e.g., UNK1A, UNK2A)
+
+---
+
+## 5. Wire Calculation Logic
+
+### 5.1 Wire Length Calculation
 
 **Method**: Manhattan distance (sum of absolute differences in each axis) between component FS/WL/BL coordinates.
 
@@ -222,40 +398,12 @@ Length = |FS₁ - FS₂| + |WL₁ - WL₂| + |BL₁ - BL₂| + slack
 - More realistic than straight-line distance for actual wire runs
 - Slack ensures adequate wire for termination, strain relief, and routing adjustments
 
-**Multi-node Nets**:
-For nets connecting 3+ components, assume **star topology** (central hub with spokes to other components).
+**Pin-to-Pin Calculation**:
+- Wire connects component1-pin_A to component2-pin_B
+- Use component1 coordinates and component2 coordinates (not individual pin positions)
+- Pin-level routing is sub-inch scale; component positions determine overall wire run
 
-**Hub Component Detection (priority order)**:
-1. **Tier 1 (Highest Priority)**:
-   - **BUS** or **BUSS** - Power distribution bus
-   - **BAT** - Battery (often central to power distribution)
-   - **GND** - Ground bus/point
-2. **Tier 2**:
-   - **FUSE** - Fuse block/panel
-   - **CB** - Circuit breaker panel
-   - **PANEL** - Generic panel designation
-3. **Tier 3**:
-   - **J** prefix with Rating ≥ 20A - High-capacity source connectors
-   - **CONN** with Rating ≥ 20A - High-capacity generic connectors
-4. **Tier 4 (Fallback)**:
-   - Component with highest Rating value
-   - If ratings equal, component closest to origin (0,0,0)
-
-**Hub Identification**:
-- Case-insensitive substring match on reference designator
-- First match in priority order becomes hub
-- All other components become spokes connecting to hub
-
-**Wire Segments**:
-- Create one segment from hub to each spoke
-- Segment labeling: A, B, C... in order of spoke distance from hub
-
-**Error Handling**:
-- **Strict mode**: Error if no identifiable hub in 3+ node net
-- **Permissive mode**: Warning + use highest-rated component as hub
-- Log informational message noting star topology assumption
-
-### 3.2 Wire Gauge Calculation
+### 5.2 Wire Gauge Calculation
 
 **Basis**: Aeroelectric Connection (Bob Nuckolls) ampacity tables and voltage drop guidelines.
 
@@ -266,99 +414,102 @@ For nets connecting 3+ components, assume **star topology** (central hub with sp
 
 **Calculation Method**:
 
-1. Calculate voltage drop: `Vdrop = Current × Resistance_per_foot × Length`
-2. Determine minimum gauge where `Vdrop ≤ 0.05 × Vsystem`
-3. Use wire resistance values from Aeroelectric Connection reference materials
-4. Verify gauge also meets current-carrying capacity (ampacity) per Aeroelectric Connection tables
-5. Select minimum gauge that satisfies both constraints
+1. **Determine wire current**:
+   - For load wires: Use load component's amperage
+   - For source wires: Use source component's capacity
+   - For passthrough wires: Use downstream load (requires tracing)
+
+2. **Calculate voltage drop for each AWG size**:
+   - `Vdrop = Current × Resistance_per_foot × (Length_inches / 12)`
+   - Use wire resistance values from Aeroelectric Connection
+
+3. **Select minimum gauge**:
+   - Find smallest AWG where `Vdrop ≤ 0.05 × Vsystem`
+   - Verify gauge also meets ampacity constraint (current ≤ max amps for AWG)
+   - Round up to next standard AWG size if needed
+
+**Standard AWG Sizes**: 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2
 
 **Result**:
 - Minimum required gauge (e.g., "18.7 AWG calculated")
 - Round up to next standard AWG size (e.g., 18 AWG selected)
 - Document both calculated and selected values in engineering mode
 
-### 3.3 Wire Color Assignment
+### 5.3 Wire Color Assignment
 
 **Method**: Auto-assign based on system code using standard mapping from EAWMS documentation.
 
+**System Code to Color Mapping**:
+- Implemented as configurable lookup table in `reference_data.py`
+- Source: `docs/ea_wire_marking_standard.md`
+
+**Examples** (from EAWMS):
+- `L` (Lighting) → White
+- `P` (Power) → Red
+- `G` (Ground) → Black
+- `R` (Radio/Nav) → Gray
+- (Complete mapping extracted from EAWMS docs)
+
 **Fallback**: If system code unmapped, flag warning and assign default color (white or user-specified in config).
 
-**Color Mapping Source**: Extract from `docs/ea_wire_marking_standard.md` 
-
-### 3.4 Wire Label Generation (EAWMS Format) **[REVISED - 2025-10-17]**
+### 5.4 Wire Label Generation (EAWMS Format)
 
 **Format**: `SYSTEM-CIRCUIT-SEGMENT` or `SYSTEMCIRCUITSEGMENT`
 
 **Examples**:
-- Compact (default): `L105A`, `P12B`, `G1A`
-- Dashes (optional): `L-105-A`, `P-12-B`, `G-1-A`
-
-**Label Extraction (from Net Name)**:
-- Parse net name to extract: system code, circuit number, segment letter
-- See Section 2.3 for net name parsing details
-- Regex: `/([A-Z])-?(\d+)-?([A-Z])/` captures all three components
+- Compact (default): `L1A`, `P12B`, `G1A`
+- Dashes (optional): `L-1-A`, `P-12-B`, `G-1-A`
 
 **Output Format Control**:
 - Controlled by `--label-format` CLI flag:
-  - `compact` (default): `L105A` (no separators)
-  - `dashes`: `L-105-A` (dash separators)
-- Input format flexible: `/L1A`, `/L-1-A`, `/L001A` all accepted
-- Output format standardized based on flag
-
-**Multi-segment Circuits**:
-The SD creates separate nets for each physical wire segment:
-- `/L1A` → First segment (Battery to Switch)
-- `/L1B` → Second segment (Switch to Lamp)
-- Each net connects exactly 2 components (wire-to-wire connection)
-- Tool validates and warns if net has 3+ components
+  - `compact` (default): `L1A` (no separators)
+  - `dashes`: `L-1-A` (dash separators)
+- Standardizes output regardless of input label variations
 
 ---
 
-## 4. Validation and Error Handling
+## 6. Validation and Error Handling
 
-### 4.1 Operating Modes
+### 6.1 Operating Modes
 
 **Strict Mode** (default):
-- Error and abort on missing required fields (FS/WL/BL, Load/Rating)
+- Error and abort on missing required data (labels, coordinates, load/rating)
 - Ensures complete, validated schematics
 - Recommended for final BOMs
 
 **Permissive Mode** (`--permissive` flag):
 - Use defaults with warnings for missing data
 - Missing coordinates: Default to (-9, -9, -9) with warning
-  - Clearly invalid coordinates (easy to identify in output)
-  - Slack length (24") ensures non-zero wire lengths even with identical coordinates
-  - All components with missing coords stack at same location for easy identification
-- Missing Load/Rating: Default to 0A with warning
+- Missing labels: Generate fallback labels (UNK1A, UNK2A, ...)
+- Missing load/rating: Default to 0A with warning
 - Continue processing and generate BOM with warning annotations
 - Useful for iterative design and draft BOMs
 
-### 4.2 Validation Checks **[REVISED - 2025-10-17]**
+### 6.2 Validation Checks
 
-#### 4.2.1 Net Name Format Validation **[NEW]**
+#### 6.2.1 Wire Label Validation
 
-**Check**: Net names follow EAWMS format `/[SYSTEM][CIRCUIT][SEGMENT]`
+**Check**: All wires have circuit ID labels
 
 **In Strict Mode**:
-- Error if net name doesn't match pattern
-- Error message: "Net 'Net-(BT1-Pin_1)' doesn't follow EAWMS format. Expected: /[SYSTEM][CIRCUIT][SEGMENT] (e.g., /L1A)"
-- Suggestion: "Rename net to follow pattern, e.g., /L1A for Lighting circuit 1 segment A"
+- Error if wire has no label
+- Error message: "Wire segment {uuid} has no circuit ID label"
+- Suggestion: "Add label to wire in schematic (e.g., L1A, P12B)"
 - Abort processing with exit code 1
 
 **In Permissive Mode**:
-- Warning if net name doesn't match pattern
-- Attempt to infer system code from components
-- Generate fallback label using inferred system code + KiCad net code + "A"
+- Warning if wire has no label
+- Generate fallback label: `UNK{index}A`
 - Continue processing with warning in output
 
-#### 4.2.2 Duplicate Wire Label Detection **[NEW]**
+#### 6.2.2 Duplicate Wire Label Detection
 
-**Check**: No two wires should have identical wire labels
+**Check**: No two wires should have identical circuit IDs
 
 **In Strict Mode**:
 - Error if duplicate labels detected
-- Error message: "Duplicate wire label 'L1A' found on nets: /L1A, /L-1-A"
-- Suggestion: "Each wire segment must have unique label. Check circuit numbering and segment letters."
+- Error message: "Duplicate circuit ID 'L1A' found on multiple wire segments"
+- Suggestion: "Each wire must have unique label. Check segment letters."
 - Abort processing with exit code 1
 
 **In Permissive Mode**:
@@ -366,73 +517,47 @@ The SD creates separate nets for each physical wire segment:
 - Append suffix to make unique: `L1A`, `L1A-2`, `L1A-3`
 - Continue processing with warning in output
 
-#### 4.2.3 Multi-Node Net Detection **[NEW]**
+#### 6.2.3 Orphaned Label Detection
 
-**Check**: Nets connecting 3+ components (unexpected for wire-to-wire)
+**Check**: All circuit ID labels are associated with a wire
 
-**Action**: Always warn (both strict and permissive modes)
-- Warning message: "Net '/L1A' connects 3 components: J1, SW1, LIGHT1"
-- Suggestion: "For wire harnesses, split into multiple nets with different segment letters (e.g., /L1A, /L1B)"
-- Continue processing but flag in output
+**Action**: Always warn (both modes)
+- Warning message: "Label 'L1A' at position (x, y) is not close to any wire segment"
+- Suggestion: "Move label closer to wire or check wire routing"
+- Distance threshold: 10mm (configurable)
+- Continue processing
 
-**Rationale**: Unlike PCBs where multi-node nets are common, wire harnesses typically have point-to-point connections. 3+ components suggest the SD may need to split the circuit into explicit segments.
+#### 6.2.4 Required Field Validation
 
-#### 4.2.4 System Code Validation **[NEW]**
-
-**Check**: Parsed system code matches component analysis inference
-
-**Action**: Always warn on mismatch (both strict and permissive modes)
-- Warning message: "Net '/L105A' system code 'L' (Lighting) doesn't match component analysis"
-- Detail: "Components on net: RADIO1 (suggests system 'R' - Radio/Nav/Comm)"
-- Suggestion: "Verify net name or component placement. This may be correct if wire is power feed to the component."
-- Continue processing but flag in output
-
-**Rationale**: Helps SD catch mistakes while allowing intentional exceptions (e.g., power feed to lighting).
-
-#### 4.2.5 Required Field Validation
+**Check**: All components have required data
 
 **In Strict Mode**:
-- All components must have FS, WL, BL coordinates
-- All components must have Load OR Rating value (not both, not neither)
-- Error message identifies specific components missing data
+- Error if component missing FS, WL, BL coordinates
+- Error if component missing source type or amperage
+- Error message identifies specific components
 - Abort processing with exit code 1
 
 **In Permissive Mode**:
 - Log warnings for missing fields
-- Apply defaults
+- Apply defaults: coordinates (-9, -9, -9), amperage 0A
 - Continue processing
 
-#### 4.2.6 Rating vs Load Validation
+#### 6.2.5 Wire Connection Validation
 
-- Trace circuit path from source through switches/breakers to load
-- Verify no component rating is exceeded by downstream loads
-- **Action**: Warn if load exceeds any rating in path
-- Example: 15A load through 10A switch → Warning
+**Check**: Each wire segment connects exactly 2 component pins
 
-#### 4.2.7 Wire Gauge Progression Validation
+**Action**: Warn if wire has 0, 1, or 3+ connections
+- 0 connections: "Wire {circuit_id} is not connected to any components"
+- 1 connection: "Wire {circuit_id} is only connected at one end"
+- 3+ connections: "Wire {circuit_id} connects to {N} pins - may need junction splitting"
 
-- Check that wire gauge doesn't inappropriately decrease along circuit path
-- **Action**: Warn if downstream wire is heavier gauge than upstream
-- This usually indicates a design error (heavier wire feeding lighter wire)
+**Note**: Unlike netlists, schematics can show complex topologies. Multiple wires meeting at a junction is normal and expected.
 
-#### 4.2.8 Source/Load Identification
-
-Attempt to identify signal flow using:
-- Component type (J-designators, BAT prefix = sources)
-- System knowledge (power system flows from battery/alternator)
-- Load vs Rating fields
-
-**Action**:
-- If ambiguous, warn user
-- Make best guess based on available information
-- Continue processing
-- Document assumption in engineering mode output
-
-### 4.3 Error Output
+### 6.3 Error Output
 
 All warnings and errors include:
-- Component reference designator
-- Net name
+- Wire circuit ID or UUID
+- Component reference designators involved
 - Specific issue description
 - Suggested correction (when applicable)
 
@@ -440,16 +565,16 @@ Format enables easy schematic correction by designer.
 
 ---
 
-## 5. Output Formats and Modes
+## 7. Output Formats and Modes
 
-### 5.1 Output Formats
+### 7.1 Output Formats
 
 Two primary output formats:
 
 1. **CSV** (default): Comma-separated values for spreadsheet import and manipulation
 2. **Markdown** (`.md` extension or `--format md`): Rich formatted document with sections and tables
 
-### 5.2 Output Filename Generation
+### 7.2 Output Filename Generation
 
 **If destination not specified**:
 - Extract base name from input file
@@ -458,17 +583,17 @@ Two primary output formats:
 - Check directory for existing REVnnn files and increment to next available
 
 **Example**:
-- Input: `aircraft_electrical.net`
+- Input: `aircraft_electrical.kicad_sch`
 - Output: `aircraft_electrical_REV001.csv`
 - Next run: `aircraft_electrical_REV002.csv`
 
-### 5.3 Builder Mode (Default)
+### 7.3 Builder Mode (Default)
 
 **Purpose**: Clean, actionable wire list for harness construction.
 
 **CSV Columns**:
 - Wire Label (EAWMS format)
-- From (component-pin reference, e.g., "J1-1")
+- From (component-pin reference, e.g., "BT1-1")
 - To (component-pin reference, e.g., "SW1-2")
 - Wire Gauge (AWG size, e.g., "20 AWG")
 - Wire Color
@@ -485,10 +610,9 @@ Two primary output formats:
   - Sorted within each system by circuit number
 - **Warnings/Notes Section**:
   - All validation warnings
-  - Multi-node topology notes
   - Any assumptions made
 
-### 5.4 Engineering Mode (`--engineering` flag)
+### 7.4 Engineering Mode (`--engineering` flag)
 
 **Purpose**: Detailed analysis for design review, validation, and documentation.
 
@@ -517,15 +641,17 @@ All builder mode sections, plus:
   - Resistance calculations
   - Gauge selection rationale
 
-- **Circuit Analysis**:
-  - Power budget per system
-  - Total current per system code
-  - Circuit path traces
+- **Schematic Analysis**:
+  - Total wire count
+  - Wire segment statistics
+  - Label coverage (% of wires labeled)
+  - Junction analysis
 
 - **Validation Results**:
   - All warnings and recommendations
-  - Rating vs load checks
-  - Gauge progression analysis
+  - Orphaned labels
+  - Unlabeled wires
+  - Connection validation results
 
 - **Assumptions Documentation**:
   - Voltage drop percentage (5%)
@@ -534,9 +660,9 @@ All builder mode sections, plus:
   - Wire resistance values used
   - Ampacity tables referenced
   - Color mapping table
-  - Multi-node topology assumptions
+  - Label association threshold
 
-### 5.5 Output Sorting
+### 7.5 Output Sorting
 
 All outputs sorted by:
 1. System code (alphabetically: G, L, P, R, etc.)
@@ -545,26 +671,26 @@ All outputs sorted by:
 
 ---
 
-## 6. Command-Line Interface
+## 8. Command-Line Interface
 
-### 6.1 Basic Usage
+### 8.1 Basic Usage
 
 ```bash
-python -m kicad2wireBOM input.net output.csv
-python -m kicad2wireBOM input.net output.md
-python -m kicad2wireBOM input.net  # Auto-generates output_REV001.csv
+python -m kicad2wireBOM input.kicad_sch output.csv
+python -m kicad2wireBOM input.kicad_sch output.md
+python -m kicad2wireBOM input.kicad_sch  # Auto-generates output_REV001.csv
 ```
 
-### 6.2 Command-Line Arguments
+### 8.2 Command-Line Arguments
 
 **Required Arguments**:
-- `source`: Path to KiCad netlist file (.net or .xml)
+- `source`: Path to KiCAD schematic file (.kicad_sch)
 
 **Optional Arguments**:
 - `dest`: Path to output file (if omitted, auto-generates with REVnnn suffix)
   - Extension determines format (.csv or .md)
 
-### 6.3 Command-Line Flags
+### 8.3 Command-Line Flags
 
 **Information Flags**:
 - `--help`: Display usage information and exit
@@ -579,46 +705,47 @@ python -m kicad2wireBOM input.net  # Auto-generates output_REV001.csv
 - `--system-voltage VOLTS`: System voltage for calculations (default: 12)
 - `--slack-length INCHES`: Extra wire length per segment (default: 24)
 - `--format {csv,md}`: Explicitly specify output format (overrides file extension)
-- `--label-format {compact,dashes}`: Wire label format (default: compact) **[NEW - 2025-10-17]**
+- `--label-format {compact,dashes}`: Wire label format (default: compact)
   - `compact`: `L1A`, `P12B` (no separators)
   - `dashes`: `L-1-A`, `P-12-B` (dash separators)
+- `--label-threshold MM`: Max distance for label-to-wire association (default: 10)
 - `--config FILE`: Path to configuration file (overrides default .kicad2wireBOM.yaml search)
 
-### 6.4 Usage Examples
+### 8.4 Usage Examples
 
 ```bash
 # Basic BOM generation (builder mode, CSV)
-python -m kicad2wireBOM schematic.net wire_bom.csv
+python -m kicad2wireBOM schematic.kicad_sch wire_bom.csv
 
 # Auto-generate filename with revision
-python -m kicad2wireBOM schematic.net
+python -m kicad2wireBOM schematic.kicad_sch
 
 # 14V system with custom slack
-python -m kicad2wireBOM --system-voltage 14 --slack-length 30 schematic.net bom.csv
+python -m kicad2wireBOM --system-voltage 14 --slack-length 30 schematic.kicad_sch bom.csv
 
 # Engineering mode markdown output
-python -m kicad2wireBOM --engineering schematic.net analysis.md
+python -m kicad2wireBOM --engineering schematic.kicad_sch analysis.md
 
 # Permissive mode for incomplete schematic
-python -m kicad2wireBOM --permissive draft.net draft_bom.csv
+python -m kicad2wireBOM --permissive draft.kicad_sch draft_bom.csv
 
 # Show what's needed in schematic
 python -m kicad2wireBOM --schematic-requirements
 
 # Use custom config file
-python -m kicad2wireBOM --config my_project.yaml schematic.net
+python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 ```
 
-### 6.5 Exit Codes
+### 8.5 Exit Codes
 
 - `0`: Success - BOM generated successfully
 - `1`: Error - Missing required data (strict mode), file I/O error, parse error
 
 ---
 
-## 7. Data Sources and Reference Materials
+## 9. Data Sources and Reference Materials
 
-### 7.1 Wire Resistance Values
+### 9.1 Wire Resistance Values
 
 **Source**: Aeroelectric Connection Chapter 5
 **Example**: 10 AWG = 1.0 milliohm per foot (from ae__page61.txt)
@@ -629,9 +756,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.net
 - Store in `reference_data.py` as lookup table
 - Format: `{awg_size: resistance_per_foot}`
 
-**Task**: Implementation plan must include task to digitize resistance table from Aeroelectric Connection reference files.
-
-### 7.2 Ampacity Tables
+### 9.2 Ampacity Tables
 
 **Source**: Aeroelectric Connection simplified ampacity guidance
 **Basis**: Practical application of MIL-W-5088L principles for experimental aircraft
@@ -642,9 +767,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.net
 - Store in `reference_data.py` as lookup table
 - Format: `{awg_size: max_amperes}`
 
-**Task**: Implementation plan must include task to extract and validate ampacity values from Aeroelectric Connection.
-
-### 7.3 System Code to Wire Color Mapping
+### 9.3 System Code to Wire Color Mapping
 
 **Source**: Extract from `docs/ea_wire_marking_standard.md` and/or Aeroelectric Connection
 
@@ -658,20 +781,17 @@ python -m kicad2wireBOM --config my_project.yaml schematic.net
 - `P` (Power) → Red
 - `G` (Ground) → Black
 - `R` (Radio/Nav) → Gray or Shielded
-- [Additional mappings from standards]
 
-**Task**: Implementation plan must include task to extract complete color mapping from EAWMS documentation.
-
-### 7.4 System Codes
+### 9.4 System Codes
 
 **Source**: `docs/ea_wire_marking_standard.md` (existing EAWMS documentation)
 
 **Usage**:
-- Validate system codes in net names
+- Validate system codes in labels
 - Provide in `--schematic-requirements` output
 - Map to wire colors
 
-### 7.5 Voltage Drop Standards
+### 9.5 Voltage Drop Standards
 
 **Value**: 5% maximum
 - 0.6V for 12V system
@@ -680,537 +800,62 @@ python -m kicad2wireBOM --config my_project.yaml schematic.net
 **Source**: Common experimental aircraft practice per Aeroelectric Connection
 **Justification**: Balance between wire weight and electrical performance
 
-### 7.6 Test Validation Data
+### 9.6 Test Validation Data
 
-**File**: `data/example.xml`
-**Description**: KiCad demo netlist from Sallen-Key filter circuit (from KiCad 9 documentation)
+**Files**: `tests/fixtures/test_*_fixture.kicad_sch`
 
 **Purpose**:
-- Verify netlist parsing compatibility
-- Field extraction testing
-- Basic functionality validation
-
-**Note**: NOT an EA schematic - does not contain custom fields. Tests must validate format compatibility only, not EA-specific logic.
-
-**Additional Test Fixtures Needed**:
-- Simple two-component EA circuit with full custom fields
-- Multi-node circuit with 3+ components
-- Circuit with missing fields (for permissive mode testing)
-- Complex realistic EA electrical system
+- Verify schematic parsing
+- Label association testing
+- Wire extraction validation
+- Component data extraction
+- Junction handling
 
 ---
 
-## 8. Implementation Architecture
+## 10. Implementation Architecture
 
-### 8.1 Module Structure
+### 10.1 Module Structure
 
-The `kicad2wireBOM/` package contains 11 modules:
+The `kicad2wireBOM/` package will contain approximately 8-10 modules:
 
-#### Module 1: `__main__.py` - CLI Entry Point
+#### Proposed Modules
 
-**Purpose**: Command-line interface and orchestration
+1. **`__main__.py`** - CLI entry point and orchestration
+2. **`parser.py`** - S-expression parsing and schematic file reading
+3. **`schematic.py`** - Schematic data model (wires, labels, components, junctions)
+4. **`component.py`** - Component data extraction and footprint parsing
+5. **`label_association.py`** - Label-to-wire proximity matching
+6. **`wire_calculator.py`** - Length, gauge, voltage drop calculations
+7. **`reference_data.py`** - Wire resistance, ampacity, color mapping tables
+8. **`validator.py`** - Validation logic and warning generation
+9. **`output_csv.py`** - CSV output generation
+10. **`output_markdown.py`** - Markdown output generation
 
-**Functions**:
-- `main()`: Entry point
-  - Parse command-line arguments (argparse)
-  - Handle special commands (--help, --version, --schematic-requirements)
-  - Load optional configuration file
-  - Auto-generate output filename if not provided
-  - Determine output format from extension or --format flag
-  - Orchestrate: parse → analyze → calculate → validate → output
-  - Error handling and exit codes (0=success, 1=error)
+**Detailed module specifications to be created during implementation planning.**
 
-- `generate_output_filename(input_path, format, output_dir)`:
-  - Parse input filename
-  - Find existing REVnnn files in directory
-  - Increment to next revision number
-  - Return new filename
-
-- `load_config(config_path)`:
-  - Search for `.kicad2wireBOM.yaml` or specified config file
-  - Parse and validate configuration
-  - Merge with defaults and CLI options (CLI takes precedence)
-
-**Argument Parser**:
-- Positional: `source`, `dest` (optional)
-- Flags: `--help`, `--version`, `--schematic-requirements`, `--permissive`, `--engineering`
-- Options: `--system-voltage`, `--slack-length`, `--format`, `--config`
-
----
-
-#### Module 2: `parser.py` - Netlist Parsing
-
-**Purpose**: Parse KiCad netlist and extract data
-
-**Functions**:
-
-- `parse_netlist_file(file_path)`:
-  - Use kinparse library to parse KiCad netlist
-  - Return raw parsed netlist object
-  - Handle file not found, parse errors
-  - Raise descriptive exceptions
-
-- `extract_components(parsed_netlist)`:
-  - Extract component list from parsed netlist
-  - Parse footprint field encoding: `|(fs,wl,bl)<L|R><amps>`
-  - Extract FS, WL, BL coordinates
-  - Extract Load or Rating based on type letter (L/R)
-  - Create Component objects
-  - Return list of Component objects
-  - Handle missing/malformed encoding gracefully (return None for missing)
-
-- `extract_nets(parsed_netlist)`:
-  - Extract net list with node connections
-  - Parse optional net fields: Circuit_ID, System_Code
-  - Return structured net data (name, code, nodes with ref/pin)
-  - Return list of dicts: `{'name': str, 'code': str, 'nodes': [{'ref': str, 'pin': str}], 'circuit_id': str|None, 'system_code': str|None}`
-
-- `parse_footprint_encoding(footprint: str)`:
-  - Helper to parse footprint field with embedded data
-  - Regex pattern: `\|([-\d.]+),([-\d.]+),([-\d.]+)\)([LR])([\d.]+)`
-  - Extract original footprint (before `|`)
-  - Extract coordinates (fs, wl, bl)
-  - Extract type letter (L or R)
-  - Extract amperage value
-  - Return dict or None if no encoding present
-  - Raise ValueError for malformed encoding
-
-**Important Note**: Test fixtures must include actual KiCad netlists with footprint-encoded data to verify field export and parsing.
-
----
-
-#### Module 3: `component.py` - Component Data Model
-
-**Purpose**: Component representation and type identification
-
-**Classes**:
-
-**Component** (dataclass):
-  - **Required fields**:
-    - `ref`: Reference designator (e.g., "J1", "SW2", "BAT1")
-    - `fs`: Fuselage station (float, inches)
-    - `wl`: Waterline (float, inches)
-    - `bl`: Buttline (float, inches)
-
-  - **Load/Rating** (mutually exclusive):
-    - `load`: Current drawn (float, amps) - for consuming devices
-    - `rating`: Current capacity (float, amps) - for pass-through devices
-
-  - **Derived properties**:
-    - `coordinates` → tuple (fs, wl, bl)
-    - `is_source` → bool (based on ref prefix, component type)
-    - `is_load` → bool (has load value)
-    - `is_passthrough` → bool (has rating value)
-    - `component_role` → enum/string ("source", "load", "passthrough")
-
-**Functions**:
-
-- `identify_component_type(ref)`:
-  - Determine if source, load, or passthrough based on reference designator
-  - Sources: J (connectors), BAT (batteries), GEN (generators/alternators)
-  - Passthrough: SW (switches), CB (circuit breakers), RELAY, FUSE
-  - Loads: All others (LIGHT, RADIO, DISPLAY, MOTOR, etc.)
-  - Return component role
-
-- `validate_component(component, permissive)`:
-  - Check required fields present (FS, WL, BL)
-  - Verify load XOR rating (exactly one, not both, not neither)
-  - Return list of validation errors/warnings
-  - In permissive mode, generate warnings instead of errors
-
----
-
-#### Module 4: `circuit.py` - Circuit Analysis
-
-**Purpose**: Convert nets to circuits and analyze topology
-
-**Classes**:
-
-**Circuit**:
-  - `net_name`: Original net name from KiCad
-  - `system_code`: Extracted/specified system letter (e.g., "L")
-  - `circuit_id`: Extracted/specified circuit number (e.g., "105")
-  - `nodes`: List of (component, pin) tuples
-  - `topology`: Topology type string ("simple", "star", "daisy")
-  - `signal_flow`: Ordered list of nodes from source to load
-  - `segments`: List of wire segments for this circuit
-
-**Functions**:
-
-- `build_circuits(nets, components)`:
-  - Convert net dicts into Circuit objects
-  - Link net nodes to Component objects by reference
-  - Extract/parse system code and circuit ID
-  - Return list of Circuit objects
-
-- `detect_multi_node_topology(circuit)`:
-  - Identify circuits with 3+ nodes
-  - Analyze spatial coordinates to infer routing topology
-  - Determine star (central hub) vs daisy-chain based on coordinate clustering
-  - Return topology type string
-  - Generate informational message for logging
-
-- `determine_signal_flow(circuit, components)`:
-  - Identify source component using:
-    - `component.is_source` property
-    - Reference prefix heuristics
-    - System knowledge (power flows from battery/alternator)
-  - Order nodes from source → intermediates → load
-  - Return ordered node list
-  - Generate warning if source ambiguous, make best guess
-
-- `trace_circuit_path(circuit)`:
-  - Follow circuit from source through switches/breakers to load
-  - Build ordered list of components with roles
-  - Return path as ordered list of (component, role) tuples
-  - Used for rating validation and gauge progression checks
-
-- `create_wire_segments(circuit)`:
-  - Based on topology and signal flow, create wire segments
-  - For simple 2-node: one segment
-  - For multi-node: segments between adjacent ordered nodes
-  - Assign segment letters (A, B, C...)
-  - Return list of segment definitions
-
----
-
-#### Module 5: `wire_calculator.py` - Wire Calculations
-
-**Purpose**: Calculate wire specifications
-
-**Functions**:
-
-- `calculate_length(component1, component2, slack)`:
-  - Manhattan distance formula: `|FS₁-FS₂| + |WL₁-WL₂| + |BL₁-BL₂|`
-  - Add slack inches
-  - Return total length in inches
-
-- `calculate_voltage_drop(current, awg_size, length)`:
-  - Lookup resistance per foot for AWG size (from reference_data)
-  - Calculate: `Vdrop = current × resistance_per_foot × (length / 12)`
-  - Return voltage drop in volts
-
-- `determine_min_gauge(current, length, system_voltage, slack)`:
-  - Calculate total length (with slack)
-  - For each AWG size (from largest to smallest):
-    - Calculate voltage drop
-    - Check if Vdrop ≤ 5% of system_voltage
-    - Check if current ≤ ampacity for this AWG
-    - If both satisfied, return this AWG size
-  - Return smallest AWG that meets both constraints
-  - Also return calculated voltage drop and percentage
-
-- `assign_wire_color(system_code, color_override=None)`:
-  - If color_override provided, return it
-  - Lookup system_code in SYSTEM_COLOR_MAP (from reference_data)
-  - If not found, log warning and return default color (white)
-  - Return color string
-
-- `generate_wire_label(net_name, circuit_id, system_code, segment_letter)`:
-  - If circuit_id provided, use it; otherwise parse from net_name
-  - If system_code provided, use it; otherwise parse from net_name
-  - Parse patterns like "Net-L105", "LANDING_LIGHT_L105", etc.
-  - Format as: `{system_code}-{circuit_id}-{segment_letter}`
-  - Example: "L-105-A"
-  - Raise error if unable to parse and no overrides provided
-
-- `round_to_standard_awg(calculated_gauge)`:
-  - Given calculated minimum gauge (e.g., 18.7)
-  - Round up to next standard AWG size from STANDARD_AWG_SIZES
-  - Return standard AWG size
-  - Example: 18.7 → 18 AWG
-
----
-
-#### Module 6: `wire_bom.py` - Wire BOM Data Model
-
-**Purpose**: Data structures for wire BOM
-
-**Classes**:
-
-**WireConnection** (dataclass):
-  - **Core fields**:
-    - `wire_label`: EAWMS format label (e.g., "L-105-A")
-    - `from_ref`: Source component-pin (e.g., "J1-1")
-    - `to_ref`: Destination component-pin (e.g., "SW1-2")
-    - `wire_gauge`: Selected AWG size (e.g., "20 AWG")
-    - `wire_color`: Assigned color
-    - `length`: Total length in inches
-    - `wire_type`: Wire specification (e.g., "M22759/16")
-
-  - **Engineering fields** (for engineering mode):
-    - `calculated_min_gauge`: Calculated minimum (e.g., "19.2 AWG")
-    - `voltage_drop_volts`: Calculated drop in volts
-    - `voltage_drop_percent`: Calculated drop as percentage
-    - `current`: Circuit current in amps
-    - `from_coords`: Tuple (FS, WL, BL)
-    - `to_coords`: Tuple (FS, WL, BL)
-    - `calculated_length`: Length before slack added
-
-  - **Validation**:
-    - `warnings`: List of warning strings
-
-**WireBOM**:
-  - `wires`: List of WireConnection objects
-  - `config`: Dict of configuration used (system voltage, slack, etc.)
-  - `components`: List of Component objects (for engineering mode reporting)
-
-  - **Methods**:
-    - `add_wire(wire)`: Append wire to list
-    - `sort_by_system_code()`: Sort wires by system, circuit, segment
-    - `get_wire_summary()`: Return purchasing summary dict {(gauge, color): total_length}
-    - `get_validation_summary()`: Return all warnings/errors collected
-
----
-
-#### Module 7: `output_csv.py` - CSV Output
-
-**Purpose**: Generate CSV files
-
-**Functions**:
-
-- `write_builder_csv(bom, output_path)`:
-  - Open CSV file for writing
-  - Write header row with builder columns
-  - For each wire in bom.wires:
-    - Write row with: Wire Label, From, To, Wire Gauge, Wire Color, Length, Wire Type, Warnings
-  - Close file
-
-- `write_engineering_csv(bom, output_path)`:
-  - Open CSV file for writing
-  - Write header row with all columns (builder + engineering)
-  - For each wire in bom.wires:
-    - Write row with all fields including calculated values, coordinates, etc.
-  - Close file
-
-**Implementation**: Uses Python `csv.DictWriter` with appropriate fieldnames per mode.
-
-**Column Order**:
-- Builder: Label, From, To, Gauge, Color, Length, Type, Warnings
-- Engineering: All builder columns + Min Gauge, Current, Vdrop (V), Vdrop (%), From Coords, To Coords, Calc Length, Component Load/Rating
-
----
-
-#### Module 8: `output_markdown.py` - Markdown Output
-
-**Purpose**: Generate formatted Markdown documents
-
-**Functions**:
-
-- `write_builder_markdown(bom, output_path)`:
-  - Open markdown file for writing
-  - Write title and summary section:
-    - Total wire count
-    - Wire purchasing summary table (gauge/color → total length)
-  - Write wire list section:
-    - Group by system code
-    - Markdown table for each system
-    - Sort by circuit number within system
-  - Write warnings section:
-    - List all warnings from bom
-    - Note multi-node topology assumptions
-  - Close file
-
-- `write_engineering_markdown(bom, output_path, components, config)`:
-  - Write all builder sections
-  - Add component validation report:
-    - Table of all components with coordinates, load/rating
-    - Flag missing data
-  - Add detailed calculations section:
-    - Per-wire voltage drop analysis
-    - Resistance calculations
-    - Gauge selection rationale
-  - Add circuit analysis section:
-    - Power budget per system (total current per system code)
-    - Circuit path traces
-  - Add validation results section:
-    - All warnings categorized
-    - Rating vs load checks
-    - Gauge progression analysis
-  - Add assumptions documentation section:
-    - Voltage drop % threshold
-    - Slack length used
-    - System voltage
-    - Wire resistance values (reference table)
-    - Ampacity table
-    - Color mapping table
-  - Close file
-
-**Helper Functions**:
-- `format_markdown_table(headers, rows)`: Generate markdown table string
-- `format_component_table(components)`: Format component list as table
-- `format_wire_summary(summary_dict)`: Format purchasing summary as table
-- `format_validation_warnings(warnings)`: Group and format warnings
-
----
-
-#### Module 9: `reference_data.py` - Reference Tables
-
-**Purpose**: Store reference data and constants
-
-**Data Structures**:
-
-- **WIRE_RESISTANCE**: Dict `{awg: ohms_per_foot}`
-  - Source: Extracted from Aeroelectric Connection Ch5
-  - Example: `{10: 0.001, 12: 0.0016, 14: 0.0025, 16: 0.004, 18: 0.0064, 20: 0.010, 22: 0.016}`
-  - Task: Digitize complete table from reference materials
-
-- **WIRE_AMPACITY**: Dict `{awg: max_amps}`
-  - Source: Aeroelectric Connection simplified ampacity tables
-  - Example: `{22: 5, 20: 7.5, 18: 10, 16: 13, 14: 17, 12: 23, 10: 33, 8: 46}`
-  - Task: Extract from Aeroelectric Connection
-
-- **SYSTEM_COLOR_MAP**: Dict `{system_code: color_name}`
-  - Source: Extracted from EAWMS/Aeroelectric Connection
-  - Example: `{'L': 'White', 'P': 'Red', 'G': 'Black', 'R': 'Gray', ...}`
-  - Task: Extract complete mapping from ea_wire_marking_standard.md
-
-- **STANDARD_AWG_SIZES**: List `[22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2]`
-  - Common AWG sizes for aircraft wiring
-
-- **DEFAULT_CONFIG**: Dict with default values
-  - `system_voltage`: 12 (volts)
-  - `slack_length`: 24 (inches)
-  - `voltage_drop_percent`: 0.05 (5%)
-  - `permissive_mode`: False
-  - `engineering_mode`: False
-
-**Functions**:
-- `load_custom_resistance_table(config_dict)`: Override WIRE_RESISTANCE from config
-- `load_custom_ampacity_table(config_dict)`: Override WIRE_AMPACITY from config
-- `load_custom_color_map(config_dict)`: Override SYSTEM_COLOR_MAP from config
-
----
-
-#### Module 10: `validator.py` - Validation Logic
-
-**Purpose**: Validation checks and warning generation
-
-**Classes**:
-
-**ValidationResult**:
-  - `component_ref`: Component reference or net name
-  - `net_name`: Net name (if applicable)
-  - `severity`: "error" or "warning"
-  - `message`: Description of issue
-  - `suggestion`: Recommended correction (optional)
-
-**Functions**:
-
-- `validate_required_fields(components, permissive_mode)`:
-  - For each component:
-    - Check FS, WL, BL present (not None)
-    - Check Load OR Rating present (XOR)
-  - In strict mode: Return errors for missing fields
-  - In permissive mode: Return warnings for missing fields
-  - Return list of ValidationResult objects
-
-- `validate_rating_vs_load(circuit_path)`:
-  - Trace path from source to load
-  - For each passthrough component (has rating):
-    - Check that downstream load ≤ rating
-    - If exceeded: Create warning with details
-  - Return list of ValidationResult objects
-
-- `validate_gauge_progression(circuit_path, wire_segments)`:
-  - For each adjacent pair of wire segments in path:
-    - Compare AWG sizes
-    - If downstream wire is heavier than upstream: Create warning
-    - (Lower AWG number = heavier wire, e.g., 16 AWG > 20 AWG)
-  - Return list of ValidationResult objects
-
-- `collect_all_warnings(bom, circuits, components, permissive)`:
-  - Run all validation checks
-  - Collect ValidationResult objects
-  - Attach relevant warnings to wire objects
-  - Return summary of all issues
-
----
-
-#### Module 11: `schematic_help.py` - Requirements Documentation
-
-**Purpose**: Generate `--schematic-requirements` output
-
-**Functions**:
-
-- `print_schematic_requirements(config)`:
-  - Print formatted documentation to stdout
-  - Sections:
-
-    1. **Required Custom Fields**:
-       - FS, WL, BL: Descriptions, units, examples
-       - Load/Rating: Explanation of difference, when to use each
-
-    2. **Optional Custom Fields**:
-       - Wire_Type, Wire_Color, Wire_Gauge, Circuit_ID, System_Code, Connector_Type
-       - Purpose and format for each
-
-    3. **Net Naming Convention**:
-       - Preferred format: `Net-L105`
-       - Alternative formats accepted
-       - Examples: `Net-L105`, `Net-P12`, `Net-R200`
-
-    4. **System Codes**:
-       - Table of system codes with descriptions
-       - Extracted from EAWMS documentation
-       - Example: L=Lighting, P=Power, G=Ground, R=Radio, etc.
-
-    5. **Wire Color Mapping**:
-       - Table showing system code → color assignments
-       - Note that colors can be overridden per component/net
-
-    6. **Connector Types**:
-       - List of valid/recommended connector type values
-       - Examples: D-Sub, Molex, Deutsch, etc.
-
-    7. **Load vs Rating Explanation**:
-       - Load: Current drawn by device (lights, radios, motors)
-       - Rating: Current capacity of device (switches, breakers, connectors)
-       - Examples of each type
-
-    8. **Tool Assumptions**:
-       - Voltage drop threshold: 5% (configurable)
-       - Slack length: 24" (configurable)
-       - System voltage: 12V (configurable)
-       - Length calculation method: Manhattan distance
-       - Wire resistance/ampacity sources
-
-    9. **Complete Example**:
-       - Show sample KiCad component with all fields filled out
-       - Annotated to explain each field
-
-    10. **Field Export Verification**:
-        - Reminder to verify KiCad exports custom fields to netlist
-        - Suggest testing with example schematic
-        - Note that field names may need adjustment based on KiCad version
-
-**Implementation**: Uses data from `reference_data.py` and `config` to populate tables and examples.
-
----
-
-### 8.2 Test Structure
+### 10.2 Test Structure
 
 **Test Directory**: `tests/`
 
 **Test Files**:
-- `test_parser.py`: Netlist parsing, field extraction
-- `test_component.py`: Component model, validation, type identification
-- `test_circuit.py`: Circuit analysis, topology detection, signal flow
+- `test_parser.py`: S-expression parsing, schematic file reading
+- `test_schematic.py`: Schematic data model, wire/label/component extraction
+- `test_component.py`: Component model, footprint encoding parsing
+- `test_label_association.py`: Label-to-wire proximity matching
 - `test_wire_calculator.py`: Length, voltage drop, gauge calculations
-- `test_wire_bom.py`: Wire BOM data model
+- `test_validator.py`: All validation checks
 - `test_output_csv.py`: CSV generation in both modes
 - `test_output_markdown.py`: Markdown generation
-- `test_validator.py`: All validation checks
-- `test_integration.py`: End-to-end tests with complete netlists
-- `test_cli.py`: Command-line interface, argument parsing, file generation
+- `test_integration.py`: End-to-end tests with complete schematics
+- `test_cli.py`: Command-line interface, argument parsing
 
 **Test Fixtures** (in `tests/fixtures/`):
-- `example.xml`: KiCad demo (format compatibility only)
-- `simple_two_component.net`: Minimal EA circuit with full fields
-- `multi_node_circuit.net`: 3+ component circuit for topology testing
-- `missing_fields.net`: Components with missing data (permissive mode testing)
-- `realistic_ea_system.net`: Complete aircraft electrical system for integration testing
-- `invalid_net_names.net`: Test net name parsing edge cases
+- `test_01_fixture.kicad_sch`: Simple two-component circuit
+- `test_02_fixture.kicad_sch`: Multi-segment circuit (battery → switch → lamp)
+- `test_03_fixture.kicad_sch`: Junction example with multiple wires
+- `test_04_missing_labels.kicad_sch`: Unlabeled wires (permissive mode test)
+- `test_05_multiple_circuits.kicad_sch`: Multiple independent circuits
 - Expected output files for comparison
 
 **Test Strategy**:
@@ -1220,18 +865,14 @@ The `kicad2wireBOM/` package contains 11 modules:
 - Validate calculations against hand-calculated examples
 - Test both strict and permissive modes
 - Test both builder and engineering output modes
-- Test edge cases: missing fields, multi-node, ambiguous flow, etc.
+- Test edge cases: missing labels, orphaned labels, duplicate IDs, etc.
 
-**Important**: Tests must be written against `data/example.xml` to verify KiCad netlist format compatibility, even though it lacks EA-specific fields.
-
----
-
-### 8.3 Dependencies
+### 10.3 Dependencies
 
 **Required**:
-- `kinparse`: KiCad netlist parsing library
+- `sexpdata` or custom s-expression parser
 - `pytest`: Testing framework
-- `PyYAML` or `json`: Configuration file parsing (YAML recommended for readability)
+- `PyYAML`: Configuration file parsing
 
 **Standard Library**:
 - `argparse`: Command-line argument parsing
@@ -1239,251 +880,235 @@ The `kicad2wireBOM/` package contains 11 modules:
 - `pathlib`: File path handling
 - `dataclasses`: Data model definitions
 - `typing`: Type hints
-- `re`: Regular expression parsing (net names, field formats)
-- `glob`: File pattern matching (for REVnnn detection)
+- `re`: Regular expression parsing (label patterns, footprint encoding)
+- `math`: Distance calculations
 
 ---
 
-## 9. Special Considerations
+## 11. Special Considerations
 
-### 9.1 Ground/Return Path Handling
+### 11.1 Coordinate Systems
 
-**Requirement**: All circuits must have explicit return wires specified in schematic.
+**Schematic Coordinates**: KiCAD uses millimeters, origin typically top-left
 
-**Rationale**:
-- No assumptions about airframe return paths
-- Composite airplanes require discrete ground wires
-- Even metal airplanes benefit from explicit ground wire sizing and documentation
-- Ensures proper voltage drop calculations for complete circuit
+**Aircraft Coordinates**: Inches, FS/WL/BL from aircraft datum
 
-**Implementation**:
-- Tool treats ground nets like any other net
-- Calculate wire gauge for ground returns same as power wires
-- GND/ground system code may map to specific color (black)
+**Important**: These are separate coordinate systems:
+- Schematic coordinates used for label-to-wire association (proximity)
+- Aircraft coordinates used for wire length calculations (Manhattan distance)
 
-**Validation**:
-- No special handling needed
-- If designer omits ground in schematic, BOM will be incomplete (as it should be)
+**No conversion needed** between the two systems - they serve different purposes.
 
-### 9.2 Multi-Node Net Topology Detection
+### 11.2 Hierarchical Schematics
 
-**Challenge**: When a net connects 3+ components, determine physical wire routing.
+**Future Enhancement**: Support for KiCAD hierarchical sheets
+
+**Current Approach**: Single flat schematic file
+
+**When implementing hierarchical support**:
+- Parse sheet instances
+- Track wire connections across sheet boundaries
+- Maintain global wire label uniqueness
+- Calculate wire lengths considering sheet interconnections
+
+**Note**: Defer hierarchical support to later development phase. Focus on flat schematics first.
+
+### 11.3 Junction Handling
+
+**KiCAD Junction**: Explicit graphical element showing wire connection point
+
+**Purpose in BOM Tool**:
+- Identifies where multiple wires physically meet
+- Important for understanding topology
+- May indicate terminal blocks, splice points, or bus bars
+
+**Usage**:
+- Record junction positions
+- Associate wires that connect at junction
+- Note in output if multiple wires share junction (informational)
+
+**Not Used For**:
+- Star topology inference (use component analysis instead)
+- Net consolidation (we want individual wires, not consolidated nets)
+
+### 11.4 Wire Label Variations
+
+**Input Flexibility**: Accept various label formats in schematic
+- Compact: `L1A`
+- Dashes: `L-1-A`
+- Padded: `L001A`
+- Mixed: `L-001-A`
+
+**Output Standardization**: Normalize to chosen format via `--label-format` flag
+- Ensures consistent BOM output regardless of schematic label style
+
+### 11.5 S-Expression Parsing Robustness
+
+**Challenges**:
+- KiCAD format may change between versions
+- Nested structures of varying depth
+- Optional elements (some components may lack certain properties)
 
 **Approach**:
-1. Analyze component coordinates (FS/WL/BL)
-2. Detect topology type:
-   - **Star**: Components cluster around one central point (hub)
-   - **Daisy-chain**: Components form linear sequence
-3. For star: Create segments from hub to each spoke
-4. For daisy-chain: Create segments between adjacent components in spatial order
-5. Log informational message that topology was inferred
-6. Note in output for designer review
-
-**Important**: Tool makes best guess but notes assumption. Designer should verify routing makes sense.
-
-### 9.3 Component Type Heuristics
-
-**Source Identification**:
-- Reference prefix: J, BAT, GEN, ALT → source
-- Component type: Connectors, batteries, generators/alternators
-- System knowledge: Power system sources are batteries/alternators
-
-**Load Identification**:
-- Has `Load` field populated → load
-- Reference prefix: LIGHT, RADIO, DISPLAY, MOTOR, PUMP → load
-
-**Passthrough Identification**:
-- Has `Rating` field populated → passthrough
-- Reference prefix: SW, CB, RELAY, FUSE → passthrough
-
-**Ambiguity Handling**:
-- If cannot determine: Warn, make best guess based on available information
-- Prefer field data (Load/Rating) over heuristics
-- Document assumption in engineering mode
-
-### 9.4 AWG Size Standardization
-
-**Standard Sizes**: 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2 AWG
-
-**Rounding**: Always round UP to next standard size when calculated minimum is between sizes.
-
-**Example**:
-- Calculated minimum: 18.7 AWG
-- Selected size: 18 AWG (next standard size that meets requirement)
-
-**Special Cases**:
-- If calculated minimum is smaller than 22 AWG: Use 22 AWG (smallest standard size)
-- If calculated minimum is larger than 2 AWG: Flag warning, may need parallel wires or bus bar
-
-### 9.5 Configuration File Format
-
-**File Name**: `.kicad2wireBOM.yaml` (or `.json`)
-
-**Search Locations** (in order):
-1. Path specified by `--config` flag
-2. Current working directory
-3. Same directory as input netlist file
-4. User home directory
-
-**Example YAML Structure**:
-```yaml
-# kicad2wireBOM Configuration File
-
-system_voltage: 14  # volts (override default 12V)
-slack_length: 30    # inches (override default 24")
-
-# Custom wire resistance table (ohms per foot)
-wire_resistance:
-  22: 0.016
-  20: 0.010
-  18: 0.0064
-  # ... etc
-
-# Custom ampacity table (max amps)
-wire_ampacity:
-  22: 5
-  20: 7.5
-  18: 10
-  # ... etc
-
-# Custom system code to color mapping
-system_colors:
-  L: White
-  P: Red
-  G: Black
-  R: Shielded Gray
-  # ... etc
-
-# Default output mode
-permissive_mode: false
-engineering_mode: false
-```
-
-**Validation**: Tool validates config file structure and data types, warns on invalid entries.
+- Defensive parsing: Check for element existence before accessing
+- Version detection: Read `(version ...)` element, warn if unexpected
+- Graceful degradation: Skip unparseable elements, log warnings
+- Test against multiple KiCAD versions (v8, v9)
 
 ---
 
-## 10. Implementation Approach
-
-### 10.1 Development Methodology
-
-**Test-Driven Development (TDD)**:
-- Write failing test first (RED)
-- Write minimal code to pass test (GREEN)
-- Refactor while keeping tests green (REFACTOR)
-- Commit after each passing test
-
-**YAGNI (You Aren't Gonna Need It)**:
-- Only implement features needed now
-- Don't add speculative features
-- Keep code simple and focused
-
-**DRY (Don't Repeat Yourself)**:
-- Refactor duplication AFTER tests pass
-- Extract common patterns into functions
-- Maintain clean, maintainable code
-
-### 10.2 Implementation Phases
-
-The implementation plan document will break this design into concrete tasks following this sequence:
-
-**Phase 1: Foundation**
-- Project setup, dependencies
-- Netlist parsing with kinparse
-- Component data model
-- Basic tests
-
-**Phase 2: Core Calculations**
-- Wire length calculation (Manhattan distance)
-- Voltage drop and gauge calculation
-- Reference data extraction from Aeroelectric Connection
-- Wire color assignment
-- EAWMS label generation
-
-**Phase 3: Circuit Analysis**
-- Net to circuit conversion
-- Topology detection
-- Signal flow determination
-- Wire segment creation
-
-**Phase 4: Validation**
-- Required field validation
-- Wire gauge validation
-- Rating vs load validation
-- Gauge progression validation
-- Permissive mode handling
-
-**Phase 5: Output Generation**
-- CSV output (builder and engineering modes)
-- Markdown output (both modes)
-- Output filename generation with revisions
-
-**Phase 6: CLI and Integration**
-- Command-line interface
-- Configuration file loading
-- Schematic requirements documentation
-- End-to-end integration tests
-
-**Phase 7: Documentation and Polish**
-- User documentation
-- Code comments
-- Example schematics
-- Final testing
-
-### 10.3 Critical Tasks
-
-**KiCad Field Export Validation**:
-- MUST create test KiCad schematic with custom fields
-- Export netlist and verify fields appear in parsed data
-- Determine exact field name formats KiCad uses
-- May need to adjust parser based on findings
-- Document findings in implementation plan
-
-**Reference Data Extraction**:
-- Digitize wire resistance table from Aeroelectric Connection
-- Digitize ampacity table from Aeroelectric Connection
-- Extract system code color mapping from EAWMS documentation
-- Validate values against multiple sources
-- Document sources for each data point
-
-**Test Fixture Creation**:
-- Create realistic EA electrical system test schematic in KiCad
-- Export as netlist fixture
-- Use for integration testing
-- Include various scenarios: simple, multi-node, edge cases
-
----
-
-## 11. Success Criteria
+## 12. Success Criteria
 
 The design is considered successfully implemented when:
 
-- ✅ All unit tests pass
-- ✅ Integration tests pass with realistic EA system fixtures
-- ✅ Tool processes KiCad netlists and produces valid CSV/Markdown output
+- ✅ Tool parses KiCAD `.kicad_sch` files successfully
+- ✅ Wire segments extracted with correct start/end points
+- ✅ Labels associated with wires based on proximity
+- ✅ Component positions and footprint data extracted
+- ✅ Circuit IDs parsed from labels correctly
 - ✅ Wire labels follow EAWMS format (SYSTEM-CIRCUIT-SEGMENT)
 - ✅ Wire gauge calculations are correct (validated against hand calculations)
 - ✅ Wire length calculations use Manhattan distance + slack correctly
 - ✅ Voltage drop calculations stay within 5% threshold
 - ✅ Both builder and engineering modes produce correct output
 - ✅ Strict and permissive modes work as specified
-- ✅ `--schematic-requirements` provides complete documentation
-- ✅ Auto-generated filenames use REVnnn format correctly
-- ✅ Configuration file loading works
-- ✅ Multi-node topology detection and signal flow work reasonably
 - ✅ All validation checks produce appropriate warnings
+- ✅ CSV and Markdown outputs are well-formatted
+- ✅ Auto-generated filenames use REVnnn format correctly
+- ✅ `--schematic-requirements` provides complete documentation
 - ✅ Code follows project standards (TDD, YAGNI, DRY)
+- ✅ All unit and integration tests pass
+- ✅ Tool works with test fixtures from real KiCAD schematics
 - ✅ Documentation is complete and accurate
 
 ---
 
-## 12. Acronyms and Terminology
+## 13. Migration from Netlist-Based Design
 
-See `docs/acronyms.md` for complete project acronyms and domain-specific terminology.
+**Previous Approach**: Archived in `docs/archive/`
+
+**Key Differences**:
+| Aspect | Old (Netlist) | New (Schematic) |
+|--------|---------------|-----------------|
+| Input File | `.net` XML | `.kicad_sch` s-expression |
+| Parsing Library | `kinparse` | `sexpdata` or custom |
+| Primary Entity | Net (electrical connectivity) | Wire Segment (physical wire) |
+| Label Source | Net name field | Label elements in schematic |
+| Wire Granularity | Lost (nets collapse wires) | Preserved (individual wires) |
+| Multi-wire Nets | Cannot distinguish | Each wire is separate entity |
+
+**What Stays the Same**:
+- EAWMS wire marking standard
+- Footprint field encoding format
+- Aircraft coordinate system (FS/WL/BL)
+- Wire calculation algorithms (length, gauge, voltage drop)
+- Reference data (resistance, ampacity, colors)
+- Output formats (CSV, Markdown)
+- CLI interface design
+- Validation approach
 
 ---
 
-## 13. References
+## 14. Programmer Implementation Notes
+
+### 14.1 Starting Point
+
+**First Tasks**:
+1. Set up project structure and dependencies
+2. Write s-expression parser (or integrate `sexpdata` library)
+3. Parse basic schematic elements (wire, label, symbol)
+4. Create data models (WireSegment, Component, Label)
+
+**Test-Driven Approach**:
+- Start with smallest test fixture (test_01_fixture.kicad_sch)
+- Write failing test for parsing wire segments
+- Implement minimal parser to pass test
+- Refactor and repeat
+
+### 14.2 Critical Algorithms
+
+**Label-to-Wire Association**:
+- Point-to-line-segment distance calculation is geometrically tricky
+- Test thoroughly with various label placements
+- Consider edge cases: label at wire endpoint, label far from wire
+
+**Component Pin Position Calculation**:
+- Symbol rotation and mirroring affects pin positions
+- KiCAD uses rotation angles in degrees
+- May need transformation matrix for accurate pin positioning
+
+**Coordinate Tolerance Matching**:
+- Floating-point comparison requires epsilon tolerance
+- Use consistent tolerance throughout (0.1mm suggested)
+
+### 14.3 Common Pitfalls
+
+**S-Expression Parsing**:
+- Symbols like `(`, `)`, `"` need careful handling
+- Deeply nested structures require recursive parsing
+- Optional elements may be absent (check before accessing)
+
+**Schematic Coordinates**:
+- KiCAD coordinates are float values in mm
+- Label positions may use different origin/scale than wires
+- Always use same coordinate system for proximity calculations
+
+**Wire Connectivity**:
+- Wires may connect at endpoints or junctions
+- Not all wires connect to component pins (may connect to other wires)
+- Junction elements explicitly mark connection points
+
+### 14.4 Testing Strategy
+
+**Unit Tests**:
+- Test each function in isolation
+- Mock complex dependencies
+- Use simple data structures for test inputs
+
+**Integration Tests**:
+- Use actual `.kicad_sch` test fixtures
+- Verify complete workflow end-to-end
+- Compare output against expected results
+
+**Test Fixtures**:
+- Start with simplest possible schematic (2 components, 1 wire)
+- Gradually add complexity (multiple wires, junctions, labels)
+- Include edge cases (missing data, orphaned labels, etc.)
+
+### 14.5 Questions to Resolve During Implementation
+
+**S-Expression Parser**:
+- Use `sexpdata` library or write custom parser?
+- How to handle KiCAD version differences in format?
+
+**Pin Position Calculation**:
+- Do we need exact pin positions or are component positions sufficient?
+- How to handle rotated/mirrored symbols?
+
+**Label Association**:
+- What distance threshold is appropriate? (10mm suggested)
+- How to handle ambiguous cases (label equidistant from multiple wires)?
+
+**Junction Usage**:
+- Should junctions affect BOM output? (informational note vs functional impact)
+
+---
+
+## 15. Acronyms and Terminology
+
+See `docs/acronyms.md` for complete project acronyms and domain-specific terminology.
+
+**Key Terms**:
+- **FS**: Fuselage Station (longitudinal aircraft coordinate)
+- **WL**: Waterline (vertical aircraft coordinate)
+- **BL**: Buttline (lateral aircraft coordinate)
+- **EAWMS**: Experimental Aircraft Wire Marking Standard
+- **AWG**: American Wire Gauge
+- **s-expression**: Symbolic expression (Lisp-style nested list format)
+
+---
+
+## 16. References
 
 1. **MIL-W-5088L**: Military Specification - Wiring, Aerospace Vehicle
    Location: `docs/references/milspecs/MIL-STD-5088L.txt`
@@ -1495,23 +1120,26 @@ See `docs/acronyms.md` for complete project acronyms and domain-specific termino
 3. **EA Wire Marking Standard**: Project-specific EAWMS documentation
    Location: `docs/ea_wire_marking_standard.md`
 
-4. **KiCad Documentation**: KiCad v9 netlist format reference
-   Test file: `data/example.xml`
+4. **KiCAD Documentation**: KiCAD v8/v9 schematic file format reference
+   Test files: `tests/fixtures/test_*_fixture.kicad_sch`
 
-5. **kinparse Library**: Python library for parsing KiCad netlists
-   PyPI: https://pypi.org/project/kinparse/
+5. **sexpdata Library**: Python library for parsing s-expressions
+   PyPI: https://pypi.org/project/sexpdata/
 
 ---
 
-## 14. Document History
+## 17. Document History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2025-10-15 | Claude (Architect) | Initial design specification based on requirements discussion with Tom |
+| 1.0 | 2025-10-15 | Claude (Architect) | Initial design (netlist-based) |
+| 1.1 | 2025-10-17 | Claude (Architect) | Revised for net name parsing approach |
+| 2.0 | 2025-10-18 | Claude (Architect) | Complete redesign for schematic-based parsing |
 
 ---
 
 **Next Steps**:
-1. Review and approve this design document
-2. Create detailed implementation plan based on this design
-3. Begin Phase 1 implementation (Foundation)
+1. Tom reviews this schematic-based design
+2. Create detailed implementation plan
+3. Set up test fixtures with actual KiCAD schematics
+4. Begin Phase 1 implementation (S-expression parsing foundation)
