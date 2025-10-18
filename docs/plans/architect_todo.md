@@ -2,7 +2,42 @@
 
 ## Current Tasks
 
-### Update Programmer Role Definition (2025-10-18)
+(none)
+
+---
+
+## Completed Tasks
+
+### [x] Add Critical Pre-Commit Todo Review to All Roles (2025-10-18)
+
+**Context:** Tom requested that it be CRITICAL for all roles to review and update their todo lists before every git commit.
+
+**Changes Made:**
+
+1. **Architect Role** (`claude/roles/architect.md:87-95`):
+   - Added "CRITICAL PRE-COMMIT CHECK" section to Progress Tracking
+   - 5-step mandatory checklist before every commit
+   - Requires updating architect_todo.md and including it in commit
+   - Emphasizes this is not optional
+
+2. **Programmer Role** (`claude/roles/programmer.md:119-127`):
+   - Added "CRITICAL PRE-COMMIT CHECK" section to Progress Tracking
+   - 5-step mandatory checklist before every commit
+   - Requires updating programmer_todo.md and including it in commit
+   - Notes this prevents 30+ minutes of wasted verification time
+
+3. **Code Reviewer Role** (`claude/roles/code_reviewer.md:81-95, 135-139`):
+   - Added "Progress Tracking Review" as Key Activity #6
+   - Added explicit verification steps for reviewing commits
+   - Marked todo update as "MUST FIX" if missing
+   - Added "Progress Tracking (CRITICAL)" to Review Checklist
+   - 4-item checklist to verify todo list was properly updated
+
+**Impact:** All three roles now have explicit, mandatory requirements to update their respective todo lists before committing. Code Reviewer will catch and reject commits that don't include updated todo lists.
+
+---
+
+### [x] Update Programmer Role Definition (2025-10-18)
 
 **Context:** During the 2025-10-18 programmer session, we discovered that the codebase had existing implementation that was ahead of the documentation. This created confusion when starting the session.
 
@@ -39,8 +74,27 @@
 
 **Priority:** Medium - Affects next programmer session efficiency
 
----
+**Resolution (2025-10-18):**
 
-## Completed Tasks
+Updated `claude/roles/programmer.md` with the following improvements:
 
-(none yet)
+1. **Added startup verification step** (step 3 in "Always Read"):
+   - Run `git log` to see recent commits
+   - Run `pytest` to verify current state
+   - Check what modules exist using Glob
+   - Flag discrepancies between todo status and actual code state
+
+2. **Strengthened Progress Tracking section** (section 5):
+   - Marked as "CRITICAL FOR SESSION CONTINUITY"
+   - Added "Why This Matters" explanation
+   - Emphasized updating DURING implementation, not just at end
+   - Provided clear workflow example with 7 steps
+   - Explained impact: prevents wasting 30+ minutes on verification
+
+3. **Added new "Handling Existing Code" section** (section 6):
+   - Step-by-step process for verifying existing implementations
+   - Guidance on when to mark tasks complete vs when to fix issues
+   - Instructions to stop and ask Tom when uncertain
+   - Emphasizes verifying tests are quality tests (not just mocked behavior)
+
+These changes should significantly improve session continuity by ensuring programmers can quickly and accurately understand project state when starting work.

@@ -78,6 +78,22 @@ When assuming the Code Reviewer role, read these files to understand what to rev
 - DRY principle followed
 - Proper separation of concerns
 
+### 6. Progress Tracking Review
+
+**CRITICAL:** Before approving any commit, verify todo list was updated.
+
+Check that the appropriate todo document has been updated:
+- **Programmer commits:** `docs/plans/programmer_todo.md` must reflect completed work
+- **Architect commits:** `docs/plans/architect_todo.md` must reflect completed work
+- Tasks marked `[x]` for completed work
+- Tasks marked `[~]` for work in progress
+- Updated todo list included in the commit
+
+**If todo list was not updated:**
+- **MUST FIX**: Todo list must be updated before commit
+- This is a critical violation - session continuity depends on it
+- Reject the commit and require todo update
+
 ## Review Checklist
 
 ### Code Structure
@@ -115,6 +131,12 @@ When assuming the Code Reviewer role, read these files to understand what to rev
 - [ ] Commit messages explain "why"
 - [ ] No unwanted files added
 - [ ] Pre-commit hooks not bypassed
+
+### Progress Tracking (CRITICAL)
+- [ ] Appropriate todo list updated (programmer_todo.md or architect_todo.md)
+- [ ] Task statuses reflect actual completion ([x] done, [~] in progress)
+- [ ] Updated todo list included in commit being reviewed
+- [ ] Todo list status matches actual code/documentation changes
 
 ## Review Feedback Style
 

@@ -24,17 +24,23 @@ When assuming the Programmer role, read these files to understand what to implem
    - Identify next uncompleted task
    - Start work on that task following TDD
    - **Watch for `[REVISED]` markers** - design changes after initial planning
-3. **requirements.txt** - Dependencies available for use
-4. **docs/acronyms.md** - Domain terminology to use in code and tests
+3. **Verify actual implementation state** - The todo document may be out of sync with actual code
+   - Run `git log -10 --oneline` to see recent commits
+   - Run `pytest` to verify current state
+   - Use Glob to check what modules exist in the source directory
+   - **If tests are passing but todo shows tasks incomplete:** Flag this discrepancy to Tom immediately
+   - **If code exists but documentation says it's not done:** Verify the existing code meets requirements before marking tasks complete (see "Handling Existing Code" below)
+4. **requirements.txt** - Dependencies available for use
+5. **docs/acronyms.md** - Domain terminology to use in code and tests
 
 ### For Context on Current Work
-5. **docs/plans/incremental_implementation_plan.md** - Overall implementation strategy
-6. **docs/plans/kicad2wireBOM_design.md** - Complete design specification
+6. **docs/plans/incremental_implementation_plan.md** - Overall implementation strategy
+7. **docs/plans/kicad2wireBOM_design.md** - Complete design specification
    - **Check for "Design Revision History" section** - may contain important changes
    - **Look for `[REVISED]` markers** - indicates updated design decisions
-7. **Existing test files** - Use Glob to find `tests/test_*.py` to understand test patterns
-8. **Similar existing code** - Find working examples of patterns you need to implement
-9. **docs/ea_wire_marking_standard.md** - Domain rules (for wire-related features)
+8. **Existing test files** - Use Glob to find `tests/test_*.py` to understand test patterns
+9. **Similar existing code** - Find working examples of patterns you need to implement
+10. **docs/ea_wire_marking_standard.md** - Domain rules (for wire-related features)
 
 **When You See Design Inconsistencies:**
 - If design docs conflict or seem confusing, **STOP immediately**
@@ -44,15 +50,15 @@ When assuming the Programmer role, read these files to understand what to implem
 - Don't try to resolve architectural ambiguities yourself
 
 ### For Bug Fixes
-8. **Git diff** - Recent changes that might have caused the bug
-9. **Git log** - Recent commits to understand what changed
-10. **Related test files** - Tests that cover the buggy code
-11. **Error logs/stack traces** - Full error output to identify root cause
+11. **Git diff** - Recent changes that might have caused the bug
+12. **Git log** - Recent commits to understand what changed
+13. **Related test files** - Tests that cover the buggy code
+14. **Error logs/stack traces** - Full error output to identify root cause
 
 ### When Refactoring
-12. **All tests for the module** - Ensure comprehensive test coverage exists
-13. **All usages of the code** - Use Grep to find where code is called
-14. **Related modules** - Understand dependencies and impacts
+15. **All tests for the module** - Ensure comprehensive test coverage exists
+16. **All usages of the code** - Use Grep to find where code is called
+17. **Related modules** - Understand dependencies and impacts
 
 ## Key Activities
 
@@ -86,11 +92,69 @@ When assuming the Programmer role, read these files to understand what to implem
 - Create WIP branches for new work
 
 ### 5. Progress Tracking
-- Update `docs/plans/programmer_todo.md` as tasks are completed
-- Mark tasks `[x]` Complete when tests pass and code is committed
-- Mark tasks `[~]` In progress when actively working on them
-- Keep the todo list current - it's the source of truth for implementation status
-- This is part of TDD discipline: test passes → mark complete → commit
+
+**CRITICAL FOR SESSION CONTINUITY:** Keeping programmer_todo.md updated is essential for effective handoffs between sessions.
+
+**Update docs/plans/programmer_todo.md throughout implementation:**
+- Mark tasks `[~]` In progress when you START working on them
+- Mark tasks `[x]` Complete when tests pass AND code is committed
+- Update DURING implementation, not just at end of session
+- This is part of TDD discipline: test passes → mark complete → commit → update todo
+
+**Why This Matters:**
+- Next programmer session relies on accurate status to pick up work
+- Out-of-sync documentation wastes 30+ minutes verifying what's actually done
+- The todo document is the source of truth for implementation progress
+- Accurate tracking prevents duplicate work and missed requirements
+
+**Workflow Example:**
+1. Mark task [~] In progress in programmer_todo.md
+2. Write failing test (RED)
+3. Implement code to pass test (GREEN)
+4. Tests pass
+5. Mark task [x] Complete in programmer_todo.md
+6. Commit changes with both code and updated todo document
+7. Move to next task
+
+**CRITICAL PRE-COMMIT CHECK:**
+Before EVERY `git commit`, you MUST:
+1. Review `docs/plans/programmer_todo.md`
+2. Update task status to reflect what you've actually completed
+3. Mark tasks `[x]` that are done, `[~]` that are in progress
+4. Include the updated programmer_todo.md in your commit
+5. NEVER commit code without updating your todo list
+
+This is not optional. Skipping this wastes 30+ minutes in the next session verifying what's actually done.
+
+### 6. Handling Existing Code
+
+**When you find code that exists but programmer_todo.md says it's not complete:**
+
+1. **Verify the code meets requirements:**
+   - Read the design specification for this task
+   - Check if all acceptance criteria are met
+   - Verify comprehensive test coverage exists
+   - Run the tests to confirm they pass
+
+2. **Verify the tests are quality tests:**
+   - Tests must test real behavior, not mocked behavior
+   - Tests must comprehensively cover the functionality
+   - Tests must have pristine output (no unexpected errors/warnings)
+
+3. **If code and tests are complete:**
+   - Mark the task [x] Complete in programmer_todo.md
+   - Add a note: "Verified existing implementation meets requirements"
+   - Commit the documentation update
+
+4. **If code exists but is incomplete or incorrect:**
+   - Keep task marked [ ] or [~]
+   - Fix the issues following TDD
+   - Then mark complete and commit
+
+5. **If you're uncertain about quality:**
+   - STOP and ask Tom
+   - Don't mark complete if you have doubts
+   - Better to verify than assume
 
 ## What You DON'T Do
 

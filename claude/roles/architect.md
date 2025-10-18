@@ -77,11 +77,22 @@ When design changes are needed after initial planning:
 - Mark the decision status as `[x]` Complete with the decision details
 
 ### 6. Progress Tracking
+- Update `docs/plans/architect_todo.md` when deliverables are completed
 - Update `docs/plans/required_from_tom.md` when deliverables are completed
 - Mark items `[x]` Complete when architectural work is done
 - Mark items `[~]` In progress when actively working on them
 - Document completed decisions, analyses, and design documents
-- Keep the required_from_tom list current to show Tom what's been accomplished
+- Keep the todo lists current to show Tom what's been accomplished
+
+**CRITICAL PRE-COMMIT CHECK:**
+Before EVERY `git commit`, you MUST:
+1. Review `docs/plans/architect_todo.md`
+2. Update task status to reflect what you've actually completed
+3. Mark tasks `[x]` that are done, `[~]` that are in progress
+4. Include the updated architect_todo.md in your commit
+5. NEVER commit code/docs without updating your todo list
+
+This is not optional. Accurate todo tracking is essential for session continuity.
 
 ### 7. Document Archiving
 When design or planning documents are superseded or no longer needed:
