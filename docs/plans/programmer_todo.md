@@ -8,6 +8,23 @@ This document tracks implementation progress for kicad2wireBOM following the inc
 
 ---
 
+## **LAST SESSION NOTES (2025-10-18)**
+
+**Session Summary:**
+- ✅ Phase 0 complete - All parsing and basic functionality works
+- ✅ Phase 1 Task 1.4 complete - Net name parsing implemented per design revision
+- 🎯 **Next:** Phase 1 remaining tasks (1.5 onwards) - wire label generation, BOM data model, CSV output
+- ✅ All 61 tests passing
+- ✅ Fixtures updated to new format with SD-defined net names
+
+**Key Implementation Details:**
+- Source type ('S') added to footprint encoding (was only L|R)
+- Net name parsing is PRIMARY method for system code detection (e.g., `/P1A` → 'P')
+- Component inference is FALLBACK for validation
+- Test fixtures: `test_fixture_01.net` (BT1+L1), `test_fixture_02.net` (BT1+SW1+L1)
+
+---
+
 ## **DESIGN REVISION NOTICE - READ FIRST!**
 
 **Date**: 2025-10-17
