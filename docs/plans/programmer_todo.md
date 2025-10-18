@@ -63,15 +63,12 @@ touch tests/__init__.py
 
 ### Task 0.2: Set Up Dependencies
 
-**Decision needed from Tom** (see `required_from_tom.md`):
-- S-expression parser: `sexpdata` (recommended) OR custom parser
+**DECISION MADE**: Use `sexpdata` library for s-expression parsing
 
-**If using sexpdata**:
+**Install dependencies**:
 ```bash
 pip install sexpdata pytest
 ```
-
-**If writing custom parser**: No external dependency needed
 
 **Create `requirements.txt`**:
 ```
@@ -79,7 +76,20 @@ sexpdata>=0.0.3
 pytest>=7.0.0
 ```
 
-**Test**: `python -c "import sexpdata"` should work (if using sexpdata)
+**Test**: `python -c "import sexpdata"` should work
+
+**IMPORTANT - Circle K Protocol**:
+If you encounter problems with `sexpdata` during implementation:
+- Parsing errors with KiCAD files
+- Data structure issues (Symbol types, nested lists)
+- Performance problems
+- Any other blockers
+
+**THEN**:
+1. Document the specific issue clearly
+2. Say "Strange things are afoot at the Circle K"
+3. Suggest alternative (custom parser or pyparsing)
+4. **Wait for architectural decision** - don't switch libraries without approval
 
 ### Task 0.3: Verify Test Fixtures
 
@@ -626,10 +636,19 @@ def associate_labels_with_wires(wires, labels, threshold=10.0):
     Args:
         wires: List of WireSegment objects
         labels: List of Label objects
-        threshold: Maximum distance (mm) for association
+        threshold: Maximum distance (mm) for association (default: 10.0mm)
+                  This value is configurable and can be adjusted if needed.
+                  Set in DEFAULT_CONFIG or passed from command line.
 
     Modifies:
         Updates wire.labels and wire.circuit_id for each wire
+
+    Note:
+        The 10mm default threshold was chosen based on typical KiCAD label
+        placement. If testing shows labels are missed or incorrectly associated,
+        this value can be adjusted via:
+        - DEFAULT_CONFIG['label_threshold'] in reference_data.py
+        - CLI flag: --label-threshold <mm>
     """
     for label in labels:
         # Check if label text matches circuit ID pattern
@@ -693,41 +712,55 @@ def parse_circuit_id(wire):
 
 **Create**: `kicad2wireBOM/reference_data.py`
 
+**CRITICAL TASK**: Extract actual values from Aeroelectric Connection reference materials
+
+**Source Locations**:
+- Wire resistance: `docs/references/aeroelectric_connection/` - Chapter 5
+- Wire ampacity: `docs/references/aeroelectric_connection/` - Bob Nuckolls' bundled wire tables
+
 **Implement**:
 ```python
 # ABOUTME: This module stores reference data for wire calculations
 # ABOUTME: Includes wire resistance, ampacity, and color mapping tables
 
-# Wire resistance (ohms per foot) - FROM AEROELECTRIC CONNECTION CH5
-# TODO: Tom needs to provide complete values or Programmer extracts from docs
+# Wire resistance (ohms per foot)
+# SOURCE: Aeroelectric Connection Chapter 5, [page/table reference]
+# EXTRACTED: [Your name], [Date]
+# NOTE: Use bundled/conduit values (conservative), not free-air
 WIRE_RESISTANCE = {
-    22: 0.016,
-    20: 0.010,
-    18: 0.0064,
-    16: 0.004,
-    14: 0.0025,
-    12: 0.0016,
-    10: 0.001,
-    8: 0.0006,
-    6: 0.0004,
-    4: 0.00025,
-    2: 0.00016
+    # TODO: Extract actual values from Aeroelectric Connection Ch5
+    # These are placeholder estimates - REPLACE WITH REAL DATA
+    22: 0.016,  # TODO: Verify from source
+    20: 0.010,  # TODO: Verify from source
+    18: 0.0064, # TODO: Verify from source
+    16: 0.004,  # TODO: Verify from source
+    14: 0.0025, # TODO: Verify from source
+    12: 0.0016, # TODO: Verify from source
+    10: 0.001,  # TODO: Verify from source
+    8: 0.0006,  # TODO: Verify from source
+    6: 0.0004,  # TODO: Verify from source
+    4: 0.00025, # TODO: Verify from source
+    2: 0.00016  # TODO: Verify from source
 }
 
-# Wire ampacity (max amps, bundled) - FROM AEROELECTRIC CONNECTION
-# TODO: Tom needs to provide complete values
+# Wire ampacity (max amps)
+# SOURCE: Aeroelectric Connection bundled wire ampacity tables
+# EXTRACTED: [Your name], [Date]
+# IMPORTANT: Use BUNDLED wire values (conservative), NOT free-air values
 WIRE_AMPACITY = {
-    22: 5,
-    20: 7.5,
-    18: 10,
-    16: 13,
-    14: 17,
-    12: 23,
-    10: 33,
-    8: 46,
-    6: 60,
-    4: 80,
-    2: 100
+    # TODO: Extract actual values from Aeroelectric Connection
+    # These are placeholder estimates - REPLACE WITH REAL DATA
+    22: 5,    # TODO: Verify from source
+    20: 7.5,  # TODO: Verify from source
+    18: 10,   # TODO: Verify from source
+    16: 13,   # TODO: Verify from source
+    14: 17,   # TODO: Verify from source
+    12: 23,   # TODO: Verify from source
+    10: 33,   # TODO: Verify from source
+    8: 46,    # TODO: Verify from source
+    6: 60,    # TODO: Verify from source
+    4: 80,    # TODO: Verify from source
+    2: 100    # TODO: Verify from source
 }
 
 # System code to wire color mapping - FROM EAWMS DOCS
@@ -760,9 +793,22 @@ DEFAULT_CONFIG = {
 }
 ```
 
-**NOTE**: Placeholder values used. Tom should verify/provide correct values from Aeroelectric Connection.
+**INSTRUCTIONS**:
+1. Read Chapter 5 of Aeroelectric Connection (in `docs/references/aeroelectric_connection/`)
+2. Find wire resistance table (ohms per foot)
+3. Find bundled wire ampacity table (NOT free-air)
+4. Extract values for AWG sizes: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
+5. Replace TODO comments with actual values
+6. Document source (page/table number) in comments
+7. Add your name and date to EXTRACTED comment
+8. Remove all TODO comments when complete
 
-**Checkpoint**: ✓ Reference data tables created
+**VALIDATION**:
+- Compare your values with archived design doc estimates
+- If significantly different, double-check source
+- Bundled values should be more conservative (lower) than free-air
+
+**Checkpoint**: ✓ Reference data tables created with REAL values from Aeroelectric Connection
 
 ### Task 4.2: Wire Length Calculation
 
@@ -1224,6 +1270,8 @@ def main():
                         help='System voltage (default: 12V)')
     parser.add_argument('--slack-length', type=float, default=24,
                         help='Extra wire length in inches (default: 24")')
+    parser.add_argument('--label-threshold', type=float, default=10.0,
+                        help='Max distance (mm) for label-to-wire association (default: 10mm)')
 
     args = parser.parse_args()
 
@@ -1242,6 +1290,7 @@ def main():
     config = DEFAULT_CONFIG.copy()
     config['system_voltage'] = args.system_voltage
     config['slack_length'] = args.slack_length
+    config['label_threshold'] = args.label_threshold
 
     bom = process_schematic(args.source, config)
 

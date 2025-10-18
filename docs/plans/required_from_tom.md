@@ -136,13 +136,13 @@ From my analysis of your three test fixtures:
 
 ### Wire Resistance Values
 
-**Status:** `[ ]` Not extracted
+**Status:** `[x]` Decision: Programmer extracts from Aeroelectric Connection
 
 **Source:** `docs/references/aeroelectric_connection/` - Chapter 5
 
-**Task:** Extract resistance values (ohms per foot) for AWG sizes 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
+**Task for Programmer:** Extract resistance values (ohms per foot) for AWG sizes 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
 
-**Format Needed**:
+**Format**:
 ```python
 WIRE_RESISTANCE = {
     22: 0.016,  # ohms per foot
@@ -152,21 +152,26 @@ WIRE_RESISTANCE = {
 }
 ```
 
-**Note:** Programmer can extract during implementation, but having it ready speeds things up.
+**Instructions**:
+- Extract from Aeroelectric Connection reference materials during Phase 4
+- Use actual values from Bob Nuckolls' tables (not placeholder estimates)
+- Document source in code comments
+- Use bundled/conduit values (conservative), not free-air
+- Task 4.1 in programmer_todo.md
 
 ---
 
 ### Wire Ampacity Values
 
-**Status:** `[ ]` Not extracted
+**Status:** `[x]` Decision: Programmer extracts from Aeroelectric Connection
 
 **Source:** `docs/references/aeroelectric_connection/` - Bob Nuckolls' bundled wire ampacity tables
 
-**Task:** Extract max current ratings (amps) for AWG sizes 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
+**Task for Programmer:** Extract max current ratings (amps) for AWG sizes 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22
 
 **Important:** Use **bundled wire** values (conservative), not free-air values
 
-**Format Needed**:
+**Format**:
 ```python
 WIRE_AMPACITY = {
     22: 5,    # max amps
@@ -175,6 +180,12 @@ WIRE_AMPACITY = {
     # ... etc
 }
 ```
+
+**Instructions**:
+- Extract from Aeroelectric Connection during Phase 4
+- Use bundled/conduit ampacity (not free-air)
+- Document source in code comments
+- Task 4.1 in programmer_todo.md
 
 ---
 
@@ -225,18 +236,26 @@ SYSTEM_COLOR_MAP = {
 
 ### Label Association Distance Threshold
 
-**Status:** `[ ]` Needs decision
+**Status:** `[x]` Decision: 10mm (configurable)
 
-**Question:** What maximum distance (in mm) should we allow between a label and wire for association?
+**Decision**: Use 10mm (approximately 0.4 inches in schematic) as default threshold
 
-**Suggestion:** 10mm (about 0.4 inches in schematic)
+**Rationale**:
+- Reasonable distance for typical label placement in KiCAD schematics
+- Based on analysis of test fixtures showing labels within ~5-10mm of wires
+- Conservative enough to avoid false associations
 
-**Considerations**:
-- Too small: Labels might not associate with intended wires
-- Too large: Labels might associate with wrong wires
-- Visual inspection: How far do you typically place labels from wires in your schematics?
+**Configuration**:
+- Default: 10mm
+- Stored in `reference_data.py` as `DEFAULT_CONFIG['label_threshold']`
+- Configurable via CLI flag: `--label-threshold MM`
+- Easily adjustable if testing shows different value needed
 
-**Action:** Tom checks test fixtures, suggests appropriate threshold
+**Instruction for Programmer**:
+- Implement with 10mm default
+- Make threshold configurable (not hardcoded)
+- Add to configuration system for easy tuning
+- Document in `--help` and schematic requirements output
 
 ---
 
@@ -244,29 +263,23 @@ SYSTEM_COLOR_MAP = {
 
 ### Python Library for Parsing KiCAD Schematics
 
-**Status:** `[ ]` Needs decision
+**Status:** `[x]` Decision: Use sexpdata library
 
-**Options**:
+**Decision**: Use `sexpdata` library for s-expression parsing
 
-**Option 1: sexpdata library**
-- Pros: Mature, well-tested, simple API
-- Cons: External dependency
+**Rationale**:
+- Mature, well-tested library
+- Simple API: `import sexpdata; data = sexpdata.loads(text)`
+- Faster implementation than custom parser
 - PyPI: https://pypi.org/project/sexpdata/
-- Usage: `import sexpdata; data = sexpdata.loads(text)`
 
-**Option 2: Custom parser**
-- Pros: No external dependencies, full control, learning experience
-- Cons: More work, potential bugs, need to handle edge cases
-- Complexity: Moderate (s-expressions are simpler than XML)
-
-**Option 3: PyParsing-based**
-- Pros: Powerful parsing framework, good error messages
-- Cons: Heavier dependency, steeper learning curve
-- PyPI: https://pypi.org/project/pyparsing/
-
-**Recommendation:** Option 1 (sexpdata) for speed and reliability
-
-**Decision Needed:** Tom prefers minimal dependencies or quick implementation?
+**Instruction for Programmer**:
+- Use `sexpdata` as the primary parsing library
+- **If you encounter issues** with `sexpdata` (parsing errors, data structure problems, performance issues):
+  1. Document the specific problem
+  2. Use Circle K protocol: "Strange things are afoot at the Circle K"
+  3. Suggest alternative approach (custom parser or pyparsing)
+  4. Wait for architectural decision before switching
 
 ---
 
