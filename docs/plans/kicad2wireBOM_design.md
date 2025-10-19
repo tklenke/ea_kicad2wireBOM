@@ -262,23 +262,19 @@ class Component:
     source_type: str | None     # "L", "R", "S", "B"
     amperage: float             # Load, rating, or source capacity
     schematic_position: tuple[float, float]  # (x, y) in schematic
-    pins: list[ComponentPin]    # Pin locations and connections
+
+    # Symbol information for pin calculation (added 2025-10-19)
+    lib_id: str                 # "AeroElectricConnectionSymbols:S700-1-1"
+    rotation: float             # 0, 90, 180, 270 degrees
+    mirror_x: bool              # Mirrored across X axis
+    mirror_y: bool              # Mirrored across Y axis
+
+    pins: list[ComponentPin]    # Calculated pin positions and connections
 ```
 
 **Pin Position Calculation**:
-- Pin definitions in symbol library give relative positions
-- Symbol instance gives component position and rotation
-- Calculate absolute pin positions: `pin_abs = component_pos + rotate(pin_relative, component_rotation)`
-
-**Create ComponentPin Objects**:
-```python
-@dataclass
-class ComponentPin:
-    component_ref: str          # Parent component
-    pin_number: str             # Pin number (e.g., "1", "2")
-    position: tuple[float, float]  # Absolute (x, y) in schematic
-    connected_wires: list[str]  # UUIDs of connected wire segments
-```
+- See Section 4.1 for detailed pin position calculation algorithm with rotation/mirroring
+- Briefly: Apply mirror transform → Apply rotation matrix → Translate to component position
 
 ### 3.4 Label Extraction and Association
 
@@ -320,46 +316,306 @@ def point_to_segment_distance(point, seg_start, seg_end):
 **Parse Junction Elements**:
 - Extract all `(junction ...)` blocks from schematic
 - Junction position: `(at x y)`
+- Junction UUID for unique identification
 
-**Purpose**:
-- Identify where multiple wires physically meet at one point
-- Important for topology analysis
-- May indicate star routing (hub at junction)
+**CRITICAL SEMANTICS**:
+- **Junction present**: Wires meeting at that (x,y) ARE electrically connected
+- **Junction absent**: Wires crossing at that (x,y) are NOT connected
+  - Like PCB traces on different layers passing over each other
+  - KiCad uses explicit junctions to indicate electrical connection
+  - Do NOT infer connections from coordinate overlap alone
+
+**Example from test_03A_fixture**:
+- Wire P3A crosses wire P2A in 2D space
+- No junction at crossing point → wires are NOT connected
+- Wire P1A and P2A meet at junction (144.78, 86.36) → ARE connected
 
 **Create Junction Objects**:
 ```python
 @dataclass
 class Junction:
-    position: tuple[float, float]  # (x, y) in schematic
-    connected_wires: list[str]     # UUIDs of wires meeting at junction
+    uuid: str                       # Unique identifier
+    position: tuple[float, float]   # (x, y) in schematic
+    diameter: float                 # Visual diameter
+    color: tuple[int, int, int, int]  # RGBA color
+```
+
+**S-Expression Format**:
+```lisp
+(junction
+  (at 144.78 86.36)
+  (diameter 0)
+  (color 0 0 0 0)
+  (uuid "51609a84-6043-4d22-9ef7-15e32380f2f0")
+)
 ```
 
 ---
 
 ## 4. Wire Connection Analysis
 
-### 4.1 Building Wire-to-Component Connections
+### 4.1 Pin Position Calculation
 
-**Algorithm**:
+**REVISED - 2025-10-19**: Implement precise pin position calculation with rotation and mirroring support.
 
-1. **For each wire segment**:
-   - Get start_point and end_point coordinates
+**Problem**: Component symbols have pins at relative positions. Component instances are placed with rotation and mirror transformations. Must calculate absolute pin positions in schematic coordinates.
 
-2. **For each endpoint**:
-   - Search for component pins at that position (within tolerance, e.g., 0.1mm)
-   - If pin found: Record connection (wire ↔ component-pin)
-   - If no pin found: Check for junction at that position
-   - If junction found: Record junction connection
+**Data from Schematic**:
 
-3. **Build connectivity graph**:
-   - Each wire knows which component pins it connects
-   - Each component pin knows which wires connect to it
+Symbol library defines pins relative to symbol origin:
+```lisp
+(symbol "S700-1-1_1_1"
+  (pin passive line
+    (at -6.35 0 0)      ; Pin 2: position (-6.35, 0), angle 0
+    (number "2" ...)
+  )
+  (pin passive line
+    (at 6.35 2.54 180)  ; Pin 1: position (6.35, 2.54), angle 180
+    (number "1" ...)
+  )
+)
+```
+
+Component instance specifies placement:
+```lisp
+(symbol
+  (lib_id "AeroElectricConnectionSymbols:S700-1-1")
+  (at 119.38 105.41 0)  ; Position (x, y), rotation angle
+  (pin "2" (uuid "..."))
+  (pin "1" (uuid "..."))
+)
+```
+
+**Pin Position Calculation Algorithm**:
+
+```python
+def calculate_pin_position(
+    pin_def: PinDefinition,
+    component: ComponentInstance
+) -> tuple[float, float]:
+    """
+    Calculate absolute schematic position of a pin.
+
+    Steps:
+    1. Start with pin relative position from symbol library
+    2. Apply mirroring (if component is mirrored)
+    3. Apply rotation (component rotation angle)
+    4. Translate to component position
+    """
+    x, y = pin_def.position
+
+    # Step 1: Apply mirroring
+    if component.mirror_x:
+        x = -x
+    if component.mirror_y:
+        y = -y
+
+    # Step 2: Apply rotation (2D rotation matrix)
+    # x' = x*cos(θ) - y*sin(θ)
+    # y' = x*sin(θ) + y*cos(θ)
+    theta_rad = math.radians(component.rotation)
+    x_rot = x * math.cos(theta_rad) - y * math.sin(theta_rad)
+    y_rot = x * math.sin(theta_rad) + y * math.cos(theta_rad)
+
+    # Step 3: Translate to component position
+    abs_x = component.position[0] + x_rot
+    abs_y = component.position[1] + y_rot
+
+    return (abs_x, abs_y)
+```
+
+**New Data Structures**:
+
+```python
+@dataclass
+class PinDefinition:
+    """Pin definition from symbol library"""
+    number: str                    # "1", "2", "3"
+    position: tuple[float, float]  # (x, y) relative to symbol origin
+    angle: float                   # Pin direction in degrees
+    length: float                  # Pin length
+    name: str                      # "IN", "ON", etc.
+
+@dataclass
+class ComponentPin:
+    """A specific pin on a component instance"""
+    component_ref: str              # "SW1"
+    pin_number: str                 # "1"
+    position: tuple[float, float]   # Absolute (x, y) in schematic
+    uuid: str                       # Pin UUID from schematic
+    connected_wires: list[str]      # Wire UUIDs (populated later)
+```
+
+**Implementation Notes**:
+- Parse symbol library definitions at startup, cache by lib_id
+- Component instances reference lib_id to look up pin definitions
+- Rotation values: 0, 90, 180, 270 degrees
+- Mirror detection may require transform analysis in some schematics
+- Coordinate matching tolerance: 0.1mm for "same position"
+
+### 4.2 Building Connectivity Graph
+
+**Data Structure - NetworkNode**:
+
+A connection point in the schematic where wires meet:
+
+```python
+@dataclass
+class NetworkNode:
+    """A point where connections meet"""
+    position: tuple[float, float]  # (x, y) in schematic
+    node_type: str                  # "component_pin", "junction", "wire_endpoint"
+
+    # If node_type == "component_pin":
+    component_ref: str | None       # "SW1", "J1", etc.
+    pin_number: str | None          # "1", "2", etc.
+
+    # If node_type == "junction":
+    junction_uuid: str | None       # UUID of junction element
+
+    # Connectivity:
+    connected_wire_uuids: set[str]  # UUIDs of wires at this node
+```
+
+**Data Structure - ConnectivityGraph**:
+
+```python
+class ConnectivityGraph:
+    """Network connectivity for entire schematic"""
+
+    def __init__(self):
+        self.nodes: dict[tuple[float, float], NetworkNode] = {}
+        self.wires: dict[str, WireSegment] = {}
+        self.junctions: dict[str, Junction] = {}
+        self.component_pins: dict[str, ComponentPin] = {}  # Key: "SW1-1"
+
+    def get_or_create_node(
+        self,
+        position: tuple[float, float],
+        node_type: str = "wire_endpoint"
+    ) -> NetworkNode:
+        """Get existing node at position or create new one"""
+        # Round position to 0.01mm precision to handle float matching
+        key = (round(position[0], 2), round(position[1], 2))
+
+        if key not in self.nodes:
+            self.nodes[key] = NetworkNode(
+                position=position,
+                node_type=node_type,
+                component_ref=None,
+                pin_number=None,
+                junction_uuid=None,
+                connected_wire_uuids=set()
+            )
+        return self.nodes[key]
+
+    def add_wire(self, wire: WireSegment):
+        """Add wire and update node connections"""
+        self.wires[wire.uuid] = wire
+
+        # Get or create nodes at wire endpoints
+        start_node = self.get_or_create_node(wire.start_point)
+        end_node = self.get_or_create_node(wire.end_point)
+
+        # Connect wire to nodes
+        start_node.connected_wire_uuids.add(wire.uuid)
+        end_node.connected_wire_uuids.add(wire.uuid)
+
+    def add_junction(self, junction: Junction):
+        """Add junction and mark node as junction type"""
+        self.junctions[junction.uuid] = junction
+
+        node = self.get_or_create_node(
+            junction.position,
+            node_type="junction"
+        )
+        node.junction_uuid = junction.uuid
+
+    def add_component_pin(self, pin: ComponentPin):
+        """Add component pin and mark node as component_pin type"""
+        key = f"{pin.component_ref}-{pin.pin_number}"
+        self.component_pins[key] = pin
+
+        node = self.get_or_create_node(
+            pin.position,
+            node_type="component_pin"
+        )
+        node.component_ref = pin.component_ref
+        node.pin_number = pin.pin_number
+
+    def get_connected_nodes(self, wire_uuid: str) -> tuple[NetworkNode, NetworkNode]:
+        """Get the two nodes this wire connects"""
+        wire = self.wires[wire_uuid]
+        start_node = self.get_node_at_position(wire.start_point)
+        end_node = self.get_node_at_position(wire.end_point)
+        return (start_node, end_node)
+```
+
+**Graph Building Algorithm**:
+
+1. **Parse schematic elements**: wires, junctions, symbols, symbol libraries
+2. **Build pin definitions** from symbol libraries (cache by lib_id)
+3. **Calculate component pin positions** using pin calculation algorithm
+4. **Add junctions to graph** (establishes junction nodes)
+5. **Add component pins to graph** (establishes pin nodes)
+6. **Add wires to graph** (connects to existing nodes or creates wire_endpoint nodes)
 
 **Coordinate Matching Tolerance**:
 - Exact match unlikely due to floating-point precision
 - Use tolerance: `distance < 0.1mm` for "same position"
+- Round positions to 0.01mm for dictionary keys
 
-### 4.2 Circuit Identification
+### 4.3 Wire-to-Component Matching
+
+**Algorithm**: For each labeled wire segment, identify the component pins it connects.
+
+```python
+def identify_wire_connections(
+    wire: WireSegment,
+    graph: ConnectivityGraph
+) -> tuple[str, str]:
+    """
+    Identify what this wire connects.
+
+    Returns:
+        Tuple of (from_ref, to_ref) where each is:
+        - "COMPONENT-PIN" (e.g., "SW1-1", "J1-2")
+        - "JUNCTION-uuid" (if connects to junction)
+        - "UNKNOWN" (if endpoint has no connection)
+    """
+    start_node, end_node = graph.get_connected_nodes(wire.uuid)
+
+    def node_to_ref(node: NetworkNode) -> str:
+        if node.node_type == "component_pin":
+            return f"{node.component_ref}-{node.pin_number}"
+        elif node.node_type == "junction":
+            return f"JUNCTION-{node.junction_uuid[:8]}"  # Abbreviated UUID
+        else:
+            return "UNKNOWN"
+
+    from_ref = node_to_ref(start_node) if start_node else "UNKNOWN"
+    to_ref = node_to_ref(end_node) if end_node else "UNKNOWN"
+
+    return (from_ref, to_ref)
+```
+
+**BOM Generation with Junctions**:
+
+For circuits with junctions (like test_03_fixture):
+- Each labeled wire segment gets its own BOM entry
+- **P1A**: SW1-1 → JUNCTION-51609a84 (wire from SW1 to junction)
+- **P2A**: SW2-3 → JUNCTION-51609a84 (wire from SW2 to junction)
+- **Unlabeled junction wire**: JUNCTION-51609a84 → J1-1
+
+**Engineering Mode**:
+- Show network topology: which components are connected via junction
+- Display junction UUID for reference
+
+**Builder Mode**:
+- Each labeled segment is physical wire to build
+- Junction reference shows meeting point (may be terminal block, splice, etc.)
+
+### 4.4 Circuit Identification
 
 **Extract Circuit ID from Label**:
 - Parse label text: `L1A` → system="L", circuit="1", segment="A"
@@ -1135,6 +1391,7 @@ See `docs/acronyms.md` for complete project acronyms and domain-specific termino
 | 1.0 | 2025-10-15 | Claude (Architect) | Initial design (netlist-based) |
 | 1.1 | 2025-10-17 | Claude (Architect) | Revised for net name parsing approach |
 | 2.0 | 2025-10-18 | Claude (Architect) | Complete redesign for schematic-based parsing |
+| 2.1 | 2025-10-19 | Claude (Architect) | Added Phase 4: Pin position calculation with rotation/mirroring, junction semantics clarification, connectivity graph algorithms |
 
 ---
 

@@ -1,7 +1,7 @@
 # Architect TODO: kicad2wireBOM
 
 **Date**: 2025-10-19
-**Status**: Phase 1-3 Complete, Phase 4 Planning Needed
+**Status**: Phase 1-3 Complete, Phase 4 Design Complete
 
 ---
 
@@ -12,103 +12,166 @@
 - Basic end-to-end processing functional
 - test_01_fixture generates correct BOM
 
----
-
-## DECISIONS NEEDED
-
-### 1. Pin Position Calculation Strategy
-
-**Context**: Wire endpoints need to match component pins. Simple approach (component center) works for 2-component circuits but won't scale.
-
-**Options**:
-- **Simple**: Use component center position only (current implementation)
-- **Precise**: Calculate exact pin positions with rotation/mirroring
-- **Hybrid**: Component position + pin numbers from schematic
-
-**Decision Needed**: Which approach for Phase 4?
-
-**Impact**: Affects wire-to-component matching algorithm complexity
+✅ **Phase 4 Design Complete**: Pin calculation and junction handling designed
+- Pin position calculation algorithm with rotation/mirroring
+- Junction semantics clarified (explicit junctions only)
+- Connectivity graph data structures defined
+- Design documented in kicad2wireBOM_design.md v2.1
 
 ---
 
-### 2. Junction Handling Algorithm
+## DECISIONS MADE
 
-**Context**: Phase 4 requires network tracing through junctions (test_03_fixture).
+### 1. Pin Position Calculation Strategy ✅
 
-**Need**:
-- Algorithm design for building connectivity graph
-- Approach for tracing multi-segment wire paths
-- Strategy for identifying wire start/end components
+**Decision**: Use **precise** calculation with rotation matrices and mirroring
 
-**Decision Needed**: Architect should design junction handling approach
+**Rationale**:
+- Tom confirmed multi-pin components with rotation/mirroring in real schematics
+- Precise calculation ensures correct pin matching
+- Algorithm is straightforward 2D geometry (not overly complex)
 
-**Reference**: `docs/plans/kicad2wireBOM_design.md` Section 4
+**Implementation**:
+- Parse symbol library pin definitions
+- Apply mirror transform → rotation matrix → translation
+- See design doc Section 4.1 for complete algorithm
+
+**Status**: ✅ Complete - Ready for Programmer
 
 ---
 
-### 3. Implementation Priority
+### 2. Junction Handling Algorithm ✅
 
-**Next work identified**:
-- [ ] Junction extraction and parsing
-- [ ] Wire network tracing
-- [ ] Component pin matching
-- [ ] Validation and error handling
-- [ ] Additional output formats
+**Decision**: Use **graph-based approach** with explicit junction elements only
 
-**Decision Needed**: What order should these be implemented?
+**Rationale**:
+- KiCad uses explicit `(junction ...)` elements to indicate electrical connections
+- Wires can cross in 2D without connecting (like PCB layers)
+- test_03A_fixture proves this: P3A crosses P2A with NO connection
 
-**Recommendation**: Junction handling first (critical for test_03_fixture)
+**Critical Rule**:
+- **Junction present** at (x,y) → wires ARE connected
+- **Junction absent** at (x,y) → wires crossing are NOT connected
+
+**Implementation**:
+- NetworkNode and ConnectivityGraph classes
+- Build graph from junctions, pins, and wires
+- See design doc Sections 3.5, 4.2, 4.3 for complete algorithms
+
+**Status**: ✅ Complete - Ready for Programmer
+
+---
+
+### 3. Implementation Priority ✅
+
+**Decision**: Implement in phases:
+
+**Phase 4A**: Pin Position Calculation
+- Parse symbol library pin definitions
+- Implement rotation/mirror transforms
+- Calculate absolute pin positions
+- Unit tests for rotation edge cases
+
+**Phase 4B**: Graph Data Structures
+- Implement NetworkNode and ConnectivityGraph
+- Graph building and node connection methods
+- Unit tests for graph operations
+
+**Phase 4C**: Graph Building Integration
+- Integrate pin calculation
+- Parse junctions
+- Build complete connectivity graph
+- Integration tests with all fixtures
+
+**Phase 4D**: BOM Integration
+- Wire-to-component matching
+- Junction handling in output
+- Update BOM generation
+- All fixtures producing correct output
+
+**Status**: ✅ Complete - Ready for Programmer
 
 ---
 
 ## INFORMATION NEEDED FROM TOM
 
-### 1. Hierarchical Schematics
+### 1. Hierarchical Schematics ⚠️ Still Open
 
 **Question**: Are your aircraft schematics flat or hierarchical (multiple sheets)?
 
 **Impact**:
-- Flat: Can proceed with current design
-- Hierarchical: Need to design sheet interconnection handling
+- Flat: Can proceed with current design (recommended for Phase 4)
+- Hierarchical: Need to design sheet interconnection handling (defer to Phase 5)
+
+**Recommendation**: Start with flat schematics, add hierarchical support later if needed
 
 **Reference**: `required_from_tom.md` Line 329
 
 ---
 
-### 2. Multi-Pin Components
+### 2. Multi-Pin Components ✅ Answered
 
-**Question**: Do you have components with multiple wires to different pins?
+**Answer**: YES - Multi-pin components exist and they DO get rotated and mirrored
 
-**Examples**:
-- Multi-pin connectors with different circuits
-- Components where pin distinction matters
+**Impact**: Precise pin position calculation is REQUIRED (designed in Section 4.1)
 
-**Impact**: Determines if we need precise pin position calculation
-
-**Reference**: `required_from_tom.md` Line 290
+**Status**: ✅ Resolved - Algorithm designed
 
 ---
 
-## NEXT SESSION TASKS
+### 3. Junction Patterns ✅ Answered
 
-**For Architect Role**:
+**Answer**: Test fixture test_03A created showing:
+- Junctions where wires connect (P1A + P2A at junction)
+- Crossings with NO junction (P3A crosses P2A, not connected)
 
-1. Review Phase 4 requirements in design doc
-2. Design junction handling algorithm
-3. Decide on pin matching strategy
-4. Create detailed Phase 4 implementation plan
-5. Update programmer_todo.md with specific tasks
+**Impact**: Explicit junction elements are the ONLY indicator of electrical connection
 
-**For Tom**:
-
-1. Answer hierarchical schematic question
-2. Answer multi-pin component question
-3. Review design doc if not done yet (`docs/plans/kicad2wireBOM_design.md`)
+**Status**: ✅ Resolved - Algorithm designed in Sections 3.5, 4.2
 
 ---
 
-## NOTES
+## DELIVERABLES COMPLETED
 
-- Programmer has completed all work that can be done without architectural decisions
-- Current implementation is solid foundation but needs connectivity tracing to be fully functional
-- Test fixtures exist and are ready for integration testing once Phase 4 complete
+✅ **kicad2wireBOM_design.md v2.1**
+- Section 3.5: Junction semantics and parsing
+- Section 4.1: Pin position calculation with rotation/mirroring
+- Section 4.2: Connectivity graph data structures
+- Section 4.3: Wire-to-component matching
+- Section 4.4: Circuit identification (updated numbering)
+
+✅ **architect_todo.md** (this file)
+- Documented all decisions
+- Marked questions as resolved
+- Updated status to "Phase 4 Design Complete"
+
+✅ **Test Fixture Analysis**
+- test_03A_fixture analyzed
+- Junction semantics validated
+- Crossing behavior confirmed
+
+---
+
+## READY FOR PROGRAMMER
+
+**Phase 4 implementation can begin**:
+1. Design specification complete (kicad2wireBOM_design.md v2.1)
+2. All architectural decisions made
+3. Algorithm pseudocode provided
+4. Test fixtures available for TDD
+5. Implementation phases defined
+
+**Recommended workflow**:
+1. Programmer reads updated design document
+2. Switch to Programmer role
+3. Begin Phase 4A (pin position calculation)
+4. Follow TDD approach with test fixtures
+
+---
+
+## ARCHIVE PENDING
+
+- [ ] Move ARCHITECTURE_CHANGE.md to docs/archive/
+  - Migration complete
+  - Document served its purpose
+  - Awaiting Tom's approval to archive
