@@ -12,7 +12,7 @@ from pathlib import Path
 def test_missing_source_file_fails_gracefully():
     """Test that missing source file produces clear error message"""
     with tempfile.TemporaryDirectory() as tmpdir:
-        strNonexistentFile = os.path.join(tmpdir, "nonexistent.net")
+        strNonexistentFile = os.path.join(tmpdir, "nonexistent.kicad_sch")
         strOutputFile = os.path.join(tmpdir, "output.csv")
 
         result = subprocess.run(
@@ -30,8 +30,8 @@ def test_existing_destination_prompts_for_confirmation():
     """Test that existing destination file prompts user before overwriting"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use real test fixture
-        fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
-        strSourceFile = os.path.join(tmpdir, "source.net")
+        fixture_path = Path(__file__).parent / "fixtures" / "test_01_fixture.kicad_sch"
+        strSourceFile = os.path.join(tmpdir, "source.kicad_sch")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
         # Copy fixture and create destination file
@@ -56,8 +56,8 @@ def test_force_flag_skips_overwrite_confirmation():
     """Test that -f flag overwrites without prompting"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use real test fixture
-        fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
-        strSourceFile = os.path.join(tmpdir, "source.net")
+        fixture_path = Path(__file__).parent / "fixtures" / "test_01_fixture.kicad_sch"
+        strSourceFile = os.path.join(tmpdir, "source.kicad_sch")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
         # Copy fixture and create destination file
@@ -78,8 +78,8 @@ def test_successful_processing_with_new_destination():
     """Test that processing succeeds with non-existent destination file"""
     with tempfile.TemporaryDirectory() as tmpdir:
         # Use real test fixture
-        fixture_path = Path(__file__).parent / "fixtures" / "test_fixture_01.net"
-        strSourceFile = os.path.join(tmpdir, "source.net")
+        fixture_path = Path(__file__).parent / "fixtures" / "test_01_fixture.kicad_sch"
+        strSourceFile = os.path.join(tmpdir, "source.kicad_sch")
         strDestFile = os.path.join(tmpdir, "output.csv")
 
         # Copy fixture to temp location

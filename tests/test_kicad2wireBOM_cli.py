@@ -15,7 +15,7 @@ def test_help_option_displays_description():
 
     assert result.returncode == 0
     assert "KiCad" in result.stdout
-    assert "netlist" in result.stdout.lower()
+    assert "schematic" in result.stdout.lower()
     assert "wire" in result.stdout.lower()
     assert "BOM" in result.stdout or "bom" in result.stdout.lower()
     assert "CSV" in result.stdout or "csv" in result.stdout.lower()
