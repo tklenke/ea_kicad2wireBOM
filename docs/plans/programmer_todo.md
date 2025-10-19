@@ -51,34 +51,148 @@ Generates correct wire BOM with labeled wires.
 
 ## 🚧 IN PROGRESS / TODO
 
-### Phase 4: Wire Connectivity and Network Tracing
+### Phase 4: Pin Matching and Junction Handling
 
-**Current Limitation**: The CLI currently uses a simplified heuristic (connects first 2 components for all labeled wires). This works for simple 2-component circuits but doesn't properly trace wire connectivity through the schematic.
+**Status**: ✅ Architectural design complete (see kicad2wireBOM_design.md v2.1)
 
-**What Needs Implementation**:
+**Current Limitation**: The CLI uses a simplified heuristic (connects first 2 components for all wires). This works for test_01_fixture but fails for multi-pin components and junction-based networks.
 
-#### Task 4.1: Junction Extraction and Parsing
-- [ ] Extract junction elements from schematic
-- [ ] Parse junction positions
-- [ ] Create Junction dataclass
-- [ ] Add tests for junction extraction
+**Architectural Decisions Made**:
+- Pin calculation: **Precise** with rotation/mirroring (Section 4.1)
+- Junction handling: **Graph-based** with explicit junctions only (Sections 3.5, 4.2)
+- Implementation: 4 sub-phases (4A → 4B → 4C → 4D)
 
-#### Task 4.2: Wire Network Tracing
-- [ ] Build connectivity graph from wire segments
-- [ ] Trace wire paths from component pins through junctions
-- [ ] Identify wire start/end components
-- [ ] Handle multi-segment wires (connected via junctions)
-- [ ] Add comprehensive tests
+---
 
-**Why This Matters**: test_03_fixture demonstrates the problem - two switches feeding one connector through a junction. We need to correctly identify which components each labeled wire connects.
+#### Phase 4A: Pin Position Calculation
 
-#### Task 4.3: Component Pin Position Calculation
-- [ ] Extract component position and rotation from schematic
-- [ ] Calculate pin positions (simple approach initially)
-- [ ] Match wire endpoints to nearest component pins
-- [ ] Add tests for pin matching
+**Goal**: Calculate exact pin positions accounting for component rotation and mirroring
 
-**Reference**: See `docs/plans/kicad2wireBOM_design.md` Section 4.3 for algorithm
+**Tasks**:
+- [ ] Parse symbol library definitions from schematic `(lib_symbols ...)` section
+- [ ] Extract pin definitions: position, number, angle, length
+- [ ] Create `PinDefinition` dataclass
+- [ ] Create `SymbolLibrary` class to cache pin definitions by lib_id
+- [ ] Implement pin position calculation algorithm:
+  - [ ] Apply mirror transform (if component.mirror_x or mirror_y)
+  - [ ] Apply 2D rotation matrix (component.rotation)
+  - [ ] Translate to component absolute position
+- [ ] Create `ComponentPin` dataclass with absolute position
+- [ ] Add tests for pin calculation:
+  - [ ] Component at 0° rotation
+  - [ ] Component at 90° rotation
+  - [ ] Component at 180° rotation
+  - [ ] Component at 270° rotation
+  - [ ] Component with X-axis mirror
+  - [ ] Component with Y-axis mirror
+  - [ ] Validate against test_03A_fixture pin positions
+
+**Reference**: Design doc Section 4.1
+
+**Test Fixtures**:
+- test_03A_fixture.kicad_sch (multi-pin switches with rotations)
+
+---
+
+#### Phase 4B: Graph Data Structures
+
+**Goal**: Implement connectivity graph for network tracing
+
+**Tasks**:
+- [ ] Create `NetworkNode` dataclass:
+  - [ ] Fields: position, node_type, component_ref, pin_number, junction_uuid
+  - [ ] Connected wire UUIDs set
+- [ ] Create `ConnectivityGraph` class:
+  - [ ] Nodes dictionary (keyed by rounded position)
+  - [ ] Wires dictionary (keyed by UUID)
+  - [ ] Junctions dictionary (keyed by UUID)
+  - [ ] Component pins dictionary (keyed by "REF-PIN")
+- [ ] Implement graph methods:
+  - [ ] `get_or_create_node(position, node_type)`
+  - [ ] `add_wire(wire)` - creates nodes at endpoints
+  - [ ] `add_junction(junction)` - marks node as junction type
+  - [ ] `add_component_pin(pin)` - marks node as component_pin type
+  - [ ] `get_connected_nodes(wire_uuid)` - returns start/end nodes
+  - [ ] `get_node_at_position(position, tolerance)` - finds nearby node
+- [ ] Add tests for graph operations:
+  - [ ] Node creation and retrieval
+  - [ ] Wire addition and endpoint matching
+  - [ ] Junction node creation
+  - [ ] Pin node creation
+  - [ ] Position matching with tolerance (0.1mm)
+
+**Reference**: Design doc Section 4.2
+
+**Key Insight**: Round positions to 0.01mm precision for dictionary keys (handles float matching)
+
+---
+
+#### Phase 4C: Graph Building Integration
+
+**Goal**: Build complete connectivity graph from schematic
+
+**Tasks**:
+- [ ] Update Junction dataclass (add uuid, diameter, color)
+- [ ] Parse junction elements from schematic
+- [ ] Update Component dataclass to include lib_id, rotation, mirror_x, mirror_y
+- [ ] Parse component rotation and mirror from schematic
+- [ ] Implement graph building workflow:
+  1. [ ] Parse symbol libraries and cache pin definitions
+  2. [ ] Calculate all component pin positions
+  3. [ ] Add all junctions to graph
+  4. [ ] Add all component pins to graph
+  5. [ ] Add all wires to graph (matches to existing nodes)
+- [ ] Add integration tests:
+  - [ ] test_01_fixture: Simple 2-component graph
+  - [ ] test_03_fixture: Graph with junction
+  - [ ] test_03A_fixture: Graph with junction + crossing wires
+
+**Critical Rule**: Only connect wires through **explicit junction elements**
+- Junction present at (x,y) → wires ARE connected
+- Junction absent at (x,y) → wires crossing are NOT connected
+
+**Reference**: Design doc Sections 3.5, 4.2
+
+---
+
+#### Phase 4D: Wire-to-Component Matching and BOM Integration
+
+**Goal**: Use connectivity graph for accurate wire matching in BOM output
+
+**Tasks**:
+- [ ] Implement `identify_wire_connections(wire, graph)`:
+  - [ ] Get start and end nodes from graph
+  - [ ] Convert node to reference string:
+    - component_pin → "SW1-1"
+    - junction → "JUNCTION-{uuid}"
+    - wire_endpoint → "UNKNOWN"
+- [ ] Update WireSegment dataclass:
+  - [ ] Add start_connection field
+  - [ ] Add end_connection field
+- [ ] Update BOM generation to use graph connections:
+  - [ ] "From" column shows start connection
+  - [ ] "To" column shows end connection
+  - [ ] Handle junction references in output
+- [ ] Update CLI orchestration:
+  - [ ] Build connectivity graph after parsing
+  - [ ] Match all wires to connections
+  - [ ] Pass connection info to BOM generator
+- [ ] Add integration tests:
+  - [ ] test_01_fixture BOM shows component-pin connections
+  - [ ] test_03_fixture BOM shows junction connections
+  - [ ] test_03A_fixture BOM verifies P3A doesn't connect to P2A
+
+**Reference**: Design doc Section 4.3
+
+**BOM Output Example** (test_03_fixture):
+```
+Wire Label | From    | To              | ...
+P1A        | SW1-1   | JUNCTION-51609a | ...
+P2A        | SW2-3   | JUNCTION-51609a | ...
+(unlabeled)| JUNCTION-51609a | J1-1   | ...
+```
+
+---
 
 ### Phase 5: Enhanced Wire Calculations
 
@@ -121,49 +235,84 @@ Current wire calculator reused from previous work - already functional!
 
 ## NEXT SESSION RECOMMENDATIONS
 
-### High Priority (Core Functionality)
-1. **Junction handling** - This is the key differentiator for schematic-based parsing
-   - Start with test_03_fixture analysis
-   - Understand junction positions and wire connectivity
-   - Implement network tracing algorithm
+### ⭐ IMMEDIATE PRIORITY: Phase 4 Implementation
 
-2. **Wire-to-component matching** - Currently using simple heuristic
-   - Extract component positions from schematic
-   - Implement wire endpoint to component pin matching
+**Start with Phase 4A: Pin Position Calculation**
+1. Read design doc Section 4.1 completely
+2. Study test_03A_fixture symbol definitions
+3. Write first failing test: parse symbol library for pin definitions
+4. Implement symbol library parser (TDD approach)
+5. Write test for 0° rotation pin calculation
+6. Implement pin calculation algorithm
+7. Add tests for 90°, 180°, 270° rotations
+8. Add tests for mirroring
 
-### Medium Priority (Robustness)
-3. **Validation and error handling**
-   - Add warnings for unlabeled wires
-   - Detect orphaned labels
-   - Validate circuit ID uniqueness
+**Then Phase 4B: Graph Data Structures**
+1. Create NetworkNode and ConnectivityGraph classes
+2. TDD: Write tests for each graph method
+3. Implement graph building methods
+4. Test with mock data
 
-### Low Priority (Nice to Have)
-4. **Additional output formats** - Markdown, engineering mode
-5. **Configuration file support** - YAML/TOML config
-6. **Hierarchical schematic support** - Defer to later
+**Then Phase 4C: Integration**
+1. Parse junctions from schematic
+2. Integrate pin calculation into schematic parsing
+3. Build full connectivity graph
+4. Test with all three fixtures
+
+**Then Phase 4D: BOM Integration**
+1. Implement wire connection identification
+2. Update BOM output to show pin-level connections
+3. Integration tests with expected output
+
+### After Phase 4: Future Work
+
+**Medium Priority (Robustness)**
+- Validation and error handling
+- Warnings for unlabeled wires
+- Orphaned label detection
+- Circuit ID uniqueness validation
+
+**Low Priority (Nice to Have)**
+- Markdown output format
+- Engineering mode output
+- Configuration file support
+- Hierarchical schematic support
 
 ---
 
 ## KEY FILES
 
-### Implementation
+### Implementation (Existing)
 - `kicad2wireBOM/parser.py` - Schematic parsing (✅ complete for basic features)
-- `kicad2wireBOM/schematic.py` - Data models (✅ complete)
+- `kicad2wireBOM/schematic.py` - Data models (✅ complete, needs Phase 4 updates)
 - `kicad2wireBOM/label_association.py` - Label matching (✅ complete)
-- `kicad2wireBOM/component.py` - Component model (✅ reused)
+- `kicad2wireBOM/component.py` - Component model (✅ reused, needs Phase 4 updates)
 - `kicad2wireBOM/wire_calculator.py` - Calculations (✅ reused)
-- `kicad2wireBOM/__main__.py` - CLI (✅ basic version working)
+- `kicad2wireBOM/__main__.py` - CLI (✅ basic version working, needs Phase 4 updates)
 
-### Tests
+### Implementation (Phase 4 - To Create)
+- `kicad2wireBOM/pin_calculator.py` - Pin position calculation (Phase 4A)
+- `kicad2wireBOM/connectivity_graph.py` - Graph data structures and algorithms (Phase 4B)
+- `kicad2wireBOM/symbol_library.py` - Symbol definition parsing and caching (Phase 4A)
+
+### Tests (Existing)
 - `tests/test_parser_schematic.py` - Parser tests (8 tests ✅)
 - `tests/test_schematic.py` - Data model tests (4 tests ✅)
 - `tests/test_label_association.py` - Label matching tests (11 tests ✅)
 - All other test files - Reused from previous work (46 tests ✅)
 
+### Tests (Phase 4 - To Create)
+- `tests/test_pin_calculator.py` - Pin calculation tests (Phase 4A)
+- `tests/test_connectivity_graph.py` - Graph data structure tests (Phase 4B)
+- `tests/test_symbol_library.py` - Symbol library parsing tests (Phase 4A)
+- `tests/test_junction_handling.py` - Junction semantics tests (Phase 4C)
+- `tests/test_integration_phase4.py` - End-to-end tests with all fixtures (Phase 4D)
+
 ### Test Fixtures
 - `tests/fixtures/test_01_fixture.kicad_sch` - Simple 2-component circuit ✅ WORKING
 - `tests/fixtures/test_02_fixture.kicad_sch` - Multi-segment with switch (untested)
-- `tests/fixtures/test_03_fixture.kicad_sch` - Junction example (untested, HIGH PRIORITY)
+- `tests/fixtures/test_03_fixture.kicad_sch` - Junction example (HIGH PRIORITY)
+- `tests/fixtures/test_03A_fixture.kicad_sch` - ✨ NEW: Junction + crossing wires (validates semantics)
 
 ---
 
