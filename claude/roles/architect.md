@@ -77,6 +77,8 @@ When design changes are needed after initial planning:
 - Mark the decision status as `[x]` Complete with the decision details
 
 ### 6. Progress Tracking
+
+**Architect Todo (architect_todo.md):**
 - Update `docs/plans/architect_todo.md` when deliverables are completed
 - Update `docs/plans/required_from_tom.md` when deliverables are completed
 - Mark items `[x]` Complete when architectural work is done
@@ -84,13 +86,20 @@ When design changes are needed after initial planning:
 - Document completed decisions, analyses, and design documents
 - Keep the todo lists current to show Tom what's been accomplished
 
+**Programmer Todo (programmer_todo.md):**
+- Architect CAN mark Programmer tasks `[x]` Complete when design work creates implementation tasks
+- Architect CAN update Programmer task details based on design changes
+- Architect SHOULD update `docs/plans/programmer_todo.md` when breaking work into implementation tasks
+- When you create detailed task breakdowns for Programmer, mark those sections complete in programmer_todo.md
+
 **CRITICAL PRE-COMMIT CHECK:**
 Before EVERY `git commit`, you MUST:
 1. Review `docs/plans/architect_todo.md`
 2. Update task status to reflect what you've actually completed
 3. Mark tasks `[x]` that are done, `[~]` that are in progress
-4. Include the updated architect_todo.md in your commit
-5. NEVER commit code/docs without updating your todo list
+4. If you updated programmer implementation tasks, review `docs/plans/programmer_todo.md` and update it
+5. Include BOTH updated todo files in your commit if both were modified
+6. NEVER commit code/docs without updating your todo list
 
 This is not optional. Accurate todo tracking is essential for session continuity.
 

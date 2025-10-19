@@ -95,11 +95,18 @@ When assuming the Programmer role, read these files to understand what to implem
 
 **CRITICAL FOR SESSION CONTINUITY:** Keeping programmer_todo.md updated is essential for effective handoffs between sessions.
 
-**Update docs/plans/programmer_todo.md throughout implementation:**
+**Programmer Todo (programmer_todo.md):**
+- Update `docs/plans/programmer_todo.md` throughout implementation
 - Mark tasks `[~]` In progress when you START working on them
 - Mark tasks `[x]` Complete when tests pass AND code is committed
 - Update DURING implementation, not just at end of session
 - This is part of TDD discipline: test passes → mark complete → commit → update todo
+
+**Architect Todo (architect_todo.md):**
+- Programmer CANNOT mark Architect tasks `[x]` Complete - that's Architect's responsibility
+- Programmer CAN add notes to `docs/plans/architect_todo.md` suggesting tasks appear complete
+- Format notes as: `**NOTE FROM PROGRAMMER (YYYY-MM-DD):** Task X appears complete because [reason]. Architect should verify and mark complete.`
+- Let Architect verify and mark their own tasks complete
 
 **Why This Matters:**
 - Next programmer session relies on accurate status to pick up work
@@ -108,11 +115,11 @@ When assuming the Programmer role, read these files to understand what to implem
 - Accurate tracking prevents duplicate work and missed requirements
 
 **Workflow Example:**
-1. Mark task [~] In progress in programmer_todo.md
+1. Mark task `[~]` In progress in programmer_todo.md
 2. Write failing test (RED)
 3. Implement code to pass test (GREEN)
 4. Tests pass
-5. Mark task [x] Complete in programmer_todo.md
+5. Mark task `[x]` Complete in programmer_todo.md
 6. Commit changes with both code and updated todo document
 7. Move to next task
 
@@ -121,8 +128,9 @@ Before EVERY `git commit`, you MUST:
 1. Review `docs/plans/programmer_todo.md`
 2. Update task status to reflect what you've actually completed
 3. Mark tasks `[x]` that are done, `[~]` that are in progress
-4. Include the updated programmer_todo.md in your commit
-5. NEVER commit code without updating your todo list
+4. If you added notes to architect_todo.md, include it in your commit
+5. Include the updated programmer_todo.md in your commit
+6. NEVER commit code without updating your todo list
 
 This is not optional. Skipping this wastes 30+ minutes in the next session verifying what's actually done.
 
