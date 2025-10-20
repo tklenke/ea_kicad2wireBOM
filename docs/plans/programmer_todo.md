@@ -6,23 +6,80 @@
 
 ---
 
-## ⚠️ CURRENT ISSUES
+## ⚠️ CRITICAL BUG - IMMEDIATE FIX REQUIRED
 
-### Test Fixture Mismatch: test_03A Expected Output
+### Y-Axis Inversion Bug in Pin Position Calculation
 
-**Issue**: The test_03A_fixture.kicad_sch schematic does not match the expected output in test_03A_out_expected.csv
+**Discovered**: 2025-10-20 (Architect role investigation)
 
-**Actual Schematic**:
-- J1-1 has wires connected (from junction at 144.78, 86.36)
-- J1-2 has NO wires connected (no physical wire at position 148.59, 83.82)
+**Severity**: CRITICAL - Affects all components with non-zero Y pin offsets
 
-**Expected Output Claims**:
-- P4B: SW1-2 → J1-2 (but J1-2 has no wires!)
-- P4A: SW2-2 → J1-2 (but J1-2 has no wires!)
+**Root Cause**: KiCad uses inverted Y-axis coordinate system (graphics convention where +Y is DOWN), but our pin position calculation treats it as mathematical convention (+Y is UP).
 
-**Next Steps for Tom**:
-1. Either update the test_03A_fixture.kicad_sch to add wires to J1-2, OR
-2. Update test_03A_out_expected.csv to match the actual schematic topology
+**Bug Location**: `kicad2wireBOM/pin_calculator.py:62`
+
+**Current (WRONG) Code:**
+```python
+abs_y = component.y + y_rot
+```
+
+**Should Be:**
+```python
+abs_y = component.y - y_rot  # Y-axis inverted in KiCad schematics
+```
+
+**Evidence:**
+
+SW1 symbol defines pins with mathematical Y coordinates:
+- Pin 1: offset (6.35, +2.54) - positive Y = "up" in symbol definition
+- Pin 3: offset (6.35, -2.54) - negative Y = "down" in symbol definition
+
+But on schematic, KiCad inverts Y-axis when placing:
+- SW1 at (119.38, 76.2) with rotation 0
+- Pin 1 should be at (125.73, **73.66**) - LOWER Y value = "up" on schematic
+- Pin 3 should be at (125.73, **78.74**) - HIGHER Y value = "down" on schematic
+
+Currently we calculate:
+- Pin 1 at (125.73, 78.74) ❌ WRONG - this is actually pin 3's position
+- Pin 3 at (125.73, 73.66) ❌ WRONG - this is actually pin 1's position
+
+**Impact:**
+- ❌ All switch pin numbers are swapped (pins 1 and 3)
+- ❌ J1-2 position is wrong (should be at Y=88.90, not Y=83.82)
+- ❌ test_03A output doesn't match expected (expected is CORRECT, current is WRONG)
+- ❌ Any component with Y pin offsets will have wrong pin positions
+- ✅ Components with Y=0 pin offsets work by accident (e.g., J1 pin 1, SW1/SW2 pin 2)
+
+**Fix Tasks (TDD Approach):**
+
+1. **Write failing test** - Create test that verifies pin positions match KiCad UI
+   - Test SW1 pin 1 should be at (125.73, 73.66), not (125.73, 78.74)
+   - Test J1 pin 2 should be at (148.59, 88.90), not (148.59, 83.82)
+   - Test should currently FAIL
+
+2. **Fix pin_calculator.py** - Apply Y-axis inversion
+   - Change line 62: `abs_y = component.y - y_rot`
+   - Add comment explaining KiCad's inverted Y-axis
+   - Verify rotation matrix still correct with inverted Y
+
+3. **Verify rotation handling** - Check if Y-inversion interacts with rotation
+   - Test components at 90°, 180°, 270° rotations
+   - Ensure Y-inversion applies AFTER rotation transform (current order should be correct)
+
+4. **Verify mirroring handling** - Check if Y-mirroring needs adjustment
+   - Review mirror_y logic in light of inverted coordinate system
+   - May need to invert the inversion for Y-mirrored components
+
+5. **Update or verify all existing tests**
+   - Run full test suite after fix
+   - Update expected values if needed
+   - Verify test_03A now produces correct output matching expected
+
+6. **Document coordinate system** - Add documentation
+   - Add comment in pin_calculator.py explaining KiCad's coordinate system
+   - Update design doc Section 4.1 with Y-axis inversion note
+
+**Priority**: HIGHEST - This is a fundamental coordinate system bug affecting all multi-pin components
 
 ---
 
@@ -63,16 +120,16 @@ The `trace_to_component()` method now correctly handles all node types with prop
 **What's Working** ✅:
 - Schematic parsing (wire segments, labels, components, junctions)
 - Label-to-wire association
-- Pin position calculation with rotation/mirroring
 - Connectivity graph building
 - Junction element tracing (schematic dots)
 - Wire_endpoint tracing
 - Wire calculations (length, gauge, voltage drop)
 - CSV output generation
-- 109/109 tests passing (but output doesn't match expected)
+- 110/110 tests passing (but wrong pin positions due to Y-axis bug)
 
 **What's Broken** ⚠️:
-- J1 connector component not recognized as endpoint (see CURRENT BLOCKER above)
+- ❌ Pin position calculation - Y-axis inverted (see CRITICAL BUG above)
+- ❌ All output has wrong pin numbers for components with non-zero Y pin offsets
 
 **Command Line**:
 ```bash
@@ -115,7 +172,7 @@ python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 - `kicad2wireBOM/label_association.py` - Label-to-wire matching
 - `kicad2wireBOM/symbol_library.py` - Symbol library parsing
 - `kicad2wireBOM/pin_calculator.py` - Pin position calculation
-- `kicad2wireBOM/connectivity_graph.py` - **⚠️ NEEDS FIX** - Graph data structures and tracing
+- `kicad2wireBOM/connectivity_graph.py` - Graph data structures and tracing
 - `kicad2wireBOM/graph_builder.py` - Build graph from schematic
 - `kicad2wireBOM/wire_connections.py` - Wire connection identification
 - `kicad2wireBOM/wire_calculator.py` - Wire calculations
@@ -125,7 +182,7 @@ python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 ### Test Fixtures
 - `tests/fixtures/test_01_fixture.kicad_sch` - Simple 2-component circuit ✅
 - `tests/fixtures/test_02_fixture.kicad_sch` - Multi-segment with switch
-- `tests/fixtures/test_03A_fixture.kicad_sch` - Junction + crossing wires **⚠️ OUTPUT INCOMPLETE**
+- `tests/fixtures/test_03A_fixture.kicad_sch` - Junction + crossing wires (output wrong due to Y-axis bug)
 
 ---
 

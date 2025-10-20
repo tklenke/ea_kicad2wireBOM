@@ -109,7 +109,8 @@ Each wire shows component-to-component connections by tracing through junctions.
 
 ### Immediate
 - [x] Clarify junction terminology in design doc (junction elements vs connector components)
-- [ ] Programmer fixes J1 connector component recognition bug (see programmer_todo.md)
+- [x] Investigate test_03A output mismatch - identified Y-axis inversion bug (2025-10-20)
+- [ ] Programmer fixes Y-axis inversion bug in pin_calculator.py (see programmer_todo.md CRITICAL BUG)
 
 ### Future (When Needed)
 - [ ] Design hierarchical schematic support (if Tom's schematics use multiple sheets)
