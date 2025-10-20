@@ -597,7 +597,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "|(5,6,0)R20"
 			(at 119.38 102.362 0)
 			(effects
 				(font
@@ -670,7 +670,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "|(5,5,0)R20"
 			(at 119.38 73.152 0)
 			(effects
 				(font
@@ -743,7 +743,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "|(5,5,0)S40"
 			(at 153.67 86.36 0)
 			(effects
 				(font
