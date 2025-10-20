@@ -149,25 +149,23 @@ def main():
             if not wire.circuit_id:
                 continue  # Skip unlabeled wires
 
-            # Get component references from connections
-            # Parse "SW1-1" -> "SW1", "JUNCTION-abc" -> skip for now
-            from_ref = wire.start_connection
-            to_ref = wire.end_connection
+            # Get component references from connections (now dict format)
+            from_component = None
+            from_pin = None
+            to_component = None
+            to_pin = None
 
-            # Extract component ref from pin connection (e.g., "SW1-1" -> "SW1")
-            if from_ref and '-' in from_ref and not from_ref.startswith('JUNCTION'):
-                from_ref = from_ref.split('-')[0]
-            else:
-                from_ref = "UNKNOWN"
+            if wire.start_connection:
+                from_component = wire.start_connection.get('component_ref')
+                from_pin = wire.start_connection.get('pin_number')
 
-            if to_ref and '-' in to_ref and not to_ref.startswith('JUNCTION'):
-                to_ref = to_ref.split('-')[0]
-            else:
-                to_ref = "UNKNOWN"
+            if wire.end_connection:
+                to_component = wire.end_connection.get('component_ref')
+                to_pin = wire.end_connection.get('pin_number')
 
             # Look up components
-            comp1 = comp_map.get(from_ref)
-            comp2 = comp_map.get(to_ref)
+            comp1 = comp_map.get(from_component) if from_component else None
+            comp2 = comp_map.get(to_component) if to_component else None
 
             # Calculate wire length (if we have both components)
             if comp1 and comp2:
@@ -201,8 +199,10 @@ def main():
             # Create wire connection
             wire_conn = WireConnection(
                 wire_label=wire.circuit_id,
-                from_ref=wire.start_connection if wire.start_connection else "UNKNOWN",
-                to_ref=wire.end_connection if wire.end_connection else "UNKNOWN",
+                from_component=from_component,
+                from_pin=from_pin,
+                to_component=to_component,
+                to_pin=to_pin,
                 wire_gauge=gauge,
                 wire_color=wire_color,
                 length=length,
