@@ -3,9 +3,9 @@
 **Project**: kicad2wireBOM - Wire BOM generator for experimental aircraft
 **Architecture**: Schematic-based parsing (NOT netlist-based)
 **Approach**: Test-Driven Development (TDD)
-**Status**: Phase 1-3 Complete - Basic schematic parsing working
+**Status**: Phase 1-3 Complete, Phase 4A-4B Complete - Pin calculation and connectivity graph working
 
-**Last Updated**: 2025-10-19
+**Last Updated**: 2025-10-20
 
 ---
 
@@ -45,7 +45,7 @@ python -m kicad2wireBOM tests/fixtures/test_01_fixture.kicad_sch output.csv
 ```
 Generates correct wire BOM with labeled wires.
 
-**Test Results**: 69/69 tests passing ✅
+**Test Results**: 93/93 tests passing ✅
 
 ---
 
@@ -64,66 +64,80 @@ Generates correct wire BOM with labeled wires.
 
 ---
 
-#### Phase 4A: Pin Position Calculation
+#### Phase 4A: Pin Position Calculation ✅ COMPLETE
 
 **Goal**: Calculate exact pin positions accounting for component rotation and mirroring
 
 **Tasks**:
-- [ ] Parse symbol library definitions from schematic `(lib_symbols ...)` section
-- [ ] Extract pin definitions: position, number, angle, length
-- [ ] Create `PinDefinition` dataclass
-- [ ] Create `SymbolLibrary` class to cache pin definitions by lib_id
-- [ ] Implement pin position calculation algorithm:
-  - [ ] Apply mirror transform (if component.mirror_x or mirror_y)
-  - [ ] Apply 2D rotation matrix (component.rotation)
-  - [ ] Translate to component absolute position
-- [ ] Create `ComponentPin` dataclass with absolute position
-- [ ] Add tests for pin calculation:
-  - [ ] Component at 0° rotation
-  - [ ] Component at 90° rotation
-  - [ ] Component at 180° rotation
-  - [ ] Component at 270° rotation
-  - [ ] Component with X-axis mirror
-  - [ ] Component with Y-axis mirror
-  - [ ] Validate against test_03A_fixture pin positions
+- [x] Parse symbol library definitions from schematic `(lib_symbols ...)` section
+- [x] Extract pin definitions: position, number, angle, length
+- [x] Create `PinDefinition` dataclass
+- [x] Create `SymbolLibrary` class to cache pin definitions by lib_id
+- [x] Implement pin position calculation algorithm:
+  - [x] Apply mirror transform (if component.mirror_x or mirror_y)
+  - [x] Apply 2D rotation matrix (component.rotation)
+  - [x] Translate to component absolute position
+- [x] Create `ComponentPin` dataclass with absolute position
+- [x] Add tests for pin calculation:
+  - [x] Component at 0° rotation
+  - [x] Component at 90° rotation
+  - [x] Component at 180° rotation
+  - [x] Component at 270° rotation
+  - [x] Component with X-axis mirror
+  - [x] Component with Y-axis mirror
+  - [x] Complex transform (mirror + rotation)
 
 **Reference**: Design doc Section 4.1
 
 **Test Fixtures**:
 - test_03A_fixture.kicad_sch (multi-pin switches with rotations)
 
+**Implementation**:
+- `kicad2wireBOM/symbol_library.py` - Symbol library parsing
+- `kicad2wireBOM/pin_calculator.py` - Pin position calculation
+- `tests/test_symbol_library.py` - 5 tests
+- `tests/test_pin_calculator.py` - 7 tests
+- Commit: 09ce5b3, 3f1f8c8
+
 ---
 
-#### Phase 4B: Graph Data Structures
+#### Phase 4B: Graph Data Structures ✅ COMPLETE
 
 **Goal**: Implement connectivity graph for network tracing
 
 **Tasks**:
-- [ ] Create `NetworkNode` dataclass:
-  - [ ] Fields: position, node_type, component_ref, pin_number, junction_uuid
-  - [ ] Connected wire UUIDs set
-- [ ] Create `ConnectivityGraph` class:
-  - [ ] Nodes dictionary (keyed by rounded position)
-  - [ ] Wires dictionary (keyed by UUID)
-  - [ ] Junctions dictionary (keyed by UUID)
-  - [ ] Component pins dictionary (keyed by "REF-PIN")
-- [ ] Implement graph methods:
-  - [ ] `get_or_create_node(position, node_type)`
-  - [ ] `add_wire(wire)` - creates nodes at endpoints
-  - [ ] `add_junction(junction)` - marks node as junction type
-  - [ ] `add_component_pin(pin)` - marks node as component_pin type
-  - [ ] `get_connected_nodes(wire_uuid)` - returns start/end nodes
-  - [ ] `get_node_at_position(position, tolerance)` - finds nearby node
-- [ ] Add tests for graph operations:
-  - [ ] Node creation and retrieval
-  - [ ] Wire addition and endpoint matching
-  - [ ] Junction node creation
-  - [ ] Pin node creation
-  - [ ] Position matching with tolerance (0.1mm)
+- [x] Create `NetworkNode` dataclass:
+  - [x] Fields: position, node_type, component_ref, pin_number, junction_uuid
+  - [x] Connected wire UUIDs set
+- [x] Create `ConnectivityGraph` class:
+  - [x] Nodes dictionary (keyed by rounded position)
+  - [x] Wires dictionary (keyed by UUID)
+  - [x] Junctions dictionary (keyed by UUID)
+  - [x] Component pins dictionary (keyed by "REF-PIN")
+- [x] Implement graph methods:
+  - [x] `get_or_create_node(position, node_type)`
+  - [x] `add_wire(wire)` - creates nodes at endpoints
+  - [x] `add_junction(junction)` - marks node as junction type
+  - [x] `add_component_pin(pin)` - marks node as component_pin type
+  - [x] `get_connected_nodes(wire_uuid)` - returns start/end nodes
+  - [x] `get_node_at_position(position, tolerance)` - finds nearby node
+- [x] Add tests for graph operations:
+  - [x] Node creation and retrieval
+  - [x] Wire addition and endpoint matching
+  - [x] Junction node creation
+  - [x] Pin node creation
+  - [x] Position matching with tolerance (0.01mm)
+  - [x] Multiple wires at junction
+  - [x] Wire connects to existing node
 
 **Reference**: Design doc Section 4.2
 
 **Key Insight**: Round positions to 0.01mm precision for dictionary keys (handles float matching)
+
+**Implementation**:
+- `kicad2wireBOM/connectivity_graph.py` - NetworkNode and ConnectivityGraph classes
+- `tests/test_connectivity_graph.py` - 12 tests
+- Commit: 67baa4c
 
 ---
 
