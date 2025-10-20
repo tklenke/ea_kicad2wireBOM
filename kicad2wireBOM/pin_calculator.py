@@ -59,6 +59,6 @@ def calculate_pin_position(
 
     # Step 3: Translate to component position
     abs_x = component.x + x_rot
-    abs_y = component.y + y_rot
+    abs_y = component.y - y_rot  # Y-axis inverted in KiCad (graphics convention: +Y is DOWN)
 
     return (abs_x, abs_y)
