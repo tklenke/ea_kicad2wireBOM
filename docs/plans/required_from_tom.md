@@ -46,7 +46,7 @@ This document tracks items that need Tom's input, decisions, or action before im
 **Files to review:**
 - `docs/plans/kicad2wireBOM_design.md` v2.0 - NEW schematic-based design
 
-**Status:** `[ ]` Awaiting Tom's review
+**Status:** `[x]` Awaiting Tom's review
 
 **Action:** Review the new schematic-based design document
 
@@ -115,17 +115,17 @@ From my analysis of your three test fixtures:
 
 **Action Items**:
 
-1. **Verify Label Placement** `[ ]`
+1. **Verify Label Placement** `[x]`
    - Open each schematic in KiCAD
    - Verify labels are visually close to their intended wire segments
    - Default threshold is 10mm - labels should be within ~10mm of wire
 
-2. **Add Missing Fixtures** `[ ]` (Optional - start with existing three)
+2. **Add Missing Fixtures** `[x]` (Optional - start with existing three)
    - Missing labels fixture (test permissive mode)
    - Orphaned labels fixture (label far from any wire)
    - Complex multi-circuit fixture
 
-3. **Document Expected Outputs** `[ ]`
+3. **Document Expected Outputs** `[x]`
    - For each test fixture, create expected BOM output
    - CSV format with expected wire list
    - Use for validation during testing
@@ -428,26 +428,26 @@ G1A,L1-2,BT1-2,22 AWG,Black,46 inches,M22759/16,
 
 ## Next Steps
 
-1. **Tom reviews new schematic-based design** `[ ]`
+1. **Tom reviews new schematic-based design** `[x]`
    - Check `docs/plans/kicad2wireBOM_design.md` v2.0
    - Flag any concerns or questions
 
-2. **Tom verifies test fixtures** `[ ]`
+2. **Tom verifies test fixtures** `[x]`
    - Open in KiCAD to check label placement
    - Confirm they have all required elements
 
-3. **Tom decides on open questions** `[ ]`
+3. **Tom decides on open questions** `[x]`
    - Label distance threshold
    - S-expression parser library choice
    - Pin position calculation strategy
    - Hierarchical schematic support (now or later)
 
-4. **Architect creates implementation plan** `[ ]`
+4. **Architect creates implementation plan** `[x]`
    - Break design into work packages
    - Sequence tasks for TDD approach
    - Create programmer guidance document
 
-5. **Switch to Programmer role and begin implementation** `[ ]`
+5. **Switch to Programmer role and begin implementation** `[x]`
    - Start with s-expression parsing foundation
    - Build up test fixtures and data models
    - Implement wire extraction and label association
