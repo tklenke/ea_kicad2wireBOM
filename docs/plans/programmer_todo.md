@@ -213,20 +213,13 @@ P2A        | SW2-3   | JUNCTION-51609a | ...
 
 ---
 
-### ⚠️ ARCHITECTURE CHANGE (2025-10-20): BOM Output Format
+### ✅ ARCHITECTURE CHANGE (2025-10-20): BOM Output Format - COMPLETE
 
-**CRITICAL**: The BOM output format has changed. Before implementing Phase 5-6, update output to match new specification.
+**Implementation Completed**: Junction transparency fully implemented in BOM output.
 
-**Decision**: Junctions must be **transparent** in BOM output. Each wire shows component-to-component connections by tracing through junctions.
+**Decision**: Junctions are now **transparent** in BOM output. Each wire shows component-to-component connections by tracing through junctions.
 
-**Old Format**:
-```csv
-Wire Label,From,To,...
-P1A,UNKNOWN,SW1-3,...
-P4B,JUNCTION-c1e057df,UNKNOWN,...
-```
-
-**New Format** (REQUIRED):
+**New Format** (IMPLEMENTED):
 ```csv
 Wire Label,From Component,From Pin,To Component,To Pin,...
 P1A,J1,1,SW1,3,...
@@ -236,29 +229,41 @@ P4A,SW2,2,J1,1,...
 P4B,SW1,3,J1,1,...
 ```
 
-**Implementation Requirements**:
+**Implementation Summary**:
 
-1. **Add junction tracing to ConnectivityGraph**:
-   - Implement `trace_to_component(node)` method that recursively follows wires through junctions
-   - Return `ComponentPin(component_ref, pin_number)` or None
+1. ✅ **Added junction tracing to ConnectivityGraph**:
+   - Implemented `trace_to_component(node)` method with recursive junction tracing
+   - Returns dict with 'component_ref' and 'pin_number' or None
+   - Commit: 66e9e7d
 
-2. **Update `identify_wire_connections()` in wire_connections.py**:
-   - Change return type from `tuple[str, str]` to `tuple[Optional[ComponentPin], Optional[ComponentPin]]`
-   - Use junction tracing instead of returning "JUNCTION-uuid"
-   - See design doc Section 4.3 for complete algorithm
+2. ✅ **Updated `identify_wire_connections()` in wire_connections.py**:
+   - Changed return type to `tuple[Optional[dict], Optional[dict]]`
+   - Uses `graph.trace_to_component()` for junction transparency
+   - Commit: 3392a51
 
-3. **Update CSV output format** (output_csv.py):
+3. ✅ **Updated CSV output format** (output_csv.py):
    - Split "From/To" into four columns: From Component, From Pin, To Component, To Pin
-   - Handle None values (components with unconnected ends)
+   - Handles None values with empty strings
+   - Commit: 2c48733
 
-4. **Update tests**:
-   - Update test_03A expected output to match new format
-   - All 5 wires should show component-to-component connections
+4. ✅ **Updated WireConnection dataclass**:
+   - Replaced from_ref/to_ref with from_component/from_pin/to_component/to_pin
+   - All fields Optional[str] to handle unconnected endpoints
+   - Commit: 2c48733
+
+5. ✅ **Updated CLI integration**:
+   - Extracts component_ref and pin_number from connection dicts
+   - Passes individual fields to WireConnection
+   - Commit: 4ec0ae9
+
+**Test Coverage**: All 108 tests passing, including:
+- 3 new tests for trace_to_component()
+- 5 updated tests for identify_wire_connections()
+- 7 updated tests for WireConnection and CSV output
 
 **References**:
 - Design doc v2.1, Section 4.3 (algorithm with pseudocode)
 - Design doc v2.1, Section 7.3 (CSV column format)
-- architect_todo.md (decision rationale)
 
 ---
 
