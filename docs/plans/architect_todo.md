@@ -203,6 +203,59 @@ P4B,SW1,3,J1,1,...
 
 ---
 
+## ISSUES FROM PROGRAMMER (2025-10-20) - ⚠️ REQUIRES DECISION
+
+### Junction Transparency Implementation Gap
+
+**Problem Reported**: Junction transparency implementation complete (108/108 tests passing), but actual BOM output from test_03A_fixture shows incomplete connections.
+
+**Current Output**:
+```csv
+Wire Label,From Component,From Pin,To Component,To Pin,...
+P2A,SW2,3,,,         # Expected: J1,1,SW2,3
+P3A,,,,,             # Expected: SW1,3,SW2,3
+P1A,,,SW1,3,         # Expected: J1,1,SW1,3
+P4B,SW2,2,,,         # Expected: SW1,3,J1,1
+P4A,,,SW2,2,         # Expected: SW2,2,J1,1
+```
+
+**Root Cause**: Labeled wire segments connect to unlabeled wire segments, which then connect to junctions/components. Current `trace_to_component()` stops at `wire_endpoint` nodes.
+
+**Example Path**:
+```
+SW1-3 ← [P1A labeled wire] ← wire_endpoint ← [unlabeled wire] ← Junction ← [unlabeled wire] ← J1-1
+```
+
+Current algorithm only traces from endpoints of the labeled segment, missing connections through unlabeled segments.
+
+**Design Assumption Violated**: We assumed labeled wires connect directly to either component pins OR junctions. Reality: labeled wires can connect to wire_endpoints that require further tracing through unlabeled segments.
+
+**Options for Architect**:
+
+1. **Extend tracing through wire_endpoints** (Programmer recommends)
+   - Modify `trace_to_component()` to continue when hitting `wire_endpoint` nodes
+   - Follow all connected wires at that endpoint until finding a component pin
+   - Pros: Minimal change, achieves design intent
+   - Cons: More complex tracing logic
+
+2. **Multi-segment wire model**
+   - Group electrically-connected segments into logical wires
+   - Label applies to entire path from component-to-component
+   - Pros: More accurate model of electrical reality
+   - Cons: Significant data model change
+
+3. **Accept partial connections**
+   - Keep current behavior, add warnings for incomplete traces
+   - Output what we find: "P1A connects SW1-3 to (unknown)"
+   - Pros: No code changes needed
+   - Cons: Defeats purpose of junction transparency
+
+**Decision Needed**: Which approach should Programmer implement?
+
+**Impact**: All 108 tests pass but don't validate end-to-end BOM output format. Real-world output incomplete.
+
+---
+
 ## ARCHIVE PENDING
 
 - [ ] Move ARCHITECTURE_CHANGE.md to docs/archive/
