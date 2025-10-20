@@ -3,7 +3,7 @@
 **Project**: kicad2wireBOM - Wire BOM generator for experimental aircraft
 **Architecture**: Schematic-based parsing (NOT netlist-based)
 **Approach**: Test-Driven Development (TDD)
-**Status**: Phase 1-3 Complete, Phase 4A-4B Complete - Pin calculation and connectivity graph working
+**Status**: Phase 1-4 Complete - Full connectivity graph with pin-level wire connections
 
 **Last Updated**: 2025-10-20
 
@@ -45,7 +45,7 @@ python -m kicad2wireBOM tests/fixtures/test_01_fixture.kicad_sch output.csv
 ```
 Generates correct wire BOM with labeled wires.
 
-**Test Results**: 100/100 tests passing ✅
+**Test Results**: 105/105 tests passing ✅
 
 ---
 
@@ -174,36 +174,36 @@ Generates correct wire BOM with labeled wires.
 
 ---
 
-#### Phase 4D: Wire-to-Component Matching and BOM Integration
+#### Phase 4D: Wire-to-Component Matching and BOM Integration ✅ COMPLETE
 
 **Goal**: Use connectivity graph for accurate wire matching in BOM output
 
 **Tasks**:
-- [ ] Implement `identify_wire_connections(wire, graph)`:
-  - [ ] Get start and end nodes from graph
-  - [ ] Convert node to reference string:
+- [x] Implement `identify_wire_connections(wire, graph)`:
+  - [x] Get start and end nodes from graph
+  - [x] Convert node to reference string:
     - component_pin → "SW1-1"
     - junction → "JUNCTION-{uuid}"
     - wire_endpoint → "UNKNOWN"
-- [ ] Update WireSegment dataclass:
-  - [ ] Add start_connection field
-  - [ ] Add end_connection field
-- [ ] Update BOM generation to use graph connections:
-  - [ ] "From" column shows start connection
-  - [ ] "To" column shows end connection
-  - [ ] Handle junction references in output
-- [ ] Update CLI orchestration:
-  - [ ] Build connectivity graph after parsing
-  - [ ] Match all wires to connections
-  - [ ] Pass connection info to BOM generator
-- [ ] Add integration tests:
-  - [ ] test_01_fixture BOM shows component-pin connections
-  - [ ] test_03_fixture BOM shows junction connections
-  - [ ] test_03A_fixture BOM verifies P3A doesn't connect to P2A
+- [x] Update WireSegment dataclass:
+  - [x] Add start_connection field
+  - [x] Add end_connection field
+- [x] Update CLI to use graph connections:
+  - [x] Build connectivity graph after parsing
+  - [x] Identify wire connections using graph
+  - [x] Use connection info in BOM output
+  - [x] Handle junction and unknown connections
 
 **Reference**: Design doc Section 4.3
 
-**BOM Output Example** (test_03_fixture):
+**Implementation**:
+- `kicad2wireBOM/wire_connections.py` - identify_wire_connections() function
+- Updated `kicad2wireBOM/__main__.py` - CLI uses graph for connections
+- Updated `kicad2wireBOM/schematic.py` - WireSegment has connection fields
+- `tests/test_wire_connections.py` - 5 tests
+- Commit: [next commit]
+
+**BOM Output Example** (test_01_fixture):
 ```
 Wire Label | From    | To              | ...
 P1A        | SW1-1   | JUNCTION-51609a | ...

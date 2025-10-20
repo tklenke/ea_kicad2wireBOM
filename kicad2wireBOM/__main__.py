@@ -20,6 +20,8 @@ from kicad2wireBOM.wire_calculator import calculate_length, determine_min_gauge
 from kicad2wireBOM.wire_bom import WireConnection, WireBOM
 from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
+from kicad2wireBOM.graph_builder import build_connectivity_graph
+from kicad2wireBOM.wire_connections import identify_wire_connections
 
 
 def main():
@@ -116,6 +118,17 @@ def main():
         labeled_wires = [w for w in wires if w.circuit_id]
         print(f"  Associated {len(labeled_wires)} wires with labels")
 
+        # Build connectivity graph
+        print(f"  Building connectivity graph...")
+        graph = build_connectivity_graph(sexp)
+        print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
+
+        # Identify wire connections using graph
+        for wire in wires:
+            start_conn, end_conn = identify_wire_connections(wire, graph)
+            wire.start_connection = start_conn
+            wire.end_connection = end_conn
+
         # Create component lookup map
         comp_map = {comp.ref: comp for comp in components}
 
@@ -123,54 +136,72 @@ def main():
         bom = WireBOM(config=DEFAULT_CONFIG)
 
         # For each labeled wire, create a wire connection
-        # Note: This is simplified - assumes wire connects two adjacent components
-        # A more complete implementation would trace wire connectivity through junctions
         for wire in wires:
             if not wire.circuit_id:
                 continue  # Skip unlabeled wires
 
-            # For now, we need to determine which components this wire connects
-            # This is a simplified approach - real implementation would trace connectivity
-            # TODO: Implement proper wire-to-component endpoint matching
+            # Get component references from connections
+            # Parse "SW1-1" -> "SW1", "JUNCTION-abc" -> skip for now
+            from_ref = wire.start_connection
+            to_ref = wire.end_connection
 
-            # As a simple heuristic: if we have 2 components, connect them
-            if len(components) >= 2:
-                comp1 = components[0]
-                comp2 = components[1]
+            # Extract component ref from pin connection (e.g., "SW1-1" -> "SW1")
+            if from_ref and '-' in from_ref and not from_ref.startswith('JUNCTION'):
+                from_ref = from_ref.split('-')[0]
+            else:
+                from_ref = "UNKNOWN"
 
-                # Calculate wire length
+            if to_ref and '-' in to_ref and not to_ref.startswith('JUNCTION'):
+                to_ref = to_ref.split('-')[0]
+            else:
+                to_ref = "UNKNOWN"
+
+            # Look up components
+            comp1 = comp_map.get(from_ref)
+            comp2 = comp_map.get(to_ref)
+
+            # Calculate wire length (if we have both components)
+            if comp1 and comp2:
                 length = calculate_length(comp1, comp2, slack=args.slack_length)
+            else:
+                # Use wire segment length as fallback
+                import math
+                dx = wire.end_point[0] - wire.start_point[0]
+                dy = wire.end_point[1] - wire.start_point[1]
+                length_mm = math.sqrt(dx*dx + dy*dy)
+                length = length_mm / 25.4  # Convert mm to inches
+                length += args.slack_length
 
-                # Determine current (use load if available)
-                current = 0.0
-                if comp1.is_load:
-                    current = comp1.load
-                elif comp2.is_load:
-                    current = comp2.load
-                elif comp1.source:
-                    current = comp1.source
-                elif comp2.source:
-                    current = comp2.source
+            # Determine current (use load if available)
+            current = 0.0
+            if comp1 and comp1.is_load:
+                current = comp1.load
+            elif comp2 and comp2.is_load:
+                current = comp2.load
+            elif comp1 and comp1.source:
+                current = comp1.source
+            elif comp2 and comp2.source:
+                current = comp2.source
 
-                # Determine wire gauge
-                gauge = determine_min_gauge(current, length, args.system_voltage)
+            # Determine wire gauge
+            gauge = determine_min_gauge(current, length, args.system_voltage)
 
-                # Get wire color from system code
-                wire_color = SYSTEM_COLOR_MAP.get(wire.system_code, 'White')
+            # Get wire color from system code
+            wire_color = SYSTEM_COLOR_MAP.get(wire.system_code, 'White')
 
-                # Create wire connection
-                wire_conn = WireConnection(
-                    wire_label=wire.circuit_id,
-                    from_ref=comp1.ref,
-                    to_ref=comp2.ref,
-                    wire_gauge=gauge,
-                    wire_color=wire_color,
-                    length=length,
-                    wire_type=DEFAULT_CONFIG['default_wire_type'],
-                    warnings=[]
-                )
+            # Create wire connection
+            wire_conn = WireConnection(
+                wire_label=wire.circuit_id,
+                from_ref=wire.start_connection if wire.start_connection else "UNKNOWN",
+                to_ref=wire.end_connection if wire.end_connection else "UNKNOWN",
+                wire_gauge=gauge,
+                wire_color=wire_color,
+                length=length,
+                wire_type=DEFAULT_CONFIG['default_wire_type'],
+                warnings=[]
+            )
 
-                bom.add_wire(wire_conn)
+            bom.add_wire(wire_conn)
 
         # Write output
         write_builder_csv(bom, args.dest)
