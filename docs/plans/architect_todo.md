@@ -94,7 +94,7 @@ Each wire shows component-to-component connections by tracing through junctions.
 
 ## DESIGN DOCUMENTS
 
-**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.1
+**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.2
 
 **Key Sections**:
 - Section 3.5: Junction semantics and parsing

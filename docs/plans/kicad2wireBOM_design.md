@@ -4,11 +4,21 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.1 (BOM Output Format Clarified)
+**Version**: 2.2 (Wire Endpoint Tracing Added)
 **Date**: 2025-10-20
 **Status**: Design - Ready for Implementation
 
 ## Design Revision History
+
+### Version 2.2 (2025-10-20)
+**Changed**: Added wire_endpoint tracing to trace_to_component() algorithm
+
+**Sections Modified**:
+- Section 4.3: Wire-to-Component Matching - Added third case to handle wire_endpoint nodes
+
+**Rationale**: Labeled wire segments often connect to unlabeled wire segments, creating wire_endpoint nodes. The tracing algorithm must continue through these nodes to find component pins, using the same recursive pattern as junction tracing.
+
+**Impact**: Completes the graph traversal algorithm to handle all three node types (component_pin, junction, wire_endpoint).
 
 ### Version 2.1 (2025-10-20)
 **Changed**: BOM output format for junction handling and component/pin separation
@@ -605,8 +615,8 @@ def identify_wire_connections(
     """
     start_node, end_node = graph.get_connected_nodes(wire.uuid)
 
-    def trace_to_component(node: NetworkNode) -> Optional[ComponentPin]:
-        """Trace from wire endpoint through junctions to find component pin."""
+    def trace_to_component(node: NetworkNode, exclude_wire_uuid: str = None) -> Optional[ComponentPin]:
+        """Trace from wire endpoint through junctions and wire_endpoints to find component pin."""
         if node is None:
             return None
 
@@ -615,21 +625,39 @@ def identify_wire_connections(
 
         elif node.node_type == "junction":
             # Find other wires connected to this junction
-            connected_wires = graph.get_wires_at_junction(node.junction_uuid)
-
-            # Trace each connected wire segment
-            for other_wire in connected_wires:
-                if other_wire.uuid == wire.uuid:
-                    continue  # Skip the wire we started from
+            for other_wire_uuid in node.connected_wire_uuids:
+                if other_wire_uuid == exclude_wire_uuid:
+                    continue  # Skip the wire we came from
 
                 # Recursively trace the other wire's endpoints
-                other_start, other_end = graph.get_connected_nodes(other_wire.uuid)
+                other_start, other_end = graph.get_connected_nodes(other_wire_uuid)
 
-                # Check which end connects to this junction
-                if other_start == node:
-                    result = trace_to_component(other_end)
-                elif other_end == node:
-                    result = trace_to_component(other_start)
+                # Find which end is NOT this junction node
+                if other_start.position == node.position:
+                    result = trace_to_component(other_end, exclude_wire_uuid=other_wire_uuid)
+                elif other_end.position == node.position:
+                    result = trace_to_component(other_start, exclude_wire_uuid=other_wire_uuid)
+                else:
+                    continue
+
+                if result is not None:
+                    return result
+
+        elif node.node_type == "wire_endpoint":
+            # Wire endpoints occur when labeled wire segments connect to unlabeled segments
+            # Trace through connected wires to find component or junction
+            for other_wire_uuid in node.connected_wire_uuids:
+                if other_wire_uuid == exclude_wire_uuid:
+                    continue  # Skip the wire we came from
+
+                # Recursively trace the other wire's endpoints
+                other_start, other_end = graph.get_connected_nodes(other_wire_uuid)
+
+                # Find which end is NOT this wire_endpoint node
+                if other_start.position == node.position:
+                    result = trace_to_component(other_end, exclude_wire_uuid=other_wire_uuid)
+                elif other_end.position == node.position:
+                    result = trace_to_component(other_start, exclude_wire_uuid=other_wire_uuid)
                 else:
                     continue
 

@@ -181,7 +181,7 @@ If you encounter design inconsistencies, architectural ambiguities, or blockers:
 
 ## DESIGN REFERENCE
 
-**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.1
+**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.2
 
 **Key Sections**:
 - Section 3.5: Junction semantics (explicit junctions only)
