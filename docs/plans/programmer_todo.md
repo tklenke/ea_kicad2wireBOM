@@ -1,54 +1,60 @@
 # Programmer TODO: kicad2wireBOM Implementation
 
 **Project**: kicad2wireBOM - Wire BOM generator for experimental aircraft
-**Status**: Phase 1-4 Complete - 109/109 tests passing ✅
+**Status**: Phase 1-4 Complete - 110/110 tests passing ✅
 **Last Updated**: 2025-10-20
 
 ---
 
-## ⚠️ CURRENT BLOCKER: J1 Connector Component Not Being Recognized
+## ⚠️ CURRENT ISSUES
 
-**Issue Identified**: 2025-10-20
+### Test Fixture Mismatch: test_03A Expected Output
 
-The BOM output is incorrectly tracing through J1 (connector component) instead of treating it as an endpoint.
+**Issue**: The test_03A_fixture.kicad_sch schematic does not match the expected output in test_03A_out_expected.csv
 
-**Current Output** (`docs/input/test_03A_out_current.csv`):
-```csv
-P2A,SW2,3,SW1,3,... ❌ (shows SW2↔SW1, skipping J1)
-P1A,SW2,3,SW1,3,... ❌ (shows SW2↔SW1, skipping J1)
-```
+**Actual Schematic**:
+- J1-1 has wires connected (from junction at 144.78, 86.36)
+- J1-2 has NO wires connected (no physical wire at position 148.59, 83.82)
 
-**Expected Output** (`docs/input/test_03A_out_expected.csv`):
-```csv
-P2A,SW2,1,J1,1,...  ✅ (shows SW2↔J1 connection)
-P1A,SW1,1,J1,1,...  ✅ (shows SW1↔J1 connection)
-P3A,SW1,3,SW2,3,... ✅ (direct SW1↔SW2 connection)
-```
+**Expected Output Claims**:
+- P4B: SW1-2 → J1-2 (but J1-2 has no wires!)
+- P4A: SW2-2 → J1-2 (but J1-2 has no wires!)
 
-**Root Cause**: J1 is a `Conn_01x02` connector component (2-pin connector). It should be treated as a component endpoint, but the current implementation is either:
-1. Not adding J1's pins to the connectivity graph as `component_pin` nodes, OR
-2. Not parsing J1 component at all (missing footprint encoding?)
-
-**Architecture Clarification** (design doc updated):
-- **Junction ELEMENTS** (schematic dots) → TRANSPARENT, trace through them
-- **Connector COMPONENTS** (J1, J2, TB1) → ENDPOINTS, stop at their pins
-
-**Next Steps**:
-1. Verify J1 component is being parsed from schematic
-2. Check if J1's footprint has proper encoding `|(fs,wl,bl)Rvalue`
-3. Verify J1's pins are being added to connectivity graph as `component_pin` nodes
-4. Add/fix test to ensure connector components are treated as endpoints
+**Next Steps for Tom**:
+1. Either update the test_03A_fixture.kicad_sch to add wires to J1-2, OR
+2. Update test_03A_out_expected.csv to match the actual schematic topology
 
 ---
 
 ## COMPLETED WORK
 
+### ✅ Connector Component Tracing Bug FIXED (2025-10-20)
+
+**Bug**: Connector components (like J1) were being skipped in favor of components reachable through longer wire paths.
+
+**Root Cause**: `trace_to_component()` was iterating through wires and returning the FIRST component found. When a junction had multiple wires, it would find components through wire_endpoints before checking for direct component_pin connections.
+
+**Solution**: Implemented two-pass tracing algorithm:
+1. FIRST PASS: Check all connected wires for direct component_pin connections
+2. SECOND PASS: If no direct connection, recurse through junctions/wire_endpoints
+
+**Testing**:
+- Added `test_trace_to_component_prioritizes_direct_component_pin()` test
+- All 110 tests passing ✅
+- J1 connector now correctly recognized as endpoint
+
+**Current Output** (`test_03A_fixture.kicad_sch`):
+```csv
+P2A: SW2-3 → J1-1  ✅ (J1 recognized!)
+P1A: J1-1 → SW1-3  ✅ (J1 recognized!)
+```
+
 ### ✅ Wire Endpoint Tracing Implementation (2025-10-20)
 
-The `trace_to_component()` method now correctly handles `wire_endpoint` nodes. All node types supported:
-- `component_pin` nodes → returns component ✅
-- `junction` nodes → traces recursively through connected wires ✅
-- `wire_endpoint` nodes → traces recursively through connected wires ✅
+The `trace_to_component()` method now correctly handles all node types with proper prioritization:
+- `component_pin` nodes → returns component immediately ✅
+- `junction` nodes → checks direct pins first, then traces recursively ✅
+- `wire_endpoint` nodes → checks direct pins first, then traces recursively ✅
 
 ---
 
