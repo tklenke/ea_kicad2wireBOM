@@ -9,8 +9,10 @@ def test_wire_connection_creation():
     """Test creating a WireConnection with all fields"""
     wire = WireConnection(
         wire_label='L-105-A',
-        from_ref='J1',
-        to_ref='SW1',
+        from_component='J1',
+        from_pin='1',
+        to_component='SW1',
+        to_pin='3',
         wire_gauge=20,
         wire_color='White',
         length=79.0,
@@ -19,8 +21,10 @@ def test_wire_connection_creation():
     )
 
     assert wire.wire_label == 'L-105-A'
-    assert wire.from_ref == 'J1'
-    assert wire.to_ref == 'SW1'
+    assert wire.from_component == 'J1'
+    assert wire.from_pin == '1'
+    assert wire.to_component == 'SW1'
+    assert wire.to_pin == '3'
     assert wire.wire_gauge == 20
     assert wire.wire_color == 'White'
     assert wire.length == 79.0
@@ -32,8 +36,10 @@ def test_wire_connection_with_warnings():
     """Test WireConnection with warnings"""
     wire = WireConnection(
         wire_label='U-1-A',
-        from_ref='J1',
-        to_ref='J2',
+        from_component='J1',
+        from_pin='2',
+        to_component='J2',
+        to_pin='1',
         wire_gauge=12,
         wire_color='White',
         length=50.0,
@@ -60,8 +66,10 @@ def test_wire_bom_add_wire():
 
     wire1 = WireConnection(
         wire_label='L-105-A',
-        from_ref='J1',
-        to_ref='SW1',
+        from_component='J1',
+        from_pin='1',
+        to_component='SW1',
+        to_pin='3',
         wire_gauge=20,
         wire_color='White',
         length=79.0,
@@ -75,8 +83,10 @@ def test_wire_bom_add_wire():
 
     wire2 = WireConnection(
         wire_label='P-12-A',
-        from_ref='BAT1',
-        to_ref='SW2',
+        from_component='BAT1',
+        from_pin='1',
+        to_component='SW2',
+        to_pin='2',
         wire_gauge=12,
         wire_color='Red',
         length=50.0,

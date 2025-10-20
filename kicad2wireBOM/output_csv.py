@@ -12,7 +12,7 @@ def write_builder_csv(bom: WireBOM, output_path: Union[str, Path]) -> None:
     Write wire BOM to CSV file in builder format.
 
     Builder format includes essential wire information for harness construction:
-    - Wire Label, From, To, Wire Gauge, Wire Color, Length, Wire Type, Warnings
+    - Wire Label, From Component, From Pin, To Component, To Pin, Wire Gauge, Wire Color, Length, Wire Type, Warnings
 
     Args:
         bom: WireBOM object containing wire connections
@@ -20,7 +20,7 @@ def write_builder_csv(bom: WireBOM, output_path: Union[str, Path]) -> None:
     """
     output_path = Path(output_path)
 
-    headers = ['Wire Label', 'From', 'To', 'Wire Gauge', 'Wire Color', 'Length', 'Wire Type', 'Warnings']
+    headers = ['Wire Label', 'From Component', 'From Pin', 'To Component', 'To Pin', 'Wire Gauge', 'Wire Color', 'Length', 'Wire Type', 'Warnings']
 
     with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=headers)
@@ -32,8 +32,10 @@ def write_builder_csv(bom: WireBOM, output_path: Union[str, Path]) -> None:
 
             row = {
                 'Wire Label': wire.wire_label,
-                'From': wire.from_ref,
-                'To': wire.to_ref,
+                'From Component': wire.from_component or '',
+                'From Pin': wire.from_pin or '',
+                'To Component': wire.to_component or '',
+                'To Pin': wire.to_pin or '',
                 'Wire Gauge': wire.wire_gauge,
                 'Wire Color': wire.wire_color,
                 'Length': wire.length,

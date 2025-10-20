@@ -2,7 +2,7 @@
 # ABOUTME: Defines WireConnection and WireBOM classes for wire specifications
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 @dataclass
@@ -12,8 +12,10 @@ class WireConnection:
 
     Attributes:
         wire_label: Wire label in EAWMS format (e.g., "L-105-A")
-        from_ref: Source component reference (e.g., "J1")
-        to_ref: Destination component reference (e.g., "SW1")
+        from_component: Source component reference (e.g., "J1") or None
+        from_pin: Source pin number (e.g., "1") or None
+        to_component: Destination component reference (e.g., "SW1") or None
+        to_pin: Destination pin number (e.g., "3") or None
         wire_gauge: AWG wire size
         wire_color: Wire color (from system code mapping)
         length: Wire length in inches
@@ -21,8 +23,10 @@ class WireConnection:
         warnings: List of warning messages for this wire
     """
     wire_label: str
-    from_ref: str
-    to_ref: str
+    from_component: Optional[str]
+    from_pin: Optional[str]
+    to_component: Optional[str]
+    to_pin: Optional[str]
     wire_gauge: int
     wire_color: str
     length: float
