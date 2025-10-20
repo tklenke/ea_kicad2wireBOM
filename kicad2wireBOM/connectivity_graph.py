@@ -134,3 +134,63 @@ class ConnectivityGraph:
         """Find node at position (within tolerance)"""
         key = (round(position[0], 2), round(position[1], 2))
         return self.nodes.get(key)
+
+    def trace_to_component(
+        self,
+        node: Optional[NetworkNode],
+        exclude_wire_uuid: Optional[str] = None
+    ) -> Optional[dict[str, str]]:
+        """
+        Trace from a node through junctions to find a component pin.
+
+        Args:
+            node: Starting node to trace from
+            exclude_wire_uuid: Wire UUID to exclude from tracing (the wire we came from)
+
+        Returns:
+            Dictionary with 'component_ref' and 'pin_number' if component found, else None
+        """
+        if node is None:
+            return None
+
+        # If this node is a component pin, return it
+        if node.node_type == 'component_pin':
+            return {
+                'component_ref': node.component_ref,
+                'pin_number': node.pin_number
+            }
+
+        # If this node is a junction, trace through connected wires
+        if node.node_type == 'junction':
+            # Get all wires connected to this junction
+            for wire_uuid in node.connected_wire_uuids:
+                # Skip the wire we came from
+                if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                # Get the wire's endpoints
+                wire = self.wires[wire_uuid]
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                start_node = self.nodes[start_key]
+                end_node = self.nodes[end_key]
+
+                # Find which end is NOT this junction node
+                node_key = (round(node.position[0], 2), round(node.position[1], 2))
+
+                if start_key == node_key:
+                    # Trace to the other end
+                    result = self.trace_to_component(end_node, exclude_wire_uuid=wire_uuid)
+                elif end_key == node_key:
+                    # Trace to the other end
+                    result = self.trace_to_component(start_node, exclude_wire_uuid=wire_uuid)
+                else:
+                    continue
+
+                # If we found a component, return it
+                if result is not None:
+                    return result
+
+        # No component found
+        return None

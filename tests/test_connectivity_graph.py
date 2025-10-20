@@ -222,3 +222,71 @@ def test_get_node_at_position_with_tolerance():
     # Outside tolerance
     node = graph.get_node_at_position((100.5, 100.0))
     assert node is None
+
+
+def test_trace_to_component_direct_pin():
+    """Trace from wire endpoint directly to component pin"""
+    graph = ConnectivityGraph()
+
+    # Add component pin
+    graph.add_component_pin('SW1-1', 'SW1', '1', (100.0, 100.0))
+
+    # Get the node
+    node = graph.get_node_at_position((100.0, 100.0))
+
+    # Trace should return component pin info
+    result = graph.trace_to_component(node)
+
+    assert result is not None
+    assert result['component_ref'] == 'SW1'
+    assert result['pin_number'] == '1'
+
+
+def test_trace_to_component_through_junction():
+    """Trace through junction to find component pin"""
+    graph = ConnectivityGraph()
+
+    # Add component pin
+    graph.add_component_pin('SW1-1', 'SW1', '1', (100.0, 100.0))
+
+    # Add junction
+    graph.add_junction('j1', (110.0, 100.0))
+
+    # Add component pin on other side
+    graph.add_component_pin('J1-1', 'J1', '1', (120.0, 100.0))
+
+    # Add wires: SW1 -> junction -> J1
+    wire1 = WireSegment(uuid='w1', start_point=(100.0, 100.0), end_point=(110.0, 100.0))
+    wire2 = WireSegment(uuid='w2', start_point=(110.0, 100.0), end_point=(120.0, 100.0))
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+
+    # Start from wire1's endpoint at junction
+    junction_node = graph.get_node_at_position((110.0, 100.0))
+
+    # Trace from junction through wire2 to find J1-1
+    result = graph.trace_to_component(junction_node, exclude_wire_uuid='w1')
+
+    assert result is not None
+    assert result['component_ref'] == 'J1'
+    assert result['pin_number'] == '1'
+
+
+def test_trace_to_component_no_component_found():
+    """Trace returns None if no component pin found"""
+    graph = ConnectivityGraph()
+
+    # Add junction with wire endpoint (no component)
+    graph.add_junction('j1', (110.0, 100.0))
+
+    wire = WireSegment(uuid='w1', start_point=(100.0, 100.0), end_point=(110.0, 100.0))
+    graph.add_wire(wire)
+
+    # Start from junction
+    junction_node = graph.get_node_at_position((110.0, 100.0))
+
+    # Trace should return None (only wire_endpoint on other side)
+    result = graph.trace_to_component(junction_node, exclude_wire_uuid='w1')
+
+    assert result is None
