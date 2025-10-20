@@ -42,28 +42,24 @@ Tom may also explicitly ask you to switch roles during a session.
 
 ## Project Overview
 
-**ea_tools** is a collection of miscellaneous Python programs for an Experimental Aircraft project. This is an early-stage repository with no source code yet.
+**ea_tools** is a collection of miscellaneous Python programs for an Experimental Aircraft project.
 
 ## Project Status
 
-This repository is currently in the design and planning phase. The primary project is **kicad2wireBOM**, a tool to generate wire Bills of Materials from KiCad netlists for experimental aircraft electrical systems.
+This repository is in active implementation. The primary project is **kicad2wireBOM**, a tool to generate wire Bills of Materials from KiCad schematics for experimental aircraft electrical systems. Phase 1-4 implementation is complete with 108 passing tests; currently addressing a wire_endpoint tracing bug. As we learn more about the requirements and capabilities and limitations of KiCAD, we will need to return to the planning and design phase in an iterative process.
 
 ### Current Structure
 
+- `kicad2wireBOM/` - Main package implementation
+- `tests/` - Test suite with fixtures
 - `docs/plans/` - Design specifications and implementation plans
   - `kicad2wireBOM_design.md` - Complete design specification
-  - `implementation/` - Modular implementation plans (10 work packages)
-  - `required_from_tom.md` - Items needed before implementation
+  - `required_from_tom.md` - Items such as test fixtures needed from Tom
+  - `architect_todo.md` - place for Programmer or Tom to give feedback to the architect
+  - `programmer_todo.md` - place where architect gives direction to programmer on what steps to tackle next
 - `docs/ea_wire_marking_standard.md` - Wire marking standard (EAWMS)
+- `docs/acronyms.md` - list of acronyms or terms relevant to this project
 - `docs/references/` - Reference materials (READ ONLY)
-- `data/` - Test fixtures and example data
-
-### Next Steps
-
-As implementation begins:
-- Create `kicad2wireBOM/` package directory
-- Create `tests/` directory with fixtures
-- Update this section with module organization and usage examples
 
 ## Documentation Management
 

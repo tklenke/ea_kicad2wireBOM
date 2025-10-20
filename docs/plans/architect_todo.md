@@ -72,7 +72,7 @@ Each wire shows component-to-component connections by tracing through junctions.
 
 **Rationale**: Labeled wire segments often connect to unlabeled wire segments at wire_endpoint nodes. Current architecture is sound - we just need to add the missing case to the existing recursive graph traversal.
 
-**Status**: Decision made - awaiting Programmer implementation
+**Status**: Architectural decision complete - design added to Section 4.3 of kicad2wireBOM_design.md. Implementation is Programmer's responsibility (see programmer_todo.md "CURRENT BLOCKER").
 
 **Reference**: See programmer_todo.md "CURRENT BLOCKER" section for implementation details
 

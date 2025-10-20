@@ -26,6 +26,7 @@ When assuming the Architect role, read these files to understand the project con
 6. **docs/notes/opportunities_for_improvement.md** - Outstanding OFIs that might inform current work
 7. **Directory structure** - Use `ls` or `tree` to understand project organization
 8. **docs/ea_wire_marking_standard.md** - Domain-specific standards (for wire-related work)
+9. **docs/plans/architect_todo.md** - more on this below, but definitely read it everytime
 
 ### Contextual Reading (based on task)
 1. **docs/references/** - Reference materials relevant to the feature being designed

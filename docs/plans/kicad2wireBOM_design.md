@@ -6,7 +6,7 @@
 
 **Version**: 2.2 (Wire Endpoint Tracing Added)
 **Date**: 2025-10-20
-**Status**: Design - Ready for Implementation
+**Status**: Phase 1-4 Implemented (wire_endpoint tracing pending)
 
 ## Design Revision History
 
@@ -598,6 +598,8 @@ class ConnectivityGraph:
 
 **Rationale**: In experimental aircraft, it's not acceptable to splice wires mid-run. Any junction point must be a physical component for reliability and maintainability.
 
+**Implementation Status**: Junction tracing is implemented. Wire_endpoint tracing (lines 646-665 below) is **DESIGN ONLY - NOT YET IMPLEMENTED**. See `programmer_todo.md` for implementation task.
+
 ```python
 def identify_wire_connections(
     wire: WireSegment,
@@ -644,6 +646,7 @@ def identify_wire_connections(
                     return result
 
         elif node.node_type == "wire_endpoint":
+            # **[DESIGN ONLY - NOT YET IMPLEMENTED]**
             # Wire endpoints occur when labeled wire segments connect to unlabeled segments
             # Trace through connected wires to find component or junction
             for other_wire_uuid in node.connected_wire_uuids:
