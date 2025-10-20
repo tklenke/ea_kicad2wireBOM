@@ -324,3 +324,65 @@ def test_trace_to_component_through_wire_endpoint():
     assert result is not None
     assert result['component_ref'] == 'SW1'
     assert result['pin_number'] == '3'
+
+
+def test_trace_to_component_prioritizes_direct_component_pin():
+    """
+    When a junction has multiple wires, prioritize direct component_pin
+    connections over indirect paths through wire_endpoints.
+
+    This tests the bug where J1 connector is skipped in favor of
+    components found through longer wire paths.
+
+    Topology:
+        SW1-3 ----wire1---- junction ----wire2---- J1-1 (connector)
+                               |
+                            wire3
+                               |
+                          wire_endpoint
+                               |
+                            wire4
+                               |
+                            SW2-3
+
+    Expected: Tracing from junction (excluding wire1) should find J1-1,
+    NOT SW2-3, even though SW2-3 is reachable through the junction.
+    """
+    graph = ConnectivityGraph()
+
+    # Add component pins
+    graph.add_component_pin('SW1-3', 'SW1', '3', (100.0, 100.0))
+    graph.add_component_pin('J1-1', 'J1', '1', (120.0, 100.0))  # Direct from junction
+    graph.add_component_pin('SW2-3', 'SW2', '3', (110.0, 80.0))   # Indirect through wire_endpoint
+
+    # Add junction at (110.0, 100.0)
+    graph.add_junction('junction1', (110.0, 100.0))
+
+    # Add wires
+    # Wire1: SW1-3 to junction
+    wire1 = WireSegment(uuid='wire1', start_point=(100.0, 100.0), end_point=(110.0, 100.0))
+    # Wire2: junction to J1-1 (DIRECT component_pin connection)
+    wire2 = WireSegment(uuid='wire2', start_point=(110.0, 100.0), end_point=(120.0, 100.0))
+    # Wire3: junction to wire_endpoint (leads to SW2-3)
+    wire3 = WireSegment(uuid='wire3', start_point=(110.0, 100.0), end_point=(110.0, 90.0))
+    # Wire4: wire_endpoint to SW2-3
+    wire4 = WireSegment(uuid='wire4', start_point=(110.0, 90.0), end_point=(110.0, 80.0))
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+    graph.add_wire(wire3)
+    graph.add_wire(wire4)
+
+    # Get the junction node
+    junction_node = graph.get_node_at_position((110.0, 100.0))
+    assert junction_node.node_type == 'junction'
+    assert len(junction_node.connected_wire_uuids) == 3
+
+    # Trace from junction (excluding wire1, as if we came from SW1-3)
+    result = graph.trace_to_component(junction_node, exclude_wire_uuid='wire1')
+
+    # Should find J1-1 (direct connection) NOT SW2-3 (indirect connection)
+    assert result is not None
+    assert result['component_ref'] == 'J1', \
+        f"Expected J1-1 (direct connection), got {result['component_ref']}-{result['pin_number']} (indirect connection)"
+    assert result['pin_number'] == '1'
