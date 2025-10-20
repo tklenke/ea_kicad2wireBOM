@@ -109,7 +109,16 @@ def main():
         # Convert to data objects
         wires = [parse_wire_element(w) for w in wire_sexps]
         labels = [parse_label_element(l) for l in label_sexps]
-        components = [parse_symbol_element(s) for s in symbol_sexps]
+
+        # Parse components (may fail if footprint encodings missing)
+        components = []
+        for s in symbol_sexps:
+            try:
+                components.append(parse_symbol_element(s))
+            except ValueError as e:
+                # Component missing footprint encoding - skip for BOM but continue for connectivity
+                print(f"  Warning: {e} (skipping for BOM calculations)")
+                pass
 
         # Associate labels with wires
         associate_labels_with_wires(wires, labels, threshold=args.label_threshold)
