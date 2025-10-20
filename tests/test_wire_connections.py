@@ -8,7 +8,7 @@ from kicad2wireBOM.wire_connections import identify_wire_connections
 
 
 def test_identify_connection_to_component_pin():
-    """Wire connects to component pin"""
+    """Wire connects to component pin (direct connection)"""
     graph = ConnectivityGraph()
 
     # Add component pin
@@ -25,34 +25,50 @@ def test_identify_connection_to_component_pin():
     # Identify connections
     start_conn, end_conn = identify_wire_connections(wire, graph)
 
-    assert start_conn == 'SW1-1'
-    assert end_conn == 'UNKNOWN'
+    assert start_conn is not None
+    assert start_conn['component_ref'] == 'SW1'
+    assert start_conn['pin_number'] == '1'
+    assert end_conn is None
 
 
-def test_identify_connection_to_junction():
-    """Wire connects to junction"""
+def test_identify_connection_through_junction():
+    """Wire connects to component pin through junction (junction transparency)"""
     graph = ConnectivityGraph()
+
+    # Add component pins
+    graph.add_component_pin('SW1-1', 'SW1', '1', (100.0, 100.0))
+    graph.add_component_pin('J1-1', 'J1', '1', (130.0, 100.0))
 
     # Add junction
     graph.add_junction('j-uuid-123', (110.0, 100.0))
 
-    # Add wire with endpoint at junction
-    wire = WireSegment(
+    # Add wires: SW1 -> junction, junction -> J1
+    wire1 = WireSegment(
         uuid='w1',
         start_point=(100.0, 100.0),
         end_point=(110.0, 100.0)
     )
-    graph.add_wire(wire)
+    wire2 = WireSegment(
+        uuid='w2',
+        start_point=(110.0, 100.0),
+        end_point=(130.0, 100.0)
+    )
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
 
-    # Identify connections
-    start_conn, end_conn = identify_wire_connections(wire, graph)
+    # Identify connections for wire1 - should trace through junction to find J1
+    start_conn, end_conn = identify_wire_connections(wire1, graph)
 
-    assert start_conn == 'UNKNOWN'
-    assert end_conn == 'JUNCTION-j-uuid-123'
+    assert start_conn is not None
+    assert start_conn['component_ref'] == 'SW1'
+    assert start_conn['pin_number'] == '1'
+    assert end_conn is not None
+    assert end_conn['component_ref'] == 'J1'
+    assert end_conn['pin_number'] == '1'
 
 
 def test_identify_both_endpoints():
-    """Wire connects pin to pin"""
+    """Wire connects pin to pin (direct connection)"""
     graph = ConnectivityGraph()
 
     # Add two pins
@@ -70,8 +86,12 @@ def test_identify_both_endpoints():
     # Identify connections
     start_conn, end_conn = identify_wire_connections(wire, graph)
 
-    assert start_conn == 'SW1-1'
-    assert end_conn == 'SW2-2'
+    assert start_conn is not None
+    assert start_conn['component_ref'] == 'SW1'
+    assert start_conn['pin_number'] == '1'
+    assert end_conn is not None
+    assert end_conn['component_ref'] == 'SW2'
+    assert end_conn['pin_number'] == '2'
 
 
 def test_identify_unknown_endpoint():
@@ -89,19 +109,19 @@ def test_identify_unknown_endpoint():
     # Identify connections
     start_conn, end_conn = identify_wire_connections(wire, graph)
 
-    assert start_conn == 'UNKNOWN'
-    assert end_conn == 'UNKNOWN'
+    assert start_conn is None
+    assert end_conn is None
 
 
-def test_identify_pin_to_junction():
-    """Wire connects component pin to junction"""
+def test_identify_pin_to_junction_with_no_component():
+    """Wire connects component pin to junction with no component on other side"""
     graph = ConnectivityGraph()
 
     # Add pin and junction
     graph.add_component_pin('SW1-3', 'SW1', '3', (100.0, 100.0))
     graph.add_junction('j-abc', (120.0, 100.0))
 
-    # Add wire between them
+    # Add wire between them (no other wires at junction)
     wire = WireSegment(
         uuid='w1',
         start_point=(100.0, 100.0),
@@ -112,5 +132,8 @@ def test_identify_pin_to_junction():
     # Identify connections
     start_conn, end_conn = identify_wire_connections(wire, graph)
 
-    assert start_conn == 'SW1-3'
-    assert end_conn == 'JUNCTION-j-abc'
+    assert start_conn is not None
+    assert start_conn['component_ref'] == 'SW1'
+    assert start_conn['pin_number'] == '3'
+    # Junction with no component on other side returns None
+    assert end_conn is None

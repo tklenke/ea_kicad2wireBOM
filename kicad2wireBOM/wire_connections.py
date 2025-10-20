@@ -1,56 +1,34 @@
 # ABOUTME: Wire connection identification
 # ABOUTME: Identifies what each wire endpoint connects to (pins, junctions, etc)
 
+from typing import Optional
 from kicad2wireBOM.connectivity_graph import ConnectivityGraph
 from kicad2wireBOM.schematic import WireSegment
 
 
-def identify_wire_connections(wire: WireSegment, graph: ConnectivityGraph) -> tuple[str, str]:
+def identify_wire_connections(
+    wire: WireSegment,
+    graph: ConnectivityGraph
+) -> tuple[Optional[dict[str, str]], Optional[dict[str, str]]]:
     """
-    Identify what each wire endpoint connects to.
+    Identify what components this wire connects.
+
+    Traces through junctions to find component pins at both ends.
 
     Args:
         wire: Wire segment to identify connections for
         graph: Connectivity graph with all nodes
 
     Returns:
-        Tuple of (start_connection, end_connection) where each is:
-        - "REF-PIN" for component pins (e.g., "SW1-1")
-        - "JUNCTION-uuid" for junctions (e.g., "JUNCTION-abc123")
-        - "UNKNOWN" for unconnected endpoints
+        Tuple of (from_pin, to_pin) where each is:
+        - dict with 'component_ref' and 'pin_number' (e.g., {'component_ref': 'SW1', 'pin_number': '3'})
+        - None if endpoint has no component connection
     """
     # Get nodes at wire endpoints
     start_node, end_node = graph.get_connected_nodes(wire.uuid)
 
-    # Convert nodes to connection strings
-    start_conn = _node_to_connection_string(start_node)
-    end_conn = _node_to_connection_string(end_node)
+    # Trace through junctions to find component pins
+    start_conn = graph.trace_to_component(start_node, exclude_wire_uuid=wire.uuid)
+    end_conn = graph.trace_to_component(end_node, exclude_wire_uuid=wire.uuid)
 
     return (start_conn, end_conn)
-
-
-def _node_to_connection_string(node) -> str:
-    """
-    Convert network node to connection reference string.
-
-    Args:
-        node: NetworkNode object
-
-    Returns:
-        Connection string:
-        - "REF-PIN" for component_pin nodes
-        - "JUNCTION-uuid" for junction nodes
-        - "UNKNOWN" for wire_endpoint nodes or None
-    """
-    if node is None:
-        return "UNKNOWN"
-
-    if node.node_type == 'component_pin':
-        # Format: "SW1-1"
-        return f"{node.component_ref}-{node.pin_number}"
-    elif node.node_type == 'junction':
-        # Format: "JUNCTION-uuid"
-        return f"JUNCTION-{node.junction_uuid}"
-    else:
-        # wire_endpoint or unknown
-        return "UNKNOWN"
