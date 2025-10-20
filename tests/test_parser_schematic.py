@@ -7,11 +7,13 @@ from kicad2wireBOM.parser import (
     extract_wires,
     extract_labels,
     extract_symbols,
+    extract_junctions,
     parse_wire_element,
     parse_label_element,
-    parse_symbol_element
+    parse_symbol_element,
+    parse_junction_element
 )
-from kicad2wireBOM.schematic import WireSegment, Label
+from kicad2wireBOM.schematic import WireSegment, Label, Junction
 from kicad2wireBOM.component import Component
 
 
@@ -145,3 +147,38 @@ def test_parse_symbol_element():
     assert component.fs is not None
     assert component.wl is not None
     assert component.bl is not None
+
+
+def test_extract_junctions():
+    """Extract junction elements from parsed schematic"""
+    # Use test_03A_fixture which has junctions
+    fixture_path = Path("tests/fixtures/test_03A_fixture.kicad_sch")
+    sexp = parse_schematic_file(fixture_path)
+
+    junctions = extract_junctions(sexp)
+
+    # test_03A has 2 junctions
+    assert len(junctions) == 2
+    # Check first element is 'junction' (Symbol or string)
+    for j in junctions:
+        first = str(j[0]).lower()
+        assert 'junction' in first
+
+
+def test_parse_junction_element():
+    """Parse junction element into Junction object"""
+    junction_sexp = [
+        'junction',
+        ['at', 144.78, 86.36],
+        ['diameter', 0],
+        ['color', 0, 0, 0, 0],
+        ['uuid', '01c5e486-ede8-4b12-be44-e41a287d34af']
+    ]
+
+    junction = parse_junction_element(junction_sexp)
+
+    assert isinstance(junction, Junction)
+    assert junction.uuid == '01c5e486-ede8-4b12-be44-e41a287d34af'
+    assert junction.position == (144.78, 86.36)
+    assert junction.diameter == 0
+    assert junction.color == (0, 0, 0, 0)

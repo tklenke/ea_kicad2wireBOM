@@ -45,7 +45,7 @@ python -m kicad2wireBOM tests/fixtures/test_01_fixture.kicad_sch output.csv
 ```
 Generates correct wire BOM with labeled wires.
 
-**Test Results**: 93/93 tests passing ✅
+**Test Results**: 95/95 tests passing ✅
 
 ---
 
@@ -141,13 +141,13 @@ Generates correct wire BOM with labeled wires.
 
 ---
 
-#### Phase 4C: Graph Building Integration
+#### Phase 4C: Graph Building Integration [~] IN PROGRESS
 
 **Goal**: Build complete connectivity graph from schematic
 
 **Tasks**:
-- [ ] Update Junction dataclass (add uuid, diameter, color)
-- [ ] Parse junction elements from schematic
+- [x] Update Junction dataclass (add uuid, diameter, color)
+- [x] Parse junction elements from schematic
 - [ ] Update Component dataclass to include lib_id, rotation, mirror_x, mirror_y
 - [ ] Parse component rotation and mirror from schematic
 - [ ] Implement graph building workflow:

@@ -25,6 +25,20 @@ class WireSegment:
 
 
 @dataclass
+class Junction:
+    """
+    Represents a junction in the schematic.
+
+    Junctions are explicit connection points where multiple wires meet.
+    Only wires meeting at a junction are electrically connected.
+    """
+    uuid: str
+    position: tuple[float, float]  # (x, y) in mm (schematic coordinates)
+    diameter: float = 0.0
+    color: tuple[int, int, int, int] = (0, 0, 0, 0)  # RGBA
+
+
+@dataclass
 class Label:
     """
     Represents a label in the schematic.

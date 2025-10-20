@@ -6,7 +6,7 @@ from typing import Union, List, Any, Optional
 import sexpdata
 from sexpdata import Symbol
 
-from kicad2wireBOM.schematic import WireSegment, Label
+from kicad2wireBOM.schematic import WireSegment, Label, Junction
 from kicad2wireBOM.component import Component
 
 
@@ -344,4 +344,78 @@ def parse_symbol_element(symbol_sexp: Any) -> Component:
         source=source,
         value=properties.get('Value', ''),
         desc=properties.get('Description', '')
+    )
+
+
+def extract_junctions(sexp: Any) -> List[Any]:
+    """
+    Extract all (junction ...) elements from schematic s-expression.
+
+    Args:
+        sexp: Parsed s-expression (nested lists)
+
+    Returns:
+        List of junction elements (each is an s-expression)
+    """
+    junctions = []
+
+    def walk(node):
+        """Recursively walk s-expression tree"""
+        if isinstance(node, list):
+            # Check if this is a junction element
+            if len(node) > 0:
+                first = node[0]
+                if isinstance(first, Symbol):
+                    if first.value() == 'junction':
+                        junctions.append(node)
+                elif first == 'junction':
+                    junctions.append(node)
+
+            # Recursively process child nodes
+            for item in node:
+                walk(item)
+
+    walk(sexp)
+    return junctions
+
+
+def parse_junction_element(junction_sexp: Any) -> Junction:
+    """
+    Parse a (junction ...) s-expression into Junction object.
+
+    Args:
+        junction_sexp: Junction s-expression element
+
+    Returns:
+        Junction object with position, uuid, diameter, color
+    """
+    position = None
+    uuid = None
+    diameter = 0.0
+    color = (0, 0, 0, 0)
+
+    for item in junction_sexp[1:]:
+        if isinstance(item, list) and len(item) > 0:
+            key = item[0]
+            if isinstance(key, Symbol):
+                key = key.value()
+
+            if key == 'at':
+                # (at x y)
+                position = (item[1], item[2])
+            elif key == 'uuid':
+                # (uuid "string")
+                uuid = item[1]
+            elif key == 'diameter':
+                # (diameter value)
+                diameter = item[1]
+            elif key == 'color':
+                # (color r g b a)
+                color = tuple(item[1:5])
+
+    return Junction(
+        uuid=uuid,
+        position=position,
+        diameter=diameter,
+        color=color
     )
