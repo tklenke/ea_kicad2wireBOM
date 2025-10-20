@@ -169,6 +169,40 @@
 
 ---
 
+## ISSUES FROM PROGRAMMER (2025-10-20) - ✅ RESOLVED
+
+### BOM Output Semantics Need Clarification ✅
+
+**Problem**: Phase 4 implementation complete (105/105 tests passing), but BOM output from test_03A_fixture reveals semantic ambiguity.
+
+**Resolution (2025-10-20)**:
+
+**Decision**: Junctions are **transparent** in BOM output. Each wire shows component-to-component connections by tracing through junctions.
+
+**Rationale**: In experimental aircraft, schematic junctions represent electrical connection points but must become physical components (terminal blocks, connectors, splice blocks) in the build. Wire-to-wire splicing is not acceptable for reliability and maintainability.
+
+**BOM Output Format** - Split component and pin into separate columns:
+- **Old**: `Wire Label,From,To,...` where From/To = "SW1-3" or "JUNCTION-uuid" or "UNKNOWN"
+- **New**: `Wire Label,From Component,From Pin,To Component,To Pin,...` where components are traced through junctions
+
+**Expected Output for test_03A**:
+```csv
+Wire Label,From Component,From Pin,To Component,To Pin,...
+P1A,J1,1,SW1,3,...
+P2A,J1,1,SW2,3,...
+P3A,SW1,3,SW2,3,...
+P4A,SW2,2,J1,1,...
+P4B,SW1,3,J1,1,...
+```
+
+**Design Documents Updated**:
+- `kicad2wireBOM_design.md` v2.1 - Section 4.3 (junction tracing algorithm) and Section 7.3 (output format)
+- Design revision history added documenting this change
+
+**Next Step**: Programmer implements junction tracing and updated CSV output format
+
+---
+
 ## ARCHIVE PENDING
 
 - [ ] Move ARCHITECTURE_CHANGE.md to docs/archive/

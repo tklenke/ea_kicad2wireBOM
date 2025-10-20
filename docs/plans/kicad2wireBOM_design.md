@@ -4,9 +4,24 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.0 (Schematic-Based Architecture)
-**Date**: 2025-10-18
+**Version**: 2.1 (BOM Output Format Clarified)
+**Date**: 2025-10-20
 **Status**: Design - Ready for Implementation
+
+## Design Revision History
+
+### Version 2.1 (2025-10-20)
+**Changed**: BOM output format for junction handling and component/pin separation
+
+**Sections Modified**:
+- Section 4.3: Wire-to-Component Matching - Changed to trace through junctions to show component-to-component connections
+- Section 7.3: Builder Mode CSV Columns - Split "From/To" into separate component and pin columns
+
+**Rationale**: In experimental aircraft, junctions in schematics represent electrical connections but must become physical components (terminal blocks, connectors) in the actual build. BOM output now shows component-to-component connections with junctions being transparent, and separates component references from pin numbers for clarity.
+
+**Example Impact** (test_03A fixture):
+- OLD: `P1A,UNKNOWN,SW1-3,...`
+- NEW: `P1A,J1,1,SW1,3,...` (traces through junction to show J1-pin1 ↔ SW1-pin3)
 
 ---
 
@@ -565,55 +580,86 @@ class ConnectivityGraph:
 - Use tolerance: `distance < 0.1mm` for "same position"
 - Round positions to 0.01mm for dictionary keys
 
-### 4.3 Wire-to-Component Matching
+### 4.3 Wire-to-Component Matching **[REVISED - 2025-10-20]**
 
-**Algorithm**: For each labeled wire segment, identify the component pins it connects.
+**Algorithm**: For each labeled wire segment, identify the component pins it connects by **tracing through junctions**.
+
+**Critical Design Decision**: Junctions in the schematic are electrical connection points for circuit design, but in aircraft wiring they must become physical components (terminal blocks, connectors, splice blocks). Therefore, the BOM output shows **component-to-component** connections with junctions being transparent.
+
+**Rationale**: In experimental aircraft, it's not acceptable to splice wires mid-run. Any junction point must be a physical component for reliability and maintainability.
 
 ```python
 def identify_wire_connections(
     wire: WireSegment,
     graph: ConnectivityGraph
-) -> tuple[str, str]:
+) -> tuple[ComponentPin, ComponentPin]:
     """
-    Identify what this wire connects.
+    Identify what components this wire connects.
+
+    Traces through junctions to find component pins at both ends.
 
     Returns:
-        Tuple of (from_ref, to_ref) where each is:
-        - "COMPONENT-PIN" (e.g., "SW1-1", "J1-2")
-        - "JUNCTION-uuid" (if connects to junction)
-        - "UNKNOWN" (if endpoint has no connection)
+        Tuple of (from_pin, to_pin) where each is:
+        - ComponentPin(component_ref, pin_number) (e.g., SW1, pin 3)
+        - None if endpoint has no component connection
     """
     start_node, end_node = graph.get_connected_nodes(wire.uuid)
 
-    def node_to_ref(node: NetworkNode) -> str:
+    def trace_to_component(node: NetworkNode) -> Optional[ComponentPin]:
+        """Trace from wire endpoint through junctions to find component pin."""
+        if node is None:
+            return None
+
         if node.node_type == "component_pin":
-            return f"{node.component_ref}-{node.pin_number}"
+            return ComponentPin(node.component_ref, node.pin_number)
+
         elif node.node_type == "junction":
-            return f"JUNCTION-{node.junction_uuid[:8]}"  # Abbreviated UUID
-        else:
-            return "UNKNOWN"
+            # Find other wires connected to this junction
+            connected_wires = graph.get_wires_at_junction(node.junction_uuid)
 
-    from_ref = node_to_ref(start_node) if start_node else "UNKNOWN"
-    to_ref = node_to_ref(end_node) if end_node else "UNKNOWN"
+            # Trace each connected wire segment
+            for other_wire in connected_wires:
+                if other_wire.uuid == wire.uuid:
+                    continue  # Skip the wire we started from
 
-    return (from_ref, to_ref)
+                # Recursively trace the other wire's endpoints
+                other_start, other_end = graph.get_connected_nodes(other_wire.uuid)
+
+                # Check which end connects to this junction
+                if other_start == node:
+                    result = trace_to_component(other_end)
+                elif other_end == node:
+                    result = trace_to_component(other_start)
+                else:
+                    continue
+
+                if result is not None:
+                    return result
+
+        return None
+
+    from_pin = trace_to_component(start_node)
+    to_pin = trace_to_component(end_node)
+
+    return (from_pin, to_pin)
 ```
 
 **BOM Generation with Junctions**:
 
-For circuits with junctions (like test_03_fixture):
-- Each labeled wire segment gets its own BOM entry
-- **P1A**: SW1-1 → JUNCTION-51609a84 (wire from SW1 to junction)
-- **P2A**: SW2-3 → JUNCTION-51609a84 (wire from SW2 to junction)
-- **Unlabeled junction wire**: JUNCTION-51609a84 → J1-1
+For circuits with junctions (like test_03A_fixture), each labeled wire segment shows the components it electrically connects:
 
-**Engineering Mode**:
-- Show network topology: which components are connected via junction
-- Display junction UUID for reference
+**Example - test_03A has two junctions connecting:**
+- Junction 1: SW1-pin3 ↔ SW2-pin2 (via wires P1A and P4A)
+- Junction 2: SW2-pin3 ↔ J1-pin1 (via wire P2A and unlabeled wire)
 
-**Builder Mode**:
-- Each labeled segment is physical wire to build
-- Junction reference shows meeting point (may be terminal block, splice, etc.)
+**Expected BOM Output**:
+- **P1A**: J1-pin1 ↔ SW1-pin3 (traces through junction)
+- **P2A**: J1-pin1 ↔ SW2-pin3 (traces through junction)
+- **P3A**: SW1-pin3 ↔ SW2-pin3 (direct connection, no junction)
+- **P4A**: SW2-pin2 ↔ J1-pin1 (traces through junction)
+- **P4B**: SW1-pin3 ↔ J1-pin1 (traces through junction)
+
+**Builder Interpretation**: Each wire entry shows which two component pins to connect. The builder understands that junction points in the schematic will be terminal blocks or connectors in the physical build.
 
 ### 4.4 Circuit Identification
 
@@ -843,19 +889,23 @@ Two primary output formats:
 - Output: `aircraft_electrical_REV001.csv`
 - Next run: `aircraft_electrical_REV002.csv`
 
-### 7.3 Builder Mode (Default)
+### 7.3 Builder Mode (Default) **[REVISED - 2025-10-20]**
 
 **Purpose**: Clean, actionable wire list for harness construction.
 
 **CSV Columns**:
 - Wire Label (EAWMS format)
-- From (component-pin reference, e.g., "BT1-1")
-- To (component-pin reference, e.g., "SW1-2")
+- From Component (component reference, e.g., "BT1", "SW1")
+- From Pin (pin number, e.g., "1", "3")
+- To Component (component reference, e.g., "SW1", "J1")
+- To Pin (pin number, e.g., "2", "1")
 - Wire Gauge (AWG size, e.g., "20 AWG")
 - Wire Color
 - Length (inches)
 - Wire Type (specification, e.g., "M22759/16")
 - Warnings (validation issues, if any)
+
+**Note**: Junctions in the schematic are transparent in the output. Each wire shows the component pins it electrically connects, tracing through any junctions to find the actual components at both ends.
 
 **Markdown Structure**:
 - **Summary Section**:

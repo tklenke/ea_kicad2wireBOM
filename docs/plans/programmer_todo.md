@@ -213,6 +213,55 @@ P2A        | SW2-3   | JUNCTION-51609a | ...
 
 ---
 
+### ⚠️ ARCHITECTURE CHANGE (2025-10-20): BOM Output Format
+
+**CRITICAL**: The BOM output format has changed. Before implementing Phase 5-6, update output to match new specification.
+
+**Decision**: Junctions must be **transparent** in BOM output. Each wire shows component-to-component connections by tracing through junctions.
+
+**Old Format**:
+```csv
+Wire Label,From,To,...
+P1A,UNKNOWN,SW1-3,...
+P4B,JUNCTION-c1e057df,UNKNOWN,...
+```
+
+**New Format** (REQUIRED):
+```csv
+Wire Label,From Component,From Pin,To Component,To Pin,...
+P1A,J1,1,SW1,3,...
+P2A,J1,1,SW2,3,...
+P3A,SW1,3,SW2,3,...
+P4A,SW2,2,J1,1,...
+P4B,SW1,3,J1,1,...
+```
+
+**Implementation Requirements**:
+
+1. **Add junction tracing to ConnectivityGraph**:
+   - Implement `trace_to_component(node)` method that recursively follows wires through junctions
+   - Return `ComponentPin(component_ref, pin_number)` or None
+
+2. **Update `identify_wire_connections()` in wire_connections.py**:
+   - Change return type from `tuple[str, str]` to `tuple[Optional[ComponentPin], Optional[ComponentPin]]`
+   - Use junction tracing instead of returning "JUNCTION-uuid"
+   - See design doc Section 4.3 for complete algorithm
+
+3. **Update CSV output format** (output_csv.py):
+   - Split "From/To" into four columns: From Component, From Pin, To Component, To Pin
+   - Handle None values (components with unconnected ends)
+
+4. **Update tests**:
+   - Update test_03A expected output to match new format
+   - All 5 wires should show component-to-component connections
+
+**References**:
+- Design doc v2.1, Section 4.3 (algorithm with pseudocode)
+- Design doc v2.1, Section 7.3 (CSV column format)
+- architect_todo.md (decision rationale)
+
+---
+
 ### Phase 5: Enhanced Wire Calculations
 
 Current wire calculator reused from previous work - already functional!
