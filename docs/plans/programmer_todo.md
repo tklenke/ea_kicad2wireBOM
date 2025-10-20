@@ -45,7 +45,7 @@ python -m kicad2wireBOM tests/fixtures/test_01_fixture.kicad_sch output.csv
 ```
 Generates correct wire BOM with labeled wires.
 
-**Test Results**: 95/95 tests passing ✅
+**Test Results**: 100/100 tests passing ✅
 
 ---
 
@@ -141,31 +141,36 @@ Generates correct wire BOM with labeled wires.
 
 ---
 
-#### Phase 4C: Graph Building Integration [~] IN PROGRESS
+#### Phase 4C: Graph Building Integration ✅ COMPLETE
 
 **Goal**: Build complete connectivity graph from schematic
 
 **Tasks**:
 - [x] Update Junction dataclass (add uuid, diameter, color)
 - [x] Parse junction elements from schematic
-- [ ] Update Component dataclass to include lib_id, rotation, mirror_x, mirror_y
-- [ ] Parse component rotation and mirror from schematic
-- [ ] Implement graph building workflow:
-  1. [ ] Parse symbol libraries and cache pin definitions
-  2. [ ] Calculate all component pin positions
-  3. [ ] Add all junctions to graph
-  4. [ ] Add all component pins to graph
-  5. [ ] Add all wires to graph (matches to existing nodes)
-- [ ] Add integration tests:
-  - [ ] test_01_fixture: Simple 2-component graph
-  - [ ] test_03_fixture: Graph with junction
-  - [ ] test_03A_fixture: Graph with junction + crossing wires
+- [x] Parse component lib_id, position, and rotation from schematic
+- [x] Implement graph building workflow:
+  1. [x] Parse symbol libraries and cache pin definitions
+  2. [x] Calculate all component pin positions
+  3. [x] Add all junctions to graph
+  4. [x] Add all component pins to graph
+  5. [x] Add all wires to graph (matches to existing nodes)
+- [x] Add integration tests:
+  - [x] test_01_fixture: Simple 2-component graph
+  - [x] test_03A_fixture: Graph with junction + crossing wires
+  - [x] Pins connect to wires correctly
+  - [x] Junctions connect multiple wires
 
 **Critical Rule**: Only connect wires through **explicit junction elements**
 - Junction present at (x,y) → wires ARE connected
 - Junction absent at (x,y) → wires crossing are NOT connected
 
 **Reference**: Design doc Sections 3.5, 4.2
+
+**Implementation**:
+- `kicad2wireBOM/graph_builder.py` - build_connectivity_graph() function
+- `tests/test_graph_building.py` - 5 integration tests
+- Commit: 17e97b0, [next commit]
 
 ---
 
