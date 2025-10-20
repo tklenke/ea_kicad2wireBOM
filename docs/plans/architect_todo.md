@@ -108,7 +108,8 @@ Each wire shows component-to-component connections by tracing through junctions.
 ## TASKS
 
 ### Immediate
-- [ ] Programmer fixes wire_endpoint tracing bug (see programmer_todo.md)
+- [x] Clarify junction terminology in design doc (junction elements vs connector components)
+- [ ] Programmer fixes J1 connector component recognition bug (see programmer_todo.md)
 
 ### Future (When Needed)
 - [ ] Design hierarchical schematic support (if Tom's schematics use multiple sheets)
@@ -116,4 +117,4 @@ Each wire shows component-to-component connections by tracing through junctions.
 - [ ] Consider multi-format output options (Markdown, engineering mode)
 
 ### Housekeeping
-- [ ] Move ARCHITECTURE_CHANGE.md to docs/archive/ (awaiting Tom's approval)
+- [x] Move ARCHITECTURE_CHANGE.md to docs/archive/ (already completed)

@@ -592,13 +592,19 @@ class ConnectivityGraph:
 
 ### 4.3 Wire-to-Component Matching **[REVISED - 2025-10-20]**
 
-**Algorithm**: For each labeled wire segment, identify the component pins it connects by **tracing through junctions**.
+**CRITICAL TERMINOLOGY CLARIFICATION**:
 
-**Critical Design Decision**: Junctions in the schematic are electrical connection points for circuit design, but in aircraft wiring they must become physical components (terminal blocks, connectors, splice blocks). Therefore, the BOM output shows **component-to-component** connections with junctions being transparent.
+There are TWO different things both called "junction":
 
-**Rationale**: In experimental aircraft, it's not acceptable to splice wires mid-run. Any junction point must be a physical component for reliability and maintainability.
+1. **Junction ELEMENT** `(junction ...)`: Schematic drawing element (appears as a dot at wire intersections). This indicates wires are electrically connected. **TRANSPARENT in tracing** - we trace through these to find component pins.
 
-**Implementation Status**: Junction tracing is implemented. Wire_endpoint tracing (lines 646-665 below) is **DESIGN ONLY - NOT YET IMPLEMENTED**. See `programmer_todo.md` for implementation task.
+2. **Junction/Connector COMPONENT** (e.g., J1, J2, TB1): Real physical components with reference designators and pins (terminal blocks, connectors, splice blocks). **NOT TRANSPARENT** - these are endpoints. Wires terminate at their pins.
+
+**Algorithm**: For each labeled wire segment, identify the component pins it connects by:
+- **Tracing through junction ELEMENTS** (schematic dots)
+- **Stopping at component pins** (including junction/connector components like J1)
+
+**Rationale**: Junction elements are just schematic notation showing electrical connectivity. But any component with a reference designator (J1, SW1, BT1, etc.) is a physical part where wires terminate.
 
 ```python
 def identify_wire_connections(
@@ -675,22 +681,23 @@ def identify_wire_connections(
     return (from_pin, to_pin)
 ```
 
-**BOM Generation with Junctions**:
+**BOM Generation with Junction Elements and Connector Components**:
 
-For circuits with junctions (like test_03A_fixture), each labeled wire segment shows the components it electrically connects:
+For circuits with junction elements (schematic dots) and connector components like J1:
 
-**Example - test_03A has two junctions connecting:**
-- Junction 1: SW1-pin3 ↔ SW2-pin2 (via wires P1A and P4A)
-- Junction 2: SW2-pin3 ↔ J1-pin1 (via wire P2A and unlabeled wire)
+**Example - test_03A_fixture**:
+- Has junction ELEMENTS (dots showing wire connectivity in schematic)
+- Has J1 connector COMPONENT (2-pin connector - a real physical part)
+- Wires connect switches to the J1 connector
 
-**Expected BOM Output**:
-- **P1A**: J1-pin1 ↔ SW1-pin3 (traces through junction)
-- **P2A**: J1-pin1 ↔ SW2-pin3 (traces through junction)
-- **P3A**: SW1-pin3 ↔ SW2-pin3 (direct connection, no junction)
-- **P4A**: SW2-pin2 ↔ J1-pin1 (traces through junction)
-- **P4B**: SW1-pin3 ↔ J1-pin1 (traces through junction)
+**Expected BOM Output** (from `docs/input/test_03A_out_expected.csv`):
+- **P1A**: SW1-pin1 ↔ J1-pin1 (wire from switch to connector)
+- **P2A**: SW2-pin1 ↔ J1-pin1 (wire from switch to connector)
+- **P3A**: SW1-pin3 ↔ SW2-pin3 (direct switch-to-switch connection)
+- **P4A**: SW2-pin2 ↔ J1-pin2 (wire from switch to connector)
+- **P4B**: SW1-pin2 ↔ J1-pin2 (wire from switch to connector)
 
-**Builder Interpretation**: Each wire entry shows which two component pins to connect. The builder understands that junction points in the schematic will be terminal blocks or connectors in the physical build.
+**Builder Interpretation**: Each wire shows which two component pins to physically connect. J1 is a real connector/terminal block where multiple wires terminate.
 
 ### 4.4 Circuit Identification
 

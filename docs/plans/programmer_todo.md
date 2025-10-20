@@ -6,28 +6,49 @@
 
 ---
 
-## ✅ COMPLETED: Wire Endpoint Tracing Implementation
+## ⚠️ CURRENT BLOCKER: J1 Connector Component Not Being Recognized
 
-**Completed**: 2025-10-20
+**Issue Identified**: 2025-10-20
 
-The `trace_to_component()` method in `connectivity_graph.py` now correctly handles `wire_endpoint` nodes. All node types are supported:
+The BOM output is incorrectly tracing through J1 (connector component) instead of treating it as an endpoint.
+
+**Current Output** (`docs/input/test_03A_out_current.csv`):
+```csv
+P2A,SW2,3,SW1,3,... ❌ (shows SW2↔SW1, skipping J1)
+P1A,SW2,3,SW1,3,... ❌ (shows SW2↔SW1, skipping J1)
+```
+
+**Expected Output** (`docs/input/test_03A_out_expected.csv`):
+```csv
+P2A,SW2,1,J1,1,...  ✅ (shows SW2↔J1 connection)
+P1A,SW1,1,J1,1,...  ✅ (shows SW1↔J1 connection)
+P3A,SW1,3,SW2,3,... ✅ (direct SW1↔SW2 connection)
+```
+
+**Root Cause**: J1 is a `Conn_01x02` connector component (2-pin connector). It should be treated as a component endpoint, but the current implementation is either:
+1. Not adding J1's pins to the connectivity graph as `component_pin` nodes, OR
+2. Not parsing J1 component at all (missing footprint encoding?)
+
+**Architecture Clarification** (design doc updated):
+- **Junction ELEMENTS** (schematic dots) → TRANSPARENT, trace through them
+- **Connector COMPONENTS** (J1, J2, TB1) → ENDPOINTS, stop at their pins
+
+**Next Steps**:
+1. Verify J1 component is being parsed from schematic
+2. Check if J1's footprint has proper encoding `|(fs,wl,bl)Rvalue`
+3. Verify J1's pins are being added to connectivity graph as `component_pin` nodes
+4. Add/fix test to ensure connector components are treated as endpoints
+
+---
+
+## COMPLETED WORK
+
+### ✅ Wire Endpoint Tracing Implementation (2025-10-20)
+
+The `trace_to_component()` method now correctly handles `wire_endpoint` nodes. All node types supported:
 - `component_pin` nodes → returns component ✅
 - `junction` nodes → traces recursively through connected wires ✅
 - `wire_endpoint` nodes → traces recursively through connected wires ✅
-
-**Test Coverage**: Added `test_trace_to_component_through_wire_endpoint` in `tests/test_connectivity_graph.py`
-
-**Verification**: test_03A BOM output now shows complete connections:
-```csv
-P2A,SW2,3,J1,1,12,Red,25.0,M22759/16,  ✅
-P3A,SW1,1,SW2,1,20,Red,25.0,M22759/16, ✅
-P1A,J1,1,SW1,3,12,Red,24.0,M22759/16,  ✅
-```
-
-**Changes**:
-- Added wire_endpoint case to `connectivity_graph.py:195-225`
-- Added unit test in `tests/test_connectivity_graph.py:295-326`
-- All 109 tests passing
 
 ---
 
@@ -38,13 +59,14 @@ P1A,J1,1,SW1,3,12,Red,24.0,M22759/16,  ✅
 - Label-to-wire association
 - Pin position calculation with rotation/mirroring
 - Connectivity graph building
-- Junction and wire_endpoint tracing (complete)
+- Junction element tracing (schematic dots)
+- Wire_endpoint tracing
 - Wire calculations (length, gauge, voltage drop)
 - CSV output generation
-- 109/109 tests passing
+- 109/109 tests passing (but output doesn't match expected)
 
 **What's Broken** ⚠️:
-- None - core functionality complete!
+- J1 connector component not recognized as endpoint (see CURRENT BLOCKER above)
 
 **Command Line**:
 ```bash
