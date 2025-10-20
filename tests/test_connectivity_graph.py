@@ -290,3 +290,37 @@ def test_trace_to_component_no_component_found():
     result = graph.trace_to_component(junction_node, exclude_wire_uuid='w1')
 
     assert result is None
+
+
+def test_trace_to_component_through_wire_endpoint():
+    """Trace through wire_endpoint node to find component pin"""
+    graph = ConnectivityGraph()
+
+    # Add component pin
+    graph.add_component_pin('J1-1', 'J1', '1', (100.0, 100.0))
+
+    # Add component pin on other side
+    graph.add_component_pin('SW1-3', 'SW1', '3', (130.0, 100.0))
+
+    # Add two wires that connect at a wire_endpoint node (no junction symbol)
+    # Wire 1: J1-1 to wire_endpoint at (115.0, 100.0)
+    wire1 = WireSegment(uuid='w1', start_point=(100.0, 100.0), end_point=(115.0, 100.0))
+    # Wire 2: wire_endpoint at (115.0, 100.0) to SW1-3
+    wire2 = WireSegment(uuid='w2', start_point=(115.0, 100.0), end_point=(130.0, 100.0))
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+
+    # Get the wire_endpoint node (middle point where wires connect)
+    wire_endpoint_node = graph.get_node_at_position((115.0, 100.0))
+
+    # Verify it's a wire_endpoint, not a junction
+    assert wire_endpoint_node.node_type == 'wire_endpoint'
+    assert len(wire_endpoint_node.connected_wire_uuids) == 2
+
+    # Trace from wire_endpoint through wire2 to find SW1-3
+    result = graph.trace_to_component(wire_endpoint_node, exclude_wire_uuid='w1')
+
+    assert result is not None
+    assert result['component_ref'] == 'SW1'
+    assert result['pin_number'] == '3'

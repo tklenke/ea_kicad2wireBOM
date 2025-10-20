@@ -192,5 +192,37 @@ class ConnectivityGraph:
                 if result is not None:
                     return result
 
+        # If this node is a wire_endpoint, trace through connected wires
+        if node.node_type == 'wire_endpoint':
+            # Get all wires connected to this wire_endpoint
+            for wire_uuid in node.connected_wire_uuids:
+                # Skip the wire we came from
+                if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                # Get the wire's endpoints
+                wire = self.wires[wire_uuid]
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                start_node = self.nodes[start_key]
+                end_node = self.nodes[end_key]
+
+                # Find which end is NOT this wire_endpoint node
+                node_key = (round(node.position[0], 2), round(node.position[1], 2))
+
+                if start_key == node_key:
+                    # Trace to the other end
+                    result = self.trace_to_component(end_node, exclude_wire_uuid=wire_uuid)
+                elif end_key == node_key:
+                    # Trace to the other end
+                    result = self.trace_to_component(start_node, exclude_wire_uuid=wire_uuid)
+                else:
+                    continue
+
+                # If we found a component, return it
+                if result is not None:
+                    return result
+
         # No component found
         return None
