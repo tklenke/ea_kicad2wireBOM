@@ -127,14 +127,16 @@ python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 - [x] Run tests, verify detection works
   - All 113 tests passing ✅
 
-### Task 2: Count Labels in 3+Way Connections
-- [ ] Write test: `test_count_labels_in_3way_connection()`
+### Task 2: Count Labels in 3+Way Connections ✅ COMPLETE (2025-10-21)
+- [x] Write test: `test_count_labels_in_3way_connection()`
   - test_03A P4A/P4B: expect 2 labels for 3 pins ✅
   - test_04 grounds: expect 3 labels for 4 pins ✅
-- [ ] Implement: Add method `count_labels_in_group(group: set[ComponentPin], graph: ConnectivityGraph) -> int`
-  - Traverse wire segments within the connected group
-  - Count circuit ID labels found
-- [ ] Run tests, verify label counting
+- [x] Implement: Add method `count_labels_in_group(group: set[ComponentPin], graph: ConnectivityGraph) -> int`
+  - Implemented in `kicad2wireBOM/connectivity_graph.py`
+  - Uses BFS to traverse all wires in connected component
+  - Counts unique circuit ID labels found
+- [x] Run tests, verify label counting
+  - All 114 tests passing ✅
 
 ### Task 3: Identify Common Pin
 - [ ] Write test: `test_identify_common_pin_in_3way()`

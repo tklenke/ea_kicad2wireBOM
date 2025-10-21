@@ -363,3 +363,86 @@ class ConnectivityGraph:
                     queue.append((other_pos, visited_nodes | {current_key}))
 
         return connected_pins
+
+    def count_labels_in_group(self, group: list[dict[str, str]]) -> int:
+        """
+        Count circuit ID labels within a multipoint connection group.
+
+        Traverses all wires within the connected group and counts unique
+        circuit ID labels found.
+
+        Args:
+            group: List of component pins (dicts with 'component_ref' and 'pin_number')
+
+        Returns:
+            Count of unique circuit ID labels in the group
+        """
+        # Get all pin positions in the group
+        group_pin_positions = set()
+        for pin in group:
+            pin_key = f"{pin['component_ref']}-{pin['pin_number']}"
+            if pin_key in self.component_pins:
+                pos = self.component_pins[pin_key]
+                group_pin_positions.add((round(pos[0], 2), round(pos[1], 2)))
+
+        # Track visited nodes and wires
+        visited_nodes = set()
+        visited_wires = set()
+        unique_labels = set()
+
+        # BFS from each pin position to explore entire connected component
+        for start_pos in group_pin_positions:
+            if start_pos in visited_nodes:
+                continue
+
+            queue = [start_pos]
+            visited_nodes.add(start_pos)
+
+            while queue:
+                current_pos = queue.pop(0)
+
+                # Get node at current position
+                node = self.nodes.get(current_pos)
+                if node is None:
+                    continue
+
+                # Check all wires connected to this node
+                for wire_uuid in node.connected_wire_uuids:
+                    if wire_uuid in visited_wires:
+                        continue
+                    visited_wires.add(wire_uuid)
+
+                    wire = self.wires[wire_uuid]
+
+                    # If wire has a circuit_id label, add it to our set
+                    if hasattr(wire, 'circuit_id') and wire.circuit_id:
+                        unique_labels.add(wire.circuit_id)
+
+                    # Explore the other end of the wire
+                    start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                    end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                    # Add other endpoint to queue if not visited
+                    if current_pos == start_key:
+                        other_key = end_key
+                    elif current_pos == end_key:
+                        other_key = start_key
+                    else:
+                        continue
+
+                    # Add to queue if not visited
+                    # Keep exploring until we've covered the whole connected component
+                    if other_key not in visited_nodes:
+                        # Check if this leads to a pin in our group (keeps us in the multipoint connection)
+                        other_node = self.nodes.get(other_key)
+                        if other_node and other_node.node_type == 'component_pin':
+                            # Only continue if this pin is in our group
+                            if other_key in group_pin_positions:
+                                visited_nodes.add(other_key)
+                                queue.append(other_key)
+                        else:
+                            # It's a junction or wire_endpoint, continue exploring
+                            visited_nodes.add(other_key)
+                            queue.append(other_key)
+
+        return len(unique_labels)
