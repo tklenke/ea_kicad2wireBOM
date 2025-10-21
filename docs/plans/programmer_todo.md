@@ -113,17 +113,19 @@ python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 
 **Implementation Tasks** (TDD approach):
 
-### Task 1: Detect 3+Way Connections
-- [ ] Write test: `test_detect_3way_connection_with_3_pins()` using test_03A fixture (P4A/P4B case)
+### Task 1: Detect 3+Way Connections ✅ COMPLETE (2025-10-21)
+- [x] Write test: `test_detect_3way_connection_with_3_pins()` using test_03A fixture (P4A/P4B case)
   - Fixture: `tests/fixtures/test_03A_fixture.kicad_sch`
   - Expected: Detect 3-pin group {SW1-pin2, SW2-pin2, J1-pin2}
-- [ ] Write test: `test_detect_4way_connection()` using test_04 fixture (G1A/G2A/G3A case)
-  - Fixture: `tests/fixtures/test_04_fixture.kicad_sch` **[NEW - 2025-10-21]**
+- [x] Write test: `test_detect_4way_connection()` using test_04 fixture (G1A/G2A/G3A case)
+  - Fixture: `tests/fixtures/test_04_fixture.kicad_sch`
   - Expected: Detect 4-pin group {L1-pin1, L2-pin1, L3-pin1, BT1-pin2}
-- [ ] Implement: Add method `detect_multipoint_connections(graph: ConnectivityGraph) -> list[set[ComponentPin]]`
-  - Use graph traversal to find all connected component pin groups
-  - Return groups where N ≥ 3
-- [ ] Run tests, verify detection works
+- [x] Implement: Add method `detect_multipoint_connections(graph: ConnectivityGraph) -> list[set[ComponentPin]]`
+  - Implemented in `kicad2wireBOM/connectivity_graph.py`
+  - Uses BFS graph traversal to find all connected component pin groups
+  - Returns groups where N ≥ 3
+- [x] Run tests, verify detection works
+  - All 113 tests passing ✅
 
 ### Task 2: Count Labels in 3+Way Connections
 - [ ] Write test: `test_count_labels_in_3way_connection()`

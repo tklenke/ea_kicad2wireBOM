@@ -268,3 +268,98 @@ class ConnectivityGraph:
 
         # No component found
         return None
+
+    def detect_multipoint_connections(self) -> list[list[dict[str, str]]]:
+        """
+        Detect all multipoint connections (N >= 3 component pins connected).
+
+        Uses graph traversal to find all connected component pin groups.
+        Returns groups where N >= 3.
+
+        Returns:
+            List of component pin groups, where each group is a list of dicts
+            with 'component_ref' and 'pin_number' keys.
+        """
+        # Track which pins we've already visited
+        visited_pins = set()
+        multipoint_groups = []
+
+        # Iterate through all component pins
+        for pin_key, position in self.component_pins.items():
+            if pin_key in visited_pins:
+                continue
+
+            # Start BFS/DFS from this pin to find all connected pins
+            connected_pins = self._find_connected_pins(pin_key, position)
+
+            # Mark all pins in this group as visited
+            for pin in connected_pins:
+                pin_key_str = f"{pin['component_ref']}-{pin['pin_number']}"
+                visited_pins.add(pin_key_str)
+
+            # If N >= 3, this is a multipoint connection
+            if len(connected_pins) >= 3:
+                multipoint_groups.append(connected_pins)
+
+        return multipoint_groups
+
+    def _find_connected_pins(
+        self,
+        start_pin_key: str,
+        start_position: tuple[float, float]
+    ) -> list[dict[str, str]]:
+        """
+        Find all component pins connected to the starting pin using BFS.
+
+        Args:
+            start_pin_key: Component pin key like "SW1-1"
+            start_position: Position of starting pin
+
+        Returns:
+            List of connected component pins (including the starting pin)
+        """
+        # BFS queue: tuples of (position, visited_nodes)
+        queue = [(start_position, set())]
+        visited_positions = {(round(start_position[0], 2), round(start_position[1], 2))}
+        connected_pins = []
+
+        while queue:
+            current_pos, visited_nodes = queue.pop(0)
+            current_key = (round(current_pos[0], 2), round(current_pos[1], 2))
+
+            # Get node at current position
+            node = self.nodes.get(current_key)
+            if node is None:
+                continue
+
+            # If this is a component pin, add it to results
+            if node.node_type == 'component_pin':
+                connected_pins.append({
+                    'component_ref': node.component_ref,
+                    'pin_number': node.pin_number
+                })
+
+            # Explore all wires connected to this node
+            for wire_uuid in node.connected_wire_uuids:
+                wire = self.wires[wire_uuid]
+
+                # Get both endpoints of the wire
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                # Visit the OTHER end of the wire
+                if current_key == start_key:
+                    other_key = end_key
+                    other_pos = wire.end_point
+                elif current_key == end_key:
+                    other_key = start_key
+                    other_pos = wire.start_point
+                else:
+                    continue
+
+                # Add to queue if not visited
+                if other_key not in visited_positions:
+                    visited_positions.add(other_key)
+                    queue.append((other_pos, visited_nodes | {current_key}))
+
+        return connected_pins
