@@ -4,11 +4,28 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.5 (Segment-Level Analysis for Common Pin)
+**Version**: 2.6 (Unified BOM Generation)
 **Date**: 2025-10-21
-**Status**: Phase 1-4 Implemented, Phase 5 Architecture Complete
+**Status**: Phase 1-4 Implemented, Phase 5 Implementation In Progress
 
 ## Design Revision History
+
+### Version 2.6 (2025-10-21)
+**Changed**: Added unified BOM generation architecture to integrate multipoint logic into CLI
+
+**Sections Modified**:
+- Section 4.5: New section defining unified BOM entry generation
+- Section 10.1: Added `bom_generator.py` to module structure
+
+**Problem Identified**: Multipoint connection logic exists and passes integration tests, but CLI (`__main__.py`) doesn't use it. This creates a gap where tests pass but CSV output is incorrect for 3+way connections.
+
+**Rationale**: Code duplication between CLI and integration tests creates maintenance burden and correctness issues. A single unified function ensures both CLI and tests use identical logic, eliminating the gap between tested code and production code.
+
+**Impact**:
+- Creates new module `bom_generator.py` with `generate_bom_entries()` function
+- CLI will correctly handle 3+way connections in CSV output
+- Integration tests will verify same code path as CLI uses
+- Eliminates code duplication and tech debt
 
 ### Version 2.5 (2025-10-21)
 **Changed**: Corrected common pin identification to use segment-level analysis (not fragment-level)
@@ -830,7 +847,76 @@ The common pin is the ONE pin whose segment has NO labeled fragments.
 
 **Example**: SW1-pin2 → (connection) → Junction: If either fragment has label, pin is reached by label.
 
-### 4.5 Circuit Identification
+### 4.5 Unified BOM Generation **[NEW - 2025-10-21]**
+
+**Problem**: The multipoint connection logic exists in `wire_connections.py` (`generate_multipoint_bom_entries()`) and is tested in integration tests, but the CLI (`__main__.py`) doesn't use it. This creates a gap between tested functionality and actual CSV output.
+
+**Root Cause**: The CLI only processes wires individually using `identify_wire_connections()` for 2-point connections. It never:
+1. Calls `detect_multipoint_connections()` to find 3+way groups
+2. Calls `generate_multipoint_bom_entries()` to generate multipoint BOM entries
+3. Filters labeled wires that are part of multipoint connections
+4. Combines multipoint and regular BOM entries
+
+**Architectural Decision**: Create a unified BOM entry generation function that handles both multipoint and regular 2-point connections, eliminating code duplication between CLI and integration tests.
+
+**Design**:
+
+**New Module**: `kicad2wireBOM/bom_generator.py`
+
+**New Function**: `generate_bom_entries(wires: list[WireSegment], graph: ConnectivityGraph) -> list[dict]`
+
+**Algorithm**:
+1. Store wires in graph for multipoint processing
+2. Detect multipoint connection groups (N ≥ 3 pins)
+3. Generate BOM entries for multipoint connections
+4. Track which circuit IDs are used by multipoint connections
+5. Generate BOM entries for regular 2-point connections (excluding multipoint labels)
+6. Return combined list of all BOM entries
+
+**Return Format**: Each entry is a dict with:
+- `circuit_id`: Wire label (e.g., "P4A")
+- `from_component`: Component reference (e.g., "SW1")
+- `from_pin`: Pin number (e.g., "2")
+- `to_component`: Component reference (e.g., "J1")
+- `to_pin`: Pin number (e.g., "2")
+
+**Benefits**:
+1. **Single Source of Truth**: One function for all BOM entry generation
+2. **DRY**: Eliminates duplication between `__main__.py` and integration tests
+3. **Testable**: Integration tests can verify the same code path the CLI uses
+4. **Maintainable**: Future changes only need to be made in one place
+5. **Correct**: CLI will automatically use multipoint logic
+
+**Usage in CLI** (`__main__.py`):
+```python
+# After building graph and associating labels:
+bom_entries = generate_bom_entries(wires, graph)
+
+# For each entry, calculate wire properties and add to WireBOM:
+for entry in bom_entries:
+    # Calculate length, gauge, color (existing logic)
+    # Create WireConnection and add to bom
+```
+
+**Usage in Integration Tests**:
+```python
+# Simplified integration tests:
+bom_entries = generate_bom_entries(wires, graph)
+assert len(bom_entries) == 5
+assert bom_entries contains expected P4A, P4B entries
+```
+
+**Migration Path**:
+1. Create `bom_generator.py` with `generate_bom_entries()` function
+2. Write unit tests for the new function
+3. Update integration tests to use new function (verify output unchanged)
+4. Update `__main__.py` to use new function
+5. Run all tests to verify correctness
+6. Verify CLI output matches expected CSV files
+
+**Implementation Priority**: HIGH - This is blocking correct CSV output for 3+way connections.
+
+### 4.6 Circuit Identification
 
 **Extract Circuit ID from Label**:
 - Parse label text: `L1A` → system="L", circuit="1", segment="A"
@@ -1290,24 +1376,28 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 
 ## 10. Implementation Architecture
 
-### 10.1 Module Structure
+### 10.1 Module Structure **[REVISED - 2025-10-21]**
 
-The `kicad2wireBOM/` package will contain approximately 8-10 modules:
+The `kicad2wireBOM/` package contains the following modules:
 
-#### Proposed Modules
+#### Current Modules
 
 1. **`__main__.py`** - CLI entry point and orchestration
 2. **`parser.py`** - S-expression parsing and schematic file reading
 3. **`schematic.py`** - Schematic data model (wires, labels, components, junctions)
-4. **`component.py`** - Component data extraction and footprint parsing
-5. **`label_association.py`** - Label-to-wire proximity matching
-6. **`wire_calculator.py`** - Length, gauge, voltage drop calculations
-7. **`reference_data.py`** - Wire resistance, ampacity, color mapping tables
-8. **`validator.py`** - Validation logic and warning generation
-9. **`output_csv.py`** - CSV output generation
-10. **`output_markdown.py`** - Markdown output generation
+4. **`label_association.py`** - Label-to-wire proximity matching
+5. **`symbol_library.py`** - Symbol library parsing for pin definitions
+6. **`pin_calculator.py`** - Pin position calculation with rotation/mirroring
+7. **`connectivity_graph.py`** - Graph data structures and component tracing
+8. **`graph_builder.py`** - Build connectivity graph from schematic
+9. **`wire_connections.py`** - Wire connection identification (2-point and multipoint)
+10. **`bom_generator.py`** - **[NEW]** Unified BOM entry generation (combines multipoint and regular)
+11. **`wire_calculator.py`** - Length, gauge, voltage drop calculations
+12. **`wire_bom.py`** - WireBOM and WireConnection data models
+13. **`reference_data.py`** - Wire resistance, ampacity, color mapping tables
+14. **`output_csv.py`** - CSV output generation
 
-**Detailed module specifications to be created during implementation planning.**
+**Note**: Module 10 (`bom_generator.py`) is new as of v2.6 to eliminate code duplication between CLI and integration tests.
 
 ### 10.2 Test Structure
 

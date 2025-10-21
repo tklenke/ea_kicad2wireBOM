@@ -1,24 +1,31 @@
 # Architect TODO: kicad2wireBOM
 
 **Date**: 2025-10-21
-**Status**: Phase 4 Complete - New Feature: 3+Way Connections
+**Status**: Phase 5 Architecture Complete - Unified BOM Generation Refactoring
 
 ---
 
 ## CURRENT STATUS
 
 ✅ **Phase 1-4 Complete**: Schematic-based parsing fully functional
-- 111/111 tests passing
+- 122/122 tests passing
 - Pin position calculation with rotation/mirroring working (Y-axis inversion fixed)
 - Connectivity graph building working
 - Junction transparency implemented
 - Wire_endpoint tracing working
 - Connector component tracing prioritization working
 
-🔧 **Phase 5: 3+Way Connections** - Architecture Complete, Ready for Implementation
-- Architecture defined in kicad2wireBOM_design.md Section 4.4
-- Implementation tasks documented in programmer_todo.md
-- Test fixtures available: test_03A (3-way), test_04 (4-way)
+✅ **Phase 5: 3+Way Connections** - Implementation Complete BUT CLI Integration Missing
+- Multipoint detection, validation, and BOM generation implemented ✅
+- Integration tests passing (122/122) ✅
+- **PROBLEM DISCOVERED**: CLI doesn't use multipoint logic - CSV output incorrect ❌
+- **GAP**: Tests pass but production code doesn't match tested code path
+
+🔧 **Phase 5B: Unified BOM Generation Refactoring** - Architecture Complete, Ready for Programmer
+- Architecture defined in kicad2wireBOM_design.md Section 4.5
+- Implementation tasks documented in programmer_todo.md Task 8
+- Creates new `bom_generator.py` module to eliminate code duplication
+- Will fix CLI to produce correct CSV output for 3+way connections
 
 ---
 
@@ -158,6 +165,49 @@ For each pin in the N-pin group:
 
 ---
 
+### 7. Unified BOM Generation ✅
+
+**Decision**: Create dedicated `bom_generator.py` module with unified `generate_bom_entries()` function
+
+**Problem Discovered**: The multipoint connection logic (Tasks 1-7 in programmer_todo.md) was implemented and tested, BUT the CLI (`__main__.py`) doesn't use it. This creates a dangerous gap:
+- Integration tests pass (122/122) ✓
+- Multipoint logic exists and works ✓
+- CLI CSV output is WRONG for 3+way connections ✗
+
+**Root Cause**: Code duplication. Integration tests implement the correct pattern (detect multipoint → generate multipoint entries → skip those labels in regular processing → combine results), but the CLI only does regular 2-point processing.
+
+**Rationale**:
+- **Single Source of Truth**: Both CLI and tests must use identical code path
+- **DRY Principle**: Eliminate duplication between `__main__.py` and integration tests
+- **Correctness**: Tests passing should guarantee CLI works correctly
+- **Maintainability**: Future changes only need to be made in one place
+
+**Design Details**:
+
+**New Module**: `kicad2wireBOM/bom_generator.py`
+
+**Function**: `generate_bom_entries(wires: list[WireSegment], graph: ConnectivityGraph) -> list[dict]`
+
+**Algorithm**:
+1. Store wires in graph for multipoint processing
+2. Detect multipoint groups (N ≥ 3 pins)
+3. Generate multipoint BOM entries
+4. Track multipoint circuit IDs
+5. Generate regular 2-point entries (excluding multipoint labels)
+6. Return combined list
+
+**Benefits**:
+- CLI will produce correct CSV output for 3+way connections
+- Integration tests verify same code path as production
+- Future multipoint enhancements automatically work in CLI
+- Eliminates tech debt from code duplication
+
+**Status**: Architecture complete (2025-10-21) - Ready for Programmer implementation
+
+**Reference**: Design doc Section 4.5, programmer_todo.md Task 8
+
+---
+
 ## OPEN QUESTIONS
 
 ### Hierarchical Schematics
@@ -174,14 +224,17 @@ For each pin in the N-pin group:
 
 ## DESIGN DOCUMENTS
 
-**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.2
+**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.6
 
 **Key Sections**:
 - Section 3.5: Junction semantics and parsing
 - Section 4.1: Pin position calculation with rotation/mirroring
 - Section 4.2: Connectivity graph data structures
 - Section 4.3: Wire-to-component matching (junction transparency)
+- Section 4.4: 3+way connections (multipoint)
+- Section 4.5: Unified BOM generation **[NEW - 2025-10-21]**
 - Section 7.3: CSV output format
+- Section 10.1: Module structure (includes bom_generator.py)
 
 ---
 
@@ -194,13 +247,13 @@ For each pin in the N-pin group:
 - [x] Connector component tracing prioritization bug fixed (2025-10-20)
 - [x] Design 3+way connection architecture (2025-10-21)
 - [x] Move ARCHITECTURE_CHANGE.md to docs/archive/
-
-### Immediate - Needs Architect Clarification
-- [x] **RESOLVED: Clarify "common pin identification" algorithm for 3+way connections**
-  - See ARCHITECTURAL DECISION below
-
-### Immediate - Ready for Programmer
-- [ ] Create test_04 expected output file for validation
+- [x] Clarify "common pin identification" algorithm for 3+way connections (2025-10-21)
+- [x] **Investigate CSV output discrepancies for test_03A and test_04 (2025-10-21)**
+- [x] **Design unified BOM generation refactoring (2025-10-21)**
+  - Identified gap between integration tests and CLI
+  - Designed bom_generator.py module
+  - Documented in design doc Section 4.5
+  - Created implementation plan in programmer_todo.md Task 8
 
 ### Future (When Needed)
 - [ ] Design hierarchical schematic support (if Tom's schematics use multiple sheets)
