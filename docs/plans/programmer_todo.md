@@ -81,13 +81,13 @@ The `trace_to_component()` method now correctly handles all node types with prop
 - Connectivity graph building
 - Junction element tracing (schematic dots)
 - Wire_endpoint tracing
+- Pin position calculation with Y-axis inversion fix
 - Wire calculations (length, gauge, voltage drop)
 - CSV output generation
-- 110/110 tests passing (but wrong pin positions due to Y-axis bug)
+- 111/111 tests passing ✅
 
-**What's Broken** ⚠️:
-- ❌ Pin position calculation - Y-axis inverted (see CRITICAL BUG above)
-- ❌ All output has wrong pin numbers for components with non-zero Y pin offsets
+**New Feature Needed** 🔧:
+- 3+Way connection detection and validation (see below)
 
 **Command Line**:
 ```bash
@@ -97,6 +97,94 @@ pytest -v
 # Generate BOM
 python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 ```
+
+---
+
+## NEXT IMPLEMENTATION: 3+Way Connections
+
+**Architectural Decision**: See kicad2wireBOM_design.md Section 4.4
+
+**Requirement**: Implement detection and validation of 3+way connections (N ≥ 3 component pins connected through junctions).
+
+**Key Concept**:
+- N pins connected → expect (N-1) labels
+- Unlabeled pin is the common endpoint (terminal block, ground bus, etc.)
+- Each labeled wire traces to the common unlabeled pin
+
+**Implementation Tasks** (TDD approach):
+
+### Task 1: Detect 3+Way Connections
+- [ ] Write test: `test_detect_3way_connection_with_3_pins()` using test_03A fixture (P4A/P4B case)
+  - Fixture: `tests/fixtures/test_03A_fixture.kicad_sch`
+  - Expected: Detect 3-pin group {SW1-pin2, SW2-pin2, J1-pin2}
+- [ ] Write test: `test_detect_4way_connection()` using test_04 fixture (G1A/G2A/G3A case)
+  - Fixture: `tests/fixtures/test_04_fixture.kicad_sch` **[NEW - 2025-10-21]**
+  - Expected: Detect 4-pin group {L1-pin1, L2-pin1, L3-pin1, BT1-pin2}
+- [ ] Implement: Add method `detect_multipoint_connections(graph: ConnectivityGraph) -> list[set[ComponentPin]]`
+  - Use graph traversal to find all connected component pin groups
+  - Return groups where N ≥ 3
+- [ ] Run tests, verify detection works
+
+### Task 2: Count Labels in 3+Way Connections
+- [ ] Write test: `test_count_labels_in_3way_connection()`
+  - test_03A P4A/P4B: expect 2 labels for 3 pins ✅
+  - test_04 grounds: expect 3 labels for 4 pins ✅
+- [ ] Implement: Add method `count_labels_in_group(group: set[ComponentPin], graph: ConnectivityGraph) -> int`
+  - Traverse wire segments within the connected group
+  - Count circuit ID labels found
+- [ ] Run tests, verify label counting
+
+### Task 3: Identify Common Pin
+- [ ] Write test: `test_identify_common_pin_in_3way()`
+  - test_03A P4A/P4B: expect J1-pin2 as common pin
+  - test_04 grounds: expect BT1-pin2 as common pin
+- [ ] Implement: Add method `identify_common_pin(group: set[ComponentPin], graph: ConnectivityGraph) -> ComponentPin`
+  - For each pin in group, check if it's reached by a labeled segment
+  - The pin NOT reached by labeled segments is the common pin
+  - Return common pin or None if ambiguous
+- [ ] Run tests, verify common pin identification
+
+### Task 4: Validate 3+Way Labeling
+- [ ] Write test: `test_validate_3way_connection_correct_labels()` - should pass without errors
+- [ ] Write test: `test_validate_3way_connection_too_many_labels()` - should error/warn
+- [ ] Write test: `test_validate_3way_connection_too_few_labels()` - should error/warn
+- [ ] Implement: Add validation in `wire_connections.py` or new `multipoint_validator.py`
+  - Check: label_count == (N - 1)
+  - Check: exactly one common pin identified
+  - Strict mode: raise errors
+  - Permissive mode: log warnings
+- [ ] Run tests, verify validation
+
+### Task 5: Generate BOM Entries for 3+Way Connections
+- [ ] Write test: `test_generate_bom_for_3way_connection()`
+  - test_03A: expect P4A: SW2-pin2 → J1-pin2, P4B: SW1-pin2 → J1-pin2
+  - test_04: expect G1A: L1-pin1 → BT1-pin2, etc.
+- [ ] Modify: Update `identify_wire_connections()` or create new function for 3+way handling
+  - For each labeled segment in 3+way group, generate entry: labeled-pin → common-pin
+- [ ] Run tests, verify BOM output matches expected
+
+### Task 6: Integration Test with test_03A
+- [ ] Write test: `test_03A_fixture_complete_bom_with_3way()`
+  - Parse test_03A fixture
+  - Generate complete BOM
+  - Compare against `docs/input/test_03A_out_expected.csv`
+  - All 5 wires should match expected output
+- [ ] Fix any issues until test passes
+
+### Task 7: Integration Test with test_04
+- [ ] Create expected output file: `docs/input/test_04_out_expected.csv`
+  - Document expected BOM for 4-way ground connection + power circuits
+- [ ] Write test: `test_04_fixture_complete_bom_with_4way()`
+  - Parse test_04 fixture
+  - Generate complete BOM
+  - Compare against expected output
+- [ ] Fix any issues until test passes
+
+**Success Criteria**:
+- All existing tests still pass (111/111)
+- New 3+way connection tests pass
+- test_03A output matches expected (P4A/P4B correct)
+- test_04 output correct for 4-way ground connection
 
 ---
 
@@ -139,8 +227,9 @@ python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 
 ### Test Fixtures
 - `tests/fixtures/test_01_fixture.kicad_sch` - Simple 2-component circuit ✅
-- `tests/fixtures/test_02_fixture.kicad_sch` - Multi-segment with switch
-- `tests/fixtures/test_03A_fixture.kicad_sch` - Junction + crossing wires (output wrong due to Y-axis bug)
+- `tests/fixtures/test_02_fixture.kicad_sch` - Multi-segment with switch ✅
+- `tests/fixtures/test_03A_fixture.kicad_sch` - Junction + crossing wires + 3-way connection (P4A/P4B) ✅
+- `tests/fixtures/test_04_fixture.kicad_sch` - 4-way ground connection (G1A/G2A/G3A) + power circuits **[NEW - 2025-10-21]**
 
 ---
 

@@ -1,22 +1,24 @@
 # Architect TODO: kicad2wireBOM
 
-**Date**: 2025-10-20
-**Status**: Phase 4 Complete - Implementation has minor bug requiring fix
+**Date**: 2025-10-21
+**Status**: Phase 4 Complete - New Feature: 3+Way Connections
 
 ---
 
 ## CURRENT STATUS
 
 ✅ **Phase 1-4 Complete**: Schematic-based parsing fully functional
-- 108/108 tests passing
-- Pin position calculation with rotation/mirroring working
+- 111/111 tests passing
+- Pin position calculation with rotation/mirroring working (Y-axis inversion fixed)
 - Connectivity graph building working
 - Junction transparency implemented
+- Wire_endpoint tracing working
+- Connector component tracing prioritization working
 
-⚠️ **Known Issue**: BOM output incomplete due to wire_endpoint tracing bug
-- See programmer_todo.md for details and fix
-- This is an implementation bug, not an architecture problem
-- Architecture is sound, just needs one missing case added to trace_to_component()
+🔧 **Phase 5: 3+Way Connections** - Architecture Complete, Ready for Implementation
+- Architecture defined in kicad2wireBOM_design.md Section 4.4
+- Implementation tasks documented in programmer_todo.md
+- Test fixtures available: test_03A (3-way), test_04 (4-way)
 
 ---
 
@@ -72,9 +74,35 @@ Each wire shows component-to-component connections by tracing through junctions.
 
 **Rationale**: Labeled wire segments often connect to unlabeled wire segments at wire_endpoint nodes. Current architecture is sound - we just need to add the missing case to the existing recursive graph traversal.
 
-**Status**: Architectural decision complete - design added to Section 4.3 of kicad2wireBOM_design.md. Implementation is Programmer's responsibility (see programmer_todo.md "CURRENT BLOCKER").
+**Status**: ✅ Complete - Implemented and tested (2025-10-20)
 
-**Reference**: See programmer_todo.md "CURRENT BLOCKER" section for implementation details
+**Reference**: Design doc Section 4.3
+
+---
+
+### 5. 3+Way Connections ✅
+
+**Decision**: Implement detection and validation of multi-point connections (N ≥ 3 component pins) using labeling convention
+
+**Labeling Convention**: For N pins connected through junctions:
+- Expect exactly (N-1) circuit ID labels
+- Unlabeled segments form backbone (junction-to-junction, junction-to-common-pin)
+- The pin NOT reached by any labeled segment is the common endpoint
+- Each labeled wire generates one BOM entry: labeled-pin → common-pin
+
+**Rationale**:
+- Matches physical reality of aircraft wiring (multiple grounds to battery, multiple feeds from distribution point)
+- Labeling convention is intuitive and unambiguous
+- Unlabeled pin clearly identifies the common endpoint (terminal block, ground bus, etc.)
+- Scales naturally to any N ≥ 3
+
+**Examples**:
+- 3-way (test_03A P4A/P4B): SW1-pin2, SW2-pin2 → J1-pin2 (terminal block)
+- 4-way (test_04 grounds): L1/L2/L3 → BT1-pin2 (battery negative)
+
+**Status**: Architecture complete (2025-10-21) - Ready for Programmer implementation
+
+**Reference**: Design doc Section 4.4, programmer_todo.md "NEXT IMPLEMENTATION"
 
 ---
 
@@ -107,15 +135,19 @@ Each wire shows component-to-component connections by tracing through junctions.
 
 ## TASKS
 
-### Immediate
+### Completed ✅
 - [x] Clarify junction terminology in design doc (junction elements vs connector components)
 - [x] Investigate test_03A output mismatch - identified Y-axis inversion bug (2025-10-20)
-- [ ] Programmer fixes Y-axis inversion bug in pin_calculator.py (see programmer_todo.md CRITICAL BUG)
+- [x] Y-axis inversion bug fixed by Programmer (2025-10-20)
+- [x] Connector component tracing prioritization bug fixed (2025-10-20)
+- [x] Design 3+way connection architecture (2025-10-21)
+- [x] Move ARCHITECTURE_CHANGE.md to docs/archive/
+
+### Immediate - Ready for Programmer
+- [ ] Implement 3+way connection detection and validation (see programmer_todo.md)
+- [ ] Create test_04 expected output file for validation
 
 ### Future (When Needed)
 - [ ] Design hierarchical schematic support (if Tom's schematics use multiple sheets)
-- [ ] Design validation and error handling strategy
+- [ ] Design validation and error handling strategy beyond 3+way connections
 - [ ] Consider multi-format output options (Markdown, engineering mode)
-
-### Housekeeping
-- [x] Move ARCHITECTURE_CHANGE.md to docs/archive/ (already completed)

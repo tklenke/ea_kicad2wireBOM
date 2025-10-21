@@ -4,11 +4,27 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.2 (Wire Endpoint Tracing Added)
-**Date**: 2025-10-20
-**Status**: Phase 1-4 Implemented (wire_endpoint tracing pending)
+**Version**: 2.3 (3+Way Connections Architecture)
+**Date**: 2025-10-21
+**Status**: Phase 1-4 Implemented, Phase 5 Architecture Complete
 
 ## Design Revision History
+
+### Version 2.3 (2025-10-21)
+**Changed**: Added 3+way connection detection, validation, and BOM generation architecture
+
+**Sections Modified**:
+- Section 4.4: New section defining 3+way connections (N ≥ 3 pins connected through junctions)
+
+**Rationale**: Real aircraft schematics have multi-point connections (multiple grounds to battery, multiple feeds from distribution point). The (N-1) labeling convention provides an intuitive, unambiguous way to specify which pin is the common endpoint.
+
+**Impact**: Enables correct BOM generation for multi-point connections. Example: 4 pins with 3 labels → each labeled wire shows branch-pin → common-unlabeled-pin.
+
+**Key Design**:
+- N pins → (N-1) labels required
+- Unlabeled pin is the common endpoint
+- Unlabeled segments form backbone structure
+- Each labeled wire generates one BOM entry to common pin
 
 ### Version 2.2 (2025-10-20)
 **Changed**: Added wire_endpoint tracing to trace_to_component() algorithm
@@ -699,7 +715,83 @@ For circuits with junction elements (schematic dots) and connector components li
 
 **Builder Interpretation**: Each wire shows which two component pins to physically connect. J1 is a real connector/terminal block where multiple wires terminate.
 
-### 4.4 Circuit Identification
+### 4.4 3+Way Connections **[NEW - 2025-10-21]**
+
+**Definition**: A **3+way connection** is a multi-point electrical connection where N component pins (N ≥ 3) are connected together through one or more junction elements, forming a tree topology.
+
+**Topology Pattern**:
+```
+Pin1 ────label1──── (junction) ────unlabeled──── Common Pin (unlabeled)
+                         │
+Pin2 ────label2──────────┘
+                         │
+Pin3 ────label3──────────┘
+```
+
+For larger N or multiple junctions:
+```
+Pin1 ────label1──── (J1) ────unlabeled──── (J2) ────unlabeled──── Common Pin
+                      │                      │
+Pin2 ────label2───────┘                      │
+                                             │
+Pin3 ────label3──────────────────────────────┘
+```
+
+**Labeling Convention**:
+
+For N pins in a 3+way connection, expect exactly **(N-1) circuit ID labels**:
+- **Labeled segments**: Each wire segment connecting a branch pin to a junction MUST have a circuit ID label
+- **Unlabeled segments**: Wire segments forming the backbone (junction-to-junction, junction-to-common-pin) have NO labels
+- **Common pin identification**: The one pin NOT reached by any labeled segment is the common endpoint
+
+**Physical Reality**: In experimental aircraft, 3+way connections represent:
+- Multiple grounds returning to battery negative or ground bus
+- Multiple power feeds from a distribution point
+- Multiple circuits connecting to a common terminal block
+
+**BOM Output**: Each labeled wire appears as one BOM entry:
+- **From**: The component pin with the labeled segment
+- **To**: The common endpoint pin (unlabeled in schematic)
+
+**Example 1 - 3-way connection (test_03A: P4A/P4B)**:
+- 3 pins: SW1-pin2, SW2-pin2, J1-pin2
+- 2 labels: P4A (on SW2-pin2 side), P4B (on SW1-pin2 side)
+- 1 unlabeled pin: J1-pin2 (common endpoint - terminal block)
+- BOM output:
+  - P4A: SW2-pin2 → J1-pin2
+  - P4B: SW1-pin2 → J1-pin2
+
+**Example 2 - 4-way connection (test_04: G1A/G2A/G3A)**:
+- 4 pins: L1-pin1, L2-pin1, L3-pin1, BT1-pin2
+- 3 labels: G1A, G2A, G3A
+- 1 unlabeled pin: BT1-pin2 (battery negative - common ground return)
+- 2 junctions forming backbone to common pin
+- BOM output:
+  - G1A: L1-pin1 → BT1-pin2
+  - G2A: L2-pin1 → BT1-pin2
+  - G3A: L3-pin1 → BT1-pin2
+
+**Validation Rules**:
+
+**Strict Mode**:
+1. If N pins detected in connected group AND N ≥ 3:
+   - **Error** if label count ≠ (N-1): "3+way connection with N pins requires exactly (N-1) labels, found X"
+   - **Error** if cannot identify single common pin: "Cannot determine common endpoint - ambiguous labeling in 3+way connection"
+2. If label count = N (all pins labeled): **Error** - "3+way connection has too many labels - one pin must be unlabeled to indicate common endpoint"
+3. If label count < (N-1): **Error** - "3+way connection has too few labels - expected (N-1) labels for N pins"
+
+**Permissive Mode**:
+- Same checks produce **Warnings** instead of errors
+- Attempt best-effort tracing with unclear results flagged in BOM warnings column
+
+**Implementation Algorithm**:
+1. **Detect 3+way connections**: After building connectivity graph, identify all connected component groups with N ≥ 3 pins
+2. **Count labels**: For each group, count circuit ID labels on wire segments within the group
+3. **Validate**: Check that label count = (N-1)
+4. **Identify common pin**: The pin NOT reached by any labeled segment is the common endpoint
+5. **Generate BOM entries**: For each labeled segment, create entry from labeled-pin → common-pin
+
+### 4.5 Circuit Identification
 
 **Extract Circuit ID from Label**:
 - Parse label text: `L1A` → system="L", circuit="1", segment="A"
