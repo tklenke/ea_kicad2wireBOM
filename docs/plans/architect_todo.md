@@ -106,6 +106,58 @@ Each wire shows component-to-component connections by tracing through junctions.
 
 ---
 
+### 6. Common Pin Identification Algorithm (3+Way Connections) ✅
+
+**Decision**: Use **SEGMENT-level analysis** to identify the common pin
+
+**Key Terminology**:
+- **Fragment**: A single KiCad wire element (what the parser sees as a "wire")
+- **Connection**: A point where exactly 2 fragments meet
+- **Junction**: A point where 3+ fragments meet (KiCad junction element)
+- **Segment**: The chain of fragments between a pin and a junction (or between two pins)
+
+**Algorithm Definition**: A pin is "reached by a labeled segment" if the SEGMENT (chain of fragments) from that pin to the junction contains at least one labeled fragment.
+
+**Precise Algorithm**:
+
+For each pin in the N-pin group:
+1. **Trace the segment** from the pin toward the junction/backbone:
+   - Start at pin position
+   - Follow connected fragments through "connections" (2-fragment points)
+   - Stop when reaching a "junction" (3+ fragment point) or another group pin
+2. **Check for labels**: If ANY fragment in this segment has a circuit ID label → pin IS reached by labeled segment
+3. **Identify common pin**: The ONE pin whose segment has NO labels is the common pin
+
+**Example (test_03A P4A/P4B)**:
+
+6 fragments → 3 connections + 1 junction → 3 segments:
+- **Segment 1**: SW1-pin2 → Junction (fragments: 10, 9) - has label P4B ✓
+- **Segment 2**: SW2-pin2 → Junction (fragment: 11) - has label P4A ✓
+- **Segment 3**: J1-pin2 → Junction (fragments: 6, 2, 13) - NO labels ✓
+
+**Common pin: J1-pin2** (terminal block)
+
+**Rationale**:
+- Works at the correct conceptual level (segments, not fragments)
+- Connections are transparent (we trace through them)
+- Junctions are stopping points (segment boundaries)
+- Labels on any fragment in the segment mark that pin's branch
+
+**Implementation Notes**:
+1. Build fragment adjacency at each position
+2. Count fragments per position to identify connections (2) vs junctions (3+)
+3. From each pin, trace through fragments:
+   - Follow through connections (2-fragment points)
+   - Stop at junctions (3+ fragment points) or other group pins
+   - Track if any fragment in the path has a circuit_id label
+4. Return the pin whose segment has no labels
+
+**Status**: Architectural decision complete (2025-10-21) - Ready for Programmer implementation
+
+**Reference**: Design doc Section 4.4, programmer_todo.md Task 3
+
+---
+
 ## OPEN QUESTIONS
 
 ### Hierarchical Schematics
@@ -143,8 +195,11 @@ Each wire shows component-to-component connections by tracing through junctions.
 - [x] Design 3+way connection architecture (2025-10-21)
 - [x] Move ARCHITECTURE_CHANGE.md to docs/archive/
 
+### Immediate - Needs Architect Clarification
+- [x] **RESOLVED: Clarify "common pin identification" algorithm for 3+way connections**
+  - See ARCHITECTURAL DECISION below
+
 ### Immediate - Ready for Programmer
-- [ ] Implement 3+way connection detection and validation (see programmer_todo.md)
 - [ ] Create test_04 expected output file for validation
 
 ### Future (When Needed)

@@ -4,11 +4,31 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.3 (3+Way Connections Architecture)
+**Version**: 2.5 (Segment-Level Analysis for Common Pin)
 **Date**: 2025-10-21
 **Status**: Phase 1-4 Implemented, Phase 5 Architecture Complete
 
 ## Design Revision History
+
+### Version 2.5 (2025-10-21)
+**Changed**: Corrected common pin identification to use segment-level analysis (not fragment-level)
+
+**Sections Modified**:
+- Section 4.4: Rewrote algorithm using fragment/connection/junction/segment terminology
+
+**Rationale**: Initial algorithm worked at wrong abstraction level (individual wire fragments). Correct approach: trace SEGMENTS (chains of fragments from pin to junction), checking if segment contains labeled fragments. Connections (2-fragment points) are transparent; junctions (3+ fragment points) are segment boundaries.
+
+**Impact**: Algorithm now correctly identifies common pin by analyzing segments, not individual fragments.
+
+### Version 2.4 (2025-10-21)
+**Changed**: Clarified common pin identification algorithm for 3+way connections (SUPERSEDED by v2.5)
+
+**Sections Modified**:
+- Section 4.4: Added detailed algorithm for identifying common pin with BFS stopping constraint
+
+**Rationale**: Original design said "pin NOT reached by any labeled segment" but didn't specify how to determine this in tree topology. Clarified that BFS must stop at other group pins to check only the pin's immediate branch, not the entire connected component.
+
+**Impact**: Provides unambiguous algorithm for Programmer to implement `identify_common_pin()` method.
 
 ### Version 2.3 (2025-10-21)
 **Changed**: Added 3+way connection detection, validation, and BOM generation architecture
@@ -788,8 +808,27 @@ For N pins in a 3+way connection, expect exactly **(N-1) circuit ID labels**:
 1. **Detect 3+way connections**: After building connectivity graph, identify all connected component groups with N ≥ 3 pins
 2. **Count labels**: For each group, count circuit ID labels on wire segments within the group
 3. **Validate**: Check that label count = (N-1)
-4. **Identify common pin**: The pin NOT reached by any labeled segment is the common endpoint
+4. **Identify common pin**: The pin NOT reached by any labeled segment is the common endpoint (see below)
 5. **Generate BOM entries**: For each labeled segment, create entry from labeled-pin → common-pin
+
+**Common Pin Identification Detail**:
+
+Uses **segment-level analysis**. Key terminology:
+- **Fragment**: Single KiCad wire element
+- **Connection**: Point where exactly 2 fragments meet (transparent, trace through)
+- **Junction**: Point where 3+ fragments meet (segment boundary, stop point)
+- **Segment**: Chain of fragments between pin and junction
+
+Algorithm for each pin:
+1. Trace the segment from pin toward junction/backbone
+2. Follow fragments through connections (2-fragment points)
+3. Stop at junctions (3+ fragment points) or other group pins
+4. Check if ANY fragment in the segment has a circuit_id label
+5. Pin is "reached by labeled segment" if segment contains labeled fragment
+
+The common pin is the ONE pin whose segment has NO labeled fragments.
+
+**Example**: SW1-pin2 → (connection) → Junction: If either fragment has label, pin is reached by label.
 
 ### 4.5 Circuit Identification
 

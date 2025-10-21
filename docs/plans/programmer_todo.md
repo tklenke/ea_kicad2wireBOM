@@ -138,14 +138,39 @@ python -m kicad2wireBOM tests/fixtures/test_03A_fixture.kicad_sch output.csv
 - [x] Run tests, verify label counting
   - All 114 tests passing ✅
 
-### Task 3: Identify Common Pin
-- [ ] Write test: `test_identify_common_pin_in_3way()`
+### Task 3: Identify Common Pin ⚠️ ALGORITHM CLARIFIED - SEGMENT-LEVEL ANALYSIS
+- [ ] Write test: `test_identify_common_pin_in_3way()` ✅ DONE (but currently failing)
   - test_03A P4A/P4B: expect J1-pin2 as common pin
   - test_04 grounds: expect BT1-pin2 as common pin
-- [ ] Implement: Add method `identify_common_pin(group: set[ComponentPin], graph: ConnectivityGraph) -> ComponentPin`
-  - For each pin in group, check if it's reached by a labeled segment
-  - The pin NOT reached by labeled segments is the common pin
-  - Return common pin or None if ambiguous
+- [ ] **FIX IMPLEMENTATION**: Rewrite `identify_common_pin()` with SEGMENT-LEVEL algorithm
+  - **CORRECT ALGORITHM** (from architect_todo.md Section 6):
+
+    **Terminology**:
+    - Fragment = single wire element in KiCad schematic
+    - Connection = point with exactly 2 fragments (trace through these)
+    - Junction = point with 3+ fragments (stop at these)
+    - Segment = chain of fragments from pin to junction
+
+    **Algorithm**:
+    ```
+    For each pin in the N-pin group:
+      1. Count fragments at each position in the connected component
+      2. Trace segment from pin:
+         - Follow fragments through connections (2-fragment points)
+         - Stop at junctions (3+ fragment points) or other group pins
+      3. Check if ANY fragment in this segment has a circuit_id label
+      4. If segment has label → pin IS reached by labeled segment
+      5. If segment has no labels → pin NOT reached by labeled segment
+
+    Return the ONE pin whose segment has NO labels
+    ```
+
+  - **Example (test_03A)**: 6 fragments, 1 junction at (4250, 4150), 3 segments:
+    - SW1-pin2 segment: fragments 10+9, has P4B label ✓
+    - SW2-pin2 segment: fragment 11, has P4A label ✓
+    - J1-pin2 segment: fragments 6+2+13, NO labels → common pin ✓
+
+  - **Algorithm location**: `connectivity_graph.py:450` (complete rewrite needed)
 - [ ] Run tests, verify common pin identification
 
 ### Task 4: Validate 3+Way Labeling
