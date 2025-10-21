@@ -568,3 +568,63 @@ class ConnectivityGraph:
         else:
             # Multiple or zero candidates - ambiguous
             return None
+
+
+def validate_multipoint_connection(
+    graph: 'ConnectivityGraph',
+    group: list[dict[str, str]],
+    strict: bool = True
+) -> tuple[bool, str]:
+    """
+    Validate that a multipoint connection is correctly labeled.
+
+    Validation rules:
+    1. Label count must equal (N - 1) where N is the number of pins
+    2. Exactly one common pin must be identifiable
+
+    Args:
+        graph: The connectivity graph
+        group: List of component pins in the multipoint connection
+        strict: If True, return False on validation failure. If False, return True with warning message.
+
+    Returns:
+        Tuple of (is_valid, message):
+        - is_valid: True if validation passes, False otherwise
+        - message: Description of validation result
+    """
+    n_pins = len(group)
+    expected_labels = n_pins - 1
+
+    # Check 1: Count labels in the group
+    label_count = graph.count_labels_in_group(group)
+
+    if label_count != expected_labels:
+        if label_count > expected_labels:
+            msg = (f"Multipoint connection has too many labels: found {label_count}, "
+                   f"expected {expected_labels} for {n_pins} pins")
+        else:
+            msg = (f"Multipoint connection has too few labels: found {label_count}, "
+                   f"expected {expected_labels} for {n_pins} pins")
+
+        if strict:
+            return False, msg
+        else:
+            return True, f"WARNING: {msg}"
+
+    # Check 2: Identify common pin
+    common_pin = graph.identify_common_pin(group)
+
+    if common_pin is None:
+        msg = "Cannot identify common pin in multipoint connection"
+        if strict:
+            return False, msg
+        else:
+            return True, f"WARNING: {msg}"
+
+    # All checks passed
+    pin_names = ', '.join([f"{p['component_ref']}-{p['pin_number']}" for p in group])
+    common_pin_name = f"{common_pin['component_ref']}-{common_pin['pin_number']}"
+    msg = (f"Valid multipoint connection: {n_pins} pins ({pin_names}), "
+           f"{label_count} labels, common pin: {common_pin_name}")
+
+    return True, msg
