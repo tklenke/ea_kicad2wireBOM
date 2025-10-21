@@ -446,3 +446,125 @@ class ConnectivityGraph:
                             queue.append(other_key)
 
         return len(unique_labels)
+
+    def identify_common_pin(self, group: list[dict[str, str]]) -> dict[str, str] | None:
+        """
+        Identify the common (unlabeled) pin in a multipoint connection using
+        segment-level analysis.
+
+        A pin is "reached by a labeled segment" if the SEGMENT (chain of fragments)
+        from that pin to a junction contains at least one labeled fragment.
+
+        Algorithm:
+        - Fragment: A single wire element (what KiCad calls a wire)
+        - Connection: A point where exactly 2 fragments meet (trace through these)
+        - Junction: A point where 3+ fragments meet (stop at these)
+        - Segment: Chain of fragments from a pin to a junction
+
+        For each pin:
+        1. Trace the segment from pin toward junction:
+           - Follow fragments through connections (2-fragment points)
+           - Stop at junctions (3+ fragment points) or other group pins
+        2. Check if ANY fragment in segment has a label
+        3. Pin whose segment has NO labels is the common pin
+
+        Args:
+            group: List of component pins (dicts with 'component_ref' and 'pin_number')
+
+        Returns:
+            The common pin dict, or None if cannot identify unambiguously
+        """
+        # Get all pin positions in the group
+        group_pin_positions = {}
+        for pin in group:
+            pin_key = f"{pin['component_ref']}-{pin['pin_number']}"
+            if pin_key in self.component_pins:
+                pos = self.component_pins[pin_key]
+                group_pin_positions[pin_key] = (round(pos[0], 2), round(pos[1], 2))
+
+        # Build fragment count map: position -> number of fragments at that position
+        fragment_count_at_position = {}
+        for wire_uuid in self.wires:
+            wire = self.wires[wire_uuid]
+            start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+            end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+            fragment_count_at_position[start_key] = fragment_count_at_position.get(start_key, 0) + 1
+            fragment_count_at_position[end_key] = fragment_count_at_position.get(end_key, 0) + 1
+
+        # For each pin, trace its segment and check for labels
+        pins_with_unlabeled_segments = []
+
+        for pin in group:
+            pin_key = f"{pin['component_ref']}-{pin['pin_number']}"
+            if pin_key not in group_pin_positions:
+                continue
+
+            pin_pos_key = group_pin_positions[pin_key]
+
+            # Trace segment from this pin
+            # Stop at: junctions (3+ fragments), other group pins, or dead ends
+            visited_positions = set()
+            visited_wires = set()
+            queue = [pin_pos_key]
+            visited_positions.add(pin_pos_key)
+            segment_has_label = False
+
+            while queue:
+                current_pos = queue.pop(0)
+
+                # Check if this is a junction (3+ fragments) - stop here
+                if current_pos != pin_pos_key:
+                    fragment_count = fragment_count_at_position.get(current_pos, 0)
+                    if fragment_count >= 3:
+                        # Junction - stop tracing
+                        continue
+
+                # Get node at current position
+                node = self.nodes.get(current_pos)
+                if not node:
+                    continue
+
+                # Explore all connected wires in this segment
+                for wire_uuid in node.connected_wire_uuids:
+                    if wire_uuid in visited_wires:
+                        continue
+                    visited_wires.add(wire_uuid)
+
+                    wire = self.wires[wire_uuid]
+
+                    # Check if this wire has a label
+                    if hasattr(wire, 'circuit_id') and wire.circuit_id:
+                        segment_has_label = True
+
+                    # Find the other end of the wire
+                    start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                    end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                    if current_pos == start_key:
+                        other_key = end_key
+                    elif current_pos == end_key:
+                        other_key = start_key
+                    else:
+                        continue
+
+                    # Check if other end is another group pin - if so, stop
+                    if other_key in group_pin_positions.values() and other_key != pin_pos_key:
+                        # Reached another pin in the group - stop
+                        continue
+
+                    # Continue tracing through connections (but stop at junctions)
+                    if other_key not in visited_positions:
+                        visited_positions.add(other_key)
+                        queue.append(other_key)
+
+            # Record whether this pin's segment has a label
+            if not segment_has_label:
+                pins_with_unlabeled_segments.append(pin)
+
+        # Return the one pin with an unlabeled segment
+        if len(pins_with_unlabeled_segments) == 1:
+            return pins_with_unlabeled_segments[0]
+        else:
+            # Multiple or zero candidates - ambiguous
+            return None
