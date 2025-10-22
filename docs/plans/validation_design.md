@@ -4,6 +4,15 @@
 **Purpose**: Design validation architecture to catch schematic errors and provide helpful feedback
 **Status**: Planning Phase
 
+**[REVISED - 2025-10-22]**: Added notes aggregation across wire fragments specification
+
+## Design Revision History
+
+### 2025-10-22: Notes Aggregation Across Wire Fragments
+**Why**: Test 05C revealed that non-circuit labels on different wire fragments of the same circuit weren't being aggregated. The "10AWG" label on the vertical fragment and "G4A" label on the horizontal fragment form a single circuit G4A, but only notes from the fragment with the circuit ID were included.
+
+**Change**: Specified that BOM generation must aggregate notes from ALL wire fragments that form a circuit, not just the fragment with the circuit ID label.
+
 ---
 
 ## Overview
@@ -30,12 +39,18 @@ The tool currently processes schematics but doesn't adequately validate inputs o
 
 ### test_05C: Non-Circuit Labels Present
 - **Issue**: Labels "24AWG" and "10AWG" present (don't match circuit ID pattern)
-- **Current Behavior**: Produces correct 7 wires, ignores invalid labels
+- **Additional Complexity**: "10AWG" label is on a different wire fragment than "G4A" circuit ID label
+  - Vertical wire segment (BT1 pin 2 → junction): has "10AWG" label
+  - Horizontal wire segment (junction → GB1): has "G4A" circuit ID label
+  - Both fragments form one electrical circuit: G4A from BT1-2 to GB1-1
+- **Current Behavior**: Produces correct 7 wires, but "10AWG" note missing from G4A entry
 - **Expected Behavior**:
   - Validate labels against circuit ID pattern: `^[A-Z]\d+[A-Z]$` or `^[A-Z]-\d+-[A-Z]$`
   - Invalid labels → move to wire "notes" field
-  - Generate warning: "Non-circuit label '24AWG' found, added to notes"
-  - Multiple invalid labels → concatenate with spaces in notes field
+  - **Aggregate notes from ALL wire fragments forming the circuit**
+  - G4A should have notes="10AWG" (from vertical fragment)
+  - L2A should have notes="24AWG" (from its fragment)
+  - Multiple non-circuit labels on same circuit → concatenate with spaces in notes field
 
 ---
 
@@ -354,8 +369,28 @@ class SchematicValidator:
 - Store both circuit_id and notes list on WireSegment
 
 #### In `bom_generator.py`:
-- Pass notes to WireConnection when creating BOM entries
-- Concatenate notes list with space separator
+**[REVISED - 2025-10-22]**: Notes aggregation across wire fragments
+- **Aggregate notes from all wire fragments forming a circuit**:
+  - When generating BOM entry for a circuit_id, traverse connectivity graph
+  - Collect notes from ALL wire segments that are part of the electrical path
+  - Use BFS/DFS to find all wire segments connected between the from/to components
+  - Aggregate unique notes (avoid duplicates if same label on multiple fragments)
+  - Concatenate with space separator
+- **Implementation approach**:
+  ```python
+  def collect_circuit_notes(graph, circuit_id, from_conn, to_conn):
+      """
+      Collect all notes from wire fragments forming this circuit.
+
+      Traverses the connectivity graph from from_conn to to_conn,
+      collecting notes from all wire segments that have this circuit_id
+      or are part of the electrical path between the endpoints.
+      """
+      # BFS/DFS to find all wires in the path
+      # Collect notes from each wire segment's notes list
+      # Return deduplicated, space-separated string
+  ```
+- Pass aggregated notes string to WireConnection when creating BOM entries
 
 #### In `__main__.py`:
 - Add `--permissive` flag for mode selection
@@ -383,7 +418,8 @@ After implementing validation:
 
 **test_05C** (24AWG, 10AWG labels):
 - **Both Modes**: Success, generates 7 wires with valid circuit IDs
-- Notes column contains "24AWG" and "10AWG" on respective wires
+- Notes column contains "24AWG" on L2A wire, "10AWG" on G4A wire
+- **[REVISED - 2025-10-22]**: G4A notes must include "10AWG" from vertical fragment even though circuit ID label "G4A" is on horizontal fragment
 - No warnings (expected behavior)
 
 ---

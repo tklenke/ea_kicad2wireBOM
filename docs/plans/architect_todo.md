@@ -41,33 +41,34 @@ All major architectural decisions have been implemented and validated:
 
 ## PHASE 6: VALIDATION & ERROR HANDLING
 
-**Status**: Design Complete ✅ - Ready for Programmer
+**Status**: Design Revised ⚠️ - Needs Implementation Update
 
-**Design Document**: `docs/plans/validation_design.md`
+**Design Document**: `docs/plans/validation_design.md` (revised 2025-10-22)
 
 **Objective**: Detect and report schematic errors with clear, actionable messages
 
 **Key Features**:
-1. **Missing Labels Detection** (test_05A): Detect when no circuit IDs present
-2. **Duplicate Label Detection** (test_05B): Find duplicate circuit IDs across wires
-3. **Non-Circuit Label Handling** (test_05C): Move invalid labels to notes field
-4. **Strict vs Permissive Modes**: Error/abort vs warn/continue
-5. **Notes Field**: Add notes column for non-circuit labels (24AWG, SHIELDED, etc.)
+1. **Missing Labels Detection** (test_05A): Detect when no circuit IDs present ✅
+2. **Duplicate Label Detection** (test_05B): Find duplicate circuit IDs across wires ✅
+3. **Non-Circuit Label Handling** (test_05C): Move invalid labels to notes field ⚠️
+4. **Strict vs Permissive Modes**: Error/abort vs warn/continue ✅
+5. **Notes Field**: Add notes column for non-circuit labels (24AWG, SHIELDED, etc.) ⚠️
 
-**Test Fixtures Ready**:
-- test_05_fixture.kicad_sch (correct baseline)
-- test_05A_fixture.kicad_sch (all labels missing)
-- test_05B_fixture.kicad_sch (duplicate G3A, missing G4A)
-- test_05C_fixture.kicad_sch (non-circuit labels 24AWG, 10AWG)
+**Design Revision (2025-10-22)**:
+- **Issue Found**: Notes from wire fragments not aggregated at circuit level
+- **Example**: test_05C has "10AWG" on vertical fragment, "G4A" on horizontal fragment
+- **Problem**: Current implementation only uses notes from fragment with circuit_id
+- **Solution**: Aggregate notes from ALL wire fragments forming a circuit during BOM generation
+- **Implementation**: Add `collect_circuit_notes()` helper function in bom_generator.py
+- **Updated Docs**: validation_design.md Section 7, kicad2wireBOM_design.md Sections 3.4 and 4.5
 
-**Architectural Decisions Made**:
-- Add `notes: str` field to WireConnection data model
-- Create new `validator.py` module with SchematicValidator class
-- Add "Notes" column to CSV output (after Wire Type, before Warnings)
-- Non-circuit labels concatenated with spaces in notes field
-- Label classification: regex pattern `^[A-Z]-?\d+-?[A-Z]$` for circuit IDs
+**Test Fixtures**:
+- test_05_fixture.kicad_sch (correct baseline) ✅
+- test_05A_fixture.kicad_sch (all labels missing) ✅
+- test_05B_fixture.kicad_sch (duplicate G3A, missing G4A) ✅
+- test_05C_fixture.kicad_sch (non-circuit labels 24AWG, 10AWG) ⚠️ needs fix
 
-**Ready for Programmer**: All design decisions documented, test cases identified
+**Status**: Programmer has clear task list in programmer_todo.md for notes aggregation fix
 
 ---
 

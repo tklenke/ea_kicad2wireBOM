@@ -1,7 +1,7 @@
 # Programmer TODO: kicad2wireBOM Implementation
 
 **Project**: kicad2wireBOM - Wire BOM generator for experimental aircraft
-**Status**: Phase 6 In Progress - Validation & Error Handling 🚧
+**Status**: Phase 6 Revision - Notes Aggregation Bug Fix 🚧
 **Last Updated**: 2025-10-22
 
 ---
@@ -9,23 +9,81 @@
 ## CURRENT STATUS
 
 ✅ **Phase 1-5 Complete** (Core features)
-✅ **Phase 6 Complete** (Validation & Error Handling):
-- 146/146 tests passing (added 12 new tests)
-- ✅ Notes field infrastructure fully working end-to-end
-- ✅ CSV output includes Notes column with data from schematic
+⚠️ **Phase 6 Needs Revision** (Validation & Error Handling):
+- 146/146 tests passing but test_05C output is incorrect
+- ✅ Notes field infrastructure implemented
+- ✅ CSV output includes Notes column
 - ✅ Validator module with all validation checks implemented
 - ✅ Integration tests for test_05A/B/C fixtures all passing
-- ✅ CLI --permissive flag: strict mode (default) aborts on errors, permissive mode warns
-- ✅ CLI validation: runs after label association, displays errors/warnings
+- ✅ CLI --permissive flag working
+- ⚠️ **BUG FOUND**: Notes not aggregated across wire fragments (test_05C)
 
-**Verified Working:**
-- test_05A: Missing labels detected, aborts (strict) / warns (permissive) ✅
-- test_05B: Duplicate G3A detected, aborts (strict) / warns (permissive) ✅
-- test_05C: Non-circuit labels (24AWG) appear in CSV Notes column ✅
-- test_05: Baseline passes validation with no warnings ✅
+**Issue Identified by Architect**:
+- test_05C fixture has "10AWG" label on vertical wire fragment (BT1-2 → junction)
+- Circuit ID "G4A" label is on horizontal wire fragment (junction → GB1-1)
+- Expected: G4A BOM entry should have notes="10AWG"
+- Actual: G4A BOM entry has notes="" (empty)
+- Root cause: Notes only collected from fragment with circuit ID, not all fragments forming circuit
 
-**Status**: Phase 6 complete and integrated into CLI. All features working.
-**Next Task**: Architect review for Phase 7 planning
+**Status**: Architectural design revised. Ready for implementation.
+**Next Task**: Implement notes aggregation across wire fragments in bom_generator.py
+
+---
+
+## PHASE 6 REVISION: NOTES AGGREGATION
+
+**Architectural Decision**: Notes must be aggregated from ALL wire fragments forming a circuit, not just the fragment with the circuit ID label.
+
+**Design References**:
+- `docs/plans/validation_design.md` - Section 7: Integration Points (bom_generator.py)
+- `docs/plans/kicad2wireBOM_design.md` - Section 3.4: Label Extraction and Association
+- `docs/plans/kicad2wireBOM_design.md` - Section 4.5: Notes Aggregation Algorithm
+
+### Task: Implement Notes Aggregation in bom_generator.py
+
+**Objective**: Modify `bom_generator.py` to collect notes from all wire fragments forming a circuit.
+
+**Current Behavior** (line 75 in bom_generator.py):
+```python
+notes_str = ' '.join(wire.notes) if wire.notes else ''
+```
+This only uses notes from the single wire fragment with the circuit_id.
+
+**Required Behavior**:
+- Traverse connectivity graph to find ALL wire fragments between from_conn and to_conn
+- Collect notes from each fragment's notes list
+- Deduplicate (avoid same note appearing multiple times)
+- Concatenate with space separator
+
+**Implementation Steps**:
+
+1. [ ] **Write helper function**: `collect_circuit_notes(graph, circuit_id, from_conn, to_conn)`
+   - Takes connectivity graph and endpoint connections
+   - Uses BFS/DFS to traverse from from_pos to to_pos
+   - Collects notes from all wire segments in path
+   - Returns deduplicated, space-separated string
+
+2. [ ] **Write unit tests** for `collect_circuit_notes()`:
+   - Test case: Single fragment with notes
+   - Test case: Multiple fragments, notes on one fragment
+   - Test case: Multiple fragments, notes on multiple fragments
+   - Test case: Duplicate notes (verify deduplication)
+   - Test case: No notes (empty string)
+
+3. [ ] **Update `generate_bom_entries()`** to use new helper:
+   - Replace `' '.join(wire.notes)` with call to `collect_circuit_notes()`
+   - Pass graph, circuit_id, from_conn, to_conn
+
+4. [ ] **Verify test_05C output**:
+   - Run CLI on test_05C_fixture.kicad_sch
+   - Verify G4A entry has notes="10AWG"
+   - Verify L2A entry has notes="24AWG"
+
+5. [ ] **Run full test suite**: Ensure no regressions (146/146 tests should still pass)
+
+6. [ ] **Update expected output file**: `docs/input/test_05C_out_expected.csv` if needed
+
+7. [ ] **Commit with updated programmer_todo.md**
 
 ---
 

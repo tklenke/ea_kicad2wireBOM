@@ -356,6 +356,8 @@ class Component:
 
 ### 3.4 Label Extraction and Association
 
+**[REVISED - 2025-10-22]**: Clarified handling of non-circuit labels (notes) and aggregation across wire fragments
+
 **Parse Label Elements**:
 - Extract all `(label ...)` blocks from schematic
 - Each label has:
@@ -367,19 +369,31 @@ class Component:
 
 1. **For each label**:
    - Check if text matches circuit ID pattern: `^[A-Z]\d+[A-Z]$` or `^[A-Z]-\d+-[A-Z]$`
-   - If not a circuit ID: Skip (it's a note)
+   - **Circuit ID label**: Store in wire.circuit_id
+   - **Non-circuit label** (e.g., "24AWG", "SHIELDED"): Store in wire.notes list
 
 2. **Calculate distance to each wire segment**:
    - Point-to-line-segment distance formula
    - Find minimum distance from label position to wire
 
-3. **Associate label with closest wire**:
-   - If distance ≤ threshold (default 10mm): Associate label with that wire
+3. **Associate label with closest wire fragment**:
+   - If distance ≤ threshold (default 10mm): Associate label with that wire fragment
    - If distance > threshold: Warning (orphaned label)
+   - **IMPORTANT**: Labels associate with individual wire fragments during parsing
 
-4. **Handle multiple labels on same wire**:
-   - If multiple circuit ID labels on one wire: Warning (ambiguous)
-   - If circuit ID + note labels: Keep circuit ID only
+4. **Handle multiple labels on same wire fragment**:
+   - If multiple circuit ID labels on one wire fragment: Warning (ambiguous)
+   - If circuit ID + note labels: Store circuit ID in wire.circuit_id, notes in wire.notes list
+
+**Notes Aggregation During BOM Generation**:
+- **Labels associate at wire fragment level** (proximity-based, during parsing)
+- **Notes aggregate at circuit level** (during BOM generation)
+- When creating BOM entry for a circuit, collect notes from ALL wire fragments forming that circuit
+- Multiple wire fragments may connect to form a single electrical circuit (e.g., through junctions)
+- **Example**: Circuit G4A from BT1-2 to GB1-1:
+  - Vertical fragment: has "10AWG" note
+  - Horizontal fragment: has "G4A" circuit ID
+  - BOM entry for G4A must include "10AWG" note from vertical fragment
 
 **Distance Calculation**:
 ```python
@@ -847,7 +861,9 @@ The common pin is the ONE pin whose segment has NO labeled fragments.
 
 **Example**: SW1-pin2 → (connection) → Junction: If either fragment has label, pin is reached by label.
 
-### 4.5 Unified BOM Generation **[NEW - 2025-10-21]**
+### 4.5 Unified BOM Generation **[NEW - 2025-10-21]** **[REVISED - 2025-10-22]**
+
+**[REVISED - 2025-10-22]**: Added notes aggregation across wire fragments specification.
 
 **Problem**: The multipoint connection logic exists in `wire_connections.py` (`generate_multipoint_bom_entries()`) and is tested in integration tests, but the CLI (`__main__.py`) doesn't use it. This creates a gap between tested functionality and actual CSV output.
 
@@ -879,6 +895,7 @@ The common pin is the ONE pin whose segment has NO labeled fragments.
 - `from_pin`: Pin number (e.g., "2")
 - `to_component`: Component reference (e.g., "J1")
 - `to_pin`: Pin number (e.g., "2")
+- `notes`: **[REVISED - 2025-10-22]** Aggregated notes from all wire fragments forming this circuit
 
 **Benefits**:
 1. **Single Source of Truth**: One function for all BOM entry generation
@@ -915,6 +932,46 @@ assert bom_entries contains expected P4A, P4B entries
 6. Verify CLI output matches expected CSV files
 
 **Implementation Priority**: HIGH - This is blocking correct CSV output for 3+way connections.
+
+**Notes Aggregation Algorithm** **[NEW - 2025-10-22]**:
+
+When generating each BOM entry, collect notes from all wire fragments forming the circuit:
+
+```python
+def collect_circuit_notes(graph: ConnectivityGraph,
+                          circuit_id: str,
+                          from_pos: tuple[float, float],
+                          to_pos: tuple[float, float]) -> str:
+    """
+    Aggregate notes from all wire fragments forming a circuit.
+
+    Traverses connectivity graph to find all wire segments between
+    from_pos and to_pos, collecting notes from each segment.
+
+    Args:
+        graph: Connectivity graph with wires and nodes
+        circuit_id: Circuit identifier (e.g., "G4A")
+        from_pos: Starting component pin position
+        to_pos: Ending component pin position
+
+    Returns:
+        Space-separated string of unique notes (deduplicated)
+    """
+    # BFS/DFS traversal from from_pos to to_pos
+    # For each wire segment encountered:
+    #   - Collect notes from wire.notes list
+    # Deduplicate notes (same label on multiple fragments)
+    # Return space-separated string
+```
+
+**Key Points**:
+- Labels associate with individual wire fragments during parsing (proximity-based)
+- Notes aggregate across all fragments forming a circuit during BOM generation
+- Deduplication ensures same note doesn't appear multiple times
+- Example: Circuit G4A with vertical and horizontal fragments:
+  - Vertical fragment has notes=["10AWG"]
+  - Horizontal fragment has notes=[]
+  - BOM entry for G4A gets notes="10AWG"
 
 ### 4.6 Circuit Identification
 
