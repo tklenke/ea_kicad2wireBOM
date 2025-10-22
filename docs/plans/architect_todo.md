@@ -13,7 +13,7 @@
 - Unified BOM generation created and integrated into CLI
 - CSV output correctly includes multipoint entries
 
-**Next Step**: Awaiting direction from Tom on next phase (validation, enhancements, or new features)
+**Next Step**: Phase 6 Validation & Error Handling - Design Complete, Ready for Implementation
 
 ---
 
@@ -39,11 +39,43 @@ All major architectural decisions have been implemented and validated:
 
 ---
 
-## POTENTIAL NEXT PHASES
+## PHASE 6: VALIDATION & ERROR HANDLING
 
-**Phase 6 Options** (Awaiting Tom's direction):
-1. **Validation & Error Handling**: Enhanced validation, better error messages
-2. **CLI Enhancements**: Validation mode, verbose output, markdown format
-3. **New Features**: See `docs/notes/opportunities_for_improvement.md` for ideas
-4. **Hierarchical Schematic Support**: If Tom needs this
-5. **Production Readiness**: Documentation, packaging, distribution
+**Status**: Design Complete ✅ - Ready for Programmer
+
+**Design Document**: `docs/plans/validation_design.md`
+
+**Objective**: Detect and report schematic errors with clear, actionable messages
+
+**Key Features**:
+1. **Missing Labels Detection** (test_05A): Detect when no circuit IDs present
+2. **Duplicate Label Detection** (test_05B): Find duplicate circuit IDs across wires
+3. **Non-Circuit Label Handling** (test_05C): Move invalid labels to notes field
+4. **Strict vs Permissive Modes**: Error/abort vs warn/continue
+5. **Notes Field**: Add notes column for non-circuit labels (24AWG, SHIELDED, etc.)
+
+**Test Fixtures Ready**:
+- test_05_fixture.kicad_sch (correct baseline)
+- test_05A_fixture.kicad_sch (all labels missing)
+- test_05B_fixture.kicad_sch (duplicate G3A, missing G4A)
+- test_05C_fixture.kicad_sch (non-circuit labels 24AWG, 10AWG)
+
+**Architectural Decisions Made**:
+- Add `notes: str` field to WireConnection data model
+- Create new `validator.py` module with SchematicValidator class
+- Add "Notes" column to CSV output (after Wire Type, before Warnings)
+- Non-circuit labels concatenated with spaces in notes field
+- Label classification: regex pattern `^[A-Z]-?\d+-?[A-Z]$` for circuit IDs
+
+**Ready for Programmer**: All design decisions documented, test cases identified
+
+---
+
+## FUTURE PHASES (Not Yet Planned)
+
+**Phase 7 Options**:
+1. **CLI Enhancements**: Markdown output, engineering mode, verbose/quiet flags
+2. **Wire Calculations**: Actual length/gauge/voltage drop (currently using defaults)
+3. **Production Features**: REVnnn filenames, --schematic-requirements output
+4. **Hierarchical Schematics**: Multi-sheet support (if needed by Tom)
+5. **Advanced Features**: See `docs/notes/opportunities_for_improvement.md`

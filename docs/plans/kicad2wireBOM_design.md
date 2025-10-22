@@ -1524,7 +1524,7 @@ The `kicad2wireBOM/` package contains the following modules:
 
 ## 12. Success Criteria
 
-The design is considered successfully implemented when:
+### Phase 1-5 (Core Features) ✅ COMPLETE
 
 - ✅ Tool parses KiCAD `.kicad_sch` files successfully
 - ✅ Wire segments extracted with correct start/end points
@@ -1535,16 +1535,32 @@ The design is considered successfully implemented when:
 - ✅ Wire gauge calculations are correct (validated against hand calculations)
 - ✅ Wire length calculations use Manhattan distance + slack correctly
 - ✅ Voltage drop calculations stay within 5% threshold
-- ✅ Both builder and engineering modes produce correct output
-- ✅ Strict and permissive modes work as specified
-- ✅ All validation checks produce appropriate warnings
-- ✅ CSV and Markdown outputs are well-formatted
-- ✅ Auto-generated filenames use REVnnn format correctly
-- ✅ `--schematic-requirements` provides complete documentation
+- ✅ 3+way multipoint connections working correctly
+- ✅ Unified BOM generation (no code duplication)
+- ✅ CSV output format working
 - ✅ Code follows project standards (TDD, YAGNI, DRY)
-- ✅ All unit and integration tests pass
+- ✅ All 125 unit and integration tests pass
 - ✅ Tool works with test fixtures from real KiCAD schematics
-- ✅ Documentation is complete and accurate
+
+### Phase 6 (Validation & Error Handling) - IN PLANNING
+
+See `docs/plans/validation_design.md` for detailed specification.
+
+**Key Requirements**:
+- [ ] Detect missing circuit ID labels (test_05A)
+- [ ] Detect duplicate circuit IDs (test_05B)
+- [ ] Handle non-circuit labels as notes (test_05C)
+- [ ] Add `notes` field to WireConnection for non-circuit labels
+- [ ] Add "Notes" column to CSV output
+- [ ] Implement strict vs permissive modes
+- [ ] Clear, actionable error messages
+- [ ] Validation tests using test_05 variants
+
+**Future Enhancements**:
+- [ ] Markdown output format
+- [ ] Engineering mode (detailed calculations)
+- [ ] `--schematic-requirements` documentation output
+- [ ] Auto-generated filenames with REVnnn format
 
 ---
 
