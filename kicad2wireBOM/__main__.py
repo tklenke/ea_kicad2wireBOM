@@ -22,6 +22,7 @@ from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
 from kicad2wireBOM.graph_builder import build_connectivity_graph
 from kicad2wireBOM.bom_generator import generate_bom_entries
+from kicad2wireBOM.validator import SchematicValidator
 
 
 def main():
@@ -69,6 +70,12 @@ def main():
         type=float,
         default=DEFAULT_CONFIG['system_voltage'],
         help=f'System voltage in volts (default: {DEFAULT_CONFIG["system_voltage"]}V)'
+    )
+
+    parser.add_argument(
+        '--permissive',
+        action='store_true',
+        help='Permissive mode: warn about validation errors but continue processing (default: strict mode aborts on errors)'
     )
 
     args = parser.parse_args()
@@ -126,6 +133,27 @@ def main():
         # Count labeled wires
         labeled_wires = [w for w in wires if w.circuit_id]
         print(f"  Associated {len(labeled_wires)} wires with labels")
+
+        # Validate schematic
+        strict_mode = not args.permissive
+        validator = SchematicValidator(strict_mode=strict_mode)
+        validation_result = validator.validate_all(wires, labels, components)
+
+        # Handle validation errors/warnings
+        if validation_result.has_errors():
+            print("\nValidation Errors:", file=sys.stderr)
+            for error in validation_result.errors:
+                print(f"  ERROR: {error.message}", file=sys.stderr)
+                if error.suggestion:
+                    print(f"         Suggestion: {error.suggestion}", file=sys.stderr)
+            sys.exit(1)
+
+        if validation_result.warnings:
+            print("\nValidation Warnings:")
+            for warning in validation_result.warnings:
+                print(f"  WARNING: {warning.message}")
+                if warning.suggestion:
+                    print(f"           Suggestion: {warning.suggestion}")
 
         # Build connectivity graph
         print(f"  Building connectivity graph...")
@@ -189,6 +217,9 @@ def main():
             system_code = wire.system_code if wire else None
             wire_color = SYSTEM_COLOR_MAP.get(system_code, 'White')
 
+            # Get notes from BOM entry
+            notes = entry.get('notes', '')
+
             # Create wire connection
             wire_conn = WireConnection(
                 wire_label=circuit_id,
@@ -200,7 +231,7 @@ def main():
                 wire_color=wire_color,
                 length=length,
                 wire_type=DEFAULT_CONFIG['default_wire_type'],
-                notes='',
+                notes=notes,
                 warnings=[]
             )
 
