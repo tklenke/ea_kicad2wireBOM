@@ -1,97 +1,49 @@
 # Architect TODO: kicad2wireBOM
 
-**Date**: 2025-10-21
-**Status**: Phase 5B - Unified BOM Generation Refactoring Ready for Programmer
+**Date**: 2025-10-22
+**Status**: Phase 1-5 Complete - Core Features Implemented ✅
 
 ---
 
 ## CURRENT STATUS
 
-✅ **Phases 1-5 Complete**: 122/122 tests passing
+✅ **All Core Features Complete**: 125/125 tests passing
 - Schematic parsing, connectivity graph, junction handling all working
 - 3+way multipoint connection logic implemented and tested
+- Unified BOM generation created and integrated into CLI
+- CSV output correctly includes multipoint entries
 
-🔧 **Current Issue**: CLI doesn't use multipoint logic - CSV output incorrect
-- Integration tests pass but CLI produces wrong output
-- Need unified BOM generation to fix gap between tests and production
-
-**Next Step**: Programmer implements Task 8 (unified BOM generation refactoring)
+**Next Step**: Awaiting direction from Tom on next phase (validation, enhancements, or new features)
 
 ---
 
-## ACTIVE ARCHITECTURAL DECISIONS
+## KEY ARCHITECTURAL DECISIONS (Implemented)
 
-### 3+Way Connections ✅
+All major architectural decisions have been implemented and validated:
 
-**Decision**: Implement multi-point connections (N ≥ 3 pins) using (N-1) labeling convention
+1. **3+Way Connections** (Section 4.4): Multi-point connections using (N-1) labeling convention
+2. **Unified BOM Generation** (Section 4.5): Single `bom_generator.py` module handles all connection types
+3. **Pin Position Calculation** (Section 4.1): Precise calculation with rotation matrices and mirroring
+4. **Junction Handling** (Sections 3.5, 4.2, 4.3): Graph-based approach with explicit junction elements
+5. **Wire Endpoint Tracing** (Section 4.3): Recursive tracing through wire_endpoint nodes
 
-**Labeling Convention**:
-- N pins → expect (N-1) circuit ID labels
-- Unlabeled segments form backbone
-- Pin NOT reached by labeled segment = common endpoint
-- Each labeled wire: labeled-pin → common-pin
-
-**Common Pin Algorithm**: Use SEGMENT-level analysis
-- Trace segments from each pin through connections (transparent) to junctions (stop points)
-- Pin whose segment has NO labels = common pin
-
-**Reference**: Design doc Section 4.4
-
----
-
-### Unified BOM Generation ✅
-
-**Decision**: Create `bom_generator.py` module with `generate_bom_entries()` function
-
-**Problem**: Multipoint logic passes tests but CLI doesn't use it (code duplication gap)
-
-**Solution**:
-- Single function handles both multipoint and regular 2-point connections
-- CLI and tests use identical code path
-- Eliminates duplication, ensures correctness
-
-**Reference**: Design doc Section 4.5, programmer_todo.md Task 8
+**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.6
 
 ---
 
 ## OPEN QUESTIONS
 
 **Hierarchical Schematics**: Are your aircraft schematics flat or hierarchical?
-- Flat: Current design handles this
-- Hierarchical: Need sheet interconnection design (future work)
+- Flat: Current design handles this ✅
+- Hierarchical: Would need sheet interconnection design (future work)
 
 ---
 
-## DESIGN DOCUMENTS
+## POTENTIAL NEXT PHASES
 
-**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.6
-
-**Key Sections**:
-- Section 4.4: 3+way connections
-- Section 4.5: Unified BOM generation
-- Section 10.1: Module structure
-
----
-
-## ARCHIVED DECISIONS
-
-<details>
-<summary>Expand to see earlier architectural decisions (Phases 1-4)</summary>
-
-### 1. Pin Position Calculation Strategy ✅
-**Decision**: Precise calculation with rotation matrices and mirroring
-**Reference**: Design doc Section 4.1
-
-### 2. Junction Handling Algorithm ✅
-**Decision**: Graph-based approach with explicit junction elements only
-**Reference**: Design doc Sections 3.5, 4.2, 4.3
-
-### 3. BOM Output Format ✅
-**Decision**: Junctions are transparent in BOM output
-**Reference**: Design doc Sections 4.3, 7.3
-
-### 4. Wire Endpoint Tracing ✅
-**Decision**: Extend trace_to_component() to handle wire_endpoint nodes
-**Reference**: Design doc Section 4.3
-
-</details>
+**Phase 6 Options** (Awaiting Tom's direction):
+1. **Validation & Error Handling**: Enhanced validation, better error messages
+2. **CLI Enhancements**: Validation mode, verbose output, markdown format
+3. **New Features**: See `docs/notes/opportunities_for_improvement.md` for ideas
+4. **Hierarchical Schematic Support**: If Tom needs this
+5. **Production Readiness**: Documentation, packaging, distribution
