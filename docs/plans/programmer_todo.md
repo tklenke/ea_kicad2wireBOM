@@ -1,21 +1,23 @@
 # Programmer TODO: kicad2wireBOM Implementation
 
 **Project**: kicad2wireBOM - Wire BOM generator for experimental aircraft
-**Status**: Phase 1-5 Complete ✅
+**Status**: Phase 6 In Progress - Validation & Error Handling 🚧
 **Last Updated**: 2025-10-22
 
 ---
 
 ## CURRENT STATUS
 
-✅ **All Core Features Implemented**:
-- 125/125 tests passing
-- Schematic parsing, connectivity graph, multipoint detection working
-- Unified BOM generation module (`bom_generator.py`) created
-- CLI produces correct output including multipoint entries
-- No code duplication between CLI and tests
+✅ **Phase 1-5 Complete** (Core features)
+🚧 **Phase 6 In Progress** (Validation & Error Handling):
+- 134/134 tests passing
+- ✅ Task 1-4: Notes field infrastructure (WireConnection, WireSegment, BOM entries, label classification)
+- ✅ Task 5: CSV output includes Notes column
+- ✅ Task 2: Validator module skeleton created
+- ⏳ Tasks 6-9: Validation checks implementation (pending)
+- ⏳ Tasks 11-13: Integration tests for test_05A/B/C fixtures (pending)
 
-**Next Task**: Awaiting direction from Tom
+**Next Task**: Implement validation checks or add --permissive flag to CLI
 
 ---
 
