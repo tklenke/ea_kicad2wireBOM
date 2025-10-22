@@ -1,12 +1,96 @@
 # ABOUTME: Unified BOM entry generation for wire connections
 # ABOUTME: Handles both multipoint (3+way) and regular 2-point connections
 
+from collections import deque
 from kicad2wireBOM.connectivity_graph import ConnectivityGraph
 from kicad2wireBOM.schematic import WireSegment
 from kicad2wireBOM.wire_connections import (
     identify_wire_connections,
     generate_multipoint_bom_entries
 )
+
+
+def collect_circuit_notes(
+    graph: ConnectivityGraph,
+    circuit_id: str,
+    from_pos: tuple[float, float],
+    to_pos: tuple[float, float]
+) -> str:
+    """
+    Aggregate notes from all wire fragments forming a circuit.
+
+    Traverses connectivity graph to find all wire segments between
+    from_pos and to_pos, collecting notes from each segment.
+
+    Args:
+        graph: Connectivity graph with wires and nodes
+        circuit_id: Circuit identifier (e.g., "G4A")
+        from_pos: Starting component pin position
+        to_pos: Ending component pin position
+
+    Returns:
+        Space-separated string of unique notes (deduplicated)
+    """
+    # Normalize positions to match graph keys
+    from_key = (round(from_pos[0], 2), round(from_pos[1], 2))
+    to_key = (round(to_pos[0], 2), round(to_pos[1], 2))
+
+    # BFS to find all wire segments between from_pos and to_pos
+    visited_nodes = set()
+    visited_wires = set()
+    queue = deque([from_key])
+    visited_nodes.add(from_key)
+
+    # Collect all notes from wire segments encountered
+    all_notes = []
+
+    while queue:
+        current_key = queue.popleft()
+
+        # Stop if we reached the destination
+        if current_key == to_key:
+            continue
+
+        # Get node at current position
+        if current_key not in graph.nodes:
+            continue
+
+        node = graph.nodes[current_key]
+
+        # Explore all connected wires
+        for wire_uuid in node.connected_wire_uuids:
+            if wire_uuid in visited_wires:
+                continue
+
+            visited_wires.add(wire_uuid)
+            wire = graph.wires[wire_uuid]
+
+            # Collect notes from this wire
+            if hasattr(wire, 'notes') and wire.notes:
+                all_notes.extend(wire.notes)
+
+            # Get the other end of this wire
+            wire_start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+            wire_end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+            # Add unvisited endpoint to queue
+            if wire_start_key == current_key and wire_end_key not in visited_nodes:
+                visited_nodes.add(wire_end_key)
+                queue.append(wire_end_key)
+            elif wire_end_key == current_key and wire_start_key not in visited_nodes:
+                visited_nodes.add(wire_start_key)
+                queue.append(wire_start_key)
+
+    # Deduplicate notes while preserving order
+    seen = set()
+    unique_notes = []
+    for note in all_notes:
+        if note not in seen:
+            seen.add(note)
+            unique_notes.append(note)
+
+    # Return space-separated string
+    return ' '.join(unique_notes)
 
 
 def generate_bom_entries(
@@ -71,8 +155,20 @@ def generate_bom_entries(
 
         # Both endpoints must be found
         if from_conn and to_conn:
-            # Concatenate notes with space separator
-            notes_str = ' '.join(wire.notes) if wire.notes else ''
+            # Get component pin positions
+            from_pin_key = f"{from_conn['component_ref']}-{from_conn['pin_number']}"
+            to_pin_key = f"{to_conn['component_ref']}-{to_conn['pin_number']}"
+
+            # Get positions from component pins in graph
+            from_pos = graph.component_pins.get(from_pin_key)
+            to_pos = graph.component_pins.get(to_pin_key)
+
+            # Collect notes from all wire fragments forming this circuit
+            if from_pos and to_pos:
+                notes_str = collect_circuit_notes(graph, wire.circuit_id, from_pos, to_pos)
+            else:
+                # Fallback to single wire notes if positions not found
+                notes_str = ' '.join(wire.notes) if wire.notes else ''
 
             entry = {
                 'circuit_id': wire.circuit_id,
