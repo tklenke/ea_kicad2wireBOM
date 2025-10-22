@@ -21,7 +21,7 @@ from kicad2wireBOM.wire_bom import WireConnection, WireBOM
 from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
 from kicad2wireBOM.graph_builder import build_connectivity_graph
-from kicad2wireBOM.wire_connections import identify_wire_connections
+from kicad2wireBOM.bom_generator import generate_bom_entries
 
 
 def main():
@@ -132,36 +132,27 @@ def main():
         graph = build_connectivity_graph(sexp)
         print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
 
-        # Identify wire connections using graph
-        for wire in wires:
-            start_conn, end_conn = identify_wire_connections(wire, graph)
-            wire.start_connection = start_conn
-            wire.end_connection = end_conn
+        # Generate BOM entries (handles both multipoint and regular)
+        print(f"  Generating BOM entries...")
+        bom_entries = generate_bom_entries(wires, graph)
+        print(f"    Generated {len(bom_entries)} BOM entries")
 
         # Create component lookup map
         comp_map = {comp.ref: comp for comp in components}
 
+        # Create wire lookup map (for system_code)
+        wire_map = {wire.circuit_id: wire for wire in wires if wire.circuit_id}
+
         # Build wire BOM
         bom = WireBOM(config=DEFAULT_CONFIG)
 
-        # For each labeled wire, create a wire connection
-        for wire in wires:
-            if not wire.circuit_id:
-                continue  # Skip unlabeled wires
-
-            # Get component references from connections (now dict format)
-            from_component = None
-            from_pin = None
-            to_component = None
-            to_pin = None
-
-            if wire.start_connection:
-                from_component = wire.start_connection.get('component_ref')
-                from_pin = wire.start_connection.get('pin_number')
-
-            if wire.end_connection:
-                to_component = wire.end_connection.get('component_ref')
-                to_pin = wire.end_connection.get('pin_number')
+        # For each BOM entry, calculate wire properties
+        for entry in bom_entries:
+            circuit_id = entry['circuit_id']
+            from_component = entry['from_component']
+            from_pin = entry['from_pin']
+            to_component = entry['to_component']
+            to_pin = entry['to_pin']
 
             # Look up components
             comp1 = comp_map.get(from_component) if from_component else None
@@ -193,12 +184,14 @@ def main():
             # Determine wire gauge
             gauge = determine_min_gauge(current, length, args.system_voltage)
 
-            # Get wire color from system code
-            wire_color = SYSTEM_COLOR_MAP.get(wire.system_code, 'White')
+            # Get wire color from system code (lookup wire by circuit_id)
+            wire = wire_map.get(circuit_id)
+            system_code = wire.system_code if wire else None
+            wire_color = SYSTEM_COLOR_MAP.get(system_code, 'White')
 
             # Create wire connection
             wire_conn = WireConnection(
-                wire_label=wire.circuit_id,
+                wire_label=circuit_id,
                 from_component=from_component,
                 from_pin=from_pin,
                 to_component=to_component,
