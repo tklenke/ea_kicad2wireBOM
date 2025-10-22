@@ -1,0 +1,7 @@
+Wire Label,From Component,From Pin,To Component,To Pin,Wire Gauge,Wire Color,Length,Wire Type,Notes,Warnings
+L2C,L2,1,SW1,2,20,White,134.0,M22759/16,,
+L2B,L1,1,SW1,2,20,White,134.0,M22759/16,,
+G3B,L2,2,GB1,Val_A,20,Black,134.0,M22759/16,,
+G3A,L1,2,GB1,Val_A,20,Black,134.0,M22759/16,,
+P1A,BT1,1,FH1,1,12,Red,35.0,M22759/16,,
+L2A,FH1,Val_A,SW1,1,20,White,44.0,M22759/16,,
