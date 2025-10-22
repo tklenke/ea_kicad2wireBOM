@@ -42,6 +42,104 @@ All major architectural decisions have been implemented and validated:
 
 ---
 
+## PHASE 6.5: LocLoad Custom Field Migration
+
+**Status**: [~] In Progress - Handed off to Programmer
+
+**Objective**: Replace Footprint field overloading with dedicated `LocLoad` custom field.
+
+**Decision**: Use custom field named `LocLoad` with format `(FS,WL,BL){S|L|R}<value>` (removed leading `|`)
+
+**Tasks**:
+- [x] Evaluate field name options (chose `LocLoad`)
+- [x] Define new format specification (removed `|` prefix)
+- [x] Create implementation tasks for Programmer
+- [ ] Tom updating all test fixtures
+- [ ] Programmer implementing parser changes
+
+---
+
+## PHASE 7: Hierarchical Schematic Support (UNRESOLVED - ON HOLD)
+
+**Status**: Design phase - Awaiting LocLoad migration completion
+
+**Scope**: Single-level hierarchy (main sheet → N sub-sheets)
+
+**Current Understanding**:
+
+### Test Fixture Analysis (test_06)
+- **Main sheet** (`test_06_fixture.kicad_sch`): Battery, fuse holder, switches
+- **Sub-sheet** (`test_06_lighting.kicad_sch`): Lamps
+- **Hierarchical connections**: `TAIL_LT`, `TIP_LT`, `GND` pins connect sheets
+- **Cross-sheet wires**: Labels `L2B` and `L3B` appear on BOTH sheets
+
+### Key Architectural Challenges
+
+1. **Sheet Interconnection**:
+   - Hierarchical sheet symbols define boundaries
+   - Sheet pins (on parent) connect to hierarchical labels (on child)
+   - These create implicit electrical connections not visible as wire segments
+
+2. **Cross-Sheet Wire Tracing**:
+   - Wire labeled "L2B" exists on main sheet AND sub-sheet
+   - Must trace through hierarchical pin/label to connect fragments
+   - Example path: Main wire → Sheet pin "TIP_LT" → Hierarchical label "TIP_LT" → Sub-sheet wire
+
+3. **Component Reference Resolution**:
+   - Sub-sheets have different UUID paths in instances
+   - Reference designators unique across all sheets (L1, L2 on sub-sheet)
+   - LocLoad coordinates are in aircraft coordinate system (global)
+
+4. **Global Net Names**:
+   - Power symbols (GND, +12V) create global nets
+   - All GND symbols connect electrically regardless of sheet
+   - LocLoad field now used for ground point locations
+
+### Design Approach (Option B - Unified BOM)
+- Trace wires across sheet boundaries
+- Merge fragments from multiple sheets into single circuit
+- Generate electrically accurate BOM
+
+### Open Questions
+
+1. **Sheet Parsing Strategy**:
+   - Parse all sheets into single flat data structure?
+   - Maintain sheet hierarchy in data model?
+   - How to handle sheet file references?
+
+2. **Pin Mapping Algorithm**:
+   - How to map sheet pins to hierarchical labels?
+   - String matching by name?
+   - What if names don't match?
+
+3. **Connectivity Graph**:
+   - Build single unified graph across all sheets?
+   - Or separate graphs with cross-sheet edges?
+   - How to represent hierarchical connections?
+
+4. **Circuit Identification**:
+   - Does circuit label need to appear on every sheet?
+   - Or can it propagate through hierarchical connections?
+   - Example: "L2B" on main sheet, unlabeled wire on sub-sheet connected via "TIP_LT"
+
+5. **BOM Output Format**:
+   - Show which sheet(s) each wire segment is on?
+   - Or just unified circuit with total length?
+   - Useful for assembly instructions?
+
+### Next Steps (After LocLoad Migration)
+1. Analyze test_06 fixtures in detail to understand expected behavior
+2. Design sheet parsing and interconnection data structures
+3. Design cross-sheet wire tracing algorithm
+4. Create detailed implementation plan for Programmer
+5. Define additional test cases for hierarchical scenarios
+
+**References**:
+- Test fixtures: `tests/fixtures/test_06_fixture.kicad_sch`, `test_06_lighting.kicad_sch`
+- Tom's use case: Main sheet = power distribution, Sub-sheets = Avionics, Lighting, Engine systems
+
+---
+
 ## NEXT PHASE OPTIONS
 
 The tool is now production-ready for basic wire BOM generation. Future enhancements could include:
@@ -49,10 +147,9 @@ The tool is now production-ready for basic wire BOM generation. Future enhanceme
 1. **CLI Enhancements**: Markdown output, engineering mode, verbose/quiet flags
 2. **Wire Calculations**: Actual length/gauge/voltage drop (currently using defaults)
 3. **Production Features**: REVnnn filenames, --schematic-requirements output
-4. **Hierarchical Schematics**: Multi-sheet support (if needed by Tom)
-5. **Advanced Features**: See `docs/notes/opportunities_for_improvement.md`
+4. **Advanced Features**: See `docs/notes/opportunities_for_improvement.md`
 
-**Status**: Awaiting Tom's direction on next priorities
+**Current Priority**: LocLoad migration (Phase 6.5), then Hierarchical Schematics (Phase 7)
 
 ---
 

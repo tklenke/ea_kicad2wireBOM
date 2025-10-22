@@ -27,6 +27,54 @@
 
 ---
 
+## PHASE 6.5: LocLoad Custom Field Migration
+
+**Objective**: Replace Footprint field parsing with new custom `LocLoad` field for component location and electrical data.
+
+**Background**:
+- Currently overloading KiCad's `Footprint` field with format: `|(FS,WL,BL){S|L|R}<value>`
+- New approach: Use custom field `LocLoad` with cleaner format: `(FS,WL,BL){S|L|R}<value>`
+- Tom is updating all test fixtures to use the new field
+- This provides cleaner separation from KiCad built-in fields
+
+**Format Change**:
+- **Old**: `|(0,0,0)S40` in Footprint field
+- **New**: `(0,0,0)S40` in LocLoad custom field
+- Removed leading `|` character from format
+
+**Implementation Tasks**:
+
+### Task 1: Update Component Data Model
+- [ ] Add `locload` field to Component class in `schematic.py`
+- [ ] Keep existing fields for backwards compatibility initially
+
+### Task 2: Update Parser
+- [ ] Modify `parser.py` to extract `LocLoad` property from component symbols
+- [ ] Parse format: `(FS,WL,BL){S|L|R}<value>` (note: no leading `|`)
+- [ ] Fall back to Footprint field if LocLoad not found (for backwards compatibility)
+
+### Task 3: Write Tests
+- [ ] Test parsing LocLoad field from test_06 fixtures
+- [ ] Test format parsing without leading `|`
+- [ ] Test fallback to Footprint field for older fixtures
+- [ ] Verify all existing tests still pass
+
+### Task 4: Update All Parsers
+- [ ] Review all code that currently reads Footprint field
+- [ ] Update to read LocLoad field preferentially
+- [ ] Maintain fallback for existing test fixtures
+
+### Task 5: Verify Integration
+- [ ] Run full test suite (should still be 150/150 passing)
+- [ ] Test with test_06 fixtures once Tom updates them
+- [ ] Verify CLI output is unchanged
+
+**Expected Outcome**: Parser reads component data from LocLoad field instead of overloading Footprint field.
+
+**Note**: Tom will update all test fixtures. Focus on code changes only.
+
+---
+
 ## DEVELOPMENT WORKFLOW
 
 ### TDD Cycle (ALWAYS FOLLOW)
