@@ -1,0 +1,6 @@
+Wire Label,From Component,From Pin,To Component,To Pin,Wire Gauge,Wire Color,Length,Wire Type,Warnings
+P2A,SW2,1,J1,1,20,Red,25.0,M22759/16,
+P3A,SW1,3,SW2,3,20,Red,25.0,M22759/16,
+P1A,SW1,1,J1,1,20,Red,25.0,M22759/16,
+P4B,SW1,2,J1,2,20,Red,25.0,M22759/16,
+P4A,SW2,2,J1,2,20,Red,25.0,M22759/16,
