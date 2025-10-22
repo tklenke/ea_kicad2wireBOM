@@ -50,6 +50,7 @@ def test_generate_bom_entries_with_2point_connections():
         assert 'from_pin' in entry
         assert 'to_component' in entry
         assert 'to_pin' in entry
+        assert 'notes' in entry
         assert entry['circuit_id'] is not None and entry['circuit_id'] != ''
 
     # Verify we have the expected circuit IDs

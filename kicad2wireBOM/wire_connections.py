@@ -103,12 +103,13 @@ def generate_multipoint_bom_entries(
 
         pin_pos_key = group_pin_positions[pin_key]
 
-        # Trace segment from this pin to find labels
+        # Trace segment from this pin to find labels and notes
         visited_positions = set()
         visited_wires = set()
         queue = [pin_pos_key]
         visited_positions.add(pin_pos_key)
         segment_labels = []
+        segment_notes = []
 
         while queue:
             current_pos = queue.pop(0)
@@ -137,6 +138,10 @@ def generate_multipoint_bom_entries(
                 if hasattr(wire, 'circuit_id') and wire.circuit_id:
                     segment_labels.append(wire.circuit_id)
 
+                # Collect notes from this wire
+                if hasattr(wire, 'notes') and wire.notes:
+                    segment_notes.extend(wire.notes)
+
                 # Find the other end of the wire
                 start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
                 end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
@@ -163,12 +168,16 @@ def generate_multipoint_bom_entries(
             # Use first label found (should only be one per segment)
             circuit_id = segment_labels[0]
 
+            # Concatenate notes with space separator
+            notes_str = ' '.join(segment_notes) if segment_notes else ''
+
             bom_entry = {
                 'circuit_id': circuit_id,
                 'from_component': pin['component_ref'],
                 'from_pin': pin['pin_number'],
                 'to_component': common_pin['component_ref'],
-                'to_pin': common_pin['pin_number']
+                'to_pin': common_pin['pin_number'],
+                'notes': notes_str
             }
             bom_entries.append(bom_entry)
 

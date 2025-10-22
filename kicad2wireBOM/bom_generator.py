@@ -71,12 +71,16 @@ def generate_bom_entries(
 
         # Both endpoints must be found
         if from_conn and to_conn:
+            # Concatenate notes with space separator
+            notes_str = ' '.join(wire.notes) if wire.notes else ''
+
             entry = {
                 'circuit_id': wire.circuit_id,
                 'from_component': from_conn['component_ref'],
                 'from_pin': from_conn['pin_number'],
                 'to_component': to_conn['component_ref'],
-                'to_pin': to_conn['pin_number']
+                'to_pin': to_conn['pin_number'],
+                'notes': notes_str
             }
             regular_entries.append(entry)
 
