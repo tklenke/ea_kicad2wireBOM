@@ -17,6 +17,7 @@ def test_wire_connection_creation():
         wire_color='White',
         length=79.0,
         wire_type='Standard',
+        notes='',
         warnings=[]
     )
 
@@ -29,6 +30,7 @@ def test_wire_connection_creation():
     assert wire.wire_color == 'White'
     assert wire.length == 79.0
     assert wire.wire_type == 'Standard'
+    assert wire.notes == ''
     assert wire.warnings == []
 
 
@@ -44,11 +46,31 @@ def test_wire_connection_with_warnings():
         wire_color='White',
         length=50.0,
         wire_type='Standard',
+        notes='',
         warnings=['Unknown system code']
     )
 
     assert len(wire.warnings) == 1
     assert 'Unknown' in wire.warnings[0]
+
+
+def test_wire_connection_with_notes():
+    """Test WireConnection with notes field"""
+    wire = WireConnection(
+        wire_label='L-105-A',
+        from_component='J1',
+        from_pin='1',
+        to_component='SW1',
+        to_pin='3',
+        wire_gauge=20,
+        wire_color='White',
+        length=79.0,
+        wire_type='Standard',
+        notes='24AWG HIGH_CURRENT',
+        warnings=[]
+    )
+
+    assert wire.notes == '24AWG HIGH_CURRENT'
 
 
 def test_wire_bom_creation():
@@ -74,6 +96,7 @@ def test_wire_bom_add_wire():
         wire_color='White',
         length=79.0,
         wire_type='Standard',
+        notes='',
         warnings=[]
     )
 
@@ -91,6 +114,7 @@ def test_wire_bom_add_wire():
         wire_color='Red',
         length=50.0,
         wire_type='Standard',
+        notes='',
         warnings=[]
     )
 

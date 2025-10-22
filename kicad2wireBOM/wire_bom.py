@@ -20,6 +20,7 @@ class WireConnection:
         wire_color: Wire color (from system code mapping)
         length: Wire length in inches
         wire_type: Wire type (e.g., "Standard")
+        notes: Concatenated non-circuit labels and annotations
         warnings: List of warning messages for this wire
     """
     wire_label: str
@@ -31,6 +32,7 @@ class WireConnection:
     wire_color: str
     length: float
     wire_type: str
+    notes: str
     warnings: List[str]
 
 

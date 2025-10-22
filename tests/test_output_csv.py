@@ -22,6 +22,7 @@ def test_write_builder_csv(tmp_path):
         wire_color='White',
         length=79.0,
         wire_type='Standard',
+        notes='',
         warnings=[]
     )
     bom.add_wire(wire)
@@ -69,6 +70,7 @@ def test_write_builder_csv_with_warnings(tmp_path):
         wire_color='White',
         length=50.0,
         wire_type='Standard',
+        notes='',
         warnings=['Unknown system code', 'Check connections']
     )
     bom.add_wire(wire)
@@ -89,9 +91,9 @@ def test_write_builder_csv_multiple_wires(tmp_path):
     """Test CSV output with multiple wires"""
     bom = WireBOM(config={})
 
-    wire1 = WireConnection('L-105-A', 'J1', '1', 'SW1', '3', 20, 'White', 79.0, 'Standard', [])
-    wire2 = WireConnection('P-12-A', 'BAT1', '1', 'SW2', '2', 12, 'Red', 50.0, 'Standard', [])
-    wire3 = WireConnection('L-105-B', 'SW1', '3', 'LIGHT1', '1', 18, 'White', 45.0, 'Standard', [])
+    wire1 = WireConnection('L-105-A', 'J1', '1', 'SW1', '3', 20, 'White', 79.0, 'Standard', '', [])
+    wire2 = WireConnection('P-12-A', 'BAT1', '1', 'SW2', '2', 12, 'Red', 50.0, 'Standard', '', [])
+    wire3 = WireConnection('L-105-B', 'SW1', '3', 'LIGHT1', '1', 18, 'White', 45.0, 'Standard', '', [])
 
     bom.add_wire(wire1)
     bom.add_wire(wire2)

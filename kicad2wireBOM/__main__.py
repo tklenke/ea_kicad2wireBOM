@@ -200,6 +200,7 @@ def main():
                 wire_color=wire_color,
                 length=length,
                 wire_type=DEFAULT_CONFIG['default_wire_type'],
+                notes='',
                 warnings=[]
             )
 
