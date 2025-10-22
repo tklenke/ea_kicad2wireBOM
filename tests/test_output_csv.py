@@ -39,8 +39,8 @@ def test_write_builder_csv(tmp_path):
         reader = csv.DictReader(f)
         rows = list(reader)
 
-    # Check headers (new 4-column format)
-    assert reader.fieldnames == ['Wire Label', 'From Component', 'From Pin', 'To Component', 'To Pin', 'Wire Gauge', 'Wire Color', 'Length', 'Wire Type', 'Warnings']
+    # Check headers (includes Notes column)
+    assert reader.fieldnames == ['Wire Label', 'From Component', 'From Pin', 'To Component', 'To Pin', 'Wire Gauge', 'Wire Color', 'Length', 'Wire Type', 'Notes', 'Warnings']
 
     # Check data
     assert len(rows) == 1
