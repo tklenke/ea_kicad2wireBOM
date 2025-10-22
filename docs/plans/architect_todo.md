@@ -1,23 +1,26 @@
 # Architect TODO: kicad2wireBOM
 
 **Date**: 2025-10-22
-**Status**: Phase 1-5 Complete - Core Features Implemented ✅
+**Status**: Phase 1-6 Complete - Major Milestone Achieved ✅
 
 ---
 
 ## CURRENT STATUS
 
-✅ **All Core Features Complete**: 125/125 tests passing
+✅ **All Planned Features Complete**: 150/150 tests passing
 - Schematic parsing, connectivity graph, junction handling all working
 - 3+way multipoint connection logic implemented and tested
 - Unified BOM generation created and integrated into CLI
-- CSV output correctly includes multipoint entries
+- Validation & error handling with notes aggregation complete
+- CSV output correctly includes multipoint entries and notes field
+- CLI supports both strict and permissive modes
 
-**Next Step**: Phase 6 Validation & Error Handling - Design Complete, Ready for Implementation
+**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.6
+**Validation Design**: `docs/plans/validation_design.md`
 
 ---
 
-## KEY ARCHITECTURAL DECISIONS (Implemented)
+## KEY ARCHITECTURAL DECISIONS (All Implemented)
 
 All major architectural decisions have been implemented and validated:
 
@@ -26,8 +29,8 @@ All major architectural decisions have been implemented and validated:
 3. **Pin Position Calculation** (Section 4.1): Precise calculation with rotation matrices and mirroring
 4. **Junction Handling** (Sections 3.5, 4.2, 4.3): Graph-based approach with explicit junction elements
 5. **Wire Endpoint Tracing** (Section 4.3): Recursive tracing through wire_endpoint nodes
-
-**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.6
+6. **Notes Aggregation** (Section 4.5): BFS traversal collects notes from all wire fragments in a circuit
+7. **Validation Framework**: Missing labels, duplicate labels, non-circuit label handling
 
 ---
 
@@ -39,44 +42,23 @@ All major architectural decisions have been implemented and validated:
 
 ---
 
-## PHASE 6: VALIDATION & ERROR HANDLING
+## NEXT PHASE OPTIONS
 
-**Status**: Design Revised ⚠️ - Needs Implementation Update
+The tool is now production-ready for basic wire BOM generation. Future enhancements could include:
 
-**Design Document**: `docs/plans/validation_design.md` (revised 2025-10-22)
-
-**Objective**: Detect and report schematic errors with clear, actionable messages
-
-**Key Features**:
-1. **Missing Labels Detection** (test_05A): Detect when no circuit IDs present ✅
-2. **Duplicate Label Detection** (test_05B): Find duplicate circuit IDs across wires ✅
-3. **Non-Circuit Label Handling** (test_05C): Move invalid labels to notes field ⚠️
-4. **Strict vs Permissive Modes**: Error/abort vs warn/continue ✅
-5. **Notes Field**: Add notes column for non-circuit labels (24AWG, SHIELDED, etc.) ⚠️
-
-**Design Revision (2025-10-22)**:
-- **Issue Found**: Notes from wire fragments not aggregated at circuit level
-- **Example**: test_05C has "10AWG" on vertical fragment, "G4A" on horizontal fragment
-- **Problem**: Current implementation only uses notes from fragment with circuit_id
-- **Solution**: Aggregate notes from ALL wire fragments forming a circuit during BOM generation
-- **Implementation**: Add `collect_circuit_notes()` helper function in bom_generator.py
-- **Updated Docs**: validation_design.md Section 7, kicad2wireBOM_design.md Sections 3.4 and 4.5
-
-**Test Fixtures**:
-- test_05_fixture.kicad_sch (correct baseline) ✅
-- test_05A_fixture.kicad_sch (all labels missing) ✅
-- test_05B_fixture.kicad_sch (duplicate G3A, missing G4A) ✅
-- test_05C_fixture.kicad_sch (non-circuit labels 24AWG, 10AWG) ⚠️ needs fix
-
-**Status**: Programmer has clear task list in programmer_todo.md for notes aggregation fix
-
----
-
-## FUTURE PHASES (Not Yet Planned)
-
-**Phase 7 Options**:
 1. **CLI Enhancements**: Markdown output, engineering mode, verbose/quiet flags
 2. **Wire Calculations**: Actual length/gauge/voltage drop (currently using defaults)
 3. **Production Features**: REVnnn filenames, --schematic-requirements output
 4. **Hierarchical Schematics**: Multi-sheet support (if needed by Tom)
 5. **Advanced Features**: See `docs/notes/opportunities_for_improvement.md`
+
+**Status**: Awaiting Tom's direction on next priorities
+
+---
+
+## NOTES
+
+- All core functionality is complete and tested
+- System is ready for real-world usage
+- No outstanding architectural tasks
+- Future work should be driven by actual usage requirements
