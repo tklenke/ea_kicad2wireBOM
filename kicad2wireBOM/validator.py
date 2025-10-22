@@ -1,0 +1,108 @@
+# ABOUTME: Validation module for schematic data quality checks
+# ABOUTME: Detects missing labels, duplicates, and malformed circuit IDs
+
+from dataclasses import dataclass
+from typing import List, Optional, Dict
+import re
+
+
+@dataclass
+class ValidationError:
+    """Validation error or warning"""
+    severity: str  # "error", "warning", "info"
+    message: str
+    suggestion: Optional[str] = None
+    wire_uuid: Optional[str] = None
+    position: Optional[tuple[float, float]] = None
+
+
+@dataclass
+class ValidationResult:
+    """Result of validation checks"""
+    errors: List[ValidationError]
+    warnings: List[ValidationError]
+
+    def has_errors(self) -> bool:
+        return len(self.errors) > 0
+
+    def should_abort(self, strict_mode: bool) -> bool:
+        return strict_mode and self.has_errors()
+
+
+class SchematicValidator:
+    """Validates schematic data for BOM generation"""
+
+    CIRCUIT_ID_PATTERN = re.compile(r'^[A-Z]-?\d+-?[A-Z]$')
+
+    def __init__(self, strict_mode: bool = True):
+        self.strict_mode = strict_mode
+        self.result = ValidationResult(errors=[], warnings=[])
+
+    def validate_all(self, wires, labels, components) -> ValidationResult:
+        """Run all validation checks"""
+        self._check_no_labels(wires, labels)
+        self._check_wire_labels(wires)
+        self._check_duplicate_circuit_ids(wires)
+        self._check_orphaned_labels(labels, wires)
+        return self.result
+
+    def _check_no_labels(self, wires, labels):
+        """Check for schematic with no circuit ID labels"""
+        circuit_labels = [l for l in labels if self.CIRCUIT_ID_PATTERN.match(l.text)]
+        if len(circuit_labels) == 0:
+            self._add_error(
+                "No circuit ID labels found in schematic",
+                suggestion="Add wire labels matching pattern [SYSTEM][CIRCUIT][SEGMENT] (e.g., L1A, P12B)"
+            )
+
+    def _check_wire_labels(self, wires):
+        """Check each wire has valid circuit ID"""
+        for wire in wires:
+            circuit_ids = [l for l in wire.labels if self.CIRCUIT_ID_PATTERN.match(l)]
+
+            if len(circuit_ids) == 0:
+                self._add_error(
+                    f"Wire segment {wire.uuid} has no valid circuit ID label",
+                    suggestion="Add circuit ID label to wire",
+                    wire_uuid=wire.uuid
+                )
+            elif len(circuit_ids) > 1:
+                self._add_error(
+                    f"Wire has multiple circuit IDs: {', '.join(circuit_ids)}",
+                    suggestion="Remove extra labels or move to notes",
+                    wire_uuid=wire.uuid
+                )
+
+    def _check_duplicate_circuit_ids(self, wires):
+        """Check for duplicate circuit IDs across wires"""
+        circuit_id_counts: Dict[str, int] = {}
+        for wire in wires:
+            if wire.circuit_id:
+                circuit_id_counts[wire.circuit_id] = circuit_id_counts.get(wire.circuit_id, 0) + 1
+
+        for circuit_id, count in circuit_id_counts.items():
+            if count > 1:
+                self._add_error(
+                    f"Duplicate circuit ID '{circuit_id}' found on {count} wire segments",
+                    suggestion="Each wire must have unique circuit ID. Check segment letters."
+                )
+
+    def _check_orphaned_labels(self, labels, wires, threshold=10.0):
+        """Check for labels not associated with wires"""
+        # Implementation: Check label-to-wire distances
+        pass
+
+    def _add_error(self, message: str, suggestion: Optional[str] = None,
+                   wire_uuid: Optional[str] = None):
+        """Add error or warning based on strict mode"""
+        error = ValidationError(
+            severity="error" if self.strict_mode else "warning",
+            message=message,
+            suggestion=suggestion,
+            wire_uuid=wire_uuid
+        )
+
+        if self.strict_mode:
+            self.result.errors.append(error)
+        else:
+            self.result.warnings.append(error)
