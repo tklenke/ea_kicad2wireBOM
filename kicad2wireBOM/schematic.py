@@ -22,6 +22,7 @@ class WireSegment:
     circuit_num: Optional[str] = None # Extracted from circuit_id (e.g., "1")
     segment_letter: Optional[str] = None  # Extracted from circuit_id (e.g., "A")
     labels: list[str] = field(default_factory=list)  # All labels associated with this wire
+    notes: list[str] = field(default_factory=list)  # Non-circuit labels (e.g., "24AWG", "SHIELDED")
     start_connection: Optional[str] = None  # Connection at start (e.g., "SW1-1", "JUNCTION-abc")
     end_connection: Optional[str] = None    # Connection at end (e.g., "SW2-2", "UNKNOWN")
 

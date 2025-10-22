@@ -106,9 +106,14 @@ def associate_labels_with_wires(wires: List[WireSegment],
     For each label, finds the nearest wire segment and associates the label
     with that wire if the distance is within the threshold.
 
+    Circuit ID labels (matching pattern [A-Z]-?\\d+-?[A-Z]) are stored in
+    wire.circuit_id and parsed into components. Non-circuit labels are
+    stored in wire.notes.
+
     Modifies wire objects in place, updating:
-    - wire.labels (appends label text)
-    - wire.circuit_id (sets to label text)
+    - wire.labels (appends all label text)
+    - wire.circuit_id (sets to circuit ID label text)
+    - wire.notes (appends non-circuit label text)
     - wire.system_code, circuit_num, segment_letter (parsed from circuit_id)
 
     Args:
@@ -118,10 +123,6 @@ def associate_labels_with_wires(wires: List[WireSegment],
                   This value is configurable and can be adjusted if needed.
     """
     for label in labels:
-        # Check if label text matches circuit ID pattern
-        if not is_circuit_id(label.text):
-            continue  # Skip non-circuit-ID labels (notes, etc.)
-
         # Find nearest wire
         min_distance = float('inf')
         nearest_wire = None
@@ -139,7 +140,13 @@ def associate_labels_with_wires(wires: List[WireSegment],
 
         # Associate if within threshold
         if min_distance <= threshold and nearest_wire:
-            nearest_wire.labels.append(label.text)
-            nearest_wire.circuit_id = label.text
-            # Parse circuit ID into components
-            parse_circuit_id(nearest_wire)
+            # Check if label text matches circuit ID pattern
+            if is_circuit_id(label.text):
+                # Circuit ID label
+                nearest_wire.labels.append(label.text)
+                nearest_wire.circuit_id = label.text
+                # Parse circuit ID into components
+                parse_circuit_id(nearest_wire)
+            else:
+                # Non-circuit label - add to notes
+                nearest_wire.notes.append(label.text)

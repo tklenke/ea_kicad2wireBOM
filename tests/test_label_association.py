@@ -128,3 +128,47 @@ def test_parse_circuit_id_none():
     assert wire.system_code is None
     assert wire.circuit_num is None
     assert wire.segment_letter is None
+
+
+def test_associate_non_circuit_labels_as_notes():
+    """Non-circuit labels should be added to wire.notes, not circuit_id"""
+    wires = [
+        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    ]
+
+    labels = [
+        Label(text="24AWG", position=(50, 2), uuid="l1"),
+        Label(text="HIGH_CURRENT", position=(60, 2), uuid="l2")
+    ]
+
+    associate_labels_with_wires(wires, labels, threshold=10.0)
+
+    # Circuit ID should not be set
+    assert wires[0].circuit_id is None
+
+    # Non-circuit labels should be in notes
+    assert "24AWG" in wires[0].notes
+    assert "HIGH_CURRENT" in wires[0].notes
+
+
+def test_associate_mixed_labels():
+    """Mix of circuit ID and non-circuit labels"""
+    wires = [
+        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    ]
+
+    labels = [
+        Label(text="P1A", position=(30, 2), uuid="l1"),      # Circuit ID
+        Label(text="24AWG", position=(50, 2), uuid="l2"),    # Note
+        Label(text="SHIELDED", position=(70, 2), uuid="l3")  # Note
+    ]
+
+    associate_labels_with_wires(wires, labels, threshold=10.0)
+
+    # Circuit ID should be set
+    assert wires[0].circuit_id == "P1A"
+    assert wires[0].system_code == "P"
+
+    # Non-circuit labels should be in notes
+    assert "24AWG" in wires[0].notes
+    assert "SHIELDED" in wires[0].notes
