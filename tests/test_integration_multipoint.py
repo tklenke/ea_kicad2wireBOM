@@ -12,10 +12,7 @@ from kicad2wireBOM.parser import (
 )
 from kicad2wireBOM.label_association import associate_labels_with_wires
 from kicad2wireBOM.graph_builder import build_connectivity_graph
-from kicad2wireBOM.wire_connections import (
-    identify_wire_connections,
-    generate_multipoint_bom_entries
-)
+from kicad2wireBOM.bom_generator import generate_bom_entries
 
 
 def test_03A_fixture_multipoint_integration():
@@ -46,49 +43,8 @@ def test_03A_fixture_multipoint_integration():
     # Build connectivity graph
     graph = build_connectivity_graph(sexp)
 
-    # Store wires in graph for multipoint processing
-    for wire in wires:
-        if wire.uuid in graph.wires:
-            graph.wires[wire.uuid] = wire
-
-    # Detect multipoint connections
-    multipoint_groups = graph.detect_multipoint_connections()
-
-    # Generate BOM entries for multipoint connections
-    multipoint_entries = []
-    multipoint_labels = set()  # Track labels used by multipoint connections
-
-    for group in multipoint_groups:
-        entries = generate_multipoint_bom_entries(graph, group)
-        multipoint_entries.extend(entries)
-        # Track which labels are used by multipoint connections
-        for entry in entries:
-            multipoint_labels.add(entry['circuit_id'])
-
-    # Generate BOM entries for regular 2-point connections
-    regular_entries = []
-    for wire in wires:
-        if not wire.circuit_id:
-            continue  # Skip unlabeled wires
-
-        # Skip wires that are part of multipoint connections
-        if wire.circuit_id in multipoint_labels:
-            continue
-
-        start_conn, end_conn = identify_wire_connections(wire, graph)
-
-        if start_conn and end_conn:
-            entry = {
-                'circuit_id': wire.circuit_id,
-                'from_component': start_conn['component_ref'],
-                'from_pin': start_conn['pin_number'],
-                'to_component': end_conn['component_ref'],
-                'to_pin': end_conn['pin_number']
-            }
-            regular_entries.append(entry)
-
-    # Combine all entries
-    all_entries = multipoint_entries + regular_entries
+    # Generate BOM entries (handles both multipoint and regular)
+    all_entries = generate_bom_entries(wires, graph)
 
     # Verify we have 5 total entries (P1A, P2A, P3A, P4A, P4B)
     assert len(all_entries) == 5, \
@@ -149,47 +105,8 @@ def test_04_fixture_multipoint_integration():
     # Build connectivity graph
     graph = build_connectivity_graph(sexp)
 
-    # Store wires in graph
-    for wire in wires:
-        if wire.uuid in graph.wires:
-            graph.wires[wire.uuid] = wire
-
-    # Detect multipoint connections
-    multipoint_groups = graph.detect_multipoint_connections()
-
-    # Generate BOM entries for multipoint connections
-    multipoint_entries = []
-    multipoint_labels = set()
-
-    for group in multipoint_groups:
-        entries = generate_multipoint_bom_entries(graph, group)
-        multipoint_entries.extend(entries)
-        for entry in entries:
-            multipoint_labels.add(entry['circuit_id'])
-
-    # Generate BOM entries for regular 2-point connections
-    regular_entries = []
-    for wire in wires:
-        if not wire.circuit_id:
-            continue
-
-        if wire.circuit_id in multipoint_labels:
-            continue
-
-        start_conn, end_conn = identify_wire_connections(wire, graph)
-
-        if start_conn and end_conn:
-            entry = {
-                'circuit_id': wire.circuit_id,
-                'from_component': start_conn['component_ref'],
-                'from_pin': start_conn['pin_number'],
-                'to_component': end_conn['component_ref'],
-                'to_pin': end_conn['pin_number']
-            }
-            regular_entries.append(entry)
-
-    # Combine all entries
-    all_entries = multipoint_entries + regular_entries
+    # Generate BOM entries (handles both multipoint and regular)
+    all_entries = generate_bom_entries(wires, graph)
 
     # Should have 7 entries: G1A, G2A, G3A (grounds) + L1A, L2A, L3A, L4A (loads)
     assert len(all_entries) == 7, \
