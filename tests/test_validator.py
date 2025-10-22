@@ -114,23 +114,21 @@ def test_check_no_labels_permissive_mode():
 
 
 def test_check_wire_missing_label_strict():
-    """Test detection of wire with no circuit ID label (strict mode)"""
+    """Test detection of wire with non-circuit ID labels only (strict mode)"""
     from kicad2wireBOM.schematic import WireSegment, Label
 
     validator = SchematicValidator(strict_mode=True)
 
-    # Wire with no labels at all
-    wires = [
-        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
-    ]
-    labels = [
-        Label(text="P1A", position=(50, 2), uuid="l1")  # Far away, won't associate
-    ]
+    # Wire with labels but no valid circuit ID (has invalid label in wire.labels)
+    wire = WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    wire.labels = ["INVALID_LABEL"]  # Not a circuit ID pattern
+    wires = [wire]
+    labels = []
 
     result = validator.validate_all(wires, labels, [])
 
     assert result.has_errors()
-    # Should have error about wire w1 having no label
+    # Should have error about wire w1 having no valid circuit ID label
     wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
     assert len(wire_errors) > 0
     assert "no valid circuit ID label" in wire_errors[0].message

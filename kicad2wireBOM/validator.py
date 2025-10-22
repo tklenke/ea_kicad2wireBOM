@@ -58,9 +58,16 @@ class SchematicValidator:
     def _check_wire_labels(self, wires):
         """Check each wire has valid circuit ID"""
         for wire in wires:
+            # Only check wires that have attempted labels (in wire.labels list)
+            # Skip wires with no labels, or wires with only notes
+            if not wire.labels:
+                continue
+
             circuit_ids = [l for l in wire.labels if self.CIRCUIT_ID_PATTERN.match(l)]
 
             if len(circuit_ids) == 0:
+                # Wire has labels but no valid circuit ID
+                # This is an error - labels were attempted but none are valid circuit IDs
                 self._add_error(
                     f"Wire segment {wire.uuid} has no valid circuit ID label",
                     suggestion="Add circuit ID label to wire",
