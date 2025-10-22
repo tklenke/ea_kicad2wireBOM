@@ -71,3 +71,133 @@ def test_circuit_id_pattern_rejects_invalid():
     assert not validator.CIRCUIT_ID_PATTERN.match('SHIELDED')
     assert not validator.CIRCUIT_ID_PATTERN.match('L1')  # Missing segment letter
     assert not validator.CIRCUIT_ID_PATTERN.match('1A')  # Missing system code
+
+
+def test_check_no_labels_strict_mode():
+    """Test validation detects schematic with no circuit ID labels (strict mode)"""
+    from kicad2wireBOM.schematic import WireSegment, Label
+
+    validator = SchematicValidator(strict_mode=True)
+
+    wires = [
+        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    ]
+    labels = [
+        Label(text="24AWG", position=(50, 2), uuid="l1")  # Not a circuit ID
+    ]
+
+    result = validator.validate_all(wires, labels, [])
+
+    assert result.has_errors()
+    assert len(result.errors) > 0
+    assert "No circuit ID labels found" in result.errors[0].message
+
+
+def test_check_no_labels_permissive_mode():
+    """Test validation warns about no circuit ID labels (permissive mode)"""
+    from kicad2wireBOM.schematic import WireSegment, Label
+
+    validator = SchematicValidator(strict_mode=False)
+
+    wires = [
+        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    ]
+    labels = [
+        Label(text="24AWG", position=(50, 2), uuid="l1")
+    ]
+
+    result = validator.validate_all(wires, labels, [])
+
+    assert not result.has_errors()
+    assert len(result.warnings) > 0
+    assert "No circuit ID labels found" in result.warnings[0].message
+
+
+def test_check_wire_missing_label_strict():
+    """Test detection of wire with no circuit ID label (strict mode)"""
+    from kicad2wireBOM.schematic import WireSegment, Label
+
+    validator = SchematicValidator(strict_mode=True)
+
+    # Wire with no labels at all
+    wires = [
+        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    ]
+    labels = [
+        Label(text="P1A", position=(50, 2), uuid="l1")  # Far away, won't associate
+    ]
+
+    result = validator.validate_all(wires, labels, [])
+
+    assert result.has_errors()
+    # Should have error about wire w1 having no label
+    wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
+    assert len(wire_errors) > 0
+    assert "no valid circuit ID label" in wire_errors[0].message
+
+
+def test_check_wire_multiple_circuit_ids():
+    """Test detection of wire with multiple circuit ID labels"""
+    from kicad2wireBOM.schematic import WireSegment, Label
+
+    validator = SchematicValidator(strict_mode=True)
+
+    # Wire with multiple circuit ID labels
+    wire = WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    wire.labels = ["P1A", "P2B"]  # Two circuit IDs
+    wires = [wire]
+    labels = []
+
+    result = validator.validate_all(wires, labels, [])
+
+    assert result.has_errors()
+    wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
+    assert len(wire_errors) > 0
+    assert "multiple circuit IDs" in wire_errors[0].message
+
+
+def test_check_duplicate_circuit_ids_strict():
+    """Test detection of duplicate circuit IDs across wires (strict mode)"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    validator = SchematicValidator(strict_mode=True)
+
+    # Two wires with same circuit_id
+    wire1 = WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    wire1.circuit_id = "G3A"
+
+    wire2 = WireSegment(uuid="w2", start_point=(0, 100), end_point=(100, 100))
+    wire2.circuit_id = "G3A"
+
+    wires = [wire1, wire2]
+
+    result = validator.validate_all(wires, [], [])
+
+    assert result.has_errors()
+    dup_errors = [e for e in result.errors if "Duplicate" in e.message]
+    assert len(dup_errors) > 0
+    assert "G3A" in dup_errors[0].message
+    assert "2 wire segments" in dup_errors[0].message
+
+
+def test_check_duplicate_circuit_ids_permissive():
+    """Test duplicate circuit IDs produce warnings in permissive mode"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    validator = SchematicValidator(strict_mode=False)
+
+    wire1 = WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    wire1.circuit_id = "G3A"
+
+    wire2 = WireSegment(uuid="w2", start_point=(0, 100), end_point=(100, 100))
+    wire2.circuit_id = "G3A"
+
+    wires = [wire1, wire2]
+
+    result = validator.validate_all(wires, [], [])
+
+    assert not result.has_errors()
+    assert len(result.warnings) > 0
+    dup_warnings = [w for w in result.warnings if "Duplicate" in w.message]
+    assert len(dup_warnings) > 0
+    assert "G3A" in dup_warnings[0].message
