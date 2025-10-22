@@ -41,6 +41,7 @@
 - **Old**: `|(0,0,0)S40` in Footprint field
 - **New**: `(0,0,0)S40` in LocLoad custom field
 - Removed leading `|` character from format
+- Added `G` type for ground points: `(0,0,10)G` (no value required for ground)
 
 **Implementation Tasks**:
 
@@ -50,28 +51,31 @@
 
 ### Task 2: Update Parser
 - [ ] Modify `parser.py` to extract `LocLoad` property from component symbols
-- [ ] Parse format: `(FS,WL,BL){S|L|R}<value>` (note: no leading `|`)
-- [ ] Fall back to Footprint field if LocLoad not found (for backwards compatibility)
+- [ ] Parse format: `(FS,WL,BL){S|L|R|G}<value>` (note: no leading `|`)
+  - Types: S=Source, L=Load, R=Rating, G=Ground
+  - Value required for S, L, R types
+  - Value optional/not required for G type (ground points)
+- [ ] Remove all Footprint field parsing - LocLoad is the ONLY source going forward
 
 ### Task 3: Write Tests
 - [ ] Test parsing LocLoad field from test_06 fixtures
 - [ ] Test format parsing without leading `|`
-- [ ] Test fallback to Footprint field for older fixtures
-- [ ] Verify all existing tests still pass
+- [ ] Test G type (ground) with no value: `(0,0,10)G`
+- [ ] Verify all existing tests still pass after Tom updates fixtures
 
 ### Task 4: Update All Parsers
 - [ ] Review all code that currently reads Footprint field
-- [ ] Update to read LocLoad field preferentially
-- [ ] Maintain fallback for existing test fixtures
+- [ ] Update to ONLY read LocLoad field (no fallback)
+- [ ] Remove Footprint field parsing completely
 
 ### Task 5: Verify Integration
 - [ ] Run full test suite (should still be 150/150 passing)
 - [ ] Test with test_06 fixtures once Tom updates them
 - [ ] Verify CLI output is unchanged
 
-**Expected Outcome**: Parser reads component data from LocLoad field instead of overloading Footprint field.
+**Expected Outcome**: Parser reads component data ONLY from LocLoad field. Footprint field parsing completely removed.
 
-**Note**: Tom will update all test fixtures. Focus on code changes only.
+**Note**: Tom will update ALL test fixtures to use LocLoad field before Programmer begins work. No backwards compatibility needed.
 
 ---
 

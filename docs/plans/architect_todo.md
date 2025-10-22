@@ -48,11 +48,15 @@ All major architectural decisions have been implemented and validated:
 
 **Objective**: Replace Footprint field overloading with dedicated `LocLoad` custom field.
 
-**Decision**: Use custom field named `LocLoad` with format `(FS,WL,BL){S|L|R}<value>` (removed leading `|`)
+**Decision**: Use custom field named `LocLoad` with format `(FS,WL,BL){S|L|R|G}<value>` (removed leading `|`)
+- Types: S=Source, L=Load, R=Rating, G=Ground
+- Value required for S, L, R types; optional for G type
 
 **Tasks**:
 - [x] Evaluate field name options (chose `LocLoad`)
-- [x] Define new format specification (removed `|` prefix)
+- [x] Define format specification: `(FS,WL,BL){S|L|R|G}<value>`
+- [x] Removed `|` prefix, added `G` type for ground points
+- [x] Removed backwards compatibility requirement (clean break)
 - [x] Create implementation tasks for Programmer
 - [ ] Tom updating all test fixtures
 - [ ] Programmer implementing parser changes
