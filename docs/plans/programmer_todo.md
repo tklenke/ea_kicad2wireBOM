@@ -11,15 +11,21 @@
 ✅ **Phase 1-5 Complete** (Core features)
 ✅ **Phase 6 Complete** (Validation & Error Handling):
 - 146/146 tests passing (added 12 new tests)
-- ✅ Notes field infrastructure (WireConnection, WireSegment, BOM entries, label classification)
-- ✅ CSV output includes Notes column
-- ✅ Validator module with pattern matching and validation checks
-- ✅ Integration tests for test_05A/B/C fixtures
-- ✅ Validation logic: strict/permissive modes, duplicate detection, missing label detection
-- ⏳ CLI --permissive flag integration (architecture needs clarification)
+- ✅ Notes field infrastructure fully working end-to-end
+- ✅ CSV output includes Notes column with data from schematic
+- ✅ Validator module with all validation checks implemented
+- ✅ Integration tests for test_05A/B/C fixtures all passing
+- ✅ CLI --permissive flag: strict mode (default) aborts on errors, permissive mode warns
+- ✅ CLI validation: runs after label association, displays errors/warnings
 
-**Status**: Phase 6 validation infrastructure complete. Notes feature fully working.
-**Next Task**: Architect review or Phase 7 planning
+**Verified Working:**
+- test_05A: Missing labels detected, aborts (strict) / warns (permissive) ✅
+- test_05B: Duplicate G3A detected, aborts (strict) / warns (permissive) ✅
+- test_05C: Non-circuit labels (24AWG) appear in CSV Notes column ✅
+- test_05: Baseline passes validation with no warnings ✅
+
+**Status**: Phase 6 complete and integrated into CLI. All features working.
+**Next Task**: Architect review for Phase 7 planning
 
 ---
 
