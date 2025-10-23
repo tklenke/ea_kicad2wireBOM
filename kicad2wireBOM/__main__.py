@@ -117,13 +117,13 @@ def main():
         wires = [parse_wire_element(w) for w in wire_sexps]
         labels = [parse_label_element(l) for l in label_sexps]
 
-        # Parse components (may fail if footprint encodings missing)
+        # Parse components (may fail if LocLoad encodings missing)
         components = []
         for s in symbol_sexps:
             try:
                 components.append(parse_symbol_element(s))
             except ValueError as e:
-                # Component missing footprint encoding - skip for BOM but continue for connectivity
+                # Component missing LocLoad encoding - skip for BOM but continue for connectivity
                 print(f"  Warning: {e} (skipping for BOM calculations)")
                 pass
 

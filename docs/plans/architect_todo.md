@@ -58,8 +58,10 @@ All major architectural decisions have been implemented and validated:
 - [x] Removed `|` prefix, added `G` type for ground points
 - [x] Removed backwards compatibility requirement (clean break)
 - [x] Create implementation tasks for Programmer
-- [ ] Tom updating all test fixtures
-- [ ] Programmer implementing parser changes
+- [x] Tom updating all test fixtures
+- [x] Programmer implementing parser changes
+
+**NOTE FROM PROGRAMMER (2025-10-23)**: Task 1 in programmer_todo.md says "Add `locload` field to Component class" but this is not needed. The Component class stores parsed values (fs, wl, bl, load, rating, source), not the raw field string. This pattern was the same with Footprint - we never stored the raw string. Migration is complete and all 150 tests pass without adding a locload field. Architect should remove Task 1 from programmer_todo.md as it's unnecessary.
 
 ---
 
