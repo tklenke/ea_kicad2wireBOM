@@ -249,41 +249,54 @@ def parse_label_element(label_sexp: Any) -> Label:
     )
 
 
-def parse_footprint_encoding(footprint_str: str) -> Optional[dict]:
+def parse_locload_encoding(locload_str: str) -> Optional[dict]:
     """
-    Parse footprint encoding from footprint field string.
+    Parse LocLoad encoding from LocLoad field string.
 
-    Format: |(fs,wl,bl)<L|R|S><amps>
-    Example: "|(100.0,25.0,0.0)R15" or "|(10,0,0)S40"
+    Format: (fs,wl,bl)<L|R|S|G><amps>
+    Example: "(100.0,25.0,0.0)R15" or "(10,0,0)S40" or "(0,0,10)G"
 
     Args:
-        footprint_str: Full footprint field string
+        locload_str: LocLoad field string
 
     Returns:
         Dict with parsed values if encoding found, None otherwise:
             - fs: Fuselage Station (float)
             - wl: Water Line (float)
             - bl: Butt Line (float)
-            - type: 'L' for Load, 'R' for Rating, 'S' for Source
-            - amperage: Amperage value (float)
+            - type: 'L' for Load, 'R' for Rating, 'S' for Source, 'G' for Ground
+            - amperage: Amperage value (float), or None for Ground type
     """
     import re
 
-    # Pattern: |(fs,wl,bl)<L|R|S><amps>
+    # Pattern: (fs,wl,bl)<L|R|S|G><amps>
     # Coordinates can be negative, amperage can be decimal
-    pattern = r'\|\(([-\d.]+),([-\d.]+),([-\d.]+)\)([LRS])([-\d.]+)'
+    # Amperage is optional for G type (ground)
+    pattern = r'\(([-\d.]+),([-\d.]+),([-\d.]+)\)([LRSG])([-\d.]*)'
 
-    match = re.search(pattern, footprint_str)
+    match = re.search(pattern, locload_str)
     if not match:
         return None
 
     try:
+        type_char = match.group(4)
+        amperage_str = match.group(5)
+
+        # For Ground type, amperage is optional
+        if type_char == 'G':
+            amperage = None if amperage_str == '' else float(amperage_str)
+        else:
+            # For S, L, R types, amperage is required
+            if amperage_str == '':
+                return None
+            amperage = float(amperage_str)
+
         return {
             'fs': float(match.group(1)),
             'wl': float(match.group(2)),
             'bl': float(match.group(3)),
-            'type': match.group(4),
-            'amperage': float(match.group(5))
+            'type': type_char,
+            'amperage': amperage
         }
     except ValueError:
         # If conversion to float fails, return None
@@ -298,7 +311,7 @@ def parse_symbol_element(symbol_sexp: Any) -> Component:
     (symbol (lib_id "...")
       (at x y rotation)
       (property "Reference" "BT1" ...)
-      (property "Footprint" "|(10,0,0)S40" ...)
+      (property "LocLoad" "(10,0,0)S40" ...)
       (property "Value" "Battery" ...)
       ...
     )
@@ -322,12 +335,12 @@ def parse_symbol_element(symbol_sexp: Any) -> Component:
     # Get reference designator
     ref = properties.get('Reference', 'UNKNOWN')
 
-    # Get footprint and parse encoding
-    footprint = properties.get('Footprint', '')
-    encoding = parse_footprint_encoding(footprint)
+    # Get LocLoad field and parse encoding
+    locload = properties.get('LocLoad', '')
+    encoding = parse_locload_encoding(locload)
 
     if encoding is None:
-        raise ValueError(f"Component {ref} missing footprint encoding")
+        raise ValueError(f"Component {ref} missing LocLoad encoding")
 
     # Determine load, rating, or source based on type
     load = encoding['amperage'] if encoding['type'] == 'L' else None
