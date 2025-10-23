@@ -733,7 +733,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "|(10,0,0)S40"
+		(property "Footprint" ""
 			(at 115.57 75.946 90)
 			(effects
 				(font
@@ -752,6 +752,15 @@
 			)
 		)
 		(property "Description" "Multiple-cell battery"
+			(at 115.57 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(10,0,0)S40"
 			(at 115.57 77.47 0)
 			(effects
 				(font
@@ -803,7 +812,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(0,0,0)r20"
+		(property "Footprint" ""
 			(at 77.47 66.802 0)
 			(effects
 				(font
@@ -827,6 +836,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(0,0,0)r20"
+			(at 77.47 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -870,7 +888,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(0,10,0)L2.1"
+		(property "Footprint" ""
 			(at 104.14 52.07 90)
 			(effects
 				(font
@@ -895,6 +913,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(0,10,0)L2.1"
+			(at 104.14 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"

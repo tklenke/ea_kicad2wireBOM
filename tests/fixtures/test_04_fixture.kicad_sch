@@ -831,7 +831,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "|(0,0,0)S40"
+		(property "Footprint" ""
 			(at 151.13 91.186 90)
 			(effects
 				(font
@@ -850,6 +850,15 @@
 			)
 		)
 		(property "Description" "Single-cell battery"
+			(at 151.13 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(0,0,0)S40"
 			(at 151.13 92.71 0)
 			(effects
 				(font
@@ -901,7 +910,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(5,0,0)R20"
+		(property "Footprint" ""
 			(at 140.97 68.072 0)
 			(effects
 				(font
@@ -925,6 +934,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(5,0,0)R20"
+			(at 140.97 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -968,7 +986,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(10,2,0)L1.5"
+		(property "Footprint" ""
 			(at 113.03 64.77 90)
 			(effects
 				(font
@@ -993,6 +1011,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(10,2,0)L1.5"
+			(at 113.03 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -1036,7 +1063,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(10,1,0)L1.5"
+		(property "Footprint" ""
 			(at 113.03 49.53 90)
 			(effects
 				(font
@@ -1061,6 +1088,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(10,1,0)L1.5"
+			(at 113.03 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -1104,7 +1140,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(10,3,0)L1.5"
+		(property "Footprint" ""
 			(at 113.03 80.01 90)
 			(effects
 				(font
@@ -1129,6 +1165,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(10,3,0)L1.5"
+			(at 113.03 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"

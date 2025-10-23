@@ -597,7 +597,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(5,6,0)R20"
+		(property "Footprint" ""
 			(at 119.38 102.362 0)
 			(effects
 				(font
@@ -622,6 +622,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(5,6,0)R20"
+			(at 119.38 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -670,7 +679,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(5,5,0)R20"
+		(property "Footprint" ""
 			(at 119.38 73.152 0)
 			(effects
 				(font
@@ -695,6 +704,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(5,5,0)R20"
+			(at 119.38 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -743,7 +761,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "|(5,5,0)S40"
+		(property "Footprint" ""
 			(at 153.67 86.36 0)
 			(effects
 				(font
@@ -762,6 +780,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 153.67 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(5,5,0)S40"
 			(at 153.67 86.36 0)
 			(effects
 				(font

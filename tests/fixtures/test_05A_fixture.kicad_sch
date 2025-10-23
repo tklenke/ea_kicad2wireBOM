@@ -3275,7 +3275,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "|(1,0,0)S40"
+		(property "Footprint" ""
 			(at 68.58 64.516 90)
 			(effects
 				(font
@@ -3294,6 +3294,15 @@
 			)
 		)
 		(property "Description" "Single-cell battery"
+			(at 68.58 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(1,0,0)S40"
 			(at 68.58 66.04 0)
 			(effects
 				(font
@@ -3343,7 +3352,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(0,0,-100)L2.5"
+		(property "Footprint" ""
 			(at 187.96 57.15 90)
 			(effects
 				(font
@@ -3368,6 +3377,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(0,0,-100)L2.5"
+			(at 187.96 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -3411,7 +3429,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(0,0,100)L2.5"
+		(property "Footprint" ""
 			(at 186.69 39.37 90)
 			(effects
 				(font
@@ -3436,6 +3454,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(0,0,100)L2.5"
+			(at 186.69 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -3481,7 +3508,7 @@
 				)
 			)
 		)
-		(property "Footprint" "|(10,0,0)R20"
+		(property "Footprint" ""
 			(at 162.56 42.418 0)
 			(effects
 				(font
@@ -3505,6 +3532,15 @@
 				(font
 					(size 0.635 0.635)
 				)
+			)
+		)
+		(property "LocLoad" "(10,0,0)R20"
+			(at 162.56 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -3552,7 +3588,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "|(0,10,0)R50"
+		(property "Footprint" ""
 			(at 102.87 53.34 0)
 			(effects
 				(font
@@ -3572,6 +3608,15 @@
 		)
 		(property "Description" ""
 			(at 102.87 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(0,10,0)R50"
+			(at 114.3 50.8 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3639,7 +3684,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "|(0,-10,0)R40"
+		(property "Footprint" ""
 			(at 102.87 80.01 0)
 			(effects
 				(font
@@ -3659,6 +3704,15 @@
 		)
 		(property "Description" ""
 			(at 102.87 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(0,-10,0)R40"
+			(at 116.84 81.28 90)
 			(effects
 				(font
 					(size 1.27 1.27)

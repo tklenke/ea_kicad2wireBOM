@@ -459,6 +459,15 @@
 				)
 			)
 		)
+		(property "LocLoad" "(0,1,0)R20"
+			(at 119.38 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "ddab8026-cc8a-4994-aeb0-8ab4b4d4321d")
 		)
@@ -532,6 +541,15 @@
 				)
 			)
 		)
+		(property "LocLoad" "(0,0,0)R20"
+			(at 119.38 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "11817b21-e95a-4ab6-bfad-6957370b3dff")
 		)
@@ -597,6 +615,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 149.86 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LocLoad" "(20,0,0)S10"
 			(at 149.86 86.36 0)
 			(effects
 				(font

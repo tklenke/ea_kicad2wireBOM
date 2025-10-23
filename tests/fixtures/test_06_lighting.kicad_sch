@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "77759b33-0f9c-4337-acd4-306a7841bf13")
+	(uuid "cd5462f2-2a6d-43f1-8271-0155b5ca7a3f")
 	(paper "A4")
 	(lib_symbols
 		(symbol "AeroElectricConnectionSymbols:Lamp"
@@ -219,7 +219,8 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:Battery"
+		(symbol "power:GND"
+			(power)
 			(pin_numbers
 				(hide yes)
 			)
@@ -230,43 +231,24 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "BT"
-				(at 2.54 2.54 0)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
+					(hide yes)
 				)
 			)
-			(property "Value" "Battery"
-				(at 2.54 0 0)
+			(property "Value" "GND"
+				(at 0 -3.81 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
 			(property "Footprint" ""
-				(at 0 1.524 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 1.524 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Multiple-cell battery"
 				(at 0 0 0)
 				(effects
 					(font
@@ -275,7 +257,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "batt voltage-source cell"
+			(property "Datasheet" ""
 				(at 0 0 0)
 				(effects
 					(font
@@ -284,117 +266,31 @@
 					(hide yes)
 				)
 			)
-			(symbol "Battery_0_1"
-				(rectangle
-					(start -2.286 1.778)
-					(end 2.286 1.524)
-					(stroke
-						(width 0)
-						(type default)
+			(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
 					)
-					(fill
-						(type outline)
-					)
+					(hide yes)
 				)
-				(rectangle
-					(start -2.286 -1.27)
-					(end 2.286 -1.524)
-					(stroke
-						(width 0)
-						(type default)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
 					)
-					(fill
-						(type outline)
-					)
+					(hide yes)
 				)
-				(rectangle
-					(start -1.524 1.016)
-					(end 1.524 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(rectangle
-					(start -1.524 -2.032)
-					(end 1.524 -2.54)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
+			)
+			(symbol "GND_0_1"
 				(polyline
 					(pts
-						(xy 0 1.778) (xy 0 2.54)
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
 					)
 					(stroke
 						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 0.254)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 -0.508) (xy 0 -0.254)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 -1.016) (xy 0 -0.762)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.762 3.048) (xy 1.778 3.048)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 3.556) (xy 1.27 2.54)
-					)
-					(stroke
-						(width 0.254)
 						(type default)
 					)
 					(fill
@@ -402,11 +298,11 @@
 					)
 				)
 			)
-			(symbol "Battery_1_1"
-				(pin passive line
-					(at 0 5.08 270)
-					(length 2.54)
-					(name "+"
+			(symbol "GND_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -421,197 +317,134 @@
 						)
 					)
 				)
-				(pin passive line
-					(at 0 -5.08 90)
-					(length 2.54)
-					(name "-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
 			)
 			(embedded_fonts no)
 		)
 	)
 	(wire
 		(pts
-			(xy 83.82 52.07) (xy 92.71 52.07)
+			(xy 38.1 74.93) (xy 41.91 74.93)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0ed4cddd-6a3a-4c19-b7d6-4bb20dd7ebbd")
+		(uuid "1035fb76-1728-4551-8493-b1c932b0b476")
 	)
 	(wire
 		(pts
-			(xy 100.33 77.47) (xy 107.95 77.47)
+			(xy 38.1 63.5) (xy 38.1 74.93)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "238fad63-442b-4a0d-8a1d-127f43a0cb0b")
+		(uuid "285f94d3-4c18-4cb0-9c1f-b1b8250eb5e4")
 	)
 	(wire
 		(pts
-			(xy 100.33 52.07) (xy 107.95 52.07)
+			(xy 34.29 36.83) (xy 43.18 36.83)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "505d1aef-e33b-4b22-a5dc-6f340ca9159f")
+		(uuid "38c069e9-1a8a-4319-ab82-886a1016df0b")
 	)
 	(wire
 		(pts
-			(xy 107.95 52.07) (xy 107.95 77.47)
+			(xy 49.53 74.93) (xy 62.23 74.93)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "7de438b4-7841-4ce7-bb85-ac2d0864e2aa")
+		(uuid "48de5f07-c662-4048-9291-25367bb4caf4")
 	)
 	(wire
 		(pts
-			(xy 90.17 77.47) (xy 83.82 77.47)
+			(xy 50.8 36.83) (xy 63.5 36.83)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9c1de1ec-8401-474c-be63-ee891e080fcf")
+		(uuid "aabcb62a-e41e-4227-a902-272267e8d4cb")
 	)
-	(wire
-		(pts
-			(xy 83.82 77.47) (xy 83.82 52.07)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dc5a8319-93d4-4af6-82cc-a8783f844b01")
-	)
-	(label "G1A"
-		(at 107.95 60.96 0)
+	(label "G6A"
+		(at 55.88 74.93 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "4c75cce0-2c4a-4ce2-be43-76f5f6f3eb7b")
+		(uuid "517a6d13-352f-4c59-92c7-171a12d8655e")
 	)
-	(label "P1A"
-		(at 83.82 62.23 0)
+	(label "L3B"
+		(at 36.83 36.83 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "6f3d3761-21f8-4300-8c4a-d6c34511f3f4")
+		(uuid "9c57ebbb-3a0d-42f3-b6cd-f32a88f34f5a")
 	)
-	(symbol
-		(lib_id "Device:Battery")
-		(at 95.25 77.47 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "028846d9-a6f8-4001-a8de-13fb5c844305")
-		(property "Reference" "BT1"
-			(at 94.6785 69.85 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
+	(label "G5A"
+		(at 55.88 36.83 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Value" "Battery"
-			(at 94.6785 72.39 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
+		(uuid "ddab793d-c621-45f1-b1fd-69edbb6da03d")
+	)
+	(label "L2B"
+		(at 38.1 67.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left bottom)
 		)
-		(property "Footprint" ""
-			(at 93.726 77.47 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
+		(uuid "de7d185e-fae3-4dbe-a5fd-06f813c2e788")
+	)
+	(hierarchical_label "TIP_LT"
+		(shape input)
+		(at 34.29 36.83 180)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify right)
 		)
-		(property "Datasheet" "~"
-			(at 93.726 77.47 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
+		(uuid "58f9e7b1-592e-49e1-8079-4f774bb99141")
+	)
+	(hierarchical_label "TAIL_LT"
+		(shape input)
+		(at 38.1 63.5 90)
+		(effects
+			(font
+				(size 1.27 1.27)
 			)
+			(justify left)
 		)
-		(property "Description" "Multiple-cell battery"
-			(at 95.25 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LocLoad" "(10,0,0)S40"
-			(at 95.25 77.47 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "81f46404-38d3-497d-bc55-c3f6338fe510")
-		)
-		(pin "2"
-			(uuid "5e928770-4fac-48b9-8998-0e6782301319")
-		)
-		(instances
-			(project ""
-				(path "/77759b33-0f9c-4337-acd4-306a7841bf13"
-					(reference "BT1")
-					(unit 1)
-				)
-			)
-		)
+		(uuid "7ba01a4c-b41f-4cbc-90e0-18474f5b5f99")
 	)
 	(symbol
 		(lib_id "AeroElectricConnectionSymbols:Lamp")
-		(at 96.52 52.07 0)
+		(at 45.72 74.93 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "8e0591e2-ea7a-43fc-a307-3d9efb9059de")
-		(property "Reference" "L1"
-			(at 96.52 43.18 0)
+		(uuid "413ef4e2-6a77-4870-8d95-5bf85cf76d39")
+		(property "Reference" "L2"
+			(at 45.72 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -619,7 +452,7 @@
 			)
 		)
 		(property "Value" "~"
-			(at 96.52 45.72 0)
+			(at 45.72 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -627,7 +460,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 96.52 52.07 90)
+			(at 45.72 74.93 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -636,7 +469,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 96.52 52.07 90)
+			(at 45.72 74.93 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -645,7 +478,7 @@
 			)
 		)
 		(property "Description" "Desc"
-			(at 96.52 47.498 0)
+			(at 45.72 70.358 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -653,8 +486,8 @@
 				)
 			)
 		)
-		(property "LocLoad" "(20,0,0)L1.5"
-			(at 96.52 52.07 0)
+		(property "CInfo" "|(0,0,-100)L2.4"
+			(at 45.72 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -663,24 +496,245 @@
 			)
 		)
 		(pin "1"
-			(uuid "69c1e684-5506-4357-bc9a-0e1eafe9f22f")
+			(uuid "eee0995e-32cd-47d5-a996-bd938c743850")
 		)
 		(pin "2"
-			(uuid "61acf421-fd6b-4aae-add3-44444622c5f6")
+			(uuid "3436a5e8-0535-40e9-bbc6-98e23c410def")
 		)
 		(instances
 			(project ""
-				(path "/77759b33-0f9c-4337-acd4-306a7841bf13"
+				(path "/6f32b1c6-d0dc-4a69-b565-c121d7833096/b1093350-cedd-46df-81c4-dadfdf2715f8"
+					(reference "L2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 62.23 74.93 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "75bd43a0-cde4-4aec-8253-55f7be8def33")
+		(property "Reference" "#PWR02"
+			(at 62.23 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 62.23 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 62.23 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 62.23 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 62.23 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "CInfo" "|(0,0,10)G"
+			(at 62.23 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0cceed1b-f4eb-429f-ab08-88f98d4d81fa")
+		)
+		(instances
+			(project ""
+				(path "/6f32b1c6-d0dc-4a69-b565-c121d7833096/b1093350-cedd-46df-81c4-dadfdf2715f8"
+					(reference "#PWR02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "AeroElectricConnectionSymbols:Lamp")
+		(at 46.99 36.83 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9488b9c9-a543-4ea2-a336-46c967bdf336")
+		(property "Reference" "L1"
+			(at 46.99 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "~"
+			(at 46.99 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 46.99 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 46.99 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Desc"
+			(at 46.99 32.258 0)
+			(do_not_autoplace yes)
+			(effects
+				(font
+					(size 0.635 0.635)
+				)
+			)
+		)
+		(property "CInfo" "|(0,0,100)L2.4"
+			(at 46.99 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "e05e75e4-dfc6-4f17-b302-720d90d85083")
+		)
+		(pin "1"
+			(uuid "9e1494d2-563c-4ba1-8e17-71f5bf8b1e35")
+		)
+		(instances
+			(project "test_06_fixture"
+				(path "/6f32b1c6-d0dc-4a69-b565-c121d7833096/b1093350-cedd-46df-81c4-dadfdf2715f8"
 					(reference "L1")
 					(unit 1)
 				)
 			)
 		)
 	)
-	(sheet_instances
-		(path "/"
-			(page "1")
+	(symbol
+		(lib_id "power:GND")
+		(at 63.5 36.83 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bc29e97f-c008-4647-b46e-902b4f310738")
+		(property "Reference" "#PWR01"
+			(at 63.5 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 63.5 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 63.5 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 63.5 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "CInfo" "|(0,0,10)G"
+			(at 63.5 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fe2a8966-f8fe-4548-9eac-0a5fb183e15e")
+		)
+		(instances
+			(project ""
+				(path "/6f32b1c6-d0dc-4a69-b565-c121d7833096/b1093350-cedd-46df-81c4-dadfdf2715f8"
+					(reference "#PWR01")
+					(unit 1)
+				)
+			)
 		)
 	)
-	(embedded_fonts no)
 )
