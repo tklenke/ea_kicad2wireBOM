@@ -4,11 +4,30 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.6 (Unified BOM Generation)
-**Date**: 2025-10-22
-**Status**: Phase 1-5 Complete - All Core Features Implemented ✅
+**Version**: 2.7 (LocLoad Custom Field)
+**Date**: 2025-10-23
+**Status**: Phase 1-6 Complete - All Core Features Implemented ✅
 
 ## Design Revision History
+
+### Version 2.7 (2025-10-23)
+**Changed**: Migrated from Footprint field to dedicated LocLoad custom field
+
+**Sections Modified**:
+- Section 2.2: Component Data Encoding (field name, format, examples)
+- All references throughout document updated from Footprint to LocLoad
+
+**Rationale**: Using KiCad's built-in Footprint field for custom data was an overload. A dedicated custom field named `LocLoad` provides cleaner separation and clearer intent. Format simplified by removing leading `|` delimiter and adding `G` type for ground points.
+
+**Format Change**:
+- Old: `|(FS,WL,BL){S|L|R}<value>` in Footprint field
+- New: `(FS,WL,BL){S|L|R|G}<value>` in LocLoad custom field
+- Added G type for ground connection points (value optional)
+
+**Impact**:
+- Parser reads from LocLoad custom field instead of Footprint
+- Component dataclass unchanged (still stores parsed values: fs, wl, bl, load, rating, source)
+- All 150 tests passing with updated fixtures
 
 ### Version 2.6 (2025-10-21)
 **Changed**: Added unified BOM generation architecture to integrate multipoint logic into CLI
@@ -122,7 +141,7 @@ Generate comprehensive wire Bills of Materials (BOMs) from KiCAD schematic files
 - Physical routing between component pins
 - Multiple wires on the same electrical net (common at junction points)
 
-**Custom Footprint Encoding**: Physical installation data is encoded in component Footprint fields:
+**Custom LocLoad Field**: Physical installation data is encoded in component LocLoad custom fields:
 - Aircraft coordinates (FS/WL/BL) for wire length calculations
 - Electrical load/rating for wire gauge calculations
 - Source type identification for special handling
@@ -161,15 +180,13 @@ KiCAD schematic file (`.kicad_sch` format, KiCAD v8+) in s-expression format.
 )
 ```
 
-### 2.2 Component Data Encoding in Footprint Field
+### 2.2 Component Data Encoding in LocLoad Custom Field
 
-Component physical location and electrical characteristics are encoded in the **Footprint** field using a compact, human-readable format.
+Component physical location and electrical characteristics are encoded in a custom KiCad field named **LocLoad** using a compact, human-readable format.
 
-**Format**: `<original_footprint>|(<fs>,<wl>,<bl>)<type><value>`
+**Format**: `(<fs>,<wl>,<bl>)<type><value>`
 
 **Components**:
-- **Original Footprint**: Standard KiCAD footprint designation (optional, can be empty)
-- **Delimiter**: `|` separates footprint from encoded data
 - **Coordinates**: `(fs,wl,bl)` - aircraft coordinates in inches (decimals supported, negative values for left side)
   - **FS** (Fuselage Station): Longitudinal position from datum (+forward/-aft)
   - **WL** (Waterline): Vertical position from datum (+above/-below)
@@ -178,34 +195,35 @@ Component physical location and electrical characteristics are encoded in the **
   - **L**: Load - component consumes power (lights, radios, motors)
   - **R**: Rating - pass-through device capacity (switches, breakers, connectors)
   - **S**: Source - power source (battery, alternator, generator)
-  - **B**: Battery - special source type (for topology detection)
-- **Value**: Numeric amperage value for load/rating/source capacity
+  - **G**: Ground - ground connection point (value optional)
+- **Value**: Numeric amperage value for load/rating/source capacity (optional for G type)
 
 **Examples**:
 ```
-|(200.0,35.5,10.0)L2.5
+(200.0,35.5,10.0)L2.5
   → Light at FS=200.0, WL=35.5, BL=10.0, drawing 2.5A
 
-|(150.0,30.0,0.0)R20
+(150.0,30.0,0.0)R20
   → Switch at FS=150.0, WL=30.0, BL=0.0 (centerline), rated 20A
 
-|(10,0,0)B40
+(10,0,0)S40
   → Battery at FS=10, WL=0, BL=0, 40A capacity
 
-|(0,10,0)L2.1
-  → Load at FS=0, WL=10, BL=0, drawing 2.1A
+(0,10,0)G
+  → Ground point at FS=0, WL=10, BL=0
 ```
 
 **Parsing**:
-- Regex pattern: `\|([-\d.]+),([-\d.]+),([-\d.]+)\)([LRSB])([\d.]+)`
-- Missing encoding (no `|` present): Component has no physical data (handled in permissive mode)
+- Regex pattern: `\((-?[\d.]+),(-?[\d.]+),(-?[\d.]+)\)([LRSG])([\d.]*)`
+- Missing LocLoad field: Component has no physical data (handled in permissive mode)
 - Invalid encoding: Parse error with helpful message
+- Parsed values stored in Component dataclass (fs, wl, bl, load, rating, source)
 
 **Design Rationale**:
+- **Dedicated field**: Clean separation from KiCad built-in fields
 - **Compact**: ~20 chars for typical encoding
 - **Human-typeable**: Minimal special characters, logical grouping
 - **Unambiguous**: Simple regex parsing, clear structure
-- **KiCAD-compatible**: Footprint field exports reliably to schematic
 
 ### 2.3 Wire Segment Labels
 
@@ -285,7 +303,7 @@ Wires in the schematic have labels attached that identify the circuit per EAWMS 
   (at 95.25 77.47 90)
   (uuid "028846d9-a6f8-4001-a8de-13fb5c844305")
   (property "Reference" "BT1" ...)
-  (property "Footprint" "|(10,0,0)S40" ...)
+  (property "LocLoad" "(10,0,0)S40" ...)
   (pin "1" (uuid "..."))
   (pin "2" (uuid "..."))
 )
@@ -325,7 +343,7 @@ class WireSegment:
 - Extract all `(symbol ...)` blocks from schematic
 - Each symbol has:
   - Reference designator: `(property "Reference" "BT1" ...)`
-  - Footprint with encoded data: `(property "Footprint" "|(10,0,0)S40" ...)`
+  - LocLoad custom field with encoded data: `(property "LocLoad" "(10,0,0)S40" ...)`
   - Position: `(at x y rotation)`
   - Pin definitions with numbers
 
@@ -1463,7 +1481,7 @@ The `kicad2wireBOM/` package contains the following modules:
 **Test Files**:
 - `test_parser.py`: S-expression parsing, schematic file reading
 - `test_schematic.py`: Schematic data model, wire/label/component extraction
-- `test_component.py`: Component model, footprint encoding parsing
+- `test_component.py`: Component model, LocLoad encoding parsing
 - `test_label_association.py`: Label-to-wire proximity matching
 - `test_wire_calculator.py`: Length, voltage drop, gauge calculations
 - `test_validator.py`: All validation checks
@@ -1502,7 +1520,7 @@ The `kicad2wireBOM/` package contains the following modules:
 - `pathlib`: File path handling
 - `dataclasses`: Data model definitions
 - `typing`: Type hints
-- `re`: Regular expression parsing (label patterns, footprint encoding)
+- `re`: Regular expression parsing (label patterns, LocLoad encoding)
 - `math`: Distance calculations
 
 ---
@@ -1586,7 +1604,7 @@ The `kicad2wireBOM/` package contains the following modules:
 - ✅ Tool parses KiCAD `.kicad_sch` files successfully
 - ✅ Wire segments extracted with correct start/end points
 - ✅ Labels associated with wires based on proximity
-- ✅ Component positions and footprint data extracted
+- ✅ Component positions and LocLoad data extracted
 - ✅ Circuit IDs parsed from labels correctly
 - ✅ Wire labels follow EAWMS format (SYSTEM-CIRCUIT-SEGMENT)
 - ✅ Wire gauge calculations are correct (validated against hand calculations)
@@ -1637,7 +1655,7 @@ See `docs/plans/validation_design.md` for detailed specification.
 
 **What Stays the Same**:
 - EAWMS wire marking standard
-- Footprint field encoding format
+- LocLoad field encoding format
 - Aircraft coordinate system (FS/WL/BL)
 - Wire calculation algorithms (length, gauge, voltage drop)
 - Reference data (resistance, ampacity, colors)

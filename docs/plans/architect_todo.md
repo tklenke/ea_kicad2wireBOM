@@ -1,7 +1,7 @@
 # Architect TODO: kicad2wireBOM
 
-**Date**: 2025-10-22
-**Status**: Phase 1-6 Complete - Major Milestone Achieved ✅
+**Date**: 2025-10-23
+**Status**: Phase 1-6.5 Complete - Major Milestone Achieved ✅
 
 ---
 
@@ -14,8 +14,9 @@
 - Validation & error handling with notes aggregation complete
 - CSV output correctly includes multipoint entries and notes field
 - CLI supports both strict and permissive modes
+- LocLoad custom field migration complete
 
-**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.6
+**Primary Design Doc**: `docs/plans/kicad2wireBOM_design.md` v2.7
 **Validation Design**: `docs/plans/validation_design.md`
 
 ---
@@ -24,13 +25,14 @@
 
 All major architectural decisions have been implemented and validated:
 
-1. **3+Way Connections** (Section 4.4): Multi-point connections using (N-1) labeling convention
-2. **Unified BOM Generation** (Section 4.5): Single `bom_generator.py` module handles all connection types
-3. **Pin Position Calculation** (Section 4.1): Precise calculation with rotation matrices and mirroring
-4. **Junction Handling** (Sections 3.5, 4.2, 4.3): Graph-based approach with explicit junction elements
-5. **Wire Endpoint Tracing** (Section 4.3): Recursive tracing through wire_endpoint nodes
-6. **Notes Aggregation** (Section 4.5): BFS traversal collects notes from all wire fragments in a circuit
-7. **Validation Framework**: Missing labels, duplicate labels, non-circuit label handling
+1. **LocLoad Custom Field** (Section 2.2): Dedicated custom field for component location and electrical data
+2. **3+Way Connections** (Section 4.4): Multi-point connections using (N-1) labeling convention
+3. **Unified BOM Generation** (Section 4.5): Single `bom_generator.py` module handles all connection types
+4. **Pin Position Calculation** (Section 4.1): Precise calculation with rotation matrices and mirroring
+5. **Junction Handling** (Sections 3.5, 4.2, 4.3): Graph-based approach with explicit junction elements
+6. **Wire Endpoint Tracing** (Section 4.3): Recursive tracing through wire_endpoint nodes
+7. **Notes Aggregation** (Section 4.5): BFS traversal collects notes from all wire fragments in a circuit
+8. **Validation Framework**: Missing labels, duplicate labels, non-circuit label handling
 
 ---
 
@@ -42,32 +44,10 @@ All major architectural decisions have been implemented and validated:
 
 ---
 
-## PHASE 6.5: LocLoad Custom Field Migration
-
-**Status**: [~] In Progress - Handed off to Programmer
-
-**Objective**: Replace Footprint field overloading with dedicated `LocLoad` custom field.
-
-**Decision**: Use custom field named `LocLoad` with format `(FS,WL,BL){S|L|R|G}<value>` (removed leading `|`)
-- Types: S=Source, L=Load, R=Rating, G=Ground
-- Value required for S, L, R types; optional for G type
-
-**Tasks**:
-- [x] Evaluate field name options (chose `LocLoad`)
-- [x] Define format specification: `(FS,WL,BL){S|L|R|G}<value>`
-- [x] Removed `|` prefix, added `G` type for ground points
-- [x] Removed backwards compatibility requirement (clean break)
-- [x] Create implementation tasks for Programmer
-- [x] Tom updating all test fixtures
-- [x] Programmer implementing parser changes
-
-**NOTE FROM PROGRAMMER (2025-10-23)**: Task 1 in programmer_todo.md says "Add `locload` field to Component class" but this is not needed. The Component class stores parsed values (fs, wl, bl, load, rating, source), not the raw field string. This pattern was the same with Footprint - we never stored the raw string. Migration is complete and all 150 tests pass without adding a locload field. Architect should remove Task 1 from programmer_todo.md as it's unnecessary.
-
----
 
 ## PHASE 7: Hierarchical Schematic Support (UNRESOLVED - ON HOLD)
 
-**Status**: Design phase - Awaiting LocLoad migration completion
+**Status**: Design phase - Ready to begin when Tom prioritizes
 
 **Scope**: Single-level hierarchy (main sheet → N sub-sheets)
 
