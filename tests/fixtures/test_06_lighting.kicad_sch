@@ -486,7 +486,7 @@
 				)
 			)
 		)
-		(property "CInfo" "|(0,0,-100)L2.4"
+		(property "LocLoad" "(0,0,-100)L2.4"
 			(at 45.72 74.93 0)
 			(effects
 				(font
@@ -564,7 +564,7 @@
 				(hide yes)
 			)
 		)
-		(property "CInfo" "|(0,0,10)G"
+		(property "LocLoad" "(0,0,10)G"
 			(at 62.23 74.93 0)
 			(effects
 				(font
@@ -638,7 +638,7 @@
 				)
 			)
 		)
-		(property "CInfo" "|(0,0,100)L2.4"
+		(property "LocLoad" "(0,0,100)L2.4"
 			(at 46.99 36.83 0)
 			(effects
 				(font
@@ -716,7 +716,7 @@
 				(hide yes)
 			)
 		)
-		(property "CInfo" "|(0,0,10)G"
+		(property "LocLoad" "(0,0,10)G"
 			(at 63.5 36.83 0)
 			(effects
 				(font

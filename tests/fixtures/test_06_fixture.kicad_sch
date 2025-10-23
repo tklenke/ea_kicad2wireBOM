@@ -1596,7 +1596,7 @@
 				(hide yes)
 			)
 		)
-		(property "CInfo" "|(0,0,0)S40"
+		(property "LocLoad" "(0,0,0)S40"
 			(at 59.69 114.3 0)
 			(effects
 				(font
@@ -1674,7 +1674,7 @@
 				)
 			)
 		)
-		(property "CInfo" "|(5,10,-2)R20"
+		(property "LocLoad" "(5,10,-2)R20"
 			(at 138.43 53.34 0)
 			(effects
 				(font
@@ -1751,7 +1751,7 @@
 				)
 			)
 		)
-		(property "CInfo" "|(5,10,2)R20"
+		(property "LocLoad" "(5,10,2)R20"
 			(at 139.7 76.2 0)
 			(effects
 				(font
@@ -1785,7 +1785,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bd481ccb-9ae9-4a48-9970-5bbcacef7542")
-		(property "Reference" "|(0,0,10)G"
+		(property "Reference" "GND"
 			(at 59.69 133.35 0)
 			(effects
 				(font
@@ -1828,13 +1828,22 @@
 				(hide yes)
 			)
 		)
+		(property "LocLoad" "(0,0,10)G"
+			(at 59.69 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d43ac172-d233-4b83-8024-0853bdd5759d")
 		)
 		(instances
 			(project ""
 				(path "/6f32b1c6-d0dc-4a69-b565-c121d7833096"
-					(reference "|(0,0,10)G")
+					(reference "GND")
 					(unit 1)
 				)
 			)
@@ -1897,7 +1906,7 @@
 				(hide yes)
 			)
 		)
-		(property "CInfo" "|(10,0,0)R40"
+		(property "LocLoad" "(10,0,0)R40"
 			(at 87.63 78.74 90)
 			(effects
 				(font
