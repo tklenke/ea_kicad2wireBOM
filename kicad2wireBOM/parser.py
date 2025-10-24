@@ -6,7 +6,7 @@ from typing import Union, List, Any, Optional
 import sexpdata
 from sexpdata import Symbol
 
-from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement, SheetPin
+from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement, SheetPin, HierarchicalLabel
 from kicad2wireBOM.component import Component
 
 
@@ -533,4 +533,74 @@ def parse_sheet_element(sheet_sexp: Any) -> SheetElement:
         sheetname=sheetname,
         sheetfile=sheetfile,
         pins=pins
+    )
+
+
+def extract_hierarchical_labels(sexp: Any) -> List[HierarchicalLabel]:
+    """
+    Extract all (hierarchical_label ...) elements from schematic s-expression.
+
+    Args:
+        sexp: Parsed s-expression (nested lists)
+
+    Returns:
+        List of HierarchicalLabel objects
+    """
+    labels_raw = []
+
+    def walk(node):
+        """Recursively walk s-expression tree"""
+        if isinstance(node, list):
+            if len(node) > 0:
+                first = node[0]
+                if isinstance(first, Symbol):
+                    if first.value() == 'hierarchical_label':
+                        labels_raw.append(node)
+                elif str(first) == 'hierarchical_label':
+                    labels_raw.append(node)
+
+            for child in node:
+                walk(child)
+
+    walk(sexp)
+
+    # Parse each raw hierarchical label into HierarchicalLabel object
+    labels = [parse_hierarchical_label_element(label_sexp) for label_sexp in labels_raw]
+    return labels
+
+
+def parse_hierarchical_label_element(label_sexp: Any) -> HierarchicalLabel:
+    """
+    Parse a (hierarchical_label ...) s-expression into HierarchicalLabel object.
+
+    Args:
+        label_sexp: Hierarchical label s-expression element
+
+    Returns:
+        HierarchicalLabel object with name, position, shape
+    """
+    # First element after 'hierarchical_label' is the name
+    name = label_sexp[1] if len(label_sexp) > 1 else None
+    position = None
+    shape = None
+
+    for item in label_sexp[2:]:
+        if isinstance(item, list) and len(item) > 0:
+            key = item[0]
+            if isinstance(key, Symbol):
+                key = key.value()
+
+            if key == 'at':
+                # (at x y) or (at x y angle)
+                position = (item[1], item[2])
+            elif key == 'shape':
+                # (shape input|output|bidirectional)
+                shape = item[1]
+                if isinstance(shape, Symbol):
+                    shape = shape.value()
+
+    return HierarchicalLabel(
+        name=name,
+        position=position,
+        shape=shape
     )

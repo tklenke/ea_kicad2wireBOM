@@ -9,12 +9,13 @@ from kicad2wireBOM.parser import (
     extract_symbols,
     extract_junctions,
     extract_sheets,
+    extract_hierarchical_labels,
     parse_wire_element,
     parse_label_element,
     parse_symbol_element,
     parse_junction_element
 )
-from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement
+from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement, HierarchicalLabel
 from kicad2wireBOM.component import Component
 
 
@@ -216,3 +217,28 @@ def test_extract_sheets():
     pin_names = [p.name for p in lighting.pins]
     assert "TAIL_LT" in pin_names
     assert "TIP_LT" in pin_names
+
+
+def test_extract_hierarchical_labels():
+    """Extract hierarchical_label elements from child schematic"""
+    fixture_path = Path("tests/fixtures/test_06_lighting.kicad_sch")
+    sexp = parse_schematic_file(fixture_path)
+    labels = extract_hierarchical_labels(sexp)
+
+    # test_06_lighting has 2 hierarchical labels (TAIL_LT, TIP_LT)
+    assert len(labels) == 2
+
+    # Check that labels are HierarchicalLabel objects
+    assert all(isinstance(label, HierarchicalLabel) for label in labels)
+
+    # Verify TAIL_LT label
+    tail_lt = next((l for l in labels if l.name == "TAIL_LT"), None)
+    assert tail_lt is not None
+    assert tail_lt.shape == "input"
+    assert tail_lt.position == (38.1, 63.5)
+
+    # Verify TIP_LT label
+    tip_lt = next((l for l in labels if l.name == "TIP_LT"), None)
+    assert tip_lt is not None
+    assert tip_lt.shape == "input"
+    assert tip_lt.position == (31.75, 36.83)
