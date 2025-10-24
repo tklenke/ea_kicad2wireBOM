@@ -1,6 +1,7 @@
 # ABOUTME: Tests for hierarchical schematic data models
 # ABOUTME: Tests HierarchicalSchematic, SheetConnection, GlobalNet, PowerSymbol, SheetElement, HierarchicalLabel
 
+from pathlib import Path
 from kicad2wireBOM.schematic import (
     HierarchicalSchematic,
     SheetConnection,
@@ -11,6 +12,7 @@ from kicad2wireBOM.schematic import (
     HierarchicalLabel,
     Sheet,
 )
+from kicad2wireBOM.parser import parse_schematic_hierarchical
 
 
 def test_hierarchical_schematic_creation():
@@ -189,3 +191,49 @@ def test_sheet_creation():
     assert sheet.components == []
     assert sheet.sheet_elements == []
     assert sheet.hierarchical_labels == []
+
+
+def test_parse_schematic_hierarchical():
+    """Test parsing hierarchical schematic with main sheet and sub-sheets"""
+    fixture_path = Path("tests/fixtures/test_06_fixture.kicad_sch")
+    hierarchical_schematic = parse_schematic_hierarchical(fixture_path)
+
+    # Verify it's a HierarchicalSchematic object
+    assert isinstance(hierarchical_schematic, HierarchicalSchematic)
+
+    # Verify root sheet exists
+    assert hierarchical_schematic.root_sheet is not None
+    assert hierarchical_schematic.root_sheet.uuid == "6f32b1c6-d0dc-4a69-b565-c121d7833096"
+    assert hierarchical_schematic.root_sheet.file_path == str(fixture_path)
+
+    # Verify 2 sub-sheets loaded (lighting and avionics)
+    assert len(hierarchical_schematic.sub_sheets) == 2
+    assert "b1093350-cedd-46df-81c4-dadfdf2715f8" in hierarchical_schematic.sub_sheets  # lighting
+    assert "3f34c49e-ae58-4433-8ae6-817967dac1be" in hierarchical_schematic.sub_sheets  # avionics
+
+    # Verify lighting sheet loaded correctly
+    lighting_sheet = hierarchical_schematic.sub_sheets["b1093350-cedd-46df-81c4-dadfdf2715f8"]
+    assert lighting_sheet.name == "Lighting"
+    assert "test_06_lighting.kicad_sch" in lighting_sheet.file_path
+    assert len(lighting_sheet.hierarchical_labels) == 2
+
+    # Verify avionics sheet loaded correctly
+    avionics_sheet = hierarchical_schematic.sub_sheets["3f34c49e-ae58-4433-8ae6-817967dac1be"]
+    assert avionics_sheet.name == "avionics"
+    assert "test_06_avionics.kicad_sch" in avionics_sheet.file_path
+    assert len(avionics_sheet.hierarchical_labels) == 1
+
+    # Verify sheet connections created
+    # Should have 3 connections: TAIL_LT, TIP_LT (lighting), avionics (avionics)
+    assert len(hierarchical_schematic.sheet_connections) == 3
+
+    # Verify one of the connections (TAIL_LT)
+    tail_connection = next(
+        (c for c in hierarchical_schematic.sheet_connections if c.pin_name == "TAIL_LT"),
+        None
+    )
+    assert tail_connection is not None
+    assert tail_connection.parent_sheet_uuid == "6f32b1c6-d0dc-4a69-b565-c121d7833096"
+    assert tail_connection.child_sheet_uuid == "b1093350-cedd-46df-81c4-dadfdf2715f8"
+    assert tail_connection.parent_pin_position == (168.91, 60.96)
+    assert tail_connection.child_label_position == (38.1, 63.5)

@@ -6,7 +6,10 @@ from typing import Union, List, Any, Optional
 import sexpdata
 from sexpdata import Symbol
 
-from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement, SheetPin, HierarchicalLabel
+from kicad2wireBOM.schematic import (
+    WireSegment, Label, Junction, SheetElement, SheetPin, HierarchicalLabel,
+    Sheet, HierarchicalSchematic, SheetConnection
+)
 from kicad2wireBOM.component import Component
 
 
@@ -604,3 +607,156 @@ def parse_hierarchical_label_element(label_sexp: Any) -> HierarchicalLabel:
         position=position,
         shape=shape
     )
+
+
+def extract_sheet_uuid(sexp: Any) -> Optional[str]:
+    """
+    Extract the UUID from the root schematic s-expression.
+
+    Args:
+        sexp: Parsed s-expression (nested lists)
+
+    Returns:
+        UUID string or None if not found
+    """
+    # The root s-expression structure is (kicad_sch ... (uuid "...") ...)
+    for item in sexp:
+        if isinstance(item, list) and len(item) > 0:
+            key = item[0]
+            if isinstance(key, Symbol):
+                key = key.value()
+            if key == 'uuid':
+                return item[1]
+    return None
+
+
+def parse_schematic_hierarchical(file_path: Union[str, Path]) -> HierarchicalSchematic:
+    """
+    Parse a hierarchical schematic with recursive sub-sheet loading.
+
+    Args:
+        file_path: Path to root .kicad_sch file
+
+    Returns:
+        HierarchicalSchematic with root sheet, sub-sheets, and connections
+    """
+    file_path = Path(file_path)
+    parent_dir = file_path.parent
+
+    # Parse root schematic
+    sexp = parse_schematic_file(file_path)
+
+    # Extract root sheet UUID
+    root_uuid = extract_sheet_uuid(sexp)
+    if root_uuid is None:
+        root_uuid = "root"  # Fallback
+
+    # Extract all elements from root schematic
+    wires_sexp = extract_wires(sexp)
+    wire_segments = [parse_wire_element(w) for w in wires_sexp]
+
+    junctions_sexp = extract_junctions(sexp)
+    junctions = [parse_junction_element(j) for j in junctions_sexp]
+
+    labels_sexp = extract_labels(sexp)
+    labels = [parse_label_element(l) for l in labels_sexp]
+
+    symbols_sexp = extract_symbols(sexp)
+    components = [parse_symbol_element(s) for s in symbols_sexp]
+
+    sheet_elements = extract_sheets(sexp)
+    hierarchical_labels = extract_hierarchical_labels(sexp)
+
+    # Create root Sheet object
+    root_sheet = Sheet(
+        uuid=root_uuid,
+        name="Main",  # Root sheet typically called "Main"
+        file_path=str(file_path),
+        wire_segments=wire_segments,
+        junctions=junctions,
+        labels=labels,
+        components=components,
+        sheet_elements=sheet_elements,
+        hierarchical_labels=hierarchical_labels
+    )
+
+    # Parse all sub-sheets
+    sub_sheets = {}
+    sheet_connections = []
+
+    for sheet_element in sheet_elements:
+        # Construct sub-sheet file path (relative to parent dir)
+        sub_sheet_path = parent_dir / sheet_element.sheetfile
+
+        if not sub_sheet_path.exists():
+            # Try without parent_dir (might be absolute)
+            sub_sheet_path = Path(sheet_element.sheetfile)
+
+        # Parse sub-sheet
+        sub_sexp = parse_schematic_file(sub_sheet_path)
+
+        # Extract sub-sheet UUID
+        sub_uuid = extract_sheet_uuid(sub_sexp)
+        if sub_uuid is None:
+            sub_uuid = sheet_element.uuid  # Use sheet element UUID as fallback
+
+        # Extract all elements from sub-sheet
+        sub_wires_sexp = extract_wires(sub_sexp)
+        sub_wire_segments = [parse_wire_element(w) for w in sub_wires_sexp]
+
+        sub_junctions_sexp = extract_junctions(sub_sexp)
+        sub_junctions = [parse_junction_element(j) for j in sub_junctions_sexp]
+
+        sub_labels_sexp = extract_labels(sub_sexp)
+        sub_labels = [parse_label_element(l) for l in sub_labels_sexp]
+
+        sub_symbols_sexp = extract_symbols(sub_sexp)
+        sub_components = [parse_symbol_element(s) for s in sub_symbols_sexp]
+
+        sub_sheet_elements = extract_sheets(sub_sexp)
+        sub_hierarchical_labels = extract_hierarchical_labels(sub_sexp)
+
+        # Create Sheet object for sub-sheet
+        sub_sheet = Sheet(
+            uuid=sub_uuid,
+            name=sheet_element.sheetname,
+            file_path=str(sub_sheet_path),
+            wire_segments=sub_wire_segments,
+            junctions=sub_junctions,
+            labels=sub_labels,
+            components=sub_components,
+            sheet_elements=sub_sheet_elements,
+            hierarchical_labels=sub_hierarchical_labels
+        )
+
+        sub_sheets[sheet_element.uuid] = sub_sheet
+
+        # Create SheetConnection objects mapping pins to labels
+        for sheet_pin in sheet_element.pins:
+            # Find matching hierarchical label on child
+            matching_label = next(
+                (label for label in sub_hierarchical_labels if label.name == sheet_pin.name),
+                None
+            )
+
+            if matching_label:
+                connection = SheetConnection(
+                    parent_sheet_uuid=root_uuid,
+                    child_sheet_uuid=sheet_element.uuid,
+                    pin_name=sheet_pin.name,
+                    parent_pin_position=sheet_pin.position,
+                    parent_wire_net=None,  # Will be filled in by graph builder
+                    child_label_position=matching_label.position,
+                    child_wire_net=None  # Will be filled in by graph builder
+                )
+                sheet_connections.append(connection)
+
+    # Create HierarchicalSchematic
+    hierarchical_schematic = HierarchicalSchematic(
+        root_sheet=root_sheet,
+        sub_sheets=sub_sheets,
+        sheet_connections=sheet_connections,
+        global_nets={}  # Will be filled in Phase 7.1.5
+    )
+
+    return hierarchical_schematic
