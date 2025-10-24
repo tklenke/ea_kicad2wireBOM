@@ -9,7 +9,7 @@ from typing import Optional
 class NetworkNode:
     """A point where connections meet in the schematic"""
     position: tuple[float, float]  # (x, y) in schematic
-    node_type: str                  # "component_pin", "junction", "wire_endpoint"
+    node_type: str                  # "component_pin", "junction", "wire_endpoint", "sheet_pin", "hierarchical_label"
 
     # If node_type == "component_pin":
     component_ref: Optional[str] = None  # "SW1", "J1", etc.
@@ -17,6 +17,13 @@ class NetworkNode:
 
     # If node_type == "junction":
     junction_uuid: Optional[str] = None  # UUID of junction element
+
+    # If node_type == "sheet_pin":
+    sheet_pin_name: Optional[str] = None  # Pin name on sheet symbol (parent side)
+    sheet_uuid: Optional[str] = None      # UUID of sheet this node belongs to
+
+    # If node_type == "hierarchical_label":
+    hierarchical_label_name: Optional[str] = None  # Label name on child sheet
 
     # Connectivity:
     connected_wire_uuids: set[str] = field(default_factory=set)
@@ -37,7 +44,10 @@ class ConnectivityGraph:
         node_type: str = "wire_endpoint",
         component_ref: Optional[str] = None,
         pin_number: Optional[str] = None,
-        junction_uuid: Optional[str] = None
+        junction_uuid: Optional[str] = None,
+        sheet_pin_name: Optional[str] = None,
+        sheet_uuid: Optional[str] = None,
+        hierarchical_label_name: Optional[str] = None
     ) -> NetworkNode:
         """Get existing node at position or create new one"""
         # Round position to 0.01mm precision to handle float matching
@@ -49,7 +59,10 @@ class ConnectivityGraph:
                 node_type=node_type,
                 component_ref=component_ref,
                 pin_number=pin_number,
-                junction_uuid=junction_uuid
+                junction_uuid=junction_uuid,
+                sheet_pin_name=sheet_pin_name,
+                sheet_uuid=sheet_uuid,
+                hierarchical_label_name=hierarchical_label_name
             )
 
         return self.nodes[key]
@@ -207,8 +220,8 @@ class ConnectivityGraph:
                 else:
                     continue
 
-                # Recurse through junctions and wire_endpoints
-                if other_node.node_type in ('junction', 'wire_endpoint'):
+                # Recurse through junctions, wire_endpoints, sheet_pins, and hierarchical_labels
+                if other_node.node_type in ('junction', 'wire_endpoint', 'sheet_pin', 'hierarchical_label'):
                     result = self.trace_to_component(other_node, exclude_wire_uuid=wire_uuid)
                     if result is not None:
                         return result
@@ -260,11 +273,61 @@ class ConnectivityGraph:
                 else:
                     continue
 
-                # Recurse through junctions and wire_endpoints
-                if other_node.node_type in ('junction', 'wire_endpoint'):
+                # Recurse through junctions, wire_endpoints, sheet_pins, and hierarchical_labels
+                if other_node.node_type in ('junction', 'wire_endpoint', 'sheet_pin', 'hierarchical_label'):
                     result = self.trace_to_component(other_node, exclude_wire_uuid=wire_uuid)
                     if result is not None:
                         return result
+
+        # If this node is a sheet_pin, trace through connected wires
+        if node.node_type == 'sheet_pin':
+            node_key = (round(node.position[0], 2), round(node.position[1], 2))
+
+            for wire_uuid in node.connected_wire_uuids:
+                if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                wire = self.wires[wire_uuid]
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                # Get the node at the OTHER end of this wire
+                if start_key == node_key:
+                    other_node = self.nodes[end_key]
+                elif end_key == node_key:
+                    other_node = self.nodes[start_key]
+                else:
+                    continue
+
+                # Recurse through any node type
+                result = self.trace_to_component(other_node, exclude_wire_uuid=wire_uuid)
+                if result is not None:
+                    return result
+
+        # If this node is a hierarchical_label, trace through connected wires
+        if node.node_type == 'hierarchical_label':
+            node_key = (round(node.position[0], 2), round(node.position[1], 2))
+
+            for wire_uuid in node.connected_wire_uuids:
+                if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                wire = self.wires[wire_uuid]
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                # Get the node at the OTHER end of this wire
+                if start_key == node_key:
+                    other_node = self.nodes[end_key]
+                elif end_key == node_key:
+                    other_node = self.nodes[start_key]
+                else:
+                    continue
+
+                # Recurse through any node type
+                result = self.trace_to_component(other_node, exclude_wire_uuid=wire_uuid)
+                if result is not None:
+                    return result
 
         # No component found
         return None

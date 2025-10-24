@@ -386,3 +386,94 @@ def test_trace_to_component_prioritizes_direct_component_pin():
     assert result['component_ref'] == 'J1', \
         f"Expected J1-1 (direct connection), got {result['component_ref']}-{result['pin_number']} (indirect connection)"
     assert result['pin_number'] == '1'
+
+
+def test_network_node_sheet_pin():
+    """Create sheet_pin node for hierarchical schematic support"""
+    node = NetworkNode(
+        position=(168.91, 60.96),
+        node_type='sheet_pin',
+        sheet_pin_name='TAIL_LT',
+        sheet_uuid='b1093350-cedd-46df-81c4-dadfdf2715f8'
+    )
+
+    assert node.node_type == 'sheet_pin'
+    assert node.sheet_pin_name == 'TAIL_LT'
+    assert node.sheet_uuid == 'b1093350-cedd-46df-81c4-dadfdf2715f8'
+
+
+def test_network_node_hierarchical_label():
+    """Create hierarchical_label node for hierarchical schematic support"""
+    node = NetworkNode(
+        position=(38.1, 63.5),
+        node_type='hierarchical_label',
+        hierarchical_label_name='TAIL_LT',
+        sheet_uuid='b1093350-cedd-46df-81c4-dadfdf2715f8'
+    )
+
+    assert node.node_type == 'hierarchical_label'
+    assert node.hierarchical_label_name == 'TAIL_LT'
+    assert node.sheet_uuid == 'b1093350-cedd-46df-81c4-dadfdf2715f8'
+
+
+def test_trace_to_component_through_sheet_pin_and_hierarchical_label():
+    """Test tracing across sheet boundaries using sheet_pin and hierarchical_label nodes"""
+    graph = ConnectivityGraph()
+
+    # Create nodes simulating cross-sheet connection:
+    # Parent sheet: SW1-1 → wire → sheet_pin
+    # Cross-sheet edge: sheet_pin → hierarchical_label
+    # Child sheet: hierarchical_label → wire → L2-1
+
+    # Parent sheet component pin
+    graph.add_component_pin('SW1-1', 'SW1', '1', (100.0, 50.0))
+
+    # Sheet pin on parent sheet
+    sheet_pin_pos = (168.91, 60.96)
+    sheet_pin_node = graph.get_or_create_node(
+        position=sheet_pin_pos,
+        node_type='sheet_pin',
+        sheet_pin_name='TAIL_LT',
+        sheet_uuid='root'
+    )
+
+    # Hierarchical label on child sheet
+    hierarchical_label_pos = (38.1, 63.5)
+    hierarchical_label_node = graph.get_or_create_node(
+        position=hierarchical_label_pos,
+        node_type='hierarchical_label',
+        hierarchical_label_name='TAIL_LT',
+        sheet_uuid='child-uuid'
+    )
+
+    # Child sheet component pin
+    graph.add_component_pin('L2-1', 'L2', '1', (45.72, 63.5))
+
+    # Add wires
+    # Wire on parent sheet: SW1-1 to sheet_pin
+    wire1 = WireSegment(uuid='wire1', start_point=(100.0, 50.0), end_point=sheet_pin_pos)
+    # Cross-sheet connection (represented as wire between sheet_pin and hierarchical_label)
+    wire2 = WireSegment(uuid='wire2', start_point=sheet_pin_pos, end_point=hierarchical_label_pos)
+    # Wire on child sheet: hierarchical_label to L2-1
+    wire3 = WireSegment(uuid='wire3', start_point=hierarchical_label_pos, end_point=(45.72, 63.5))
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+    graph.add_wire(wire3)
+
+    # Trace from sheet_pin (as if we came from SW1 via wire1)
+    # This simulates starting the trace on the parent sheet and crossing to child
+    result = graph.trace_to_component(sheet_pin_node, exclude_wire_uuid='wire1')
+
+    # Should successfully trace through sheet_pin → hierarchical_label → L2-1
+    assert result is not None
+    assert result['component_ref'] == 'L2'
+    assert result['pin_number'] == '1'
+
+    # Also test tracing from hierarchical_label (as if we came from sheet_pin)
+    result2 = graph.trace_to_component(hierarchical_label_node, exclude_wire_uuid='wire2')
+
+    # Should successfully trace to L2-1
+    assert result2 is not None
+    assert result2['component_ref'] == 'L2'
+    assert result2['pin_number'] == '1'
