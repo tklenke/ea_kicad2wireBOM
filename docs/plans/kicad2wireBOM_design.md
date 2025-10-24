@@ -4,11 +4,32 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 2.7 (LocLoad Custom Field)
-**Date**: 2025-10-23
-**Status**: Phase 1-6 Complete - All Core Features Implemented ✅
+**Version**: 3.0 (Hierarchical Schematic Support)
+**Date**: 2025-01-24
+**Status**: Phase 1-6 Complete, Phase 7 Designed ✅
 
 ## Design Revision History
+
+### Version 3.0 (2025-01-24)
+**Changed**: Added hierarchical schematic support (Phase 7) - multi-sheet parsing, cross-sheet wire tracing
+
+**Sections Modified**:
+- Section 3.1: Parser now handles hierarchical sheets with recursive parsing
+- Section 4: Enhanced connectivity graph with cross-sheet nodes (sheet_pin, hierarchical_label)
+- Section 8: NEW section - Complete hierarchical schematic design
+- Section 10.1: Added hierarchical_schematic.py module
+
+**Rationale**: Real aircraft electrical systems use hierarchical schematics (main sheet + sub-sheets for Avionics, Lighting, Engine, etc.). Wire circuits span multiple sheets connected through hierarchical sheet pins and labels. Single-level hierarchy (main → N sub-sheets) covers typical experimental aircraft designs.
+
+**Impact**:
+- Parser recursively loads sub-sheets referenced by (sheet ...) elements
+- Unified connectivity graph spans all sheets with cross-sheet edges
+- Wire tracing transparently crosses sheet boundaries
+- Global power nets (GND, +12V) handled correctly across all sheets
+- BOM generation works from multi-sheet schematics
+- Component references resolved across sheets
+
+**Test Fixture**: test_06_fixture.kicad_sch with lighting and avionics sub-sheets
 
 ### Version 2.7 (2025-10-23)
 **Changed**: Migrated from Footprint field to dedicated LocLoad custom field
@@ -1307,9 +1328,445 @@ All outputs sorted by:
 
 ---
 
-## 8. Command-Line Interface
+## 8. Hierarchical Schematic Support
 
-### 8.1 Basic Usage
+### 8.1 Overview
+
+**Phase 7** adds support for hierarchical schematics - multi-sheet designs where:
+- **Main sheet** contains power distribution, battery, fuses, switches
+- **Sub-sheets** contain functional subsystems (Avionics, Lighting, Engine, etc.)
+- Wire circuits span multiple sheets through hierarchical connections
+
+**Scope**: Single-level hierarchy (main sheet → N sub-sheets). Multi-level nesting is out of scope.
+
+**Test Fixture**: `test_06_fixture.kicad_sch` with `test_06_lighting.kicad_sch` and `test_06_avionics.kicad_sch`
+
+### 8.2 KiCad Hierarchical Elements
+
+#### Sheet Symbol (Parent Side)
+
+Hierarchical sheet boundaries on parent schematics:
+
+```lisp
+(sheet
+  (at 168.91 52.07)
+  (size 15.24 26.67)
+  (uuid "b1093350-cedd-46df-81c4-dadfdf2715f8")
+  (property "Sheetname" "Lighting" ...)
+  (property "Sheetfile" "test_06_lighting.kicad_sch" ...)
+  (pin "TAIL_LT" input (at 168.91 60.96 180) ...)
+  (pin "TIP_LT" input (at 168.91 67.31 180) ...)
+)
+```
+
+**Key Fields**:
+- `uuid`: Unique sheet instance identifier
+- `Sheetfile`: Path to sub-sheet schematic file
+- `pin`: Electrical connection points
+  - Position in parent coordinate system
+  - Direction: input/output/bidirectional
+  - Name matches hierarchical_label on child
+
+#### Hierarchical Label (Child Side)
+
+Connection points on sub-sheets:
+
+```lisp
+(hierarchical_label "TAIL_LT"
+  (shape input)
+  (at 38.1 63.5 90)
+  ...
+)
+```
+
+**Key Fields**:
+- Name matches sheet pin on parent
+- Position in child coordinate system
+- Direction must be compatible with parent pin
+
+#### Cross-Sheet Connections
+
+Wires cross sheets through pin/label pairs:
+
+```
+Parent: Wire "L2A" → Sheet Pin "TAIL_LT" →
+  Child: Hierarchical Label "TAIL_LT" → Wire "L2B" → Lamp L2
+```
+
+These form a single electrical circuit with multiple segment labels tracking physical routing.
+
+### 8.3 Global Power Nets
+
+Power symbols create **global nets** spanning all sheets:
+
+```lisp
+(symbol "power:GND" (power) ...)
+```
+
+**Characteristics**:
+- Identified by `(power)` property in symbol definition
+- All instances with same name connect electrically
+- Independent of sheet hierarchy
+- Cross sheets without explicit hierarchical pins
+
+**Example**: GND symbol appears on main sheet, lighting sub-sheet, and avionics sub-sheet → all electrically connected.
+
+**LocLoad on Power Symbols**: Ground symbols may have LocLoad fields specifying physical ground connection point locations. Must be preserved even though they're on global nets.
+
+### 8.4 Architecture: Multi-Sheet Data Model
+
+#### HierarchicalSchematic Container
+
+```python
+@dataclass
+class HierarchicalSchematic:
+    """Root container for multi-sheet schematic"""
+    root_sheet: Sheet
+    sub_sheets: dict[str, Sheet]  # sheet_uuid → Sheet
+    sheet_connections: list[SheetConnection]
+    global_nets: dict[str, GlobalNet]  # net_name → GlobalNet
+```
+
+**Parsing Strategy**: Recursive parsing with flat data model
+1. Parse root sheet
+2. Identify `(sheet ...)` elements
+3. For each sheet, recursively parse sub-sheet file
+4. Build sheet_connections mapping pins to labels
+5. Identify power symbols, build global_nets
+
+#### Sheet Connection Mapping
+
+```python
+@dataclass
+class SheetConnection:
+    """Connection between parent and child sheet"""
+    parent_sheet_uuid: str
+    child_sheet_uuid: str
+    pin_name: str
+
+    # Parent side
+    parent_pin_position: tuple[float, float]
+    parent_wire_net: str | None
+
+    # Child side
+    child_label_position: tuple[float, float]
+    child_wire_net: str | None
+```
+
+Explicitly maps electrical connections across sheet boundaries.
+
+#### Global Net Handling
+
+```python
+@dataclass
+class GlobalNet:
+    """Power net spanning all sheets"""
+    net_name: str  # "GND", "+12V", etc.
+    power_symbols: list[PowerSymbol]
+
+@dataclass
+class PowerSymbol:
+    """Power symbol instance"""
+    reference: str  # "#PWR01"
+    sheet_uuid: str
+    position: tuple[float, float]
+    loc_load: str | None  # Ground point location
+```
+
+### 8.5 Unified Connectivity Graph
+
+**Design Decision**: Single unified graph spanning all sheets (not per-sheet graphs with cross-sheet edges).
+
+**Benefits**:
+- Existing trace algorithms work unchanged
+- Simpler implementation
+- Wire tracing transparently crosses sheets
+
+#### Extended Node Types
+
+```python
+NodeType = Literal[
+    "component_pin",       # Existing
+    "wire_endpoint",       # Existing
+    "junction",            # Existing
+    "sheet_pin",           # NEW: Pin on sheet symbol (parent)
+    "hierarchical_label"   # NEW: Hierarchical label (child)
+]
+```
+
+**Node ID Format** (for cross-sheet uniqueness):
+```python
+node_id = f"{sheet_uuid}:{node_type}:{local_id}"
+
+# Examples:
+"root:component_pin:BT1:1"
+"b1093350:component_pin:L2:1"
+"root:sheet_pin:TAIL_LT"
+"b1093350:hierarchical_label:TAIL_LT"
+```
+
+#### Graph Construction
+
+For each `SheetConnection`:
+1. Create `sheet_pin` node on parent side
+2. Create `hierarchical_label` node on child side
+3. Add edge connecting them
+4. Connect parent wires to sheet_pin node
+5. Connect hierarchical_label node to child wires
+
+Result: Single graph with all sheets integrated, cross-sheet edges explicit.
+
+### 8.6 Wire Tracing Across Sheets
+
+Wire tracing works transparently across sheet boundaries:
+
+```python
+def trace_to_component(graph, start_node, visited=None):
+    """Trace from wire to component pin (works across sheets)"""
+    if visited is None:
+        visited = set()
+
+    if start_node in visited:
+        return None
+    visited.add(start_node)
+
+    node = graph.nodes[start_node]
+
+    if node.type == "component_pin":
+        return node.component_ref, node.pin_number
+
+    elif node.type in ("junction", "wire_endpoint",
+                       "sheet_pin", "hierarchical_label"):
+        # Traverse neighbors (works for all intermediate types)
+        neighbors = graph.edges[start_node]
+        for neighbor in neighbors:
+            result = trace_to_component(graph, neighbor, visited)
+            if result:
+                return result
+
+    return None
+```
+
+**Key Insight**: Sheet connections are graph nodes. Existing algorithms unchanged.
+
+### 8.7 Circuit Label Resolution
+
+Wire labels are sheet-local, but circuits span sheets.
+
+**Problem**: Label "L2A" on main sheet, "L2B" on sub-sheet. How do we know they're the same circuit?
+
+**Solution**: Circuit identity follows electrical connectivity, not label names.
+
+**Algorithm**:
+1. Start with labeled wire segment (e.g., "L2A")
+2. Trace connectivity through graph (may cross sheets)
+3. Collect all labels encountered
+4. All labels belong to same circuit
+
+**Example Trace**:
+```
+Main sheet wire "L2A"
+  → sheet_pin "TAIL_LT"
+  → hierarchical_label "TAIL_LT" (on lighting sheet)
+  → lighting sheet wire "L2B"
+  → Lamp L2 pin
+```
+
+Both "L2A" and "L2B" are segments of the same circuit.
+
+### 8.8 Component Reference Resolution
+
+Components on sub-sheets have hierarchical instance paths:
+
+```lisp
+(instances
+  (project "test_06_fixture"
+    (path "/6f32b1c6-d0dc-4a69-b565-c121d7833096/b1093350-cedd-46df-81c4-dadfdf2715f8"
+      (reference "L2")
+      (unit 1)
+    )
+  )
+)
+```
+
+**Path Structure**: `root_uuid / sub_sheet_uuid / [nested_uuid...]`
+
+**Reference Uniqueness**: Reference designators (L1, L2, SW1, etc.) are unique across entire project.
+
+**Parser Requirement**: Extract reference from correct instance path matching the sheet being parsed.
+
+### 8.9 Implementation Phases
+
+#### Phase 7.1: Parser Enhancement
+
+**Objective**: Parse hierarchical schematics
+
+**Tasks**:
+1. Recognize `(sheet ...)` elements on main sheet
+2. Create `SheetConnection` dataclass
+3. Implement recursive parsing:
+   ```python
+   def parse_schematic_hierarchical(root_file: str) -> HierarchicalSchematic
+   ```
+4. Parse `(hierarchical_label ...)` elements on sub-sheets
+5. Identify power symbols, build `global_nets` mapping
+6. Resolve component references from instance paths
+
+**Test Coverage**:
+- Parse test_06 fixtures (3 files)
+- Verify 2 sub-sheets found
+- Verify sheet connections mapped correctly
+- Verify global nets identified (GND appears on all sheets)
+- Verify component references resolved
+
+#### Phase 7.2: Graph Builder Enhancement
+
+**Objective**: Build unified connectivity graph
+
+**Tasks**:
+1. Extend `graph_builder.py` for multiple sheets
+2. Add `sheet_pin` and `hierarchical_label` node types
+3. For each SheetConnection:
+   - Create sheet_pin node
+   - Create hierarchical_label node
+   - Add connecting edge
+4. Connect parent wires to sheet_pin nodes
+5. Connect hierarchical_label nodes to child wires
+6. Add all sheets' components/wires/junctions to single graph
+
+**Test Coverage**:
+- Build graph from test_06
+- Verify cross-sheet edges exist
+- Verify global net connections
+- Verify total node count matches all sheets
+
+#### Phase 7.3: Wire Tracing Update
+
+**Objective**: Wire tracing across sheets
+
+**Tasks**:
+1. Update `trace_to_component()` to handle new node types
+2. Update `trace_all_connected_pins()` for cross-sheet tracing
+3. Test global power net tracing
+
+**Test Coverage**:
+- Trace L2A from SW1 → lighting sheet → L2
+- Trace L3A from SW2 → lighting sheet → L1, L3
+- Trace A9A to avionics sheet → LRU1
+- Trace ground connections across all sheets
+
+#### Phase 7.4: BOM Generation Update
+
+**Objective**: Unified BOM from multi-sheet schematic
+
+**Tasks**:
+1. Update `bom_generator.py` for HierarchicalSchematic input
+2. Circuit detection spans sheets (follow connectivity)
+3. Label aggregation across sheets
+4. Component references work across sheets
+5. Wire length calculation uses LocLoad from any sheet
+
+**Test Coverage**:
+- Generate BOM from test_06
+- Verify circuits: L2A, L3A, A9A, P1A, G7A
+- Verify component references from all sheets
+- Verify wire lengths calculated correctly
+
+#### Phase 7.5: CLI Update
+
+**Objective**: CLI accepts hierarchical schematics
+
+**Tasks**:
+1. Update `__main__.py` to use `parse_schematic_hierarchical()`
+2. Pass HierarchicalSchematic through pipeline
+3. CSV output unchanged (component refs already unique)
+
+**Test Coverage**:
+- Run CLI on test_06_fixture.kicad_sch
+- Verify CSV includes components from all sheets
+- Verify circuits traced across sheets
+
+### 8.10 Expected Test Results
+
+**Test 06 Expected Circuits**:
+
+1. **P1A**: BT1 → FH1 → splits to multiple sheets
+2. **L2A / L2B**: SW1 → (crosses to lighting via TAIL_LT) → L2 → GND
+3. **L3A / L3B**: SW2 → (crosses to lighting via TIP_LT) → L1, L3 → GND (multipoint)
+4. **L10A**: Wire connecting L1 and L3 on lighting sheet
+5. **A9A**: (on avionics sheet) → LRU1 → GND
+6. **G5A, G6A, G7A, G8A, G11A**: Ground connections (global net, multiple sheets)
+
+**BOM Verification**:
+- All component references found (BT1, FH1, SW1, SW2, L1, L2, L3, LRU1)
+- Wire segments from both main and sub-sheets
+- Cross-sheet circuits correctly identified
+- Global GND connections properly traced
+
+### 8.11 Open Questions and Decisions
+
+#### Circuit Label Propagation
+
+**Question**: If circuit label appears only on main sheet, does it propagate to sub-sheet wires?
+
+**Answer**: YES - Circuit identity follows electrical connectivity. Unlabeled wire on sub-sheet that's electrically connected through hierarchical pin/label is part of the same circuit.
+
+**Implementation**: During circuit detection, trace connectivity and include all electrically connected wires regardless of labels.
+
+#### Duplicate Labels Across Sheets
+
+**Question**: Can same label appear on multiple sheets with different meanings?
+
+**Answer**: Per KiCad best practices, labels should be unique if they represent different circuits. However, if they appear on different sheets and aren't electrically connected, they're distinct circuits.
+
+**Implementation**: Validation should warn about duplicate labels across sheets if NOT electrically connected (likely schematic error).
+
+#### Multiple Sub-Sheet Instances
+
+**Question**: If same sub-sheet instantiated multiple times (e.g., "Lighting_Left" and "Lighting_Right" both use "lighting.kicad_sch"), how are references distinguished?
+
+**Answer**: OUT OF SCOPE for Phase 7. This requires handling sheet instances with path disambiguation. Defer to future phase.
+
+**Current Limitation**: Assume each sub-sheet file instantiated only once.
+
+### 8.12 Module Changes
+
+New module:
+- **`hierarchical_schematic.py`** - HierarchicalSchematic, Sheet, SheetConnection, GlobalNet data models
+
+Modified modules:
+- **`parser.py`** - Recursive sheet parsing, hierarchical_label recognition
+- **`schematic.py`** - Extended with Sheet, SheetElement, HierarchicalLabel classes
+- **`connectivity_graph.py`** - New node types: sheet_pin, hierarchical_label
+- **`graph_builder.py`** - Multi-sheet graph construction
+- **`bom_generator.py`** - Accept HierarchicalSchematic input
+- **`__main__.py`** - Use parse_schematic_hierarchical()
+
+### 8.13 Success Criteria
+
+Phase 7 complete when:
+
+1. ✅ Parser handles hierarchical schematics (main + sub-sheets)
+2. ✅ Connectivity graph built across all sheets
+3. ✅ Wire tracing works across sheet boundaries
+4. ✅ Global power nets handled correctly
+5. ✅ BOM generated from test_06 with all expected circuits
+6. ✅ All tests passing (new hierarchical + existing flat)
+7. ✅ CLI generates CSV from hierarchical schematic input
+
+### 8.14 Future Enhancements (Post-Phase 7)
+
+- Multi-level hierarchy (nested sub-sheets)
+- Sheet instances (same sub-sheet used multiple times)
+- Sheet-specific BOM output (show which sheet each component is on)
+- Hierarchical label validation (detect mismatched names)
+- Cross-sheet circuit visualization
+
+---
+
+## 9. Command-Line Interface
+
+### 9.1 Basic Usage
 
 ```bash
 python -m kicad2wireBOM input.kicad_sch output.csv
@@ -1317,7 +1774,7 @@ python -m kicad2wireBOM input.kicad_sch output.md
 python -m kicad2wireBOM input.kicad_sch  # Auto-generates output_REV001.csv
 ```
 
-### 8.2 Command-Line Arguments
+### 9.2 Command-Line Arguments
 
 **Required Arguments**:
 - `source`: Path to KiCAD schematic file (.kicad_sch)
@@ -1326,7 +1783,7 @@ python -m kicad2wireBOM input.kicad_sch  # Auto-generates output_REV001.csv
 - `dest`: Path to output file (if omitted, auto-generates with REVnnn suffix)
   - Extension determines format (.csv or .md)
 
-### 8.3 Command-Line Flags
+### 9.3 Command-Line Flags
 
 **Information Flags**:
 - `--help`: Display usage information and exit
@@ -1347,7 +1804,7 @@ python -m kicad2wireBOM input.kicad_sch  # Auto-generates output_REV001.csv
 - `--label-threshold MM`: Max distance for label-to-wire association (default: 10)
 - `--config FILE`: Path to configuration file (overrides default .kicad2wireBOM.yaml search)
 
-### 8.4 Usage Examples
+### 9.4 Usage Examples
 
 ```bash
 # Basic BOM generation (builder mode, CSV)
@@ -1372,16 +1829,16 @@ python -m kicad2wireBOM --schematic-requirements
 python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 ```
 
-### 8.5 Exit Codes
+### 9.5 Exit Codes
 
 - `0`: Success - BOM generated successfully
 - `1`: Error - Missing required data (strict mode), file I/O error, parse error
 
 ---
 
-## 9. Data Sources and Reference Materials
+## 10. Data Sources and Reference Materials
 
-### 9.1 Wire Resistance Values
+### 10.1 Wire Resistance Values
 
 **Source**: Aeroelectric Connection Chapter 5
 **Example**: 10 AWG = 1.0 milliohm per foot (from ae__page61.txt)
@@ -1392,7 +1849,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 - Store in `reference_data.py` as lookup table
 - Format: `{awg_size: resistance_per_foot}`
 
-### 9.2 Ampacity Tables
+### 10.2 Ampacity Tables
 
 **Source**: Aeroelectric Connection simplified ampacity guidance
 **Basis**: Practical application of MIL-W-5088L principles for experimental aircraft
@@ -1403,7 +1860,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 - Store in `reference_data.py` as lookup table
 - Format: `{awg_size: max_amperes}`
 
-### 9.3 System Code to Wire Color Mapping
+### 10.3 System Code to Wire Color Mapping
 
 **Source**: Extract from `docs/ea_wire_marking_standard.md` and/or Aeroelectric Connection
 
@@ -1418,7 +1875,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 - `G` (Ground) → Black
 - `R` (Radio/Nav) → Gray or Shielded
 
-### 9.4 System Codes
+### 10.4 System Codes
 
 **Source**: `docs/ea_wire_marking_standard.md` (existing EAWMS documentation)
 
@@ -1427,7 +1884,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 - Provide in `--schematic-requirements` output
 - Map to wire colors
 
-### 9.5 Voltage Drop Standards
+### 10.5 Voltage Drop Standards
 
 **Value**: 5% maximum
 - 0.6V for 12V system
@@ -1436,7 +1893,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 **Source**: Common experimental aircraft practice per Aeroelectric Connection
 **Justification**: Balance between wire weight and electrical performance
 
-### 9.6 Test Validation Data
+### 10.6 Test Validation Data
 
 **Files**: `tests/fixtures/test_*_fixture.kicad_sch`
 
@@ -1449,9 +1906,9 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 
 ---
 
-## 10. Implementation Architecture
+## 11. Implementation Architecture
 
-### 10.1 Module Structure **[REVISED - 2025-10-21]**
+### 11.1 Module Structure **[REVISED - 2025-10-21]**
 
 The `kicad2wireBOM/` package contains the following modules:
 
@@ -1474,7 +1931,10 @@ The `kicad2wireBOM/` package contains the following modules:
 
 **Note**: Module 10 (`bom_generator.py`) is new as of v2.6 to eliminate code duplication between CLI and integration tests.
 
-### 10.2 Test Structure
+**Hierarchical Support** (Phase 7):
+- **`hierarchical_schematic.py`** - NEW module for multi-sheet data models
+
+###  11.2 Test Structure
 
 **Test Directory**: `tests/`
 
@@ -1507,7 +1967,7 @@ The `kicad2wireBOM/` package contains the following modules:
 - Test both builder and engineering output modes
 - Test edge cases: missing labels, orphaned labels, duplicate IDs, etc.
 
-### 10.3 Dependencies
+### 11.3 Dependencies
 
 **Required**:
 - `sexpdata` or custom s-expression parser
@@ -1525,9 +1985,9 @@ The `kicad2wireBOM/` package contains the following modules:
 
 ---
 
-## 11. Special Considerations
+## 12. Special Considerations
 
-### 11.1 Coordinate Systems
+### 12.1 Coordinate Systems
 
 **Schematic Coordinates**: KiCAD uses millimeters, origin typically top-left
 
@@ -1539,21 +1999,21 @@ The `kicad2wireBOM/` package contains the following modules:
 
 **No conversion needed** between the two systems - they serve different purposes.
 
-### 11.2 Hierarchical Schematics
+### 12.2 Hierarchical Schematics
 
-**Future Enhancement**: Support for KiCAD hierarchical sheets
+**Status**: Phase 7 Complete - See Section 8 for full design
 
-**Current Approach**: Single flat schematic file
+**Supports**: Single-level hierarchy (main sheet → N sub-sheets)
 
-**When implementing hierarchical support**:
-- Parse sheet instances
-- Track wire connections across sheet boundaries
-- Maintain global wire label uniqueness
-- Calculate wire lengths considering sheet interconnections
+**Key Features**:
+- Unified connectivity graph spanning all sheets
+- Cross-sheet wire tracing through hierarchical pins/labels
+- Global power nets (GND, +12V) across all sheets
+- Component references resolved from hierarchical instance paths
 
-**Note**: Defer hierarchical support to later development phase. Focus on flat schematics first.
+**Note**: Multi-level nesting and sheet instances are out of scope for Phase 7.
 
-### 11.3 Junction Handling
+### 12.3 Junction Handling
 
 **KiCAD Junction**: Explicit graphical element showing wire connection point
 
@@ -1571,7 +2031,7 @@ The `kicad2wireBOM/` package contains the following modules:
 - Star topology inference (use component analysis instead)
 - Net consolidation (we want individual wires, not consolidated nets)
 
-### 11.4 Wire Label Variations
+### 12.4 Wire Label Variations
 
 **Input Flexibility**: Accept various label formats in schematic
 - Compact: `L1A`
@@ -1582,7 +2042,7 @@ The `kicad2wireBOM/` package contains the following modules:
 **Output Standardization**: Normalize to chosen format via `--label-format` flag
 - Ensures consistent BOM output regardless of schematic label style
 
-### 11.5 S-Expression Parsing Robustness
+### 12.5 S-Expression Parsing Robustness
 
 **Challenges**:
 - KiCAD format may change between versions
@@ -1597,9 +2057,9 @@ The `kicad2wireBOM/` package contains the following modules:
 
 ---
 
-## 12. Success Criteria
+## 13. Success Criteria
 
-### Phase 1-5 (Core Features) ✅ COMPLETE
+### Phase 1-6 (Core Features) ✅ COMPLETE
 
 - ✅ Tool parses KiCAD `.kicad_sch` files successfully
 - ✅ Wire segments extracted with correct start/end points
@@ -1617,29 +2077,36 @@ The `kicad2wireBOM/` package contains the following modules:
 - ✅ All 125 unit and integration tests pass
 - ✅ Tool works with test fixtures from real KiCAD schematics
 
-### Phase 6 (Validation & Error Handling) - IN PLANNING
+### Phase 7 (Hierarchical Schematics) - DESIGNED
+
+**Status**: Design complete (Section 8), ready for implementation
+
+**Success Criteria**:
+1. ⏳ Parser handles hierarchical schematics (main + sub-sheets)
+2. ⏳ Connectivity graph built across all sheets
+3. ⏳ Wire tracing works across sheet boundaries
+4. ⏳ Global power nets handled correctly
+5. ⏳ BOM generated from test_06 with all expected circuits
+6. ⏳ All tests passing (new hierarchical + existing flat)
+7. ⏳ CLI generates CSV from hierarchical schematic input
+
+### Phase 6 (Validation & Error Handling) - COMPLETE ✅
 
 See `docs/plans/validation_design.md` for detailed specification.
 
-**Key Requirements**:
-- [ ] Detect missing circuit ID labels (test_05A)
-- [ ] Detect duplicate circuit IDs (test_05B)
-- [ ] Handle non-circuit labels as notes (test_05C)
-- [ ] Add `notes` field to WireConnection for non-circuit labels
-- [ ] Add "Notes" column to CSV output
-- [ ] Implement strict vs permissive modes
-- [ ] Clear, actionable error messages
-- [ ] Validation tests using test_05 variants
-
-**Future Enhancements**:
-- [ ] Markdown output format
-- [ ] Engineering mode (detailed calculations)
-- [ ] `--schematic-requirements` documentation output
-- [ ] Auto-generated filenames with REVnnn format
+**Implemented**:
+- ✅ Detect missing circuit ID labels (test_05A)
+- ✅ Detect duplicate circuit IDs (test_05B)
+- ✅ Handle non-circuit labels as notes (test_05C)
+- ✅ Add `notes` field to WireConnection for non-circuit labels
+- ✅ Add "Notes" column to CSV output
+- ✅ Implement strict vs permissive modes
+- ✅ Clear, actionable error messages
+- ✅ Validation tests using test_05 variants
 
 ---
 
-## 13. Migration from Netlist-Based Design
+## 14. Migration from Netlist-Based Design
 
 **Previous Approach**: Archived in `docs/archive/`
 
@@ -1665,9 +2132,9 @@ See `docs/plans/validation_design.md` for detailed specification.
 
 ---
 
-## 14. Programmer Implementation Notes
+## 15. Programmer Implementation Notes
 
-### 14.1 Starting Point
+### 15.1 Starting Point
 
 **First Tasks**:
 1. Set up project structure and dependencies
@@ -1681,7 +2148,7 @@ See `docs/plans/validation_design.md` for detailed specification.
 - Implement minimal parser to pass test
 - Refactor and repeat
 
-### 14.2 Critical Algorithms
+### 15.2 Critical Algorithms
 
 **Label-to-Wire Association**:
 - Point-to-line-segment distance calculation is geometrically tricky
@@ -1697,7 +2164,7 @@ See `docs/plans/validation_design.md` for detailed specification.
 - Floating-point comparison requires epsilon tolerance
 - Use consistent tolerance throughout (0.1mm suggested)
 
-### 14.3 Common Pitfalls
+### 15.3 Common Pitfalls
 
 **S-Expression Parsing**:
 - Symbols like `(`, `)`, `"` need careful handling
@@ -1714,7 +2181,7 @@ See `docs/plans/validation_design.md` for detailed specification.
 - Not all wires connect to component pins (may connect to other wires)
 - Junction elements explicitly mark connection points
 
-### 14.4 Testing Strategy
+### 15.4 Testing Strategy
 
 **Unit Tests**:
 - Test each function in isolation
@@ -1731,7 +2198,7 @@ See `docs/plans/validation_design.md` for detailed specification.
 - Gradually add complexity (multiple wires, junctions, labels)
 - Include edge cases (missing data, orphaned labels, etc.)
 
-### 14.5 Questions to Resolve During Implementation
+### 15.5 Questions to Resolve During Implementation
 
 **S-Expression Parser**:
 - Use `sexpdata` library or write custom parser?
@@ -1750,7 +2217,7 @@ See `docs/plans/validation_design.md` for detailed specification.
 
 ---
 
-## 15. Acronyms and Terminology
+## 16. Acronyms and Terminology
 
 See `docs/acronyms.md` for complete project acronyms and domain-specific terminology.
 
@@ -1764,7 +2231,7 @@ See `docs/acronyms.md` for complete project acronyms and domain-specific termino
 
 ---
 
-## 16. References
+## 17. References
 
 1. **MIL-W-5088L**: Military Specification - Wiring, Aerospace Vehicle
    Location: `docs/references/milspecs/MIL-STD-5088L.txt`
@@ -1784,7 +2251,7 @@ See `docs/acronyms.md` for complete project acronyms and domain-specific termino
 
 ---
 
-## 17. Document History
+## 18. Document History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
