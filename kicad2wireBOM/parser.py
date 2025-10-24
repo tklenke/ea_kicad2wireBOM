@@ -6,7 +6,7 @@ from typing import Union, List, Any, Optional
 import sexpdata
 from sexpdata import Symbol
 
-from kicad2wireBOM.schematic import WireSegment, Label, Junction
+from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement, SheetPin
 from kicad2wireBOM.component import Component
 
 
@@ -431,4 +431,106 @@ def parse_junction_element(junction_sexp: Any) -> Junction:
         position=position,
         diameter=diameter,
         color=color
+    )
+
+
+def extract_sheets(sexp: Any) -> List[SheetElement]:
+    """
+    Extract all (sheet ...) elements from schematic s-expression.
+
+    Args:
+        sexp: Parsed s-expression (nested lists)
+
+    Returns:
+        List of SheetElement objects
+    """
+    sheets_raw = []
+
+    def walk(node):
+        """Recursively walk s-expression tree"""
+        if isinstance(node, list):
+            if len(node) > 0:
+                first = node[0]
+                if isinstance(first, Symbol):
+                    if first.value() == 'sheet':
+                        sheets_raw.append(node)
+                elif str(first) == 'sheet':
+                    sheets_raw.append(node)
+
+            for child in node:
+                walk(child)
+
+    walk(sexp)
+
+    # Parse each raw sheet element into SheetElement object
+    sheets = [parse_sheet_element(sheet_sexp) for sheet_sexp in sheets_raw]
+    return sheets
+
+
+def parse_sheet_element(sheet_sexp: Any) -> SheetElement:
+    """
+    Parse a (sheet ...) s-expression into SheetElement object.
+
+    Args:
+        sheet_sexp: Sheet s-expression element
+
+    Returns:
+        SheetElement object with uuid, sheetname, sheetfile, and pins
+    """
+    uuid = None
+    sheetname = None
+    sheetfile = None
+    pins = []
+
+    for item in sheet_sexp[1:]:
+        if isinstance(item, list) and len(item) > 0:
+            key = item[0]
+            if isinstance(key, Symbol):
+                key = key.value()
+
+            if key == 'uuid':
+                # (uuid "string")
+                uuid = item[1]
+            elif key == 'property':
+                # (property "Name" "value" ...)
+                if len(item) >= 3:
+                    prop_name = item[1]
+                    prop_value = item[2]
+                    if prop_name == "Sheetname":
+                        sheetname = prop_value
+                    elif prop_name == "Sheetfile":
+                        sheetfile = prop_value
+            elif key == 'pin':
+                # (pin "name" direction (at x y angle) ...)
+                if len(item) >= 3:
+                    pin_name = item[1]
+                    pin_direction = item[2]
+                    if isinstance(pin_direction, Symbol):
+                        pin_direction = pin_direction.value()
+
+                    # Find (at x y ...) element
+                    pin_position = None
+                    for pin_item in item[3:]:
+                        if isinstance(pin_item, list) and len(pin_item) > 0:
+                            pin_key = pin_item[0]
+                            if isinstance(pin_key, Symbol):
+                                pin_key = pin_key.value()
+                            if pin_key == 'at':
+                                # (at x y) or (at x y angle)
+                                pin_position = (pin_item[1], pin_item[2])
+                                break
+
+                    if pin_position:
+                        pin = SheetPin(
+                            name=pin_name,
+                            direction=pin_direction,
+                            position=pin_position
+                        )
+                        pins.append(pin)
+
+    return SheetElement(
+        uuid=uuid,
+        sheetname=sheetname,
+        sheetfile=sheetfile,
+        pins=pins
     )

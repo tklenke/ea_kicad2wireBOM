@@ -8,12 +8,13 @@ from kicad2wireBOM.parser import (
     extract_labels,
     extract_symbols,
     extract_junctions,
+    extract_sheets,
     parse_wire_element,
     parse_label_element,
     parse_symbol_element,
     parse_junction_element
 )
-from kicad2wireBOM.schematic import WireSegment, Label, Junction
+from kicad2wireBOM.schematic import WireSegment, Label, Junction, SheetElement
 from kicad2wireBOM.component import Component
 
 
@@ -182,3 +183,36 @@ def test_parse_junction_element():
     assert junction.position == (144.78, 86.36)
     assert junction.diameter == 0
     assert junction.color == (0, 0, 0, 0)
+
+
+def test_extract_sheets():
+    """Extract sheet elements from hierarchical schematic"""
+    fixture_path = Path("tests/fixtures/test_06_fixture.kicad_sch")
+    sexp = parse_schematic_file(fixture_path)
+    sheets = extract_sheets(sexp)
+
+    # test_06 has 2 sheets (lighting and avionics)
+    assert len(sheets) == 2
+
+    # Check that sheets are SheetElement objects
+    assert all(isinstance(sheet, SheetElement) for sheet in sheets)
+
+    # Verify avionics sheet
+    avionics = next((s for s in sheets if s.sheetname == "avionics"), None)
+    assert avionics is not None
+    assert avionics.uuid == "3f34c49e-ae58-4433-8ae6-817967dac1be"
+    assert avionics.sheetfile == "test_06_avionics.kicad_sch"
+    assert len(avionics.pins) == 1
+    assert avionics.pins[0].name == "avionics"
+    assert avionics.pins[0].direction == "input"
+    assert avionics.pins[0].position == (81.28, 43.18)
+
+    # Verify lighting sheet
+    lighting = next((s for s in sheets if s.sheetname == "Lighting"), None)
+    assert lighting is not None
+    assert lighting.uuid == "b1093350-cedd-46df-81c4-dadfdf2715f8"
+    assert lighting.sheetfile == "test_06_lighting.kicad_sch"
+    assert len(lighting.pins) == 2
+    pin_names = [p.name for p in lighting.pins]
+    assert "TAIL_LT" in pin_names
+    assert "TIP_LT" in pin_names
