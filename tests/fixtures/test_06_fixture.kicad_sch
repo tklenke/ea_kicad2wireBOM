@@ -1423,6 +1423,26 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 43.18) (xy 81.28 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a3c7ccae-0440-4601-a38c-441f29cb025e")
+	)
+	(wire
+		(pts
+			(xy 88.9 63.5) (xy 88.9 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a756873d-5201-4a21-9e8d-7da405db796b")
+	)
+	(wire
+		(pts
 			(xy 158.75 67.31) (xy 168.91 67.31)
 		)
 		(stroke
@@ -1430,6 +1450,16 @@
 			(type default)
 		)
 		(uuid "ac8c6fd4-c761-4ca6-9879-c0e578bf9fc5")
+	)
+	(wire
+		(pts
+			(xy 81.28 63.5) (xy 88.9 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9da2ed4-71ab-43f5-86b0-6350373ecf5e")
 	)
 	(wire
 		(pts
@@ -1491,16 +1521,6 @@
 		)
 		(uuid "692ec7e0-05bd-45f1-a331-878ee3956f0f")
 	)
-	(label "L2B"
-		(at 151.13 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "77e95163-7044-4de4-bf91-c7229390bfe9")
-	)
 	(label "L3A"
 		(at 114.3 64.77 0)
 		(effects
@@ -1510,16 +1530,6 @@
 			(justify left bottom)
 		)
 		(uuid "7b405403-1490-4fcd-ad51-a3963e553dd4")
-	)
-	(label "L3B"
-		(at 149.86 73.66 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9f55c88e-64f4-43b1-9d77-2cd14a5ff59a")
 	)
 	(label "P1A"
 		(at 59.69 87.63 0)
@@ -1946,8 +1956,60 @@
 		)
 	)
 	(sheet
+		(at 73.66 29.21)
+		(size 19.05 13.97)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "3f34c49e-ae58-4433-8ae6-817967dac1be")
+		(property "Sheetname" "avionics"
+			(at 73.66 28.4984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "test_06_avionics.kicad_sch"
+			(at 73.66 43.7646 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "avionics" input
+			(at 81.28 43.18 270)
+			(uuid "d7e7ad16-a23f-4792-ac7e-ba13782385f6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "test_06_fixture"
+				(path "/6f32b1c6-d0dc-4a69-b565-c121d7833096"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 168.91 52.07)
-		(size 15.24 44.45)
+		(size 15.24 26.67)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -1971,7 +2033,7 @@
 			)
 		)
 		(property "Sheetfile" "test_06_lighting.kicad_sch"
-			(at 168.91 97.1046 0)
+			(at 168.91 79.3246 0)
 			(effects
 				(font
 					(size 1.27 1.27)

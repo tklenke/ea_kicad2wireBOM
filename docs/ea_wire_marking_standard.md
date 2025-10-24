@@ -44,7 +44,7 @@ Consider a landing light circuit that runs from the main bus through a circuit b
 
 See MIL-W-5088L Appendix B for complete circuit function letters (A-Z). Common examples for piston GA aircraft:
 
-- **A** - Armament (not applicable to most GA aircraft)
+- **A** - Avionics 
 - **E** - Engine Instrument
 - **F** - Flight Instrument
 - **K** - Engine Control
