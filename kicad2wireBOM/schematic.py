@@ -1,5 +1,5 @@
 # ABOUTME: Data models for schematic elements
-# ABOUTME: Defines WireSegment, Label, and Component classes for schematic parsing
+# ABOUTME: Defines WireSegment, Label, Component, and hierarchical schematic classes
 
 from dataclasses import dataclass, field
 from typing import Optional
@@ -53,3 +53,117 @@ class Label:
     position: tuple[float, float]  # (x, y) in mm (schematic coordinates)
     uuid: str
     rotation: float = 0.0  # Rotation in degrees
+
+
+@dataclass
+class SheetPin:
+    """
+    Represents a pin on a sheet symbol (parent side).
+
+    Sheet pins are connection points on hierarchical sheet boundaries
+    that connect to hierarchical labels on child sheets.
+    """
+    name: str
+    direction: str  # "input", "output", "bidirectional"
+    position: tuple[float, float]  # (x, y) in parent coordinate system
+
+
+@dataclass
+class SheetElement:
+    """
+    Represents a hierarchical sheet symbol in the schematic.
+
+    Sheet symbols define sub-sheet boundaries and connection points
+    between parent and child sheets.
+    """
+    uuid: str
+    sheetname: str
+    sheetfile: str
+    pins: list[SheetPin] = field(default_factory=list)
+
+
+@dataclass
+class HierarchicalLabel:
+    """
+    Represents a hierarchical label on a child sheet.
+
+    Hierarchical labels are connection points on sub-sheets that
+    connect to sheet pins on the parent sheet.
+    """
+    name: str
+    position: tuple[float, float]  # (x, y) in child coordinate system
+    shape: str  # "input", "output", "bidirectional"
+
+
+@dataclass
+class Sheet:
+    """
+    Represents a single schematic sheet (root or sub-sheet).
+
+    Contains all schematic elements for one sheet including wires,
+    components, junctions, labels, sheet symbols, and hierarchical labels.
+    """
+    uuid: str
+    name: str
+    file_path: str
+    wire_segments: list[WireSegment] = field(default_factory=list)
+    junctions: list[Junction] = field(default_factory=list)
+    labels: list[Label] = field(default_factory=list)
+    components: list = field(default_factory=list)  # Will be Component objects
+    sheet_elements: list[SheetElement] = field(default_factory=list)
+    hierarchical_labels: list[HierarchicalLabel] = field(default_factory=list)
+
+
+@dataclass
+class SheetConnection:
+    """
+    Maps electrical connection between parent sheet pin and child hierarchical label.
+
+    Explicitly defines how sheets connect through hierarchical boundaries.
+    """
+    parent_sheet_uuid: str
+    child_sheet_uuid: str
+    pin_name: str
+    parent_pin_position: tuple[float, float]
+    parent_wire_net: Optional[str]
+    child_label_position: tuple[float, float]
+    child_wire_net: Optional[str]
+
+
+@dataclass
+class PowerSymbol:
+    """
+    Represents a power symbol instance (e.g., GND, +12V).
+
+    Power symbols create global nets that span all sheets.
+    """
+    reference: str  # "#PWR01", "#PWR02", etc.
+    sheet_uuid: str
+    position: tuple[float, float]
+    loc_load: Optional[str]  # Ground point location if specified
+
+
+@dataclass
+class GlobalNet:
+    """
+    Represents a global power net spanning all sheets.
+
+    All power symbols with the same net_name are electrically connected
+    regardless of sheet hierarchy.
+    """
+    net_name: str  # "GND", "+12V", etc.
+    power_symbols: list[PowerSymbol] = field(default_factory=list)
+
+
+@dataclass
+class HierarchicalSchematic:
+    """
+    Root container for multi-sheet hierarchical schematic.
+
+    Contains root sheet, all sub-sheets, cross-sheet connections,
+    and global power nets.
+    """
+    root_sheet: Sheet
+    sub_sheets: dict[str, Sheet] = field(default_factory=dict)  # sheet_uuid → Sheet
+    sheet_connections: list[SheetConnection] = field(default_factory=list)
+    global_nets: dict[str, GlobalNet] = field(default_factory=dict)  # net_name → GlobalNet
