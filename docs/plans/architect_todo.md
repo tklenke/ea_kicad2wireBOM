@@ -1,6 +1,6 @@
 # Architect TODO: kicad2wireBOM
 
-**Status**: All Planned Architecture Complete ✅
+**Status**: Phase 10 Design Complete ✅
 **Last Updated**: 2025-10-25
 
 ---
@@ -20,8 +20,24 @@
 
 ---
 
+## PHASE 10: WIRE ROUTING DIAGRAMS
+
+**Status**: ✅ Design Complete - Ready for Programmer Implementation
+
+**Design Document**: `docs/plans/wire_routing_diagrams_design.md`
+**Implementation Plan**: `docs/plans/routing_diagrams_todo.md`
+
+**Feature**:
+- SVG routing diagrams (2D top-down, FS×BL)
+- Manhattan routing visualization
+- One diagram per system code
+- Auto-scaling, grid, labels
+- No new dependencies
+
+**Next**: Hand off to Programmer role for implementation
+
+---
+
 ## FUTURE OPTIONS
 
 See `docs/notes/opportunities_for_improvement.md` for detailed feature list.
-
-**No active architectural tasks - awaiting direction for next phase.**
