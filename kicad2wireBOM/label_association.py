@@ -75,6 +75,33 @@ def is_circuit_id(text: str) -> bool:
     return re.match(pattern, text) is not None
 
 
+def parse_circuit_ids(label_text: str) -> List[str]:
+    """
+    Parse circuit IDs from label text, supporting pipe notation.
+
+    Handles labels with multiple circuit IDs separated by pipe characters.
+    Filters out invalid parts that don't match circuit ID pattern.
+
+    Examples:
+    - "L3B|L10A" -> ["L3B", "L10A"]
+    - "L2B" -> ["L2B"]
+    - "L3B|NOTES" -> ["L3B"]
+    - "" -> []
+
+    Args:
+        label_text: Label text potentially containing pipe-separated circuit IDs
+
+    Returns:
+        List of valid circuit IDs found in the label text
+    """
+    if not label_text:
+        return []
+
+    parts = label_text.split('|')
+    circuit_ids = [part.strip() for part in parts if is_circuit_id(part.strip())]
+    return circuit_ids
+
+
 def parse_circuit_id(wire: WireSegment) -> None:
     """
     Parse wire.circuit_id into system_code, circuit_num, segment_letter.

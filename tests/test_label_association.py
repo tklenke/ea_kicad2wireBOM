@@ -6,7 +6,8 @@ from kicad2wireBOM.label_association import (
     point_to_segment_distance,
     associate_labels_with_wires,
     is_circuit_id,
-    parse_circuit_id
+    parse_circuit_id,
+    parse_circuit_ids
 )
 from kicad2wireBOM.schematic import WireSegment, Label
 
@@ -172,3 +173,33 @@ def test_associate_mixed_labels():
     # Non-circuit labels should be in notes
     assert "24AWG" in wires[0].notes
     assert "SHIELDED" in wires[0].notes
+
+
+def test_parse_circuit_ids_pipe_notation():
+    """Parse pipe-separated circuit IDs"""
+    result = parse_circuit_ids("L3B|L10A")
+    assert result == ["L3B", "L10A"]
+
+
+def test_parse_circuit_ids_single():
+    """Parse single circuit ID without pipe"""
+    result = parse_circuit_ids("L2B")
+    assert result == ["L2B"]
+
+
+def test_parse_circuit_ids_with_invalid_part():
+    """Parse pipe notation with invalid part - filters out invalid"""
+    result = parse_circuit_ids("L3B|NOTES")
+    assert result == ["L3B"]
+
+
+def test_parse_circuit_ids_empty_string():
+    """Parse empty string returns empty list"""
+    result = parse_circuit_ids("")
+    assert result == []
+
+
+def test_parse_circuit_ids_all_invalid():
+    """Parse string with all invalid parts returns empty list"""
+    result = parse_circuit_ids("NOTES|TODO")
+    assert result == []
