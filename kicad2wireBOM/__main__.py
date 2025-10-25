@@ -24,7 +24,7 @@ from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
 from kicad2wireBOM.graph_builder import build_connectivity_graph, build_connectivity_graph_hierarchical
 from kicad2wireBOM.bom_generator import generate_bom_entries
-from kicad2wireBOM.validator import SchematicValidator
+from kicad2wireBOM.validator import SchematicValidator, HierarchicalValidator
 
 
 def main():
@@ -186,7 +186,11 @@ def main():
 
         # Validate schematic
         strict_mode = not args.permissive
-        validator = SchematicValidator(strict_mode=strict_mode)
+        if is_hierarchical:
+            # Use hierarchical validator with connectivity graph for cross-sheet validation
+            validator = HierarchicalValidator(strict_mode=strict_mode, connectivity_graph=graph)
+        else:
+            validator = SchematicValidator(strict_mode=strict_mode)
         validation_result = validator.validate_all(wires, labels, components)
 
         # Handle validation errors/warnings
