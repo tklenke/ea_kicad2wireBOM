@@ -130,6 +130,14 @@ def test_determine_min_gauge_returns_smallest_suitable():
     assert min_gauge == 20
 
 
+def test_determine_min_gauge_handles_missing_data_sentinel():
+    """Test that gauge determination returns -99 when current is -99 (missing data)"""
+    min_gauge = determine_min_gauge(current=-99, length_inches=100.0, system_voltage=14.0)
+
+    # Should return -99 sentinel unchanged
+    assert min_gauge == -99
+
+
 def test_parse_net_name_compact():
     """Test parsing net name in compact format (no dashes)"""
     result = parse_net_name('/P1A')

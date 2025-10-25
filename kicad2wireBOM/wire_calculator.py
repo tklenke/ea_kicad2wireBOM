@@ -66,13 +66,17 @@ def determine_min_gauge(current: float, length_inches: float, system_voltage: fl
     2. Wire ampacity must be >= current
 
     Args:
-        current: Load current in amps
+        current: Load current in amps (or -99 for missing data)
         length_inches: Wire length in inches
         system_voltage: System voltage (e.g., 14V for 12V aircraft system)
 
     Returns:
-        Minimum AWG wire size (largest number = smallest wire that meets constraints)
+        Minimum AWG wire size, or -99 if current is -99
     """
+    # Handle missing data sentinel
+    if current == -99:
+        return -99
+
     max_voltage_drop = system_voltage * (DEFAULT_CONFIG['voltage_drop_percent'] / 100.0)
 
     # Try AWG sizes from largest wire (smallest number) to smallest wire (largest number)
