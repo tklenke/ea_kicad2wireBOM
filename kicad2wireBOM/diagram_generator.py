@@ -142,3 +142,32 @@ def calculate_scale(fs_range: float, bl_range: float,
 
     # Clamp to reasonable range
     return max(MIN_SCALE, min(MAX_SCALE, scale))
+
+
+def transform_to_svg(fs: float, bl: float,
+                     fs_min: float, bl_min: float, bl_max: float,
+                     scale: float, margin: float) -> Tuple[float, float]:
+    """
+    Transform aircraft coordinates to SVG coordinates.
+
+    Aircraft coords: FS increases forward (right), BL increases starboard (up)
+    SVG coords: X increases right, Y increases down
+
+    Args:
+        fs, bl: Aircraft coordinates (inches)
+        fs_min: Minimum FS in diagram (for offset)
+        bl_min: Minimum BL in diagram (for offset)
+        bl_max: Maximum BL in diagram (for Y-axis flip)
+        scale: Pixels per inch
+        margin: Margin in pixels
+
+    Returns:
+        (svg_x, svg_y) in SVG pixel coordinates
+    """
+    # X: Offset to make all FS positive, scale, add margin
+    svg_x = (fs - fs_min) * scale + margin
+
+    # Y: Flip axis (BL up → SVG down), offset, scale, add margin
+    svg_y = (bl_max - bl) * scale + margin
+
+    return (svg_x, svg_y)
