@@ -19,7 +19,12 @@ from kicad2wireBOM.parser import (
     parse_symbol_element
 )
 from kicad2wireBOM.label_association import associate_labels_with_wires
-from kicad2wireBOM.wire_calculator import calculate_length, determine_min_gauge
+from kicad2wireBOM.wire_calculator import (
+    calculate_length,
+    determine_min_gauge,
+    group_wires_by_circuit,
+    determine_circuit_current
+)
 from kicad2wireBOM.wire_bom import WireConnection, WireBOM
 from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
@@ -264,7 +269,8 @@ def main():
         # Build wire BOM
         bom = WireBOM(config=DEFAULT_CONFIG)
 
-        # For each BOM entry, calculate wire properties
+        # FIRST PASS: Create all WireConnection objects with placeholder gauge
+        # (gauge will be determined by circuit-based calculation after grouping)
         for entry in bom_entries:
             circuit_id = entry['circuit_id']
             from_component = entry['from_component']
@@ -288,20 +294,6 @@ def main():
                 length = length_mm / 25.4  # Convert mm to inches
                 length += args.slack_length
 
-            # Determine current (use load if available)
-            current = 0.0
-            if comp1 and comp1.is_load:
-                current = comp1.load
-            elif comp2 and comp2.is_load:
-                current = comp2.load
-            elif comp1 and comp1.source:
-                current = comp1.source
-            elif comp2 and comp2.source:
-                current = comp2.source
-
-            # Determine wire gauge
-            gauge = determine_min_gauge(current, length, args.system_voltage)
-
             # Get wire color from system code (lookup wire by circuit_id)
             wire = wire_map.get(circuit_id)
             system_code = wire.system_code if wire else None
@@ -316,14 +308,15 @@ def main():
                 from_component, to_component = to_component, from_component
                 from_pin, to_pin = to_pin, from_pin
 
-            # Create wire connection
+            # Create wire connection with placeholder gauge (-99)
+            # Actual gauge will be determined by circuit-based calculation
             wire_conn = WireConnection(
                 wire_label=circuit_id,
                 from_component=from_component,
                 from_pin=from_pin,
                 to_component=to_component,
                 to_pin=to_pin,
-                wire_gauge=gauge,
+                wire_gauge=-99,  # Placeholder - will be updated by circuit-based sizing
                 wire_color=wire_color,
                 length=length,
                 wire_type=DEFAULT_CONFIG['default_wire_type'],
@@ -332,6 +325,32 @@ def main():
             )
 
             bom.add_wire(wire_conn)
+
+        # SECOND PASS: Circuit-based wire gauge calculation
+        # Group wires by circuit_id (e.g., L1, L2, G1)
+        circuit_groups = group_wires_by_circuit(bom.wires)
+
+        # For each circuit, determine total current and calculate gauge
+        circuit_gauges = {}  # {circuit_id: gauge}
+        for circuit_id, circuit_wires in circuit_groups.items():
+            # Determine total circuit current
+            circuit_current = determine_circuit_current(circuit_wires, components, graph)
+
+            # Find longest wire in circuit (for voltage drop calculation)
+            max_length = max(wire.length for wire in circuit_wires)
+
+            # Determine gauge for entire circuit
+            gauge = determine_min_gauge(circuit_current, max_length, args.system_voltage)
+            circuit_gauges[circuit_id] = gauge
+
+        # THIRD PASS: Apply circuit gauge to each wire
+        for wire in bom.wires:
+            # Extract circuit_id from wire label (e.g., "L-1-A" → "L1")
+            from kicad2wireBOM.wire_calculator import parse_net_name
+            parsed = parse_net_name(f"/{wire.wire_label}")
+            if parsed:
+                circuit_id = f"{parsed['system']}{parsed['circuit']}"
+                wire.wire_gauge = circuit_gauges.get(circuit_id, -99)
 
         # Sort BOM by system code, circuit number, segment letter
         def parse_wire_label_for_sort(label):

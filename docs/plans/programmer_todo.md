@@ -176,8 +176,9 @@ def determine_min_gauge(current: float, length_inches: float, system_voltage: fl
 4. Verify test passes
 5. Verify existing tests still pass
 
-#### Task 9.4: Integrate Circuit-Based Sizing into BOM Generation
-**File**: `kicad2wireBOM/__main__.py` (or `bom_generator.py` if unified BOM function exists)
+#### [x] Task 9.4: Integrate Circuit-Based Sizing into BOM Generation
+**File**: `kicad2wireBOM/__main__.py`
+**Status**: Complete
 
 Replace per-wire gauge calculation with circuit-based approach:
 
