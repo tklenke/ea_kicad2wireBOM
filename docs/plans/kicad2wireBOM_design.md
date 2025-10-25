@@ -4,11 +4,28 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.0 (Hierarchical Schematic Support)
-**Date**: 2025-01-24
-**Status**: Phase 1-6 Complete, Phase 7 Designed ✅
+**Version**: 3.1 (Circuit-Based Wire Sizing)
+**Date**: 2025-10-25
+**Status**: Phase 1-8 Complete, Phase 9 Designed ✅
 
 ## Design Revision History
+
+### Version 3.1 (2025-10-25)
+**Changed**: Redesigned wire gauge calculation to use circuit-based grouping instead of per-wire analysis
+
+**Sections Modified**:
+- Section 5.2: Wire Gauge Calculation - Complete rewrite to circuit-based algorithm
+
+**Rationale**: Original per-wire algorithm incorrectly sized wires individually based only on directly connected components. This fails for circuits where loads are downstream of passthroughs (switches, fuses). Example: SW1→L1 circuit would size SW1 wire for 0A (no load on switch), incorrect. Proper aircraft wiring sizes ALL segments of a circuit based on the circuit's total load.
+
+**Impact**:
+- All wires with same circuit_id (e.g., L1A, L1B) are grouped together
+- Total circuit current determined by summing ALL loads in circuit group
+- Same wire gauge applied to ALL wires in circuit group
+- Missing load/source data returns sentinel value (-99) with error message
+- SD controls wire sizing through circuit_id labeling (consistent with EAWMS)
+
+**Test Fixture**: test_07_fixture.kicad_sch with multiple circuit topologies (single load, parallel loads, power distribution)
 
 ### Version 3.0 (2025-01-24)
 **Changed**: Added hierarchical schematic support (Phase 7) - multi-sheet parsing, cross-sheet wire tracing
@@ -1056,37 +1073,103 @@ Length = |FS₁ - FS₂| + |WL₁ - WL₂| + |BL₁ - BL₂| + slack
 - Use component1 coordinates and component2 coordinates (not individual pin positions)
 - Pin-level routing is sub-inch scale; component positions determine overall wire run
 
-### 5.2 Wire Gauge Calculation
+### 5.2 Wire Gauge Calculation **[REVISED - 2025-10-25]**
 
 **Basis**: Aeroelectric Connection (Bob Nuckolls) ampacity tables and voltage drop guidelines.
 
 **Primary Constraint**: Maximum 5% voltage drop at system voltage
-- Default system voltage: 12V (configurable via `--system-voltage`)
-- 5% of 12V = 0.6V max drop
+- Default system voltage: 14V (configurable via `--system-voltage`)
 - 5% of 14V = 0.7V max drop
 
-**Calculation Method**:
+**Architectural Principle**: All wires in a circuit are sized together based on the circuit's total current, not individually per wire segment. The SD controls wire grouping through circuit_id labeling per EAWMS.
 
-1. **Determine wire current**:
-   - For load wires: Use load component's amperage
-   - For source wires: Use source component's capacity
-   - For passthrough wires: Use downstream load (requires tracing)
+**Algorithm Overview**:
 
-2. **Calculate voltage drop for each AWG size**:
-   - `Vdrop = Current × Resistance_per_foot × (Length_inches / 12)`
-   - Use wire resistance values from Aeroelectric Connection
+#### Step 1: Group Wires by Circuit ID
 
-3. **Select minimum gauge**:
-   - Find smallest AWG where `Vdrop ≤ 0.05 × Vsystem`
-   - Verify gauge also meets ampacity constraint (current ≤ max amps for AWG)
-   - Round up to next standard AWG size if needed
+Parse all wire labels to extract `(system_code, circuit_num)` tuple:
+- Example: L1A, L1B → circuit group "L1"
+- Example: L2A, L2B, L2C → circuit group "L2"
+- Example: G1A → circuit group "G1"
 
-**Standard AWG Sizes**: 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2
+All wires with the same circuit_id belong to the same circuit group and will receive the same wire gauge.
 
-**Result**:
-- Minimum required gauge (e.g., "18.7 AWG calculated")
-- Round up to next standard AWG size (e.g., 18 AWG selected)
-- Document both calculated and selected values in engineering mode
+#### Step 2: Determine Circuit Current
+
+For each circuit group, find ALL components connected to ANY wire in that group via the connectivity graph:
+
+```python
+# Priority order for current determination:
+loads = [comp.load for comp in circuit_components if comp.is_load]
+sources = [comp.source for comp in circuit_components if comp.source]
+
+if loads:
+    circuit_current = sum(loads)  # Sum all parallel loads
+elif sources:
+    circuit_current = max(sources)  # Power distribution case
+else:
+    circuit_current = -99  # SENTINEL: Missing data - SD must fix
+```
+
+**Cases**:
+
+1. **Single load circuit** (L1A, L1B with L1=10A):
+   - Sum loads = 10A
+   - Size all L1 wires for 10A
+
+2. **Parallel loads circuit** (L2A, L2B, L2C with L2=7A, L3=7A):
+   - Sum loads = 14A
+   - Size all L2 wires for 14A
+   - Note: L2A connects to fuse (no load) but still sized for 14A because it shares circuit_id "L2"
+
+3. **Power distribution** (P1A with BT1=40A source, no loads):
+   - No loads found → use source capacity
+   - Size for 40A
+
+4. **Missing data** (circuit has only passthroughs, no loads or sources):
+   - Return sentinel value -99
+   - Add warning: "Cannot determine circuit current - missing load/source data"
+   - SD must add LocLoad data to components in this circuit
+
+#### Step 3: Calculate Wire Gauge for Circuit
+
+If `circuit_current == -99`:
+  - Set `gauge = -99` for ALL wires in circuit
+  - Add warning message to CSV output
+
+Otherwise, for each AWG size (largest to smallest: 12, 16, 18, 20):
+  1. Check ampacity constraint: `WIRE_AMPACITY[awg] >= circuit_current`
+  2. Check voltage drop constraint: `Vdrop ≤ 0.05 × Vsystem`
+     - `Vdrop = circuit_current × WIRE_RESISTANCE[awg] × (max_length_in_circuit / 12)`
+     - Use longest wire in circuit group for voltage drop calculation
+  3. If both constraints met, add to candidate list
+
+Return smallest wire (highest AWG number) that meets both constraints.
+
+If no wire meets constraints, return largest wire available (12 AWG) as fallback.
+
+#### Step 4: Apply Gauge to All Wires in Circuit
+
+ALL wires in the circuit group receive the same gauge, regardless of their individual topology or connected components.
+
+**Standard AWG Sizes Available**: 12, 16, 18, 20
+
+**Example Outputs**:
+
+Circuit L1 (L1=10A, longest wire 31"):
+- Ampacity: 20 AWG can handle 7.5A → too small, try 18 AWG
+- 18 AWG: 10A ampacity, Vdrop = 10A × 0.006385 × (31/12) = 0.165V < 0.7V ✓
+- Result: **18 AWG** for L1A, L1B
+
+Circuit L2 (L2=7A, L3=7A, longest wire 130"):
+- Total current: 14A
+- 18 AWG: 10A ampacity → too small, try 16 AWG
+- 16 AWG: 13A ampacity → too small, try 12 AWG
+- 12 AWG: 25A ampacity, voltage drop acceptable
+- Result: **12 AWG** for L2A, L2B, L2C
+
+Circuit X (no load, no source):
+- Result: **-99** with warning message in CSV
 
 ### 5.3 Wire Color Assignment
 
