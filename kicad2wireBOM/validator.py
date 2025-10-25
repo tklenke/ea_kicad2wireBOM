@@ -2,8 +2,11 @@
 # ABOUTME: Detects missing labels, duplicates, and malformed circuit IDs
 
 from dataclasses import dataclass
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, TYPE_CHECKING
 import re
+
+if TYPE_CHECKING:
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
 
 
 @dataclass
@@ -113,3 +116,11 @@ class SchematicValidator:
             self.result.errors.append(error)
         else:
             self.result.warnings.append(error)
+
+
+class HierarchicalValidator(SchematicValidator):
+    """Validates hierarchical schematics with connectivity-aware duplicate detection"""
+
+    def __init__(self, strict_mode: bool = True, connectivity_graph: Optional['ConnectivityGraph'] = None):
+        super().__init__(strict_mode)
+        self.connectivity_graph = connectivity_graph

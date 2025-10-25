@@ -5,7 +5,8 @@ import pytest
 from kicad2wireBOM.validator import (
     ValidationError,
     ValidationResult,
-    SchematicValidator
+    SchematicValidator,
+    HierarchicalValidator
 )
 
 
@@ -199,3 +200,14 @@ def test_check_duplicate_circuit_ids_permissive():
     dup_warnings = [w for w in result.warnings if "Duplicate" in w.message]
     assert len(dup_warnings) > 0
     assert "G3A" in dup_warnings[0].message
+
+
+def test_hierarchical_validator_creation():
+    """Test creating a HierarchicalValidator with connectivity graph"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
+
+    graph = ConnectivityGraph()
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+
+    assert validator.strict_mode is True
+    assert validator.connectivity_graph is graph
