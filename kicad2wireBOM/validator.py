@@ -193,3 +193,36 @@ class HierarchicalValidator(SchematicValidator):
 
         # Check if all positions are reachable from start
         return all_positions.issubset(reachable)
+
+    def _check_duplicate_circuit_ids(self, wires):
+        """
+        Check for duplicate circuit IDs with connectivity awareness.
+
+        Allows same circuit ID on multiple segments if they are electrically
+        connected (valid for hierarchical schematics with cross-sheet connections).
+        Flags as error if same ID appears on unconnected segments.
+        """
+        if not self.connectivity_graph:
+            # Fall back to base class behavior if no graph
+            super()._check_duplicate_circuit_ids(wires)
+            return
+
+        # Group wires by circuit ID (handling multiple IDs per wire via circuit_ids)
+        circuit_id_groups: Dict[str, List] = {}
+        for wire in wires:
+            # Use circuit_ids if available, otherwise fall back to circuit_id
+            ids = wire.circuit_ids if wire.circuit_ids else ([wire.circuit_id] if wire.circuit_id else [])
+            for cid in ids:
+                if cid not in circuit_id_groups:
+                    circuit_id_groups[cid] = []
+                circuit_id_groups[cid].append(wire)
+
+        # Check each group with 2+ wires
+        for circuit_id, wire_group in circuit_id_groups.items():
+            if len(wire_group) > 1:
+                # Check if all wires in group are connected
+                if not self._are_all_wires_connected(wire_group):
+                    self._add_error(
+                        f"Duplicate circuit ID '{circuit_id}' found on {len(wire_group)} UNCONNECTED wire segments",
+                        suggestion="Circuit IDs must be unique unless segments are electrically connected."
+                    )

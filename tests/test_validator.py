@@ -311,3 +311,74 @@ def test_are_all_wires_connected_false():
     # Wires should NOT be connected
     result = validator._are_all_wires_connected([wire1, wire2])
     assert result is False
+
+
+def test_connectivity_aware_duplicate_detection_connected():
+    """Test that same circuit ID on connected wires is NOT an error"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
+    from kicad2wireBOM.schematic import WireSegment, Label
+
+    # Create connected wires with same circuit ID (valid for hierarchical)
+    graph = ConnectivityGraph()
+
+    wire1 = WireSegment(uuid="w1", start_point=(0, 0), end_point=(10, 0))
+    wire1.circuit_id = "L2B"
+    wire1.circuit_ids = ["L2B"]
+    wire1.labels = ["L2B"]
+
+    wire2 = WireSegment(uuid="w2", start_point=(10, 0), end_point=(20, 0))
+    wire2.circuit_id = "L2B"
+    wire2.circuit_ids = ["L2B"]
+    wire2.labels = ["L2B"]
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+
+    # Create labels for validation
+    labels = [
+        Label(text="L2B", position=(5, 0), uuid="l1"),
+        Label(text="L2B", position=(15, 0), uuid="l2")
+    ]
+
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+    result = validator.validate_all([wire1, wire2], labels, [])
+
+    # Should NOT have errors - connected wires can share circuit ID
+    assert not result.has_errors()
+
+
+def test_connectivity_aware_duplicate_detection_unconnected():
+    """Test that same circuit ID on unconnected wires IS an error"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
+    from kicad2wireBOM.schematic import WireSegment, Label
+
+    # Create disconnected wires with same circuit ID (invalid)
+    graph = ConnectivityGraph()
+
+    wire1 = WireSegment(uuid="w1", start_point=(0, 0), end_point=(10, 0))
+    wire1.circuit_id = "L2B"
+    wire1.circuit_ids = ["L2B"]
+    wire1.labels = ["L2B"]
+
+    wire2 = WireSegment(uuid="w2", start_point=(100, 0), end_point=(110, 0))
+    wire2.circuit_id = "L2B"
+    wire2.circuit_ids = ["L2B"]
+    wire2.labels = ["L2B"]
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+
+    # Create labels for validation
+    labels = [
+        Label(text="L2B", position=(5, 0), uuid="l1"),
+        Label(text="L2B", position=(105, 0), uuid="l2")
+    ]
+
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+    result = validator.validate_all([wire1, wire2], labels, [])
+
+    # Should have errors - unconnected wires cannot share circuit ID
+    assert result.has_errors()
+    dup_errors = [e for e in result.errors if "UNCONNECTED" in e.message]
+    assert len(dup_errors) > 0
+    assert "L2B" in dup_errors[0].message
