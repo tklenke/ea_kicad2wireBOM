@@ -8,9 +8,11 @@ from pathlib import Path
 
 from kicad2wireBOM.parser import (
     parse_schematic_file,
+    parse_schematic_hierarchical,
     extract_wires,
     extract_labels,
     extract_symbols,
+    extract_sheets,
     parse_wire_element,
     parse_label_element,
     parse_symbol_element
@@ -20,7 +22,7 @@ from kicad2wireBOM.wire_calculator import calculate_length, determine_min_gauge
 from kicad2wireBOM.wire_bom import WireConnection, WireBOM
 from kicad2wireBOM.output_csv import write_builder_csv
 from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
-from kicad2wireBOM.graph_builder import build_connectivity_graph
+from kicad2wireBOM.graph_builder import build_connectivity_graph, build_connectivity_graph_hierarchical
 from kicad2wireBOM.bom_generator import generate_bom_entries
 from kicad2wireBOM.validator import SchematicValidator
 
@@ -101,33 +103,81 @@ def main():
     print(f"Processing {args.source}...")
 
     try:
-        # Parse schematic
-        sexp = parse_schematic_file(args.source)
+        # First, check if this is a hierarchical schematic
+        sexp_check = parse_schematic_file(args.source)
+        sheet_elements = extract_sheets(sexp_check)
+        is_hierarchical = len(sheet_elements) > 0
 
-        # Extract elements
-        wire_sexps = extract_wires(sexp)
-        label_sexps = extract_labels(sexp)
-        symbol_sexps = extract_symbols(sexp)
+        if is_hierarchical:
+            print(f"  Detected hierarchical schematic with {len(sheet_elements)} sub-sheets")
 
-        print(f"  Found {len(wire_sexps)} wire segments")
-        print(f"  Found {len(label_sexps)} labels")
-        print(f"  Found {len(symbol_sexps)} components")
+            # Parse hierarchical schematic
+            hierarchical_schematic = parse_schematic_hierarchical(args.source)
 
-        # Convert to data objects
-        wires = [parse_wire_element(w) for w in wire_sexps]
-        labels = [parse_label_element(l) for l in label_sexps]
+            # Collect all wires, labels, components from all sheets
+            all_wires = []
+            all_labels = []
+            all_components = []
 
-        # Parse components (may fail if LocLoad encodings missing)
-        components = []
-        for s in symbol_sexps:
-            try:
-                components.append(parse_symbol_element(s))
-            except ValueError as e:
-                # Component missing LocLoad encoding - skip for BOM but continue for connectivity
-                print(f"  Warning: {e} (skipping for BOM calculations)")
-                pass
+            # Process root sheet
+            all_wires.extend(hierarchical_schematic.root_sheet.wire_segments)
+            all_labels.extend(hierarchical_schematic.root_sheet.labels)
+            all_components.extend(hierarchical_schematic.root_sheet.components)
 
-        # Associate labels with wires
+            # Process sub-sheets
+            for sheet_uuid, sheet in hierarchical_schematic.sub_sheets.items():
+                all_wires.extend(sheet.wire_segments)
+                all_labels.extend(sheet.labels)
+                all_components.extend(sheet.components)
+
+            print(f"  Found {len(all_wires)} wire segments across all sheets")
+            print(f"  Found {len(all_labels)} labels across all sheets")
+            print(f"  Found {len(all_components)} components across all sheets")
+
+            wires = all_wires
+            labels = all_labels
+            components = all_components
+
+            # Build connectivity graph (hierarchical)
+            print(f"  Building hierarchical connectivity graph...")
+            graph = build_connectivity_graph_hierarchical(hierarchical_schematic)
+            print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
+
+        else:
+            print(f"  Detected single-sheet schematic")
+
+            # Parse single-sheet schematic (existing code path)
+            sexp = sexp_check
+
+            # Extract elements
+            wire_sexps = extract_wires(sexp)
+            label_sexps = extract_labels(sexp)
+            symbol_sexps = extract_symbols(sexp)
+
+            print(f"  Found {len(wire_sexps)} wire segments")
+            print(f"  Found {len(label_sexps)} labels")
+            print(f"  Found {len(symbol_sexps)} components")
+
+            # Convert to data objects
+            wires = [parse_wire_element(w) for w in wire_sexps]
+            labels = [parse_label_element(l) for l in label_sexps]
+
+            # Parse components (may fail if LocLoad encodings missing)
+            components = []
+            for s in symbol_sexps:
+                try:
+                    components.append(parse_symbol_element(s))
+                except ValueError as e:
+                    # Component missing LocLoad encoding - skip for BOM but continue for connectivity
+                    print(f"  Warning: {e} (skipping for BOM calculations)")
+                    pass
+
+            # Build connectivity graph (single-sheet)
+            print(f"  Building connectivity graph...")
+            graph = build_connectivity_graph(sexp)
+            print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
+
+        # Associate labels with wires (same for both paths)
         associate_labels_with_wires(wires, labels, threshold=args.label_threshold)
 
         # Count labeled wires
@@ -154,11 +204,6 @@ def main():
                 print(f"  WARNING: {warning.message}")
                 if warning.suggestion:
                     print(f"           Suggestion: {warning.suggestion}")
-
-        # Build connectivity graph
-        print(f"  Building connectivity graph...")
-        graph = build_connectivity_graph(sexp)
-        print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
 
         # Generate BOM entries (handles both multipoint and regular)
         print(f"  Generating BOM entries...")
