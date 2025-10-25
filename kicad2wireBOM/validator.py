@@ -50,6 +50,48 @@ class SchematicValidator:
         self._check_orphaned_labels(labels, wires)
         return self.result
 
+    def _format_wire_connections(self, wire) -> str:
+        """
+        Format wire endpoint connections for error messages.
+
+        Returns a string like "BT1 (pin 1) → FH1 (pin 2)" showing
+        what components the wire connects to.
+
+        Args:
+            wire: WireSegment to trace connections for
+
+        Returns:
+            Formatted string describing wire connections
+        """
+        if not self.connectivity_graph:
+            return "unknown → unknown"
+
+        # Get nodes at wire endpoints
+        start_node = self.connectivity_graph.get_node_at_position(wire.start_point)
+        end_node = self.connectivity_graph.get_node_at_position(wire.end_point)
+
+        # Trace to components at each endpoint
+        start_component = self.connectivity_graph.trace_to_component(start_node, exclude_wire_uuid=wire.uuid)
+        end_component = self.connectivity_graph.trace_to_component(end_node, exclude_wire_uuid=wire.uuid)
+
+        # Format start endpoint
+        if start_component:
+            start_str = f"{start_component['component_ref']} (pin {start_component['pin_number']})"
+        elif start_node and start_node.node_type == 'junction':
+            start_str = "junction"
+        else:
+            start_str = "unknown"
+
+        # Format end endpoint
+        if end_component:
+            end_str = f"{end_component['component_ref']} (pin {end_component['pin_number']})"
+        elif end_node and end_node.node_type == 'junction':
+            end_str = "junction"
+        else:
+            end_str = "unknown"
+
+        return f"{start_str} → {end_str}"
+
     def _check_no_labels(self, wires, labels):
         """Check for schematic with no circuit ID labels"""
         circuit_labels = [l for l in labels if self.CIRCUIT_ID_PATTERN.match(l.text)]

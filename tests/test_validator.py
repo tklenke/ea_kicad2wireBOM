@@ -65,6 +65,82 @@ def test_schematic_validator_accepts_connectivity_graph():
     assert validator_with_graph.connectivity_graph is mock_graph
 
 
+def test_format_wire_connections_both_ends_to_components():
+    """Test _format_wire_connections with both wire ends connecting to components"""
+    from kicad2wireBOM.schematic import WireSegment
+    from kicad2wireBOM.connectivity_graph import NetworkNode
+
+    # Create mock graph that returns component pins at both endpoints
+    class MockGraph:
+        def get_node_at_position(self, position):
+            # Return mock nodes
+            if position == (0.0, 0.0):
+                return NetworkNode(position=(0.0, 0.0), node_type='component_pin',
+                                 component_ref='BT1', pin_number='1')
+            elif position == (100.0, 0.0):
+                return NetworkNode(position=(100.0, 0.0), node_type='component_pin',
+                                 component_ref='FH1', pin_number='2')
+            return None
+
+        def trace_to_component(self, node, exclude_wire_uuid=None):
+            if node and node.node_type == 'component_pin':
+                return {'component_ref': node.component_ref, 'pin_number': node.pin_number}
+            return None
+
+    wire = WireSegment(uuid="w1", start_point=(0.0, 0.0), end_point=(100.0, 0.0))
+    validator = SchematicValidator(strict_mode=True, connectivity_graph=MockGraph())
+
+    result = validator._format_wire_connections(wire)
+
+    assert result == "BT1 (pin 1) → FH1 (pin 2)"
+
+
+def test_format_wire_connections_one_end_to_junction():
+    """Test _format_wire_connections with one end to component, one to junction"""
+    from kicad2wireBOM.schematic import WireSegment
+    from kicad2wireBOM.connectivity_graph import NetworkNode
+
+    class MockGraph:
+        def get_node_at_position(self, position):
+            if position == (0.0, 0.0):
+                return NetworkNode(position=(0.0, 0.0), node_type='component_pin',
+                                 component_ref='BT1', pin_number='1')
+            elif position == (100.0, 0.0):
+                return NetworkNode(position=(100.0, 0.0), node_type='junction')
+            return None
+
+        def trace_to_component(self, node, exclude_wire_uuid=None):
+            if node and node.node_type == 'component_pin':
+                return {'component_ref': node.component_ref, 'pin_number': node.pin_number}
+            return None
+
+    wire = WireSegment(uuid="w1", start_point=(0.0, 0.0), end_point=(100.0, 0.0))
+    validator = SchematicValidator(strict_mode=True, connectivity_graph=MockGraph())
+
+    result = validator._format_wire_connections(wire)
+
+    assert result == "BT1 (pin 1) → junction"
+
+
+def test_format_wire_connections_both_unknown():
+    """Test _format_wire_connections with both endpoints unknown"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    class MockGraph:
+        def get_node_at_position(self, position):
+            return None
+
+        def trace_to_component(self, node, exclude_wire_uuid=None):
+            return None
+
+    wire = WireSegment(uuid="w1", start_point=(0.0, 0.0), end_point=(100.0, 0.0))
+    validator = SchematicValidator(strict_mode=True, connectivity_graph=MockGraph())
+
+    result = validator._format_wire_connections(wire)
+
+    assert result == "unknown → unknown"
+
+
 def test_circuit_id_pattern_matches_valid():
     """Test CIRCUIT_ID_PATTERN matches valid circuit IDs"""
     validator = SchematicValidator()
