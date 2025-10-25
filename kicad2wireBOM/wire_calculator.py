@@ -297,3 +297,51 @@ def group_wires_by_circuit(wire_connections: List['WireConnection']) -> Dict[str
             circuit_groups[circuit_id].append(wire)
 
     return circuit_groups
+
+
+def determine_circuit_current(
+    circuit_wires: List['WireConnection'],
+    all_components: List[Component],
+    connectivity_graph
+) -> float:
+    """
+    Determine total current for a circuit by finding all components connected
+    to any wire in the circuit group.
+
+    Args:
+        circuit_wires: All wires in this circuit group
+        all_components: All components in schematic
+        connectivity_graph: Connectivity graph for component lookup (unused - components from wire refs)
+
+    Returns:
+        Total circuit current in amps
+        Special value: -99 if no loads or sources found (missing data)
+    """
+    # Build component reference lookup map
+    component_map = {comp.ref: comp for comp in all_components}
+
+    # Collect all unique component references from circuit wires
+    component_refs = set()
+    for wire in circuit_wires:
+        if wire.from_component:
+            component_refs.add(wire.from_component)
+        if wire.to_component:
+            component_refs.add(wire.to_component)
+
+    # Get Component objects for those references
+    components = []
+    for ref in component_refs:
+        if ref in component_map:
+            components.append(component_map[ref])
+
+    # Extract loads and sources
+    loads = [comp.load for comp in components if comp.is_load]
+    sources = [comp.source for comp in components if comp.source]
+
+    # Determine current based on priority
+    if loads:
+        return sum(loads)
+    elif sources:
+        return max(sources)
+    else:
+        return -99  # Sentinel for missing data

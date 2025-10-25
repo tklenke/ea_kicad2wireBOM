@@ -272,3 +272,90 @@ def test_group_wires_by_circuit():
     assert 'G1' in result
     assert len(result['G1']) == 1
     assert result['G1'][0].wire_label == 'G-1-A'
+
+
+def test_determine_circuit_current_single_load():
+    """Test circuit current determination for single load circuit"""
+    from kicad2wireBOM.wire_calculator import determine_circuit_current
+
+    # Circuit L1: J1 --L1A--> SW1 --L1B--> LIGHT1 (10A load)
+    circuit_wires = [
+        WireConnection('L-1-A', 'J1', '1', 'SW1', '1', 18, 'White', 79.0, 'Standard', '', []),
+        WireConnection('L-1-B', 'SW1', '2', 'LIGHT1', '1', 18, 'White', 55.0, 'Standard', '', []),
+    ]
+
+    components = [
+        Component(ref='J1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=15.0, source=None),
+        Component(ref='SW1', fs=50.0, wl=0.0, bl=0.0, load=None, rating=20.0, source=None),
+        Component(ref='LIGHT1', fs=100.0, wl=0.0, bl=0.0, load=10.0, rating=None, source=None),
+    ]
+
+    current = determine_circuit_current(circuit_wires, components, None)
+
+    # Should return sum of loads = 10A
+    assert current == 10.0
+
+
+def test_determine_circuit_current_parallel_loads():
+    """Test circuit current determination for parallel loads"""
+    from kicad2wireBOM.wire_calculator import determine_circuit_current
+
+    # Circuit L2: J1 --L2A--> SW2 --L2B--> LIGHT2 (7A)
+    #                              \--L2C--> LIGHT3 (7A)
+    circuit_wires = [
+        WireConnection('L-2-A', 'J1', '2', 'SW2', '1', 16, 'Red', 100.0, 'Standard', '', []),
+        WireConnection('L-2-B', 'SW2', '2', 'LIGHT2', '1', 16, 'Red', 60.0, 'Standard', '', []),
+        WireConnection('L-2-C', 'SW2', '2', 'LIGHT3', '1', 16, 'Red', 65.0, 'Standard', '', []),
+    ]
+
+    components = [
+        Component(ref='J1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=15.0, source=None),
+        Component(ref='SW2', fs=50.0, wl=0.0, bl=0.0, load=None, rating=20.0, source=None),
+        Component(ref='LIGHT2', fs=100.0, wl=0.0, bl=0.0, load=7.0, rating=None, source=None),
+        Component(ref='LIGHT3', fs=100.0, wl=10.0, bl=0.0, load=7.0, rating=None, source=None),
+    ]
+
+    current = determine_circuit_current(circuit_wires, components, None)
+
+    # Should return sum of loads = 7 + 7 = 14A
+    assert current == 14.0
+
+
+def test_determine_circuit_current_power_source():
+    """Test circuit current determination for power distribution (source only, no loads)"""
+    from kicad2wireBOM.wire_calculator import determine_circuit_current
+
+    # Circuit P1: BT1 --P1A--> BUS (power distribution, no loads in circuit)
+    circuit_wires = [
+        WireConnection('P-1-A', 'BT1', '1', 'BUS', '1', 12, 'Red', 50.0, 'Standard', '', []),
+    ]
+
+    components = [
+        Component(ref='BT1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None, source=40.0),
+        Component(ref='BUS', fs=50.0, wl=0.0, bl=0.0, load=None, rating=50.0, source=None),
+    ]
+
+    current = determine_circuit_current(circuit_wires, components, None)
+
+    # Should return max of sources = 40A
+    assert current == 40.0
+
+
+def test_determine_circuit_current_missing_data():
+    """Test circuit current determination when no loads or sources found"""
+    from kicad2wireBOM.wire_calculator import determine_circuit_current
+
+    # Circuit with only passthrough components (no load, no source)
+    circuit_wires = [
+        WireConnection('X-1-A', 'J1', '1', 'J2', '1', 18, 'White', 50.0, 'Standard', '', []),
+    ]
+
+    components = [
+        Component(ref='J1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=15.0, source=None),
+        Component(ref='J2', fs=50.0, wl=0.0, bl=0.0, load=None, rating=15.0, source=None),
+    ]
+
+    current = determine_circuit_current(circuit_wires, components, None)
+
+    # Should return -99 (sentinel for missing data)
+    assert current == -99
