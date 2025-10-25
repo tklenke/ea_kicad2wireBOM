@@ -146,6 +146,8 @@ def generate_bom_entries(
     multipoint_labels = {entry['circuit_id'] for entry in multipoint_entries}
 
     # Step 5: Generate BOM entries for regular 2-point connections
+    # Track which circuit_ids we've already processed to avoid duplicates
+    processed_circuit_ids = set()
     regular_entries = []
     for wire in wires:
         # Get all circuit IDs for this wire (handles pipe notation)
@@ -167,6 +169,12 @@ def generate_bom_entries(
             # Skip if this label was handled by multipoint logic
             if circuit_id in multipoint_labels:
                 continue
+
+            # Skip if we've already processed this circuit_id
+            # This avoids duplicate BOM entries when same ID appears on multiple sheets
+            if circuit_id in processed_circuit_ids:
+                continue
+            processed_circuit_ids.add(circuit_id)
 
             # Identify 2-point connection
             from_conn, to_conn = identify_wire_connections(wire, graph)

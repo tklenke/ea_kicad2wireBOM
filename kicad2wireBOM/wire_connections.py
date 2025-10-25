@@ -15,6 +15,9 @@ def identify_wire_connections(
 
     Traces through junctions to find component pins at both ends.
 
+    For hierarchical schematics, ensures direction flows from local component
+    to cross-sheet component (child → parent).
+
     Args:
         wire: Wire segment to identify connections for
         graph: Connectivity graph with all nodes
@@ -30,6 +33,18 @@ def identify_wire_connections(
     # Trace through junctions to find component pins
     start_conn = graph.trace_to_component(start_node, exclude_wire_uuid=wire.uuid)
     end_conn = graph.trace_to_component(end_node, exclude_wire_uuid=wire.uuid)
+
+    # For cross-sheet connections, swap direction so local component (child) is FROM
+    # and cross-sheet component (parent) is TO
+    if start_node and end_node:
+        start_is_cross = start_node.node_type in ('hierarchical_label', 'sheet_pin')
+        end_is_cross = end_node.node_type in ('hierarchical_label', 'sheet_pin')
+
+        # If either end is a cross-sheet node, ensure cross-sheet component is TO
+        # sheet_pin appears on parent wires, hierarchical_label on child wires
+        if start_is_cross and not end_is_cross:
+            # Start is cross-sheet, swap so cross-sheet component is TO
+            return (end_conn, start_conn)
 
     return (start_conn, end_conn)
 
