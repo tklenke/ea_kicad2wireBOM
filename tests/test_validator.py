@@ -49,6 +49,22 @@ def test_schematic_validator_creation():
     assert validator_permissive.strict_mode is False
 
 
+def test_schematic_validator_accepts_connectivity_graph():
+    """Test SchematicValidator accepts optional connectivity_graph parameter"""
+    # Test with no graph (default)
+    validator = SchematicValidator(strict_mode=True)
+    assert validator.connectivity_graph is None
+
+    # Test with graph=None (explicit)
+    validator_explicit_none = SchematicValidator(strict_mode=True, connectivity_graph=None)
+    assert validator_explicit_none.connectivity_graph is None
+
+    # Test with a mock graph object
+    mock_graph = object()  # Simple mock for testing
+    validator_with_graph = SchematicValidator(strict_mode=True, connectivity_graph=mock_graph)
+    assert validator_with_graph.connectivity_graph is mock_graph
+
+
 def test_circuit_id_pattern_matches_valid():
     """Test CIRCUIT_ID_PATTERN matches valid circuit IDs"""
     validator = SchematicValidator()

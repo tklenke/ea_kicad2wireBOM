@@ -37,8 +37,9 @@ class SchematicValidator:
 
     CIRCUIT_ID_PATTERN = re.compile(r'^[A-Z]-?\d+-?[A-Z]$')
 
-    def __init__(self, strict_mode: bool = True):
+    def __init__(self, strict_mode: bool = True, connectivity_graph: Optional['ConnectivityGraph'] = None):
         self.strict_mode = strict_mode
+        self.connectivity_graph = connectivity_graph
         self.result = ValidationResult(errors=[], warnings=[])
 
     def validate_all(self, wires, labels, components) -> ValidationResult:

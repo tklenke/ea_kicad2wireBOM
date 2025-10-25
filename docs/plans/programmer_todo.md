@@ -41,10 +41,10 @@
 
 **Tasks**:
 
-[ ] Task 8.1: Add connectivity graph parameter to SchematicValidator
-- RED: Test SchematicValidator.__init__() accepts optional connectivity_graph parameter
-- GREEN: Add `connectivity_graph: Optional[ConnectivityGraph] = None` parameter to __init__
-- REFACTOR: Clean up
+[x] Task 8.1: Add connectivity graph parameter to SchematicValidator
+- RED: Test SchematicValidator.__init__() accepts optional connectivity_graph parameter ✅
+- GREEN: Add `connectivity_graph: Optional[ConnectivityGraph] = None` parameter to __init__ ✅
+- REFACTOR: Clean up ✅
 - COMMIT: "Add connectivity graph parameter to SchematicValidator"
 
 [ ] Task 8.2: Implement helper method to trace wire endpoints
