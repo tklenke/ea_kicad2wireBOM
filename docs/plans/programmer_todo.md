@@ -24,6 +24,54 @@
 
 ---
 
+## CURRENT TASKS
+
+### Phase 8: Enhanced Validation Error Messages
+
+**Objective**: Include component connection information in validation error messages
+
+**Status**: Ready for implementation
+
+**Design**: See "Phase 8 Design" section below
+
+**Tasks**:
+
+[ ] Task 8.1: Add connectivity graph parameter to SchematicValidator
+- RED: Test SchematicValidator.__init__() accepts optional connectivity_graph parameter
+- GREEN: Add `connectivity_graph: Optional[ConnectivityGraph] = None` parameter to __init__
+- REFACTOR: Clean up
+- COMMIT: "Add connectivity graph parameter to SchematicValidator"
+
+[ ] Task 8.2: Implement helper method to trace wire endpoints
+- RED: Test `_format_wire_connections(wire)` returns formatted string with component info
+- Test cases: wire with both ends to components, one end to junction, both unknown
+- GREEN: Implement helper method that:
+  1. Gets nodes at wire start_point and end_point from graph
+  2. Calls trace_to_component() for each endpoint
+  3. Formats result as "Component1 (pin X) → Component2 (pin Y)"
+  4. Handles edge cases (junction, unknown, power symbols)
+- REFACTOR: Clean up
+- COMMIT: "Add wire endpoint tracing helper for error messages"
+
+[ ] Task 8.3: Update missing label error messages
+- RED: Test that missing label errors include "Wire connects: ..." line
+- GREEN: Update `_check_wire_labels()` to call `_format_wire_connections()` and include in error message
+- REFACTOR: Clean up
+- COMMIT: "Include component connections in missing label errors"
+
+[ ] Task 8.4: Update CLI to pass graph to SchematicValidator
+- RED: Test CLI passes connectivity_graph to SchematicValidator (flat schematics)
+- GREEN: Update __main__.py line ~193 to pass graph parameter
+- REFACTOR: Clean up
+- COMMIT: "Pass connectivity graph to flat schematic validator"
+
+[ ] Task 8.5: Integration testing
+- Run against test_06 fixture and verify error message includes component info
+- Verify all existing tests still pass (176 tests)
+- COMMIT: "Verify enhanced validation error messages working"
+
+---
+
 ## KEY REFERENCES
 
 **Design Documents**:
@@ -82,8 +130,80 @@ If you encounter design inconsistencies, architectural ambiguities, or blockers:
 
 ---
 
+## PHASE 8 DESIGN: Enhanced Validation Error Messages
+
+### Problem Statement
+
+Current validation error messages show only wire UUIDs, making it difficult for users to locate problematic wires:
+
+```
+ERROR: Wire segment f8149f75-7b05-4795-8b9b-a0966b819075 has no valid circuit ID label
+       Suggestion: Add circuit ID label to wire
+```
+
+Users must manually search the schematic for the UUID to find the wire.
+
+### Proposed Solution
+
+Include component connection information in error messages:
+
+```
+ERROR: Wire segment f8149f75-7b05-4795-8b9b-a0966b819075 has no valid circuit ID label
+       Wire connects: BT1 (pin 1) → FH1 (pin Val_A)
+       Suggestion: Add circuit ID label to wire
+```
+
+This allows users to immediately identify which wire has the problem.
+
+### Technical Approach
+
+**Available Infrastructure**:
+- Connectivity graph is built before validation runs (both flat and hierarchical)
+- `trace_to_component()` method exists in ConnectivityGraph
+- Wire endpoints (start_point, end_point) available in WireSegment
+- HierarchicalValidator already receives connectivity graph
+
+**Implementation**:
+1. Pass connectivity_graph to SchematicValidator (make it consistent with HierarchicalValidator)
+2. Add `_format_wire_connections(wire)` helper method to validator
+3. Use `trace_to_component()` to find components at each wire endpoint
+4. Format as readable string with component references and pin numbers
+
+### Edge Cases
+
+| Case | Output Format |
+|------|---------------|
+| Both ends to components | `BT1 (pin 1) → FH1 (pin 2)` |
+| One end to junction | `BT1 (pin 1) → junction` |
+| One end unknown | `BT1 (pin 1) → unknown` |
+| Both ends unknown | `unknown → unknown` (or omit line) |
+| Power symbol | `SW1 (pin 2) → GND` |
+| Cross-sheet (hierarchical) | `SW1 (pin 1) → L2 (pin 1)` |
+
+### Design Decisions
+
+**Q: Should we show component info for all validation errors?**
+A: Yes, for errors where it's helpful:
+- Missing label errors ✅ (primary use case)
+- Multiple circuit IDs ✅ (helps identify wire)
+- Duplicate circuit IDs - NO (error is about multiple wires, not one specific wire)
+
+**Q: What if graph is None (backward compatibility)?**
+A: Gracefully skip the connection line if graph not available. Existing error message still useful.
+
+**Q: Performance impact?**
+A: Minimal - only traces on validation errors (rare in well-formed schematics). Validation runs before BOM generation anyway.
+
+### Implementation Estimate
+
+**Complexity**: EASY
+**Estimated Time**: 1-2 hours for experienced developer
+**Risk**: LOW (uses existing infrastructure, additive change)
+
+---
+
 ## NOTES
 
 - All Phase 1-7 features are complete and tested
 - System is ready for real-world usage
-- Future work should be driven by actual usage requirements or Tom's direction
+- Phase 8 is a usability enhancement (not blocking functionality)

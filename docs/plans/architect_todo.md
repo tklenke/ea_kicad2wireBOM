@@ -46,6 +46,28 @@
 - Circuit labels are descriptive, not authoritative - connectivity graph determines electrical connectivity
 - Pipe notation parsing (L3B|L10A) for cross-sheet multipoint connections
 
+### Phase 8: Enhanced Validation Error Messages 🚧 IN PROGRESS
+
+**Status**: Design complete, awaiting Programmer implementation
+**Design Location**: `docs/plans/programmer_todo.md` - Phase 8 Design section
+**Date**: 2025-10-25
+
+**Problem**: Validation errors show only wire UUIDs, making it hard for users to locate problematic wires in KiCad
+
+**Architectural Decision**:
+- **Leverage existing connectivity graph** to trace wire endpoints to component pins
+- **Enhance error messages** with human-readable connection info: "Wire connects: BT1 (pin 1) → FH1 (pin Val_A)"
+- **Consistent validator interface**: Both SchematicValidator and HierarchicalValidator receive connectivity_graph parameter
+- **Graceful degradation**: If graph unavailable, fall back to existing error format
+
+**Key Design Points**:
+1. Uses existing `trace_to_component()` infrastructure (no new algorithms needed)
+2. Additive change - doesn't break existing functionality
+3. Handles edge cases (junctions, power symbols, unknown endpoints)
+4. Low performance impact (only runs on validation errors)
+
+**Implementation Tasks**: 5 tasks documented in `programmer_todo.md`
+
 ---
 
 ## ARCHITECTURAL QUESTIONS
