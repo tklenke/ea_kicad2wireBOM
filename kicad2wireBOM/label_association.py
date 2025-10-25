@@ -134,14 +134,16 @@ def associate_labels_with_wires(wires: List[WireSegment],
     with that wire if the distance is within the threshold.
 
     Circuit ID labels (matching pattern [A-Z]-?\\d+-?[A-Z]) are stored in
-    wire.circuit_id and parsed into components. Non-circuit labels are
-    stored in wire.notes.
+    wire.circuit_id and parsed into components. Labels with pipe notation
+    (e.g., "L3B|L10A") are parsed into multiple circuit IDs stored in
+    wire.circuit_ids. Non-circuit labels are stored in wire.notes.
 
     Modifies wire objects in place, updating:
     - wire.labels (appends all label text)
-    - wire.circuit_id (sets to circuit ID label text)
+    - wire.circuit_id (sets to first circuit ID)
+    - wire.circuit_ids (list of all circuit IDs from pipe notation)
     - wire.notes (appends non-circuit label text)
-    - wire.system_code, circuit_num, segment_letter (parsed from circuit_id)
+    - wire.system_code, circuit_num, segment_letter (parsed from first circuit_id)
 
     Args:
         wires: List of WireSegment objects
@@ -167,12 +169,15 @@ def associate_labels_with_wires(wires: List[WireSegment],
 
         # Associate if within threshold
         if min_distance <= threshold and nearest_wire:
-            # Check if label text matches circuit ID pattern
-            if is_circuit_id(label.text):
-                # Circuit ID label
+            # Parse circuit IDs from label text (handles pipe notation)
+            circuit_ids = parse_circuit_ids(label.text)
+
+            if circuit_ids:
+                # Label contains valid circuit ID(s)
                 nearest_wire.labels.append(label.text)
-                nearest_wire.circuit_id = label.text
-                # Parse circuit ID into components
+                nearest_wire.circuit_id = circuit_ids[0]  # First ID for backward compatibility
+                nearest_wire.circuit_ids = circuit_ids  # All IDs
+                # Parse first circuit ID into components
                 parse_circuit_id(nearest_wire)
             else:
                 # Non-circuit label - add to notes

@@ -17,7 +17,8 @@ class WireSegment:
     uuid: str
     start_point: tuple[float, float]  # (x, y) in mm (schematic coordinates)
     end_point: tuple[float, float]    # (x, y) in mm
-    circuit_id: Optional[str] = None  # Parsed from label (e.g., "P1A")
+    circuit_id: Optional[str] = None  # Parsed from label (e.g., "P1A") - first/primary circuit ID
+    circuit_ids: list[str] = field(default_factory=list)  # All circuit IDs from pipe notation (e.g., ["L3B", "L10A"])
     system_code: Optional[str] = None # Extracted from circuit_id (e.g., "P")
     circuit_num: Optional[str] = None # Extracted from circuit_id (e.g., "1")
     segment_letter: Optional[str] = None  # Extracted from circuit_id (e.g., "A")

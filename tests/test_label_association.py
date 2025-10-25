@@ -203,3 +203,30 @@ def test_parse_circuit_ids_all_invalid():
     """Parse string with all invalid parts returns empty list"""
     result = parse_circuit_ids("NOTES|TODO")
     assert result == []
+
+
+def test_associate_label_with_pipe_notation():
+    """Associate label with pipe notation creates multiple circuit IDs"""
+    wires = [
+        WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    ]
+
+    labels = [
+        Label(text="L3B|L10A", position=(50, 2), uuid="l1")
+    ]
+
+    associate_labels_with_wires(wires, labels, threshold=10.0)
+
+    # Label text should be in labels list
+    assert "L3B|L10A" in wires[0].labels
+
+    # circuit_id should be set to first valid ID for backward compatibility
+    assert wires[0].circuit_id == "L3B"
+
+    # circuit_ids should contain all valid IDs
+    assert wires[0].circuit_ids == ["L3B", "L10A"]
+
+    # First circuit ID should be parsed into components
+    assert wires[0].system_code == "L"
+    assert wires[0].circuit_num == "3"
+    assert wires[0].segment_letter == "B"
