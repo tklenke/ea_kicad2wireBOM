@@ -46,27 +46,48 @@
 - Circuit labels are descriptive, not authoritative - connectivity graph determines electrical connectivity
 - Pipe notation parsing (L3B|L10A) for cross-sheet multipoint connections
 
-### Phase 8: Enhanced Validation Error Messages 🚧 IN PROGRESS
+### Phase 8: BOM Output Quality Improvements 🚧 IN PROGRESS
 
 **Status**: Design complete, awaiting Programmer implementation
 **Design Location**: `docs/plans/programmer_todo.md` - Phase 8 Design section
 **Date**: 2025-10-25
 
+**Three related improvements to BOM usability**:
+
+#### 8A: Enhanced Validation Error Messages
 **Problem**: Validation errors show only wire UUIDs, making it hard for users to locate problematic wires in KiCad
 
 **Architectural Decision**:
-- **Leverage existing connectivity graph** to trace wire endpoints to component pins
-- **Enhance error messages** with human-readable connection info: "Wire connects: BT1 (pin 1) → FH1 (pin Val_A)"
-- **Consistent validator interface**: Both SchematicValidator and HierarchicalValidator receive connectivity_graph parameter
-- **Graceful degradation**: If graph unavailable, fall back to existing error format
+- Leverage existing connectivity graph to trace wire endpoints to component pins
+- Enhance error messages: "Wire connects: BT1 (pin 1) → FH1 (pin Val_A)"
+- Consistent validator interface: Both validators receive connectivity_graph parameter
+- Graceful degradation if graph unavailable
+
+#### 8B: BOM Sorting
+**Problem**: BOM output is unsorted (random order), hard to navigate
+
+**Architectural Decision**:
+- Sort BOM entries by: (1) System code, (2) Circuit ID (numeric), (3) Segment letter
+- Example: A9A, G5A, G6A, G7A, L2A, L2B, L3A, P1A
+- Sort in main() before CSV writer (keeps writer simple)
+- Uses existing parsed system_code/circuit_num/segment_letter from WireSegment
+
+#### 8C: Component Direction Ordering
+**Problem**: FROM/TO component ordering is arbitrary, doesn't align with physical harness construction
+
+**Architectural Decision**:
+- Order components by aircraft coordinates (consistent direction for wire harness)
+- Priority: (1) Largest abs(BL) first, (2) Largest FS first, (3) Largest WL first
+- Swap FROM/TO after creating WireConnection if needed
+- Graceful handling of missing LocLoad (power symbols, etc.)
 
 **Key Design Points**:
-1. Uses existing `trace_to_component()` infrastructure (no new algorithms needed)
-2. Additive change - doesn't break existing functionality
-3. Handles edge cases (junctions, power symbols, unknown endpoints)
-4. Low performance impact (only runs on validation errors)
+1. All three are additive changes - no algorithm modifications
+2. Uses existing infrastructure (connectivity graph, parsed coordinates, LocLoad)
+3. Low risk, localized changes
+4. Total estimated time: 3-4 hours
 
-**Implementation Tasks**: 5 tasks documented in `programmer_todo.md`
+**Implementation Tasks**: 8 tasks documented in `programmer_todo.md`
 
 ---
 
