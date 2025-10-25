@@ -10,6 +10,7 @@ from kicad2wireBOM.diagram_generator import (
     calculate_bounds,
     calculate_scale,
     transform_to_svg,
+    calculate_wire_label_position,
 )
 from kicad2wireBOM.wire_bom import WireConnection
 
@@ -294,3 +295,40 @@ def test_transform_to_svg_negative_coords():
     # Y = (40 - (-20)) * 2 + 10 = 60 * 2 + 10 = 130
     assert svg_x == 10.0
     assert svg_y == 130.0
+
+
+def test_label_position_longer_horizontal():
+    """Test label position when horizontal segment is longer."""
+    # Path: [(10, 30), (10, 10), (50, 10)]
+    # Vertical segment (BL): 30 to 10 = 20 inches
+    # Horizontal segment (FS): 10 to 50 = 40 inches
+    # Horizontal is longer, so label should be at midpoint of horizontal segment
+    path = [(10.0, 30.0), (10.0, 10.0), (50.0, 10.0)]
+    label_fs, label_bl = calculate_wire_label_position(path)
+
+    # Midpoint of horizontal segment: ((10 + 50) / 2, 10) = (30, 10)
+    assert label_fs == 30.0
+    assert label_bl == 10.0
+
+
+def test_label_position_longer_vertical():
+    """Test label position when vertical segment is longer."""
+    # Path: [(10, 30), (10, 5), (20, 5)]
+    # Vertical segment (BL): 30 to 5 = 25 inches
+    # Horizontal segment (FS): 10 to 20 = 10 inches
+    # Vertical is longer, so label should be at midpoint of vertical segment
+    path = [(10.0, 30.0), (10.0, 5.0), (20.0, 5.0)]
+    label_fs, label_bl = calculate_wire_label_position(path)
+
+    # Midpoint of vertical segment: (10, (30 + 5) / 2) = (10, 17.5)
+    assert label_fs == 10.0
+    assert label_bl == 17.5
+
+
+def test_label_position_invalid_path():
+    """Test that invalid path raises ValueError."""
+    # Path with only 2 points (not a Manhattan 3-point path)
+    path = [(10.0, 30.0), (50.0, 10.0)]
+
+    with pytest.raises(ValueError, match="Manhattan path must have exactly 3 points"):
+        calculate_wire_label_position(path)

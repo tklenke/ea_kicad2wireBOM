@@ -171,3 +171,35 @@ def transform_to_svg(fs: float, bl: float,
     svg_y = (bl_max - bl) * scale + margin
 
     return (svg_x, svg_y)
+
+
+def calculate_wire_label_position(path: List[Tuple[float, float]]) -> Tuple[float, float]:
+    """
+    Calculate position for wire segment label.
+
+    Places label at midpoint of longer segment in Manhattan path.
+
+    Args:
+        path: [(fs1, bl1), (fs2, bl2), (fs3, bl3)] - 3-point Manhattan path
+
+    Returns:
+        (fs, bl) - position for label in aircraft coordinates
+    """
+    if len(path) != 3:
+        raise ValueError("Manhattan path must have exactly 3 points")
+
+    p1, p2, p3 = path
+
+    # Segment 1: p1 → p2 (vertical, along BL axis)
+    seg1_length = abs(p2[1] - p1[1])
+
+    # Segment 2: p2 → p3 (horizontal, along FS axis)
+    seg2_length = abs(p3[0] - p2[0])
+
+    # Place label on longer segment
+    if seg1_length > seg2_length:
+        # Midpoint of vertical segment
+        return (p1[0], (p1[1] + p2[1]) / 2)
+    else:
+        # Midpoint of horizontal segment
+        return ((p2[0] + p3[0]) / 2, p2[1])
