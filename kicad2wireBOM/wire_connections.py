@@ -40,10 +40,34 @@ def identify_wire_connections(
         start_is_cross = start_node.node_type in ('hierarchical_label', 'sheet_pin')
         end_is_cross = end_node.node_type in ('hierarchical_label', 'sheet_pin')
 
-        # If either end is a cross-sheet node, ensure cross-sheet component is TO
-        # sheet_pin appears on parent wires, hierarchical_label on child wires
-        if start_is_cross and not end_is_cross:
-            # Start is cross-sheet, swap so cross-sheet component is TO
+        # Check if either endpoint is a junction or wire_endpoint leading to a cross-sheet node
+        # This handles wires that connect: component → junction/wire_endpoint → hierarchical_label/sheet_pin
+        def leads_to_cross_sheet(node) -> bool:
+            """Check if junction/wire_endpoint node leads to hierarchical_label/sheet_pin"""
+            if node.node_type in ('junction', 'wire_endpoint'):
+                # Get all connected wires except the current wire
+                connected_wires = [uuid for uuid in node.connected_wire_uuids if uuid != wire.uuid]
+                # Check if any connected wire leads to hierarchical_label/sheet_pin
+                for other_wire_uuid in connected_wires:
+                    if other_wire_uuid in graph.wires:
+                        other_wire = graph.wires[other_wire_uuid]
+                        # Get the other endpoint of this wire
+                        node_key = (round(node.position[0], 2), round(node.position[1], 2))
+                        start_key = (round(other_wire.start_point[0], 2), round(other_wire.start_point[1], 2))
+                        end_key = (round(other_wire.end_point[0], 2), round(other_wire.end_point[1], 2))
+
+                        other_end_key = end_key if start_key == node_key else start_key
+                        if other_end_key in graph.nodes:
+                            other_end = graph.nodes[other_end_key]
+                            if other_end.node_type in ('hierarchical_label', 'sheet_pin'):
+                                return True
+            return False
+
+        start_leads_cross = leads_to_cross_sheet(start_node)
+        end_leads_cross = leads_to_cross_sheet(end_node)
+
+        # If start is or leads to cross-sheet, swap so cross-sheet component is TO
+        if (start_is_cross or start_leads_cross) and not (end_is_cross or end_leads_cross):
             return (end_conn, start_conn)
 
     return (start_conn, end_conn)
