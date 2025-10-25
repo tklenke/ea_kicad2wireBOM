@@ -83,3 +83,25 @@ def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
             system_groups[parsed['system']].append(wire)
 
     return dict(system_groups)
+
+
+def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, float, float]:
+    """
+    Calculate bounding box for all components.
+
+    Args:
+        components: List of components with FS/BL coordinates
+
+    Returns:
+        (fs_min, fs_max, bl_min, bl_max)
+
+    Raises:
+        ValueError: If components list is empty
+    """
+    if not components:
+        raise ValueError("Cannot calculate bounds for empty component list")
+
+    fs_values = [c.fs for c in components]
+    bl_values = [c.bl for c in components]
+
+    return (min(fs_values), max(fs_values), min(bl_values), max(bl_values))

@@ -7,6 +7,7 @@ from kicad2wireBOM.diagram_generator import (
     DiagramWireSegment,
     SystemDiagram,
     group_wires_by_system,
+    calculate_bounds,
 )
 from kicad2wireBOM.wire_bom import WireConnection
 
@@ -163,3 +164,38 @@ def test_group_wires_skips_unparseable():
     assert len(groups["L"]) == 1
     assert wire_l1a in groups["L"]
     # wire_invalid should not be in any group
+
+
+def test_calculate_bounds_normal():
+    """Test bounds calculation with normal coordinates."""
+    comp1 = DiagramComponent(ref="C1", fs=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="C2", fs=100.0, bl=50.0)
+    comp3 = DiagramComponent(ref="C3", fs=50.0, bl=25.0)
+
+    components = [comp1, comp2, comp3]
+    fs_min, fs_max, bl_min, bl_max = calculate_bounds(components)
+
+    assert fs_min == 0.0
+    assert fs_max == 100.0
+    assert bl_min == 0.0
+    assert bl_max == 50.0
+
+
+def test_calculate_bounds_negative_coords():
+    """Test bounds calculation with negative coordinates."""
+    comp1 = DiagramComponent(ref="C1", fs=-10.0, bl=-20.0)
+    comp2 = DiagramComponent(ref="C2", fs=30.0, bl=40.0)
+
+    components = [comp1, comp2]
+    fs_min, fs_max, bl_min, bl_max = calculate_bounds(components)
+
+    assert fs_min == -10.0
+    assert fs_max == 30.0
+    assert bl_min == -20.0
+    assert bl_max == 40.0
+
+
+def test_calculate_bounds_empty_raises():
+    """Test that empty component list raises ValueError."""
+    with pytest.raises(ValueError, match="Cannot calculate bounds for empty component list"):
+        calculate_bounds([])
