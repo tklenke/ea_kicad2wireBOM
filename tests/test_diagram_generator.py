@@ -11,8 +11,10 @@ from kicad2wireBOM.diagram_generator import (
     calculate_scale,
     transform_to_svg,
     calculate_wire_label_position,
+    build_system_diagram,
 )
 from kicad2wireBOM.wire_bom import WireConnection
+from kicad2wireBOM.component import Component
 
 
 def test_diagram_component_creation():
@@ -332,3 +334,65 @@ def test_label_position_invalid_path():
 
     with pytest.raises(ValueError, match="Manhattan path must have exactly 3 points"):
         calculate_wire_label_position(path)
+
+
+def test_build_system_diagram_single_wire():
+    """Test building diagram from single wire connection."""
+    # Create components
+    cb1 = Component(ref="CB1", fs=10.0, wl=0.0, bl=20.0, load=None, rating=10.0)
+    sw1 = Component(ref="SW1", fs=50.0, wl=0.0, bl=30.0, load=None, rating=10.0)
+    components = {"CB1": cb1, "SW1": sw1}
+
+    # Create wire
+    wire_l1a = WireConnection(
+        wire_label="L1A",
+        from_component="CB1", from_pin="1",
+        to_component="SW1", to_pin="2",
+        wire_gauge=20, wire_color="white", length=10.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+
+    diagram = build_system_diagram("L", [wire_l1a], components)
+
+    assert diagram.system_code == "L"
+    assert len(diagram.components) == 2
+    assert len(diagram.wire_segments) == 1
+    assert diagram.fs_min == 10.0
+    assert diagram.fs_max == 50.0
+    assert diagram.bl_min == 20.0
+    assert diagram.bl_max == 30.0
+
+
+def test_build_system_diagram_multiple_wires():
+    """Test building diagram with multiple wires and shared components."""
+    # Create components
+    cb1 = Component(ref="CB1", fs=10.0, wl=0.0, bl=20.0, load=None, rating=10.0)
+    sw1 = Component(ref="SW1", fs=50.0, wl=0.0, bl=30.0, load=None, rating=10.0)
+    l1 = Component(ref="L1", fs=80.0, wl=0.0, bl=25.0, load=2.0, rating=None)
+    components = {"CB1": cb1, "SW1": sw1, "L1": l1}
+
+    # Create wires
+    wire_l1a = WireConnection(
+        wire_label="L1A",
+        from_component="CB1", from_pin="1",
+        to_component="SW1", to_pin="2",
+        wire_gauge=20, wire_color="white", length=10.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+    wire_l1b = WireConnection(
+        wire_label="L1B",
+        from_component="SW1", from_pin="3",
+        to_component="L1", to_pin="1",
+        wire_gauge=20, wire_color="white", length=15.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+
+    diagram = build_system_diagram("L", [wire_l1a, wire_l1b], components)
+
+    assert diagram.system_code == "L"
+    assert len(diagram.components) == 3  # CB1, SW1, L1 (unique components)
+    assert len(diagram.wire_segments) == 2  # L1A, L1B
+    assert diagram.fs_min == 10.0
+    assert diagram.fs_max == 80.0
+    assert diagram.bl_min == 20.0
+    assert diagram.bl_max == 30.0

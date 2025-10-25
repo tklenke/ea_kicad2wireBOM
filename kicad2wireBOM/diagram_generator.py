@@ -203,3 +203,66 @@ def calculate_wire_label_position(path: List[Tuple[float, float]]) -> Tuple[floa
     else:
         # Midpoint of horizontal segment
         return ((p2[0] + p3[0]) / 2, p2[1])
+
+
+def build_system_diagram(system_code: str, wires: List, components: Dict) -> SystemDiagram:
+    """
+    Build diagram data structure for one system.
+
+    Args:
+        system_code: System code (e.g., "L", "P", "G")
+        wires: All wire connections for this system
+        components: Dict mapping component ref to Component object
+
+    Returns:
+        SystemDiagram with components, wire segments, and bounds
+    """
+    # Extract unique components from all wires
+    component_dict = {}  # {ref: DiagramComponent}
+
+    for wire in wires:
+        # Add from_component if not already present
+        if wire.from_component and wire.from_component in components:
+            if wire.from_component not in component_dict:
+                comp = components[wire.from_component]
+                component_dict[wire.from_component] = DiagramComponent(
+                    ref=comp.ref,
+                    fs=comp.fs,
+                    bl=comp.bl
+                )
+
+        # Add to_component if not already present
+        if wire.to_component and wire.to_component in components:
+            if wire.to_component not in component_dict:
+                comp = components[wire.to_component]
+                component_dict[wire.to_component] = DiagramComponent(
+                    ref=comp.ref,
+                    fs=comp.fs,
+                    bl=comp.bl
+                )
+
+    diagram_components = list(component_dict.values())
+
+    # Build wire segments
+    wire_segments = []
+    for wire in wires:
+        if wire.from_component in component_dict and wire.to_component in component_dict:
+            segment = DiagramWireSegment(
+                label=wire.wire_label,
+                comp1=component_dict[wire.from_component],
+                comp2=component_dict[wire.to_component]
+            )
+            wire_segments.append(segment)
+
+    # Calculate bounds
+    fs_min, fs_max, bl_min, bl_max = calculate_bounds(diagram_components)
+
+    return SystemDiagram(
+        system_code=system_code,
+        components=diagram_components,
+        wire_segments=wire_segments,
+        fs_min=fs_min,
+        fs_max=fs_max,
+        bl_min=bl_min,
+        bl_max=bl_max
+    )
