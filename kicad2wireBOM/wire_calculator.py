@@ -1,10 +1,13 @@
 # ABOUTME: Wire calculation functions for length, gauge, and specifications
 # ABOUTME: Implements Manhattan distance, voltage drop, and ampacity calculations
 
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, TYPE_CHECKING
 import re
 from kicad2wireBOM.component import Component
 from kicad2wireBOM.reference_data import WIRE_RESISTANCE, WIRE_AMPACITY, STANDARD_AWG_SIZES, DEFAULT_CONFIG
+
+if TYPE_CHECKING:
+    from kicad2wireBOM.wire_bom import WireConnection
 
 
 def calculate_length(component1: Component, component2: Component, slack: float) -> float:
@@ -263,3 +266,34 @@ def generate_wire_label(system_code: str, circuit_id: str, segment_letter: str) 
         Formatted wire label string
     """
     return f"{system_code}-{circuit_id}-{segment_letter}"
+
+
+def group_wires_by_circuit(wire_connections: List['WireConnection']) -> Dict[str, List['WireConnection']]:
+    """
+    Group wire connections by circuit_id (system_code + circuit_num).
+
+    Args:
+        wire_connections: List of all wire connections from BOM
+
+    Returns:
+        Dict mapping circuit_id to list of WireConnections
+        Example: {'L1': [L1A_conn, L1B_conn], 'L2': [L2A_conn, L2B_conn, L2C_conn]}
+    """
+    circuit_groups: Dict[str, List['WireConnection']] = {}
+
+    for wire in wire_connections:
+        # Parse wire label to extract system code and circuit number
+        # Wire labels are in EAWMS format: "L-105-A"
+        # Add leading slash to match parse_net_name format: "/L-105-A"
+        parsed = parse_net_name(f"/{wire.wire_label}")
+
+        if parsed:
+            # Circuit ID = system_code + circuit_num (e.g., "L1", "G2", "P1")
+            circuit_id = f"{parsed['system']}{parsed['circuit']}"
+
+            if circuit_id not in circuit_groups:
+                circuit_groups[circuit_id] = []
+
+            circuit_groups[circuit_id].append(wire)
+
+    return circuit_groups

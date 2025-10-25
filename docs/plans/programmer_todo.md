@@ -66,8 +66,9 @@ Redesign wire gauge calculation from per-wire analysis to circuit-based grouping
 
 ### Tasks
 
-#### Task 9.1: Create Circuit Grouping Function
+#### [x] Task 9.1: Create Circuit Grouping Function
 **File**: `kicad2wireBOM/wire_calculator.py`
+**Status**: Complete
 
 Add function to group wires by circuit_id:
 

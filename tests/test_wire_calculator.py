@@ -10,8 +10,10 @@ from kicad2wireBOM.wire_calculator import (
     parse_net_name,
     infer_system_code_from_components,
     detect_system_code,
-    generate_wire_label
+    generate_wire_label,
+    group_wires_by_circuit
 )
+from kicad2wireBOM.wire_bom import WireConnection
 
 
 def test_calculate_length_simple():
@@ -231,3 +233,42 @@ def test_generate_wire_label():
 
     label = generate_wire_label('U', '1', 'C')
     assert label == 'U-1-C'
+
+
+def test_group_wires_by_circuit():
+    """Test grouping wire connections by circuit ID"""
+    # Create test wires for 3 circuits:
+    # Circuit L1: L-1-A, L-1-B
+    # Circuit L2: L-2-A, L-2-B, L-2-C
+    # Circuit G1: G-1-A
+    wires = [
+        WireConnection('L-1-A', 'J1', '1', 'SW1', '1', 18, 'White', 79.0, 'Standard', '', []),
+        WireConnection('L-1-B', 'SW1', '2', 'LIGHT1', '1', 18, 'White', 55.0, 'Standard', '', []),
+        WireConnection('L-2-A', 'J1', '2', 'SW2', '1', 16, 'Red', 100.0, 'Standard', '', []),
+        WireConnection('L-2-B', 'SW2', '2', 'LIGHT2', '1', 16, 'Red', 60.0, 'Standard', '', []),
+        WireConnection('L-2-C', 'SW2', '2', 'LIGHT3', '1', 16, 'Red', 65.0, 'Standard', '', []),
+        WireConnection('G-1-A', 'LIGHT1', '2', 'GND', '1', 18, 'Black', 50.0, 'Standard', '', []),
+    ]
+
+    result = group_wires_by_circuit(wires)
+
+    # Should have 3 circuit groups
+    assert len(result) == 3
+
+    # Verify circuit L1 has 2 wires
+    assert 'L1' in result
+    assert len(result['L1']) == 2
+    assert result['L1'][0].wire_label == 'L-1-A'
+    assert result['L1'][1].wire_label == 'L-1-B'
+
+    # Verify circuit L2 has 3 wires
+    assert 'L2' in result
+    assert len(result['L2']) == 3
+    assert result['L2'][0].wire_label == 'L-2-A'
+    assert result['L2'][1].wire_label == 'L-2-B'
+    assert result['L2'][2].wire_label == 'L-2-C'
+
+    # Verify circuit G1 has 1 wire
+    assert 'G1' in result
+    assert len(result['G1']) == 1
+    assert result['G1'][0].wire_label == 'G-1-A'
