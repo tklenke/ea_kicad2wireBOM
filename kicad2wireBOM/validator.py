@@ -94,8 +94,10 @@ class SchematicValidator:
 
     def _check_no_labels(self, wires, labels):
         """Check for schematic with no circuit ID labels"""
-        circuit_labels = [l for l in labels if self.CIRCUIT_ID_PATTERN.match(l.text)]
-        if len(circuit_labels) == 0:
+        # Check if any wires have circuit_id set (already parsed by label association)
+        # This handles both single labels (L3B) and piped labels (L3B|L10A)
+        wires_with_circuit_ids = [w for w in wires if w.circuit_id]
+        if len(wires_with_circuit_ids) == 0:
             self._add_error(
                 "No circuit ID labels found in schematic",
                 suggestion="Add wire labels matching pattern [SYSTEM][CIRCUIT][SEGMENT] (e.g., L1A, P12B)"
@@ -109,9 +111,9 @@ class SchematicValidator:
             if not wire.labels:
                 continue
 
-            circuit_ids = [l for l in wire.labels if self.CIRCUIT_ID_PATTERN.match(l)]
-
-            if len(circuit_ids) == 0:
+            # Check if wire has a valid circuit_id (already parsed by label association)
+            # This handles both single labels (L3B) and piped labels (L3B|L10A)
+            if not wire.circuit_id:
                 # Wire has labels but no valid circuit ID
                 # This is an error - labels were attempted but none are valid circuit IDs
                 message = f"Wire segment {wire.uuid} has no valid circuit ID label"
@@ -126,19 +128,24 @@ class SchematicValidator:
                     suggestion="Add circuit ID label to wire",
                     wire_uuid=wire.uuid
                 )
-            elif len(circuit_ids) > 1:
-                message = f"Wire has multiple circuit IDs: {', '.join(circuit_ids)}"
+            elif len(wire.circuit_ids) > 1:
+                # Multiple circuit IDs (from pipe notation) - this is valid for multipoint connections
+                # Only error if these are separate labels, not a single piped label
+                # Check if labels list has multiple circuit ID labels (not piped)
+                circuit_id_labels = [l for l in wire.labels if self.CIRCUIT_ID_PATTERN.match(l)]
+                if len(circuit_id_labels) > 1:
+                    message = f"Wire has multiple circuit IDs: {', '.join(circuit_id_labels)}"
 
-                # Add connection information if connectivity graph available
-                if self.connectivity_graph:
-                    connections = self._format_wire_connections(wire)
-                    message = f"{message}\n       Wire connects: {connections}"
+                    # Add connection information if connectivity graph available
+                    if self.connectivity_graph:
+                        connections = self._format_wire_connections(wire)
+                        message = f"{message}\n       Wire connects: {connections}"
 
-                self._add_error(
-                    message,
-                    suggestion="Remove extra labels or move to notes",
-                    wire_uuid=wire.uuid
-                )
+                    self._add_error(
+                        message,
+                        suggestion="Remove extra labels or move to notes",
+                        wire_uuid=wire.uuid
+                    )
 
     def _check_duplicate_circuit_ids(self, wires):
         """Check for duplicate circuit IDs across wires"""

@@ -274,9 +274,11 @@ def test_check_wire_multiple_circuit_ids():
 
     validator = SchematicValidator(strict_mode=True)
 
-    # Wire with multiple circuit ID labels
+    # Wire with multiple circuit ID labels (two separate labels, not piped)
     wire = WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
-    wire.labels = ["P1A", "P2B"]  # Two circuit IDs
+    wire.labels = ["P1A", "P2B"]  # Two separate circuit ID labels (error!)
+    wire.circuit_ids = ["P1A", "P2B"]  # Parsed circuit IDs
+    wire.circuit_id = "P1A"  # Primary circuit ID (first one)
     wires = [wire]
     labels = []
 
@@ -286,6 +288,28 @@ def test_check_wire_multiple_circuit_ids():
     wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
     assert len(wire_errors) > 0
     assert "multiple circuit IDs" in wire_errors[0].message
+
+
+def test_check_wire_with_piped_label():
+    """Test that wires with piped labels (L3B|L10A) are recognized as valid"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    validator = SchematicValidator(strict_mode=True)
+
+    # Wire with piped label - this should be valid
+    wire = WireSegment(uuid="w1", start_point=(0, 0), end_point=(100, 0))
+    wire.labels = ["L3B|L10A"]  # Raw piped label
+    wire.circuit_ids = ["L3B", "L10A"]  # Parsed circuit IDs
+    wire.circuit_id = "L3B"  # Primary circuit ID
+    wires = [wire]
+    labels = []
+
+    result = validator.validate_all(wires, labels, [])
+
+    # Should NOT have errors - piped label is valid
+    assert not result.has_errors()
+    wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
+    assert len(wire_errors) == 0
 
 
 def test_check_duplicate_circuit_ids_strict():
