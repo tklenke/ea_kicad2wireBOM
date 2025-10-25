@@ -125,6 +125,14 @@ def main():
         help='Permissive mode: warn about validation errors but continue processing (default: strict mode aborts on errors)'
     )
 
+    parser.add_argument(
+        '--routing-diagrams',
+        nargs='?',
+        const='',  # Use empty string if flag provided without argument
+        metavar='OUTPUT_DIR',
+        help='Generate routing diagram SVG files (optional: specify output directory)'
+    )
+
     args = parser.parse_args()
 
     # Check if source file exists
@@ -375,6 +383,28 @@ def main():
 
         print(f"\nSuccessfully generated wire BOM: {args.dest}")
         print(f"  Total wires: {len(bom.wires)}")
+
+        # Generate routing diagrams if requested
+        if args.routing_diagrams is not None:
+            from kicad2wireBOM.diagram_generator import generate_routing_diagrams
+
+            # Determine output directory
+            if args.routing_diagrams:
+                # User provided explicit directory
+                diagram_dir = Path(args.routing_diagrams)
+            else:
+                # Use same directory as CSV output
+                if args.dest:
+                    diagram_dir = Path(args.dest).parent
+                else:
+                    diagram_dir = Path.cwd()
+
+            # Convert components list to dict
+            components_dict = {comp.ref: comp for comp in components}
+
+            # Generate diagrams
+            print(f"\nGenerating routing diagrams...")
+            generate_routing_diagrams(bom.wires, components_dict, diagram_dir)
 
         return 0
 
