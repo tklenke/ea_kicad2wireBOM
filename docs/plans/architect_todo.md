@@ -7,42 +7,21 @@
 
 ## CURRENT STATUS
 
-✅ **188/188 tests passing** - All core features and Phase 8 improvements implemented
+✅ **196/196 tests passing** - Production-ready wire BOM generation tool
 
-**Design Documents**:
-- `docs/plans/kicad2wireBOM_design.md` v3.0 - Complete design specification
-- `docs/ea_wire_marking_standard.md` - Wire marking standard (EAWMS)
+**Design**: `docs/plans/kicad2wireBOM_design.md` v3.1
+**Standard**: `docs/ea_wire_marking_standard.md`
 
-**Implemented Features**:
-- Flat and hierarchical schematic parsing (2-level: main + sub-sheets)
-- Connectivity graph with cross-sheet wire tracing
-- 2-point and N-way multipoint connections
-- Validation framework with connectivity-aware duplicate detection
-- BOM generation with enhanced error messages, sorting, and coordinate-based component ordering
-- CLI with strict/permissive modes
-
-**The tool is production-ready for real-world usage.**
+**Core Capabilities**:
+- Flat and 2-level hierarchical schematics
+- Circuit-based wire gauge calculation
+- N-way multipoint connections
+- Comprehensive validation framework
 
 ---
 
-## OPEN QUESTIONS
+## FUTURE OPTIONS
 
-**Tom's Schematic Structure**:
-- Flat (single sheet): ✅ Supported
-- 2-level hierarchical (main + sub-sheets): ✅ Supported
-- Multi-level nested (sub-sheets within sub-sheets): ⚠️ Not yet supported
-- Sheet instances (same sub-sheet used multiple times): ⚠️ Not yet supported
+See `docs/notes/opportunities_for_improvement.md` for detailed feature list.
 
----
-
-## NEXT PHASE OPTIONS
-
-Future architectural work could include (see `docs/notes/opportunities_for_improvement.md`):
-
-1. **CLI Enhancements**: Markdown output, engineering mode, verbose/quiet flags, JSON output
-2. **Wire Calculations**: Actual voltage drop, temperature derating, bundle derating, custom tables
-3. **Production Features**: REVnnn versioning, --schematic-requirements output, BOM diff, config files
-4. **Advanced Hierarchical**: Multi-level nesting, sheet instances, hierarchical path tracking
-5. **Integration**: KiCad plugin, GUI interface, component database, 3D visualization
-
-**No active architectural tasks - awaiting Tom's direction for next phase.**
+**No active architectural tasks - awaiting direction for next phase.**
