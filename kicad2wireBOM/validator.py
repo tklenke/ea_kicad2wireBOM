@@ -162,3 +162,34 @@ class HierarchicalValidator(SchematicValidator):
                         queue.append(neighbor.position)
 
         return visited
+
+    def _are_all_wires_connected(self, wires: List) -> bool:
+        """
+        Check if all wire segments are electrically connected.
+
+        Uses BFS to check if all wire endpoints are in the same connected component.
+
+        Args:
+            wires: List of WireSegment objects
+
+        Returns:
+            True if all wires are electrically connected, False otherwise
+        """
+        if not wires or not self.connectivity_graph:
+            return True
+
+        if len(wires) == 1:
+            return True
+
+        # Collect all unique endpoint positions from all wires
+        all_positions = set()
+        for wire in wires:
+            all_positions.add(wire.start_point)
+            all_positions.add(wire.end_point)
+
+        # Start BFS from the first position
+        start_position = next(iter(all_positions))
+        reachable = self._bfs_reachable_nodes(start_position)
+
+        # Check if all positions are reachable from start
+        return all_positions.issubset(reachable)

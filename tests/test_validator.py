@@ -269,3 +269,45 @@ def test_bfs_reachable_nodes_disconnected():
     assert node_c.position not in reachable
     assert node_d.position not in reachable
     assert len(reachable) == 2
+
+
+def test_are_all_wires_connected_true():
+    """Test checking if all wires are connected - connected case"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
+    from kicad2wireBOM.schematic import WireSegment
+
+    # Create connected graph: wire1 (0,0)-(10,0) connected to wire2 (10,0)-(20,0)
+    graph = ConnectivityGraph()
+
+    wire1 = WireSegment(uuid="w1", start_point=(0, 0), end_point=(10, 0))
+    wire2 = WireSegment(uuid="w2", start_point=(10, 0), end_point=(20, 0))
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+
+    # Both wires should be connected
+    result = validator._are_all_wires_connected([wire1, wire2])
+    assert result is True
+
+
+def test_are_all_wires_connected_false():
+    """Test checking if all wires are connected - disconnected case"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
+    from kicad2wireBOM.schematic import WireSegment
+
+    # Create disconnected graph: wire1 and wire2 not connected
+    graph = ConnectivityGraph()
+
+    wire1 = WireSegment(uuid="w1", start_point=(0, 0), end_point=(10, 0))
+    wire2 = WireSegment(uuid="w2", start_point=(100, 0), end_point=(110, 0))
+
+    graph.add_wire(wire1)
+    graph.add_wire(wire2)
+
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+
+    # Wires should NOT be connected
+    result = validator._are_all_wires_connected([wire1, wire2])
+    assert result is False
