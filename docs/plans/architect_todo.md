@@ -114,6 +114,87 @@ Test fixture test_06 analyzed:
 
 ---
 
+## PHASE 7.6: Hierarchical Validation - Connectivity-Aware Duplicate Detection ✅ COMPLETE
+
+**Status**: ✅ Design complete AND Programmer todos created
+**Design Location**: `docs/plans/hierarchical_validation_design.md` (NEW)
+**Programmer Todos**: `docs/plans/programmer_todo.md` Phase 7.6 section
+**Date Completed**: 2025-10-25
+
+**Summary**:
+
+Comprehensive architectural design for connectivity-aware validation in hierarchical schematics. Fixes incorrect validation errors where duplicate circuit IDs appear on electrically connected wires across sheet boundaries.
+
+### Problem Identified
+
+Current validator flags test_06 with errors:
+- `ERROR: Duplicate circuit ID 'L2B' found on 2 wire segments`
+- `ERROR: Duplicate circuit ID 'A9A' found on 2 wire segments`
+
+These are FALSE POSITIVES - L2B and A9A appear on multiple sheets but are electrically connected through hierarchical pins/labels, making them VALID.
+
+### Architectural Solution
+
+**Key Insight**: Circuit labels are descriptive, not authoritative. The connectivity graph determines electrical connectivity.
+
+**Validation Rule Change**:
+- **Old**: Flag any duplicate circuit ID as error
+- **New**: Only flag duplicate IDs on electrically UNCONNECTED wires as error
+
+### Design Components
+
+✅ **Pipe Notation Parsing** - Parse `"L3B|L10A"` as multiple circuit IDs on one wire
+- Indicates cross-sheet multipoint connection
+- Each ID validated independently
+
+✅ **HierarchicalValidator Class** - New validator with connectivity awareness
+- Receives connectivity graph as parameter
+- Groups wires by circuit ID
+- Checks electrical connectivity using BFS graph traversal
+- Errors only on true duplicates (unconnected wires)
+
+✅ **BFS Connectivity Algorithm** - Determines if wire segments are connected
+- Traverses connectivity graph from wire endpoint nodes
+- Returns set of all reachable nodes
+- Checks if all wire segments in same connected component
+
+✅ **Enhanced Error Messages** - Include sheet context
+- Shows which sheets contain the duplicate
+- Distinguishes between connected (valid) and unconnected (error) duplicates
+
+✅ **Backward Compatibility** - All flat schematic validation unchanged
+- Single-sheet schematics work as before
+- No impact on test_01 through test_05C
+
+### Implementation Phases
+
+Detailed 5-phase implementation plan created:
+1. **Phase 7.6.1**: Pipe notation label parsing
+2. **Phase 7.6.2**: Connectivity-aware duplicate detection
+3. **Phase 7.6.3**: Enhanced ValidationError with sheet context
+4. **Phase 7.6.4**: CLI integration
+5. **Phase 7.6.5**: Integration testing
+
+### Test Strategy
+
+**Success Criteria**:
+- test_06 passes validation in both strict and permissive modes
+- L2B and A9A duplicates recognized as valid (electrically connected)
+- True duplicates (unconnected wires with same ID) still caught
+- All existing tests (test_01-test_05C) continue to pass
+
+**Deliverables Completed**:
+- ✅ Complete design specification in `hierarchical_validation_design.md`
+- ✅ Detailed programmer implementation tasks in `programmer_todo.md` Phase 7.6
+- ✅ 15+ explicit, actionable tasks broken down by component
+- ✅ TDD guidance for each task (RED-GREEN-REFACTOR-COMMIT)
+- ✅ Integration test requirements specified
+- ✅ Expected outcomes documented
+
+**Next Action**: Programmer to implement Phase 7.6.1-7.6.5 following todos in programmer_todo.md
+
+---
+
 ## NEXT PHASE OPTIONS
 
 The tool is now production-ready for basic wire BOM generation. Future enhancements could include:

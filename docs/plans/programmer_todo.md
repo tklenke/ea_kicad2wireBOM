@@ -474,6 +474,134 @@ If you encounter design inconsistencies, architectural ambiguities, or blockers:
 
 ---
 
+### Phase 7.6: Hierarchical Validation - Connectivity-Aware Duplicate Detection
+
+**Objective**: Fix validation to allow duplicate circuit IDs on electrically connected wires across sheets
+
+**Design Reference**: `docs/plans/hierarchical_validation_design.md`
+
+**Current Issue**: Validator incorrectly flags L2B and A9A as duplicate errors in test_06
+
+#### Task 7.6.1: Pipe Notation Label Parsing
+**File**: `kicad2wireBOM/label_association.py`
+
+[ ] Write test for pipe notation parsing
+- RED: Test `parse_circuit_ids("L3B|L10A")` returns `["L3B", "L10A"]`
+- RED: Test `parse_circuit_ids("L2B")` returns `["L2B"]`
+- RED: Test `parse_circuit_ids("L3B|NOTES")` returns `["L3B"]` (invalid part ignored)
+- GREEN: Implement `parse_circuit_ids(label_text) -> List[str]` function
+- REFACTOR: Clean up
+- COMMIT: "Add pipe notation parsing for cross-sheet multipoint labels"
+
+[ ] Update label association to handle multiple circuit IDs
+- RED: Test label association with pipe notation
+- Verify wire segment can have multiple circuit IDs
+- GREEN: Update `associate_labels_with_wires()` to use `parse_circuit_ids()`
+- REFACTOR: Clean up
+- COMMIT: "Update label association to handle pipe notation"
+
+#### Task 7.6.2: Connectivity-Aware Duplicate Detection
+**File**: `kicad2wireBOM/validator.py`
+
+[ ] Create HierarchicalValidator class
+- RED: Test creating HierarchicalValidator with connectivity graph parameter
+- GREEN: Create `class HierarchicalValidator(SchematicValidator)`
+- Add `__init__(self, strict_mode, connectivity_graph)`
+- REFACTOR: Clean up
+- COMMIT: "Add HierarchicalValidator class for connectivity-aware validation"
+
+[ ] Implement BFS reachable nodes helper
+- RED: Test `_bfs_reachable_nodes(graph, start_node)` with mock graph
+- Verify returns all connected nodes
+- GREEN: Implement BFS traversal using `graph.get_connected_nodes()`
+- REFACTOR: Clean up
+- COMMIT: "Add BFS traversal for connectivity checking"
+
+[ ] Implement are_all_wires_connected helper
+- RED: Test `_are_all_wires_connected(wire_list, graph)` with mock wires
+- Test case: 2 wires, connected → True
+- Test case: 2 wires, not connected → False
+- GREEN: Implement using `_bfs_reachable_nodes()`
+- Collect wire endpoint node IDs from graph
+- Check if all nodes in same connected component
+- REFACTOR: Clean up
+- COMMIT: "Add connectivity checking for wire segments"
+
+[ ] Implement connectivity-aware duplicate detection
+- RED: Test `_check_duplicate_circuit_ids_hierarchical()`
+- Test case: Same ID on connected wires → No error
+- Test case: Same ID on unconnected wires → Error
+- GREEN: Implement algorithm:
+  1. Group wires by circuit_id
+  2. For each group with 2+ wires:
+     - Check if all connected
+     - Error only if NOT all connected
+- REFACTOR: Clean up
+- COMMIT: "Implement connectivity-aware duplicate detection"
+
+#### Task 7.6.3: Enhanced ValidationError with Sheet Context
+**File**: `kicad2wireBOM/validator.py`
+
+[ ] Update ValidationError dataclass
+- RED: Test ValidationError with sheet_uuid and sheet_name fields
+- GREEN: Add `sheet_uuid`, `sheet_name`, `details` fields to dataclass
+- REFACTOR: Clean up
+- COMMIT: "Add sheet context to ValidationError"
+
+[ ] Update error message formatting
+- RED: Test error message includes sheet information
+- GREEN: Update `_add_error()` to accept and store sheet context
+- Update error printing to show sheet details
+- REFACTOR: Clean up
+- COMMIT: "Enhance error messages with sheet context"
+
+#### Task 7.6.4: CLI Integration
+**File**: `kicad2wireBOM/__main__.py`
+
+[ ] Collect labeled wires with sheet context
+- RED: Test collecting (wire, circuit_id, sheet_uuid) tuples
+- Handle pipe notation (multiple IDs per wire)
+- GREEN: Implement labeled_wires collection loop over all sheets
+- REFACTOR: Clean up
+- COMMIT: "Collect labeled wires with sheet context for validation"
+
+[ ] Use HierarchicalValidator in CLI
+- RED: Test CLI calls HierarchicalValidator with connectivity graph
+- GREEN: Replace `SchematicValidator` with `HierarchicalValidator`
+- Pass connectivity_graph parameter
+- Pass labeled_wires with sheet context
+- REFACTOR: Clean up
+- COMMIT: "Integrate hierarchical validator into CLI"
+
+#### Task 7.6.5: Integration Testing
+**File**: `tests/test_hierarchical_validation.py` (new file)
+
+[ ] Write integration test for test_06 validation
+- RED: Test running validator on test_06_fixture.kicad_sch
+- Verify L2B and A9A NOT flagged as errors (connected across sheets)
+- Verify strict mode passes
+- GREEN: Run actual validation on test_06 fixture
+- Verify result has no errors
+- REFACTOR: Clean up
+- COMMIT: "Integration test: Validate test_06 hierarchical fixture"
+
+[ ] Create test_06_invalid fixture with true duplicate
+- Create fixture with same circuit ID on unconnected wires
+- RED: Test validator catches true duplicate as error
+- GREEN: Verify error message contains "UNCONNECTED"
+- REFACTOR: Clean up
+- COMMIT: "Integration test: Detect true duplicates in hierarchical schematic"
+
+[ ] Run CLI on test_06 without --permissive
+- RED: Verify CLI completes successfully (exit code 0)
+- Verify no validation errors printed
+- Verify CSV generated correctly
+- GREEN: Run CLI, check results
+- REFACTOR: Clean up
+- COMMIT: "Integration test: CLI validates test_06 successfully"
+
+---
+
 ### Phase 7 Completion Checklist
 
 Phase 7 is complete when:
@@ -483,6 +611,7 @@ Phase 7 is complete when:
 [ ] All Phase 7.3 tasks complete (wire tracing)
 [ ] All Phase 7.4 tasks complete (BOM generation)
 [ ] All Phase 7.5 tasks complete (CLI update)
+[ ] All Phase 7.6 tasks complete (hierarchical validation)
 [ ] All existing tests still pass (150 baseline tests)
 [ ] All new hierarchical tests pass
 [ ] CLI generates correct CSV from test_06_fixture.kicad_sch
