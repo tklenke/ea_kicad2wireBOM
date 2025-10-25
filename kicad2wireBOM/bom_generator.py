@@ -130,7 +130,8 @@ def generate_bom_entries(
         - to_pin: Pin number (e.g., "2")
     """
     # Step 1: Store wires in graph (for multipoint processing)
-    graph.wires = {wire.uuid: wire for wire in wires}
+    # Update (don't overwrite) to preserve virtual cross-sheet wires already in graph
+    graph.wires.update({wire.uuid: wire for wire in wires})
 
     # Step 2: Detect multipoint connection groups (N ≥ 3 pins)
     multipoint_groups = graph.detect_multipoint_connections()
@@ -147,43 +148,55 @@ def generate_bom_entries(
     # Step 5: Generate BOM entries for regular 2-point connections
     regular_entries = []
     for wire in wires:
-        # Skip if no label
-        if not wire.circuit_id:
+        # Get all circuit IDs for this wire (handles pipe notation)
+        # Use circuit_ids if available, otherwise fall back to circuit_id
+        circuit_ids = wire.circuit_ids if wire.circuit_ids else ([wire.circuit_id] if wire.circuit_id else [])
+
+        # Skip if no labels
+        if not circuit_ids:
             continue
 
-        # Skip if this label was handled by multipoint logic
-        if wire.circuit_id in multipoint_labels:
+        # Skip wires with pipe notation (multiple circuit_ids)
+        # These are parent sheet wires carrying multiple circuits to sheet pins
+        # BOM entries should be generated from child sheet wires with single IDs
+        if len(circuit_ids) > 1:
             continue
 
-        # Identify 2-point connection
-        from_conn, to_conn = identify_wire_connections(wire, graph)
+        # Generate BOM entry for this circuit ID
+        for circuit_id in circuit_ids:
+            # Skip if this label was handled by multipoint logic
+            if circuit_id in multipoint_labels:
+                continue
 
-        # Both endpoints must be found
-        if from_conn and to_conn:
-            # Get component pin positions
-            from_pin_key = f"{from_conn['component_ref']}-{from_conn['pin_number']}"
-            to_pin_key = f"{to_conn['component_ref']}-{to_conn['pin_number']}"
+            # Identify 2-point connection
+            from_conn, to_conn = identify_wire_connections(wire, graph)
 
-            # Get positions from component pins in graph
-            from_pos = graph.component_pins.get(from_pin_key)
-            to_pos = graph.component_pins.get(to_pin_key)
+            # Both endpoints must be found
+            if from_conn and to_conn:
+                # Get component pin positions
+                from_pin_key = f"{from_conn['component_ref']}-{from_conn['pin_number']}"
+                to_pin_key = f"{to_conn['component_ref']}-{to_conn['pin_number']}"
 
-            # Collect notes from all wire fragments forming this circuit
-            if from_pos and to_pos:
-                notes_str = collect_circuit_notes(graph, wire.circuit_id, from_pos, to_pos)
-            else:
-                # Fallback to single wire notes if positions not found
-                notes_str = ' '.join(wire.notes) if wire.notes else ''
+                # Get positions from component pins in graph
+                from_pos = graph.component_pins.get(from_pin_key)
+                to_pos = graph.component_pins.get(to_pin_key)
 
-            entry = {
-                'circuit_id': wire.circuit_id,
-                'from_component': from_conn['component_ref'],
-                'from_pin': from_conn['pin_number'],
-                'to_component': to_conn['component_ref'],
-                'to_pin': to_conn['pin_number'],
-                'notes': notes_str
-            }
-            regular_entries.append(entry)
+                # Collect notes from all wire fragments forming this circuit
+                if from_pos and to_pos:
+                    notes_str = collect_circuit_notes(graph, circuit_id, from_pos, to_pos)
+                else:
+                    # Fallback to single wire notes if positions not found
+                    notes_str = ' '.join(wire.notes) if wire.notes else ''
+
+                entry = {
+                    'circuit_id': circuit_id,
+                    'from_component': from_conn['component_ref'],
+                    'from_pin': from_conn['pin_number'],
+                    'to_component': to_conn['component_ref'],
+                    'to_pin': to_conn['pin_number'],
+                    'notes': notes_str
+                }
+                regular_entries.append(entry)
 
     # Step 6: Return combined list (multipoint + regular entries)
     return multipoint_entries + regular_entries

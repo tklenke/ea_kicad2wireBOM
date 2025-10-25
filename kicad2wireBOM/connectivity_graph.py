@@ -177,7 +177,32 @@ class ConnectivityGraph:
         if node.node_type == 'junction':
             node_key = (round(node.position[0], 2), round(node.position[1], 2))
 
-            # FIRST PASS: Check for direct component_pin connections
+            # FIRST PASS: Check for hierarchical_label and sheet_pin connections
+            # These are pass-through connections to parent/child sheets and should
+            # be followed BEFORE stopping at local component_pins
+            for wire_uuid in node.connected_wire_uuids:
+                if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                wire = self.wires[wire_uuid]
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                # Get the node at the OTHER end of this wire
+                if start_key == node_key:
+                    other_node = self.nodes[end_key]
+                elif end_key == node_key:
+                    other_node = self.nodes[start_key]
+                else:
+                    continue
+
+                # If the other end is a hierarchical_label or sheet_pin, recurse immediately
+                if other_node.node_type in ('hierarchical_label', 'sheet_pin'):
+                    result = self.trace_to_component(other_node, exclude_wire_uuid=wire_uuid)
+                    if result is not None:
+                        return result
+
+            # SECOND PASS: Check for direct component_pin connections
             # This ensures we prioritize nearby components (like connectors)
             # over distant components reachable through wire_endpoints
             for wire_uuid in node.connected_wire_uuids:
@@ -203,7 +228,7 @@ class ConnectivityGraph:
                         'pin_number': other_node.pin_number
                     }
 
-            # SECOND PASS: No direct component_pin found, recurse through junctions/wire_endpoints
+            # THIRD PASS: No direct component_pin found, recurse through junctions/wire_endpoints
             for wire_uuid in node.connected_wire_uuids:
                 if wire_uuid == exclude_wire_uuid:
                     continue
@@ -230,7 +255,32 @@ class ConnectivityGraph:
         if node.node_type == 'wire_endpoint':
             node_key = (round(node.position[0], 2), round(node.position[1], 2))
 
-            # FIRST PASS: Check for direct component_pin connections
+            # FIRST PASS: Check for hierarchical_label and sheet_pin connections
+            # These are pass-through connections to parent/child sheets and should
+            # be followed BEFORE stopping at local component_pins
+            for wire_uuid in node.connected_wire_uuids:
+                if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                wire = self.wires[wire_uuid]
+                start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
+                end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
+
+                # Get the node at the OTHER end of this wire
+                if start_key == node_key:
+                    other_node = self.nodes[end_key]
+                elif end_key == node_key:
+                    other_node = self.nodes[start_key]
+                else:
+                    continue
+
+                # If the other end is a hierarchical_label or sheet_pin, recurse immediately
+                if other_node.node_type in ('hierarchical_label', 'sheet_pin'):
+                    result = self.trace_to_component(other_node, exclude_wire_uuid=wire_uuid)
+                    if result is not None:
+                        return result
+
+            # SECOND PASS: Check for direct component_pin connections
             # This ensures we prioritize nearby components (like connectors)
             # over distant components reachable through other wire_endpoints
             for wire_uuid in node.connected_wire_uuids:
@@ -256,7 +306,7 @@ class ConnectivityGraph:
                         'pin_number': other_node.pin_number
                     }
 
-            # SECOND PASS: No direct component_pin found, recurse through junctions/wire_endpoints
+            # THIRD PASS: No direct component_pin found, recurse through junctions/wire_endpoints
             for wire_uuid in node.connected_wire_uuids:
                 if wire_uuid == exclude_wire_uuid:
                     continue
