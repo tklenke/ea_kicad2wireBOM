@@ -28,6 +28,45 @@ from kicad2wireBOM.bom_generator import generate_bom_entries
 from kicad2wireBOM.validator import SchematicValidator, HierarchicalValidator
 
 
+def should_swap_components(comp1, comp2) -> bool:
+    """
+    Return True if comp1 and comp2 should be swapped in wire connection.
+
+    Determines component order based on aircraft coordinate system:
+    1. Priority 1: Largest abs(BL) first (furthest from centerline)
+    2. Priority 2: Largest FS first (furthest aft) if BL equal
+    3. Priority 3: Largest WL first (topmost) if BL and FS equal
+    4. Equal on all: keep current order (return False)
+
+    Args:
+        comp1: First component (or None)
+        comp2: Second component (or None)
+
+    Returns:
+        True if components should be swapped (comp2 should be FROM), False otherwise
+    """
+    # Handle missing components
+    if not comp1 or not comp2:
+        return False
+
+    # Priority 1: abs(BL) - furthest from centerline first
+    abs_bl1 = abs(comp1.bl)
+    abs_bl2 = abs(comp2.bl)
+    if abs_bl1 != abs_bl2:
+        return abs_bl2 > abs_bl1  # Swap if comp2 further from centerline
+
+    # Priority 2: FS - furthest aft first
+    if comp1.fs != comp2.fs:
+        return comp2.fs > comp1.fs  # Swap if comp2 further aft
+
+    # Priority 3: WL - topmost first
+    if comp1.wl != comp2.wl:
+        return comp2.wl > comp1.wl  # Swap if comp2 higher
+
+    # Equal on all coordinates - keep current order
+    return False
+
+
 def main():
     """Main entry point for kicad2wireBOM command line tool"""
     parser = argparse.ArgumentParser(
@@ -270,6 +309,12 @@ def main():
 
             # Get notes from BOM entry
             notes = entry.get('notes', '')
+
+            # Order components by aircraft coordinates (furthest from centerline first)
+            if should_swap_components(comp1, comp2):
+                # Swap components
+                from_component, to_component = to_component, from_component
+                from_pin, to_pin = to_pin, from_pin
 
             # Create wire connection
             wire_conn = WireConnection(

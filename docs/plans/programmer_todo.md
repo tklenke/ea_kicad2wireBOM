@@ -84,23 +84,23 @@
 - REFACTOR: Clean up ✅
 - COMMIT: "Sort BOM by system code, circuit ID, segment ID"
 
-[ ] Task 8.7: Implement component direction ordering by aircraft coordinates
-- RED: Test `should_swap_components(comp1, comp2)` comparison function
-- Test cases:
+[x] Task 8.7: Implement component direction ordering by aircraft coordinates
+- RED: Test `should_swap_components(comp1, comp2)` comparison function ✅
+- Test cases: ✅
   - Different BL: abs(BL) largest first
   - Same BL, different FS: largest FS first
   - Same BL and FS, different WL: largest WL first
   - Equal on all: return False (keep current order)
   - Missing LocLoad: return False
-- GREEN: Implement comparison function in __main__.py or new module
+- GREEN: Implement comparison function in __main__.py or new module ✅
   1. Compare abs(comp1.bl) vs abs(comp2.bl) - return True if comp2 > comp1
   2. If BL equal, compare FS - return True if comp2.fs > comp1.fs
   3. If BL and FS equal, compare WL - return True if comp2.wl > comp1.wl
   4. Otherwise return False
-- GREEN: Apply to each WireConnection before adding to BOM
+- GREEN: Apply to each WireConnection before adding to BOM ✅
   1. After creating wire_conn, check if should_swap_components(comp1, comp2)
   2. If True, swap from/to fields in wire_conn
-- REFACTOR: Clean up
+- REFACTOR: Clean up ✅
 - COMMIT: "Order wire components by aircraft coordinates (BL, FS, WL)"
 
 [ ] Task 8.8: Integration testing - BOM ordering
