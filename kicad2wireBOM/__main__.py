@@ -2,6 +2,7 @@
 # ABOUTME: Orchestrates conversion of KiCad schematic files to wire BOM CSV
 
 import argparse
+import re
 import sys
 import os
 from pathlib import Path
@@ -286,6 +287,20 @@ def main():
             )
 
             bom.add_wire(wire_conn)
+
+        # Sort BOM by system code, circuit number, segment letter
+        def parse_wire_label_for_sort(label):
+            """Parse wire label to extract system_code, circuit_num, segment_letter for sorting"""
+            pattern = r'^([A-Z])-?(\d+)-?([A-Z])$'
+            match = re.match(pattern, label)
+            if match:
+                system_code = match.group(1)
+                circuit_num = int(match.group(2))
+                segment_letter = match.group(3)
+                return (system_code, circuit_num, segment_letter)
+            return ('', 0, '')  # Fallback for invalid labels
+
+        bom.wires.sort(key=lambda w: parse_wire_label_for_sort(w.wire_label))
 
         # Write output
         write_builder_csv(bom, args.dest)

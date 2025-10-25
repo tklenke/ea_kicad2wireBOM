@@ -110,3 +110,42 @@ def test_write_builder_csv_multiple_wires(tmp_path):
     assert rows[0]['Wire Label'] == 'L-105-A'
     assert rows[1]['Wire Label'] == 'P-12-A'
     assert rows[2]['Wire Label'] == 'L-105-B'
+
+
+def test_bom_wire_sorting():
+    """Test that BOM wires are sorted by system code, circuit number, segment letter"""
+    import re
+
+    # Create BOM with wires in mixed order
+    bom = WireBOM(config={})
+
+    # Add wires in intentionally unsorted order: G, L, P, A
+    bom.add_wire(WireConnection('G-11-A', 'L3', '1', 'GND', '1', 18, 'Black', 20.0, 'Standard', '', []))
+    bom.add_wire(WireConnection('L-10-A', 'L3', '2', 'SW3', '1', 18, 'White', 30.0, 'Standard', '', []))
+    bom.add_wire(WireConnection('P-1-A', 'BT1', '1', 'FH1', '1', 12, 'Red', 40.0, 'Standard', '', []))
+    bom.add_wire(WireConnection('A-9-A', 'FH1', '2', 'LRU1', '1', 22, 'Blue', 50.0, 'Standard', '', []))
+    bom.add_wire(WireConnection('L-2-B', 'SW1', '1', 'L2', '1', 18, 'White', 25.0, 'Standard', '', []))
+    bom.add_wire(WireConnection('G-5-A', 'L1', '1', 'GND', '1', 18, 'Black', 15.0, 'Standard', '', []))
+
+    # Sort the wires
+    def parse_wire_label(label):
+        """Parse wire label to extract system_code, circuit_num, segment_letter for sorting"""
+        pattern = r'^([A-Z])-?(\d+)-?([A-Z])$'
+        match = re.match(pattern, label)
+        if match:
+            system_code = match.group(1)
+            circuit_num = int(match.group(2))
+            segment_letter = match.group(3)
+            return (system_code, circuit_num, segment_letter)
+        return ('', 0, '')  # Fallback for invalid labels
+
+    bom.wires.sort(key=lambda w: parse_wire_label(w.wire_label))
+
+    # Verify sorted order
+    assert len(bom.wires) == 6
+    assert bom.wires[0].wire_label == 'A-9-A'  # A comes first
+    assert bom.wires[1].wire_label == 'G-5-A'  # G, circuit 5
+    assert bom.wires[2].wire_label == 'G-11-A' # G, circuit 11
+    assert bom.wires[3].wire_label == 'L-2-B'  # L, circuit 2
+    assert bom.wires[4].wire_label == 'L-10-A' # L, circuit 10
+    assert bom.wires[5].wire_label == 'P-1-A'  # P comes last

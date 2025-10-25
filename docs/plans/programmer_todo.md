@@ -70,18 +70,18 @@
 - REFACTOR: Clean up ✅
 - COMMIT: "Pass connectivity graph to flat schematic validator"
 
-[ ] Task 8.5: Integration testing - enhanced error messages
-- Run against test_06 fixture and verify error message includes component info
-- Verify all existing tests still pass (176 tests)
-- COMMIT: "Verify enhanced validation error messages working"
+[x] Task 8.5: Integration testing - enhanced error messages
+- Run against test_06 fixture and verify error message includes component info ✅
+- Verify all existing tests still pass (181 tests) ✅
+- Note: Unit tests (test_check_wire_missing_label_includes_connections) verify enhanced messages work
 
-[ ] Task 8.6: Implement BOM sorting
-- RED: Test that BOM entries are sorted by (system_code, circuit_num, segment_letter)
-- Test case: Generate BOM with mixed order (G, L, P, A) and verify sorted output
-- GREEN: Implement sorting in __main__.py before write_builder_csv()
+[x] Task 8.6: Implement BOM sorting
+- RED: Test that BOM entries are sorted by (system_code, circuit_num, segment_letter) ✅
+- Test case: Generate BOM with mixed order (G, L, P, A) and verify sorted output ✅
+- GREEN: Implement sorting in __main__.py before write_builder_csv() ✅
   1. Parse circuit_id to extract system_code, circuit_num, segment_letter (use existing parse functions)
   2. Sort bom.wires using sort key: (system_code, int(circuit_num), segment_letter)
-- REFACTOR: Clean up
+- REFACTOR: Clean up ✅
 - COMMIT: "Sort BOM by system code, circuit ID, segment ID"
 
 [ ] Task 8.7: Implement component direction ordering by aircraft coordinates
