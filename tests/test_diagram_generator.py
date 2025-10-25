@@ -12,9 +12,12 @@ from kicad2wireBOM.diagram_generator import (
     transform_to_svg,
     calculate_wire_label_position,
     build_system_diagram,
+    generate_svg,
 )
 from kicad2wireBOM.wire_bom import WireConnection
 from kicad2wireBOM.component import Component
+from pathlib import Path
+import tempfile
 
 
 def test_diagram_component_creation():
@@ -396,3 +399,62 @@ def test_build_system_diagram_multiple_wires():
     assert diagram.fs_max == 80.0
     assert diagram.bl_min == 20.0
     assert diagram.bl_max == 30.0
+
+
+def test_generate_svg_creates_file():
+    """Test that generate_svg creates an SVG file."""
+    # Create a simple diagram
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=100.0, bl=50.0)
+    segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
+
+    diagram = SystemDiagram(
+        system_code="L",
+        components=[comp1, comp2],
+        wire_segments=[segment],
+        fs_min=0.0,
+        fs_max=100.0,
+        bl_min=0.0,
+        bl_max=50.0
+    )
+
+    # Generate SVG to temporary file
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_diagram.svg"
+        generate_svg(diagram, output_path)
+
+        # Verify file was created
+        assert output_path.exists()
+
+        # Read and verify content
+        content = output_path.read_text()
+        assert '<svg' in content
+        assert '</svg>' in content
+
+
+def test_generate_svg_dimensions():
+    """Test that SVG has correct dimensions."""
+    # Create diagram with known bounds
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=100.0, bl=50.0)
+
+    diagram = SystemDiagram(
+        system_code="L",
+        components=[comp1, comp2],
+        wire_segments=[],
+        fs_min=0.0,
+        fs_max=100.0,
+        bl_min=0.0,
+        bl_max=50.0
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_diagram.svg"
+        generate_svg(diagram, output_path)
+
+        content = output_path.read_text()
+        # Verify SVG tag exists with width and height
+        assert 'width=' in content
+        assert 'height=' in content
+        # Should have white background
+        assert 'fill="white"' in content or "fill='white'" in content

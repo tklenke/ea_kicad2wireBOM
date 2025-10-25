@@ -266,3 +266,54 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
         bl_min=bl_min,
         bl_max=bl_max
     )
+
+
+def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
+    """
+    Generate SVG file for system diagram.
+
+    Args:
+        diagram: SystemDiagram with all data
+        output_path: Path to write SVG file
+
+    Creates SVG with:
+    - Background (white)
+    - Grid lines (light gray, 12-inch spacing)
+    - Axes (dark gray)
+    - Wire segments (black lines, Manhattan routing)
+    - Wire labels (black text)
+    - Component markers (blue circles)
+    - Component labels (navy text)
+    - Title and legend
+    """
+    # Constants
+    MARGIN = 50
+    TARGET_WIDTH = 800
+    GRID_SPACING = 12  # inches
+
+    # Calculate scale
+    fs_range = diagram.fs_max - diagram.fs_min
+    bl_range = diagram.bl_max - diagram.bl_min
+    scale = calculate_scale(fs_range, bl_range, TARGET_WIDTH, MARGIN)
+
+    # Calculate SVG dimensions
+    svg_width = fs_range * scale + 2 * MARGIN
+    svg_height = bl_range * scale + 2 * MARGIN
+
+    # Start building SVG
+    svg_lines = []
+    svg_lines.append(f'<svg width="{svg_width:.0f}" height="{svg_height:.0f}" xmlns="http://www.w3.org/2000/svg">')
+
+    # Background
+    svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
+
+    # TODO: Grid lines (Task 10.9)
+    # TODO: Wire segments (Task 10.10)
+    # TODO: Component markers (Task 10.11)
+    # TODO: Labels and title (Task 10.12)
+
+    svg_lines.append('</svg>')
+
+    # Write to file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text('\n'.join(svg_lines))
