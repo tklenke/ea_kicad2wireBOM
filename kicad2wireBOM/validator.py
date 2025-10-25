@@ -124,3 +124,41 @@ class HierarchicalValidator(SchematicValidator):
     def __init__(self, strict_mode: bool = True, connectivity_graph: Optional['ConnectivityGraph'] = None):
         super().__init__(strict_mode)
         self.connectivity_graph = connectivity_graph
+
+    def _bfs_reachable_nodes(self, start_position: tuple[float, float]) -> set[tuple[float, float]]:
+        """
+        Find all node positions reachable from start_position using BFS.
+
+        Args:
+            start_position: Starting node position (x, y)
+
+        Returns:
+            Set of all reachable node positions (including start_position)
+        """
+        if not self.connectivity_graph:
+            return {start_position}
+
+        visited = set()
+        queue = [start_position]
+        visited.add(start_position)
+
+        while queue:
+            current_pos = queue.pop(0)
+
+            # Get node at current position
+            node = self.connectivity_graph.get_node_at_position(current_pos)
+            if not node:
+                continue
+
+            # Traverse all wires connected to this node
+            for wire_uuid in node.connected_wire_uuids:
+                # Get both nodes connected by this wire
+                node1, node2 = self.connectivity_graph.get_connected_nodes(wire_uuid)
+
+                # Add unvisited neighbor to queue
+                for neighbor in [node1, node2]:
+                    if neighbor.position not in visited:
+                        visited.add(neighbor.position)
+                        queue.append(neighbor.position)
+
+        return visited

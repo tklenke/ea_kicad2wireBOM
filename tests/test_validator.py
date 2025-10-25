@@ -211,3 +211,61 @@ def test_hierarchical_validator_creation():
 
     assert validator.strict_mode is True
     assert validator.connectivity_graph is graph
+
+
+def test_bfs_reachable_nodes():
+    """Test BFS traversal finds all connected nodes"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph, NetworkNode
+    from kicad2wireBOM.schematic import WireSegment
+
+    # Create a simple connected graph: A -- B -- C
+    graph = ConnectivityGraph()
+
+    wire_ab = WireSegment(uuid="w1", start_point=(0, 0), end_point=(10, 0))
+    wire_bc = WireSegment(uuid="w2", start_point=(10, 0), end_point=(20, 0))
+
+    graph.add_wire(wire_ab)
+    graph.add_wire(wire_bc)
+
+    node_a = graph.get_node_at_position((0, 0))
+    node_b = graph.get_node_at_position((10, 0))
+    node_c = graph.get_node_at_position((20, 0))
+
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+
+    # BFS from node_a should find a, b, c
+    reachable = validator._bfs_reachable_nodes(node_a.position)
+    assert node_a.position in reachable
+    assert node_b.position in reachable
+    assert node_c.position in reachable
+    assert len(reachable) == 3
+
+
+def test_bfs_reachable_nodes_disconnected():
+    """Test BFS does not reach disconnected nodes"""
+    from kicad2wireBOM.connectivity_graph import ConnectivityGraph
+    from kicad2wireBOM.schematic import WireSegment
+
+    # Create disconnected graph: A -- B    C -- D
+    graph = ConnectivityGraph()
+
+    wire_ab = WireSegment(uuid="w1", start_point=(0, 0), end_point=(10, 0))
+    wire_cd = WireSegment(uuid="w2", start_point=(100, 0), end_point=(110, 0))
+
+    graph.add_wire(wire_ab)
+    graph.add_wire(wire_cd)
+
+    node_a = graph.get_node_at_position((0, 0))
+    node_b = graph.get_node_at_position((10, 0))
+    node_c = graph.get_node_at_position((100, 0))
+    node_d = graph.get_node_at_position((110, 0))
+
+    validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
+
+    # BFS from node_a should find a, b but not c, d
+    reachable = validator._bfs_reachable_nodes(node_a.position)
+    assert node_a.position in reachable
+    assert node_b.position in reachable
+    assert node_c.position not in reachable
+    assert node_d.position not in reachable
+    assert len(reachable) == 2
