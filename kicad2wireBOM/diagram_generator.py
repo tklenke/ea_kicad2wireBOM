@@ -370,3 +370,30 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Write to file
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text('\n'.join(svg_lines))
+
+
+def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+    """
+    Generate routing diagram SVG files for all systems.
+
+    Args:
+        wire_connections: All wire connections from BOM
+        components: Dict mapping component ref to Component object
+        output_dir: Directory to write SVG files
+
+    Outputs:
+        One SVG file per system code (L_routing.svg, P_routing.svg, etc.)
+    """
+    # Group wires by system
+    system_groups = group_wires_by_system(wire_connections)
+
+    # Generate one diagram per system
+    for system_code, wires in system_groups.items():
+        # Build diagram data structure
+        diagram = build_system_diagram(system_code, wires, components)
+
+        # Generate SVG
+        output_path = output_dir / f"{system_code}_routing.svg"
+        generate_svg(diagram, output_path)
+
+        print(f"Generated {output_path}")
