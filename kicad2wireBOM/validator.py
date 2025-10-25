@@ -155,11 +155,12 @@ class HierarchicalValidator(SchematicValidator):
                 # Get both nodes connected by this wire
                 node1, node2 = self.connectivity_graph.get_connected_nodes(wire_uuid)
 
-                # Add unvisited neighbor to queue
+                # Add unvisited neighbor to queue (with rounded position)
                 for neighbor in [node1, node2]:
-                    if neighbor.position not in visited:
-                        visited.add(neighbor.position)
-                        queue.append(neighbor.position)
+                    rounded_pos = (round(neighbor.position[0], 2), round(neighbor.position[1], 2))
+                    if rounded_pos not in visited:
+                        visited.add(rounded_pos)
+                        queue.append(rounded_pos)
 
         return visited
 
@@ -181,11 +182,12 @@ class HierarchicalValidator(SchematicValidator):
         if len(wires) == 1:
             return True
 
-        # Collect all unique endpoint positions from all wires
+        # Collect all unique endpoint positions from all wires (rounded to match graph precision)
         all_positions = set()
         for wire in wires:
-            all_positions.add(wire.start_point)
-            all_positions.add(wire.end_point)
+            # Round to 0.01mm precision to match graph node position rounding
+            all_positions.add((round(wire.start_point[0], 2), round(wire.start_point[1], 2)))
+            all_positions.add((round(wire.end_point[0], 2), round(wire.end_point[1], 2)))
 
         # Start BFS from the first position
         start_position = next(iter(all_positions))
