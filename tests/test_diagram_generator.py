@@ -8,6 +8,7 @@ from kicad2wireBOM.diagram_generator import (
     SystemDiagram,
     group_wires_by_system,
     calculate_bounds,
+    calculate_scale,
 )
 from kicad2wireBOM.wire_bom import WireConnection
 
@@ -199,3 +200,51 @@ def test_calculate_bounds_empty_raises():
     """Test that empty component list raises ValueError."""
     with pytest.raises(ValueError, match="Cannot calculate bounds for empty component list"):
         calculate_bounds([])
+
+
+def test_calculate_scale_normal():
+    """Test scale calculation with normal range."""
+    # Range 100 inches, target 800px, margin 50px
+    # Available = 800 - 100 = 700px
+    # Scale = 700 / 100 = 7.0
+    fs_range = 100.0
+    bl_range = 100.0
+    scale = calculate_scale(fs_range, bl_range, target_width=800, margin=50)
+
+    assert scale == 7.0
+
+
+def test_calculate_scale_large_range():
+    """Test that scale is clamped to MIN_SCALE for large ranges."""
+    # Range 500 inches, target 800px, margin 50px
+    # Available = 700px
+    # Raw scale = 700 / 500 = 1.4
+    # Should be clamped to MIN_SCALE (2.0)
+    fs_range = 500.0
+    bl_range = 100.0
+    scale = calculate_scale(fs_range, bl_range, target_width=800, margin=50)
+
+    assert scale == 2.0
+
+
+def test_calculate_scale_small_range():
+    """Test that scale is clamped to MAX_SCALE for small ranges."""
+    # Range 10 inches, target 800px, margin 50px
+    # Available = 700px
+    # Raw scale = 700 / 10 = 70.0
+    # Should be clamped to MAX_SCALE (10.0)
+    fs_range = 10.0
+    bl_range = 5.0
+    scale = calculate_scale(fs_range, bl_range, target_width=800, margin=50)
+
+    assert scale == 10.0
+
+
+def test_calculate_scale_zero_range():
+    """Test that zero range returns MIN_SCALE."""
+    # All components at same location
+    fs_range = 0.0
+    bl_range = 0.0
+    scale = calculate_scale(fs_range, bl_range, target_width=800, margin=50)
+
+    assert scale == 2.0

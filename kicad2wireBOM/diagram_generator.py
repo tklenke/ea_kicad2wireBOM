@@ -105,3 +105,40 @@ def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, 
     bl_values = [c.bl for c in components]
 
     return (min(fs_values), max(fs_values), min(bl_values), max(bl_values))
+
+
+def calculate_scale(fs_range: float, bl_range: float,
+                    target_width: int = 800, margin: int = 50) -> float:
+    """
+    Calculate appropriate scale factor (pixels per inch).
+
+    Args:
+        fs_range: FS coordinate range (fs_max - fs_min)
+        bl_range: BL coordinate range (bl_max - bl_min)
+        target_width: Target diagram width in pixels (default: 800)
+        margin: Margin around diagram in pixels (default: 50)
+
+    Returns:
+        Scale factor in pixels per inch (clamped to MIN_SCALE...MAX_SCALE)
+
+    Note:
+        Calculates scale to fit larger dimension within target width,
+        then clamps to reasonable range (2.0 to 10.0 px/inch).
+    """
+    MIN_SCALE = 2.0   # pixels per inch
+    MAX_SCALE = 10.0  # pixels per inch
+
+    # Available space for diagram (subtract margins)
+    available = target_width - (2 * margin)
+
+    # Calculate scale based on larger dimension
+    max_range = max(fs_range, bl_range)
+
+    if max_range == 0:
+        # Single point or all components at same location
+        return MIN_SCALE
+
+    scale = available / max_range
+
+    # Clamp to reasonable range
+    return max(MIN_SCALE, min(MAX_SCALE, scale))
