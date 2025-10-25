@@ -307,10 +307,63 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Background
     svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
 
-    # TODO: Grid lines (Task 10.9)
-    # TODO: Wire segments (Task 10.10)
-    # TODO: Component markers (Task 10.11)
-    # TODO: Labels and title (Task 10.12)
+    # Grid lines (12-inch spacing)
+    svg_lines.append('  <g id="grid" stroke="#e0e0e0" stroke-width="0.5">')
+    # Vertical grid lines (FS axis)
+    fs_start = int(diagram.fs_min / GRID_SPACING) * GRID_SPACING
+    fs = fs_start
+    while fs <= diagram.fs_max:
+        x, _ = transform_to_svg(fs, diagram.bl_min, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
+        fs += GRID_SPACING
+    # Horizontal grid lines (BL axis)
+    bl_start = int(diagram.bl_min / GRID_SPACING) * GRID_SPACING
+    bl = bl_start
+    while bl <= diagram.bl_max:
+        _, y = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        svg_lines.append(f'    <line x1="{MARGIN}" y1="{y:.1f}" x2="{svg_width - MARGIN}" y2="{y:.1f}"/>')
+        bl += GRID_SPACING
+    svg_lines.append('  </g>')
+
+    # Wire segments (Manhattan routing)
+    svg_lines.append('  <g id="wires" stroke="black" stroke-width="2" fill="none">')
+    for segment in diagram.wire_segments:
+        path = segment.manhattan_path
+        points = []
+        for fs, bl in path:
+            x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+            points.append(f"{x:.1f},{y:.1f}")
+        svg_lines.append(f'    <polyline points="{" ".join(points)}"/>')
+    svg_lines.append('  </g>')
+
+    # Wire labels
+    svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="10" fill="black" text-anchor="middle">')
+    for segment in diagram.wire_segments:
+        path = segment.manhattan_path
+        label_fs, label_bl = calculate_wire_label_position(path)
+        x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="-3">{segment.label}</text>')
+    svg_lines.append('  </g>')
+
+    # Component markers (blue circles)
+    svg_lines.append('  <g id="components">')
+    for comp in diagram.components:
+        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="blue" stroke="navy" stroke-width="1"/>')
+    svg_lines.append('  </g>')
+
+    # Component labels
+    svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="10" fill="navy" text-anchor="middle">')
+    for comp in diagram.components:
+        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="15">{comp.ref}</text>')
+    svg_lines.append('  </g>')
+
+    # Title
+    svg_lines.append('  <g id="title" font-family="Arial">')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="30" font-size="16" font-weight="bold" text-anchor="middle">System {diagram.system_code} Routing Diagram</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="45" font-size="10" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min:.0f}"-{diagram.bl_max:.0f}"</text>')
+    svg_lines.append('  </g>')
 
     svg_lines.append('</svg>')
 
