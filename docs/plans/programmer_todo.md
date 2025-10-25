@@ -58,10 +58,10 @@
 - REFACTOR: Clean up ✅
 - COMMIT: "Add wire endpoint tracing helper for error messages"
 
-[ ] Task 8.3: Update missing label error messages
-- RED: Test that missing label errors include "Wire connects: ..." line
-- GREEN: Update `_check_wire_labels()` to call `_format_wire_connections()` and include in error message
-- REFACTOR: Clean up
+[x] Task 8.3: Update missing label error messages
+- RED: Test that missing label errors include "Wire connects: ..." line ✅
+- GREEN: Update `_check_wire_labels()` to call `_format_wire_connections()` and include in error message ✅
+- REFACTOR: Clean up ✅
 - COMMIT: "Include component connections in missing label errors"
 
 [ ] Task 8.4: Update CLI to pass graph to SchematicValidator

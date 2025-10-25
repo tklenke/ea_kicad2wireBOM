@@ -227,6 +227,47 @@ def test_check_wire_missing_label_strict():
     assert "no valid circuit ID label" in wire_errors[0].message
 
 
+def test_check_wire_missing_label_includes_connections():
+    """Test that missing label errors include wire connection information"""
+    from kicad2wireBOM.schematic import WireSegment
+    from kicad2wireBOM.connectivity_graph import NetworkNode
+
+    # Create mock graph that returns component connections
+    class MockGraph:
+        def get_node_at_position(self, position):
+            if position == (0.0, 0.0):
+                return NetworkNode(position=(0.0, 0.0), node_type='component_pin',
+                                 component_ref='BT1', pin_number='1')
+            elif position == (100.0, 0.0):
+                return NetworkNode(position=(100.0, 0.0), node_type='component_pin',
+                                 component_ref='FH1', pin_number='Val_A')
+            return None
+
+        def trace_to_component(self, node, exclude_wire_uuid=None):
+            if node and node.node_type == 'component_pin':
+                return {'component_ref': node.component_ref, 'pin_number': node.pin_number}
+            return None
+
+    validator = SchematicValidator(strict_mode=True, connectivity_graph=MockGraph())
+
+    # Wire with labels but no valid circuit ID
+    wire = WireSegment(uuid="w1", start_point=(0.0, 0.0), end_point=(100.0, 0.0))
+    wire.labels = ["INVALID_LABEL"]
+    wires = [wire]
+    labels = []
+
+    result = validator.validate_all(wires, labels, [])
+
+    assert result.has_errors()
+    wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
+    assert len(wire_errors) > 0
+
+    # Check that error message includes connection information
+    error_msg = wire_errors[0].message
+    assert "BT1 (pin 1) → FH1 (pin Val_A)" in error_msg
+    assert "Wire connects:" in error_msg
+
+
 def test_check_wire_multiple_circuit_ids():
     """Test detection of wire with multiple circuit ID labels"""
     from kicad2wireBOM.schematic import WireSegment, Label

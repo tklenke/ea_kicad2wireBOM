@@ -114,14 +114,28 @@ class SchematicValidator:
             if len(circuit_ids) == 0:
                 # Wire has labels but no valid circuit ID
                 # This is an error - labels were attempted but none are valid circuit IDs
+                message = f"Wire segment {wire.uuid} has no valid circuit ID label"
+
+                # Add connection information if connectivity graph available
+                if self.connectivity_graph:
+                    connections = self._format_wire_connections(wire)
+                    message = f"{message}\n       Wire connects: {connections}"
+
                 self._add_error(
-                    f"Wire segment {wire.uuid} has no valid circuit ID label",
+                    message,
                     suggestion="Add circuit ID label to wire",
                     wire_uuid=wire.uuid
                 )
             elif len(circuit_ids) > 1:
+                message = f"Wire has multiple circuit IDs: {', '.join(circuit_ids)}"
+
+                # Add connection information if connectivity graph available
+                if self.connectivity_graph:
+                    connections = self._format_wire_connections(wire)
+                    message = f"{message}\n       Wire connects: {connections}"
+
                 self._add_error(
-                    f"Wire has multiple circuit IDs: {', '.join(circuit_ids)}",
+                    message,
                     suggestion="Remove extra labels or move to notes",
                     wire_uuid=wire.uuid
                 )
