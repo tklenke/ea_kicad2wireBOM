@@ -64,10 +64,10 @@
 - REFACTOR: Clean up ✅
 - COMMIT: "Include component connections in missing label errors"
 
-[ ] Task 8.4: Update CLI to pass graph to SchematicValidator
-- RED: Test CLI passes connectivity_graph to SchematicValidator (flat schematics)
-- GREEN: Update __main__.py line ~193 to pass graph parameter
-- REFACTOR: Clean up
+[x] Task 8.4: Update CLI to pass graph to SchematicValidator
+- RED: Test CLI passes connectivity_graph to SchematicValidator (flat schematics) ✅
+- GREEN: Update __main__.py line ~193 to pass graph parameter ✅
+- REFACTOR: Clean up ✅
 - COMMIT: "Pass connectivity graph to flat schematic validator"
 
 [ ] Task 8.5: Integration testing - enhanced error messages

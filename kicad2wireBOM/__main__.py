@@ -190,7 +190,8 @@ def main():
             # Use hierarchical validator with connectivity graph for cross-sheet validation
             validator = HierarchicalValidator(strict_mode=strict_mode, connectivity_graph=graph)
         else:
-            validator = SchematicValidator(strict_mode=strict_mode)
+            # Use flat validator with connectivity graph for enhanced error messages
+            validator = SchematicValidator(strict_mode=strict_mode, connectivity_graph=graph)
         validation_result = validator.validate_all(wires, labels, components)
 
         # Handle validation errors/warnings
