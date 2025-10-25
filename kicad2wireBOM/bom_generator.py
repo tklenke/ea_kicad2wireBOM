@@ -63,6 +63,11 @@ def collect_circuit_notes(
                 continue
 
             visited_wires.add(wire_uuid)
+
+            # Skip if wire not in dict (e.g., virtual cross-sheet wires)
+            if wire_uuid not in graph.wires:
+                continue
+
             wire = graph.wires[wire_uuid]
 
             # Collect notes from this wire

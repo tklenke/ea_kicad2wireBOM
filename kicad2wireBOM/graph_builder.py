@@ -165,6 +165,7 @@ def build_connectivity_graph_hierarchical(hierarchical_schematic: HierarchicalSc
         _add_sheet_to_graph(graph, sheet)
 
     # THIRD: Add cross-sheet virtual wires connecting sheet_pins to hierarchical_labels
+    # These allow tracing across sheet boundaries but are transparent to BOM generation
     for connection in hierarchical_schematic.sheet_connections:
         # Create virtual wire connecting them
         # UUID format: "cross_sheet_{parent_uuid}_{child_uuid}_{pin_name}"
@@ -176,6 +177,7 @@ def build_connectivity_graph_hierarchical(hierarchical_schematic: HierarchicalSc
             end_point=connection.child_label_position
         )
 
+        # Add wire to graph (connects sheet_pin and hierarchical_label nodes)
         graph.add_wire(cross_sheet_wire)
 
     return graph

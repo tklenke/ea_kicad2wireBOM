@@ -287,6 +287,10 @@ class ConnectivityGraph:
                 if wire_uuid == exclude_wire_uuid:
                     continue
 
+                # Skip if wire not in dict (shouldn't happen but be safe)
+                if wire_uuid not in self.wires:
+                    continue
+
                 wire = self.wires[wire_uuid]
                 start_key = (round(wire.start_point[0], 2), round(wire.start_point[1], 2))
                 end_key = (round(wire.end_point[0], 2), round(wire.end_point[1], 2))
@@ -310,6 +314,10 @@ class ConnectivityGraph:
 
             for wire_uuid in node.connected_wire_uuids:
                 if wire_uuid == exclude_wire_uuid:
+                    continue
+
+                # Skip if wire not in dict (shouldn't happen but be safe)
+                if wire_uuid not in self.wires:
                     continue
 
                 wire = self.wires[wire_uuid]
@@ -404,6 +412,10 @@ class ConnectivityGraph:
 
             # Explore all wires connected to this node
             for wire_uuid in node.connected_wire_uuids:
+                # Skip if wire not in dict (e.g., virtual cross-sheet wires)
+                if wire_uuid not in self.wires:
+                    continue
+
                 wire = self.wires[wire_uuid]
 
                 # Get both endpoints of the wire
