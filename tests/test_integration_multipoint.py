@@ -1,5 +1,5 @@
 # ABOUTME: Integration tests for complete BOM generation with multipoint connections
-# ABOUTME: Tests end-to-end BOM generation including 3+way connections
+# ABOUTME: Tests end-to-end BOM generation including 3+way connections and circuit-based wire sizing
 
 import pytest
 from pathlib import Path
@@ -7,12 +7,23 @@ from kicad2wireBOM.parser import (
     parse_schematic_file,
     extract_wires,
     extract_labels,
+    extract_symbols,
     parse_wire_element,
-    parse_label_element
+    parse_label_element,
+    parse_symbol_element
 )
 from kicad2wireBOM.label_association import associate_labels_with_wires
 from kicad2wireBOM.graph_builder import build_connectivity_graph
 from kicad2wireBOM.bom_generator import generate_bom_entries
+from kicad2wireBOM.wire_calculator import (
+    calculate_length,
+    group_wires_by_circuit,
+    determine_circuit_current,
+    determine_min_gauge
+)
+from kicad2wireBOM.wire_bom import WireConnection
+from kicad2wireBOM.component import Component
+from kicad2wireBOM.reference_data import SYSTEM_COLOR_MAP, DEFAULT_CONFIG
 
 
 def test_03A_fixture_multipoint_integration():
@@ -142,3 +153,118 @@ def test_04_fixture_multipoint_integration():
     assert 'L2A' in entries_by_label, "Expected L2A entry"
     assert 'L3A' in entries_by_label, "Expected L3A entry"
     assert 'L4A' in entries_by_label, "Expected L4A entry"
+
+
+def test_circuit_based_wire_sizing():
+    """
+    Integration test for circuit-based wire gauge calculation.
+
+    Verifies all wires in same circuit get same gauge based on total circuit current.
+
+    Uses test_07_fixture with:
+    - Circuit L1 (single load): L1A, L1B → 18 AWG (L1 = 10A)
+    - Circuit L2 (parallel loads): L2A, L2B, L2C → 12 AWG (L2+L3 = 14A)
+    - Circuit P1 (power distribution): P1A → 12 AWG (BT1 = 40A source)
+    - Circuit G1-G4 (grounds): Various gauges based on connected loads/sources
+    """
+    fixture_path = Path('tests/fixtures/test_07_fixture.kicad_sch')
+    sexp = parse_schematic_file(fixture_path)
+
+    # Parse wires, labels, and components
+    wire_sexps = extract_wires(sexp)
+    label_sexps = extract_labels(sexp)
+    symbol_sexps = extract_symbols(sexp)
+
+    wires = [parse_wire_element(w) for w in wire_sexps]
+    labels = [parse_label_element(l) for l in label_sexps]
+
+    # Parse components (skip those with missing LocLoad encoding)
+    components = []
+    for s in symbol_sexps:
+        try:
+            components.append(parse_symbol_element(s))
+        except ValueError:
+            pass  # Skip components without load/rating data
+
+    # Associate labels with wires
+    associate_labels_with_wires(wires, labels, threshold=10.0)
+
+    # Build connectivity graph
+    graph = build_connectivity_graph(sexp)
+
+    # Generate BOM entries
+    bom_entries = generate_bom_entries(wires, graph)
+
+    # Create component lookup map
+    comp_map = {comp.ref: comp for comp in components}
+
+    # Create WireConnection objects (simulating __main__.py logic)
+    wire_connections = []
+    for entry in bom_entries:
+        circuit_id = entry['circuit_id']
+        from_comp = entry['from_component']
+        to_comp = entry['to_component']
+
+        # Look up component objects
+        comp1 = comp_map.get(from_comp) if from_comp else None
+        comp2 = comp_map.get(to_comp) if to_comp else None
+
+        # Calculate length
+        if comp1 and comp2:
+            length = calculate_length(comp1, comp2, slack=24.0)
+        else:
+            length = 50.0  # Fallback
+
+        # Create WireConnection with placeholder gauge
+        wire_conn = WireConnection(
+            wire_label=circuit_id,
+            from_component=from_comp,
+            from_pin=entry['from_pin'],
+            to_component=to_comp,
+            to_pin=entry['to_pin'],
+            wire_gauge=-99,  # Placeholder
+            wire_color='White',
+            length=length,
+            wire_type='M22759/16',
+            notes='',
+            warnings=[]
+        )
+        wire_connections.append(wire_conn)
+
+    # Apply circuit-based wire gauge calculation
+    circuit_groups = group_wires_by_circuit(wire_connections)
+
+    circuit_gauges = {}
+    for circuit_id, circuit_wires in circuit_groups.items():
+        circuit_current = determine_circuit_current(circuit_wires, components, graph)
+        max_length = max(wire.length for wire in circuit_wires)
+        gauge = determine_min_gauge(circuit_current, max_length, system_voltage=14.0)
+        circuit_gauges[circuit_id] = gauge
+
+    # Apply gauges to wires
+    wire_gauge_map = {}
+    for wire in wire_connections:
+        from kicad2wireBOM.wire_calculator import parse_net_name
+        parsed = parse_net_name(f"/{wire.wire_label}")
+        if parsed:
+            circuit_id = f"{parsed['system']}{parsed['circuit']}"
+            wire.wire_gauge = circuit_gauges.get(circuit_id, -99)
+            wire_gauge_map[wire.wire_label] = wire.wire_gauge
+
+    # VERIFY: Circuit L1 wires all have same gauge (18 AWG for 10A load)
+    assert wire_gauge_map.get('L1A') == 18, f"L1A expected 18 AWG, got {wire_gauge_map.get('L1A')}"
+    assert wire_gauge_map.get('L1B') == 18, f"L1B expected 18 AWG, got {wire_gauge_map.get('L1B')}"
+
+    # VERIFY: Circuit L2 wires all have same gauge (12 AWG for 14A total)
+    assert wire_gauge_map.get('L2A') == 12, f"L2A expected 12 AWG, got {wire_gauge_map.get('L2A')}"
+    assert wire_gauge_map.get('L2B') == 12, f"L2B expected 12 AWG, got {wire_gauge_map.get('L2B')}"
+    assert wire_gauge_map.get('L2C') == 12, f"L2C expected 12 AWG, got {wire_gauge_map.get('L2C')}"
+
+    # VERIFY: Power circuit P1 (40A source)
+    assert wire_gauge_map.get('P1A') == 12, f"P1A expected 12 AWG, got {wire_gauge_map.get('P1A')}"
+
+    # VERIFY: Ground circuits
+    assert wire_gauge_map.get('G1A') == 18, f"G1A expected 18 AWG, got {wire_gauge_map.get('G1A')}"
+    assert wire_gauge_map.get('G2A') == 18, f"G2A expected 18 AWG, got {wire_gauge_map.get('G2A')}"
+    assert wire_gauge_map.get('G3A') == 18, f"G3A expected 18 AWG, got {wire_gauge_map.get('G3A')}"
+    assert wire_gauge_map.get('G4A') == 12, f"G4A expected 12 AWG, got {wire_gauge_map.get('G4A')}"

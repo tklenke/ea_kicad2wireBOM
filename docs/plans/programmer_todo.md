@@ -261,8 +261,9 @@ Update expected output based on circuit-based calculation:
 - G4A: 12 AWG (BT1 = 40A source)
 - P1A: 12 AWG (BT1 = 40A source)
 
-#### Task 9.7: Create End-to-End Integration Test
-**File**: `tests/test_integration.py`
+#### [x] Task 9.7: Create End-to-End Integration Test
+**File**: `tests/test_integration_multipoint.py`
+**Status**: Complete
 
 Add comprehensive test for circuit-based sizing:
 
