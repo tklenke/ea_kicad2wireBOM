@@ -6,7 +6,9 @@ from kicad2wireBOM.diagram_generator import (
     DiagramComponent,
     DiagramWireSegment,
     SystemDiagram,
+    group_wires_by_system,
 )
+from kicad2wireBOM.wire_bom import WireConnection
 
 
 def test_diagram_component_creation():
@@ -74,3 +76,90 @@ def test_system_diagram_creation():
     assert diagram.fs_max == 50.0
     assert diagram.bl_min == 20.0
     assert diagram.bl_max == 30.0
+
+
+def test_group_wires_by_system():
+    """Test wire connections are grouped correctly by system code."""
+    # Create mock WireConnections with different system codes
+    wire_l1a = WireConnection(
+        wire_label="L1A",
+        from_component="CB1", from_pin="1",
+        to_component="SW1", to_pin="2",
+        wire_gauge=20, wire_color="white", length=10.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+    wire_l1b = WireConnection(
+        wire_label="L1B",
+        from_component="SW1", from_pin="3",
+        to_component="L1", to_pin="1",
+        wire_gauge=20, wire_color="white", length=15.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+    wire_l2a = WireConnection(
+        wire_label="L2A",
+        from_component="CB2", from_pin="1",
+        to_component="L2", to_pin="1",
+        wire_gauge=20, wire_color="white", length=20.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+    wire_p1a = WireConnection(
+        wire_label="P1A",
+        from_component="BT1", from_pin="1",
+        to_component="BUS1", to_pin="1",
+        wire_gauge=10, wire_color="red", length=5.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+    wire_g1a = WireConnection(
+        wire_label="G1A",
+        from_component="BUS1", from_pin="2",
+        to_component="GND1", to_pin="1",
+        wire_gauge=10, wire_color="black", length=8.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+
+    wires = [wire_l1a, wire_l1b, wire_l2a, wire_p1a, wire_g1a]
+    groups = group_wires_by_system(wires)
+
+    # Verify correct grouping
+    assert "L" in groups
+    assert "P" in groups
+    assert "G" in groups
+
+    assert len(groups["L"]) == 3
+    assert wire_l1a in groups["L"]
+    assert wire_l1b in groups["L"]
+    assert wire_l2a in groups["L"]
+
+    assert len(groups["P"]) == 1
+    assert wire_p1a in groups["P"]
+
+    assert len(groups["G"]) == 1
+    assert wire_g1a in groups["G"]
+
+
+def test_group_wires_skips_unparseable():
+    """Test that wires with unparseable labels are skipped."""
+    wire_l1a = WireConnection(
+        wire_label="L1A",
+        from_component="CB1", from_pin="1",
+        to_component="SW1", to_pin="2",
+        wire_gauge=20, wire_color="white", length=10.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+    wire_invalid = WireConnection(
+        wire_label="INVALID",
+        from_component="X1", from_pin="1",
+        to_component="X2", to_pin="1",
+        wire_gauge=20, wire_color="white", length=10.0,
+        wire_type="Standard", notes="", warnings=[]
+    )
+
+    wires = [wire_l1a, wire_invalid]
+    groups = group_wires_by_system(wires)
+
+    # Only L group should exist
+    assert "L" in groups
+    assert len(groups) == 1
+    assert len(groups["L"]) == 1
+    assert wire_l1a in groups["L"]
+    # wire_invalid should not be in any group

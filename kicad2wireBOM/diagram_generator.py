@@ -4,6 +4,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
+from collections import defaultdict
 
 
 @dataclass
@@ -53,3 +54,32 @@ class SystemDiagram:
     fs_max: float
     bl_min: float
     bl_max: float
+
+
+def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
+    """
+    Group wire connections by system code.
+
+    Args:
+        wire_connections: All wire connections from BOM
+
+    Returns:
+        Dict mapping system_code to list of WireConnections
+        Example: {'L': [L1A, L1B, L2A], 'P': [P1A], 'G': [G1A, G2A]}
+
+    Note:
+        Uses parse_net_name() to extract system_code from wire label.
+        Wires that fail to parse are skipped (no system code available).
+    """
+    from kicad2wireBOM.wire_calculator import parse_net_name
+
+    system_groups = defaultdict(list)
+
+    for wire in wire_connections:
+        # Add leading slash for parse_net_name compatibility
+        net_name = f"/{wire.wire_label}"
+        parsed = parse_net_name(net_name)
+        if parsed and parsed.get('system'):
+            system_groups[parsed['system']].append(wire)
+
+    return dict(system_groups)
