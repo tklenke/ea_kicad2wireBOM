@@ -146,10 +146,40 @@ def generate_bom_entries(
     multipoint_labels = {entry['circuit_id'] for entry in multipoint_entries}
 
     # Step 5: Generate BOM entries for regular 2-point connections
+    # For hierarchical schematics, prefer child wires over parent wires when same circuit_id
+    # Child wires have hierarchical_label endpoints, parent wires have sheet_pin endpoints
+    def is_child_wire(wire) -> bool:
+        """Check if wire is on child sheet (has hierarchical_label endpoint)"""
+        start_node, end_node = graph.get_connected_nodes(wire.uuid)
+        if start_node and start_node.node_type == 'hierarchical_label':
+            return True
+        if end_node and end_node.node_type == 'hierarchical_label':
+            return True
+        # Also check junctions leading to hierarchical_labels
+        for node in [start_node, end_node]:
+            if node and node.node_type in ('junction', 'wire_endpoint'):
+                for wire_uuid in node.connected_wire_uuids:
+                    if wire_uuid == wire.uuid:
+                        continue
+                    if wire_uuid in graph.wires:
+                        other_wire = graph.wires[wire_uuid]
+                        node_key = (round(node.position[0], 2), round(node.position[1], 2))
+                        start_key = (round(other_wire.start_point[0], 2), round(other_wire.start_point[1], 2))
+                        end_key = (round(other_wire.end_point[0], 2), round(other_wire.end_point[1], 2))
+                        other_end_key = end_key if start_key == node_key else start_key
+                        if other_end_key in graph.nodes:
+                            other_end = graph.nodes[other_end_key]
+                            if other_end.node_type == 'hierarchical_label':
+                                return True
+        return False
+
+    # Sort wires to prefer child wires (with hierarchical_labels) over parent wires
+    sorted_wires = sorted(wires, key=lambda w: (0 if is_child_wire(w) else 1, w.uuid))
+
     # Track which circuit_ids we've already processed to avoid duplicates
     processed_circuit_ids = set()
     regular_entries = []
-    for wire in wires:
+    for wire in sorted_wires:
         # Get all circuit IDs for this wire (handles pipe notation)
         # Use circuit_ids if available, otherwise fall back to circuit_id
         circuit_ids = wire.circuit_ids if wire.circuit_ids else ([wire.circuit_id] if wire.circuit_id else [])

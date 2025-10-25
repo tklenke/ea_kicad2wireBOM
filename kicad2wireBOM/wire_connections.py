@@ -66,8 +66,15 @@ def identify_wire_connections(
         start_leads_cross = leads_to_cross_sheet(start_node)
         end_leads_cross = leads_to_cross_sheet(end_node)
 
-        # If start is or leads to cross-sheet, swap so cross-sheet component is TO
+        # Swap direction if either endpoint is or leads to cross-sheet
+        # This ensures correct direction for both parent and child wires:
+        # - Parent wires: cross-sheet component (via sheet_pin) → local component
+        # - Child wires: parent component (via hierarchical_label) → local component
         if (start_is_cross or start_leads_cross) and not (end_is_cross or end_leads_cross):
+            # Start is cross-sheet, swap so cross-sheet component is TO
+            return (end_conn, start_conn)
+        if (end_is_cross or end_leads_cross) and not (start_is_cross or start_leads_cross):
+            # End is cross-sheet, swap so cross-sheet component is TO
             return (end_conn, start_conn)
 
     return (start_conn, end_conn)
