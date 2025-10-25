@@ -343,7 +343,7 @@ def main():
             gauge = determine_min_gauge(circuit_current, max_length, args.system_voltage)
             circuit_gauges[circuit_id] = gauge
 
-        # THIRD PASS: Apply circuit gauge to each wire
+        # THIRD PASS: Apply circuit gauge to each wire and add warnings for missing data
         for wire in bom.wires:
             # Extract circuit_id from wire label (e.g., "L-1-A" → "L1")
             from kicad2wireBOM.wire_calculator import parse_net_name
@@ -351,6 +351,10 @@ def main():
             if parsed:
                 circuit_id = f"{parsed['system']}{parsed['circuit']}"
                 wire.wire_gauge = circuit_gauges.get(circuit_id, -99)
+
+                # Add warning if gauge is -99 (missing load/source data)
+                if wire.wire_gauge == -99:
+                    wire.warnings.append("Cannot determine circuit current - missing load/source data")
 
         # Sort BOM by system code, circuit number, segment letter
         def parse_wire_label_for_sort(label):

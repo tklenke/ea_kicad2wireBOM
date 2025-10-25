@@ -112,6 +112,36 @@ def test_write_builder_csv_multiple_wires(tmp_path):
     assert rows[2]['Wire Label'] == 'L-105-B'
 
 
+def test_write_builder_csv_with_missing_data_warning(tmp_path):
+    """Test CSV output includes warning for -99 gauge (missing load/source data)"""
+    bom = WireBOM(config={})
+    wire = WireConnection(
+        wire_label='X-1-A',
+        from_component='J1',
+        from_pin='1',
+        to_component='J2',
+        to_pin='1',
+        wire_gauge=-99,
+        wire_color='White',
+        length=50.0,
+        wire_type='Standard',
+        notes='',
+        warnings=['Cannot determine circuit current - missing load/source data']
+    )
+    bom.add_wire(wire)
+
+    output_file = tmp_path / "test_missing_data.csv"
+    write_builder_csv(bom, output_file)
+
+    with open(output_file, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    row = rows[0]
+    assert row['Wire Gauge'] == '-99'
+    assert 'Cannot determine circuit current - missing load/source data' in row['Warnings']
+
+
 def test_bom_wire_sorting():
     """Test that BOM wires are sorted by system code, circuit number, segment letter"""
     import re

@@ -228,8 +228,9 @@ for wire in wire_connections:
 4. Integrate circuit-based logic
 5. Verify test passes
 
-#### Task 9.5: Add Warning Message for -99 Sentinel
-**File**: `kicad2wireBOM/output_csv.py` (or wherever CSV is written)
+#### [x] Task 9.5: Add Warning Message for -99 Sentinel
+**File**: `kicad2wireBOM/__main__.py`
+**Status**: Complete
 
 When writing CSV output, check for gauge == -99 and add warning:
 
