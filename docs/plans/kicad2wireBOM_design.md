@@ -8,6 +8,9 @@
 **Date**: 2025-10-25
 **Status**: Phase 1-8 Complete, Phase 9 Designed ✅
 
+**Related Documents**:
+- `wire_routing_diagrams_design.md` - SVG routing diagram generation (Phase 10)
+
 ## Design Revision History
 
 ### Version 3.1 (2025-10-25)
