@@ -72,6 +72,40 @@
 
 ---
 
+## PHASE 12: 3D DIAGRAM PROJECTION
+
+**Status**: Design complete, ready for implementation (after Phase 11)
+
+**Deliverables**:
+- [x] Design 3D projection formula (elongated orthographic)
+- [x] Design 3D Manhattan routing strategy (BL → FS → WL)
+- [x] Update kicad2wireBOM_design.md with 3D projection specification (v3.4)
+- [x] Create implementation tasks in programmer_todo.md (12.1-12.6)
+- [ ] Review implementation when complete
+- [ ] Update opportunities_for_improvement.md if new OFIs identified
+
+**Design Summary**:
+- Add WL (vertical) dimension to all diagrams using 3D projection
+- Elongated orthographic projection: 30° angle, 3x WL scale (configurable)
+- 4-segment Manhattan routing: BL → FS → WL (horizontal first, vertical at end)
+- Matches aircraft wiring practice (horizontal in outer structures, vertical at fuselage)
+- No new files, enhances existing system and component diagrams
+- Maintains print optimization for 8.5×11 paper
+
+**Technical Details**:
+- Projection: screen_x = FS + (WL × 3) × cos(30°), screen_y = BL + (WL × 3) × sin(30°)
+- Example: (FS=0, WL=10, BL=0) → screen (25.98, 15)
+- Higher components offset right and up, creating clear 3D effect
+- 4-segment wire paths show realistic routing through 3D space
+
+**Files Modified**:
+- `kicad2wireBOM_design.md` v3.4 - Sections 7.9, 7.10, version history
+- `programmer_todo.md` - Phase 12 implementation tasks (12.1-12.6)
+- `diagram_generator.py` - Add 3D projection and routing (implementation task)
+- `reference_data.py` - Add WL scale and projection angle constants (implementation task)
+
+---
+
 ## FUTURE OPTIONS
 
 See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.

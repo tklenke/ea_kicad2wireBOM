@@ -4,14 +4,37 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.3 (Unified Output Directory - In Progress)
+**Version**: 3.4 (3D Diagram Projection - Design Phase)
 **Date**: 2025-10-26
-**Status**: Phase 1-10 Complete ✅ (224 tests passing), Phase 11 In Progress
+**Status**: Phase 1-10 Complete ✅ (224 tests passing), Phase 11 In Progress, Phase 12 Design
 
 **Related Documents**:
 - `wire_routing_diagrams_design.md` - SVG routing diagram generation (Phase 10) - COMPLETE
 
 ## Design Revision History
+
+### Version 3.4 (2025-10-26)
+**Changed**: Phase 12 - 3D projection for diagrams using elongated orthographic projection
+
+**Sections Modified**:
+- Section 7.9: System Routing Diagrams (added 3D projection specification)
+- Section 7.10: Component Wiring Diagrams (added 3D projection specification)
+- Section 11.1: Implementation Architecture (diagram_generator.py enhancements)
+
+**Rationale**: Adding WL (vertical) dimension to diagrams provides complete 3D visualization of wire routing in aircraft coordinate system. Elongated orthographic projection (30° angle, 3x WL scale) makes vertical dimension visible while maintaining readability on 2D printed output. Preserves existing print optimization for 8.5×11 paper.
+
+**Impact**:
+- Diagrams now show all three aircraft axes: FS (fore/aft), WL (up/down), BL (left/right)
+- 3D Manhattan routing: BL → FS → WL (horizontal first, vertical at inner component)
+- Component positions rendered with 3D effect (vertical offset visible)
+- Configurable WL scale factor (default 3x) and projection angle (default 30°)
+- Wire paths show realistic 3D routing through aircraft structure
+- No change to file count or naming
+
+**Technical Details**:
+- Projection formula: screen_x = FS + (WL × scale) × cos(θ), screen_y = BL + (WL × scale) × sin(θ)
+- Default: scale=3, θ=30° gives clear vertical separation without excessive diagram size
+- 4-segment wire paths in 3D: start → BL move → FS move → WL move → end
 
 ### Version 3.3 (2025-10-26)
 **Changed**: Phase 11 - Comprehensive output generation with unified directory structure
@@ -1633,22 +1656,58 @@ All outputs sorted by:
 
 ### 7.9 System Routing Diagrams (`<system>_System.svg`) **[REVISED - 2025-10-26]**
 
-**Purpose**: Visual representation of wire routing for all circuits within one system code.
+**Purpose**: Visual representation of wire routing for all circuits within one system code in 3D aircraft coordinate space.
 
 **Previous Name**: `<system>_routing.svg` (renamed for clarity and consistency)
 
 **Format**: SVG (Scalable Vector Graphics)
-- 2D top-down view (FS × BL axes)
-- Manhattan routing (horizontal then vertical)
+- **3D elongated orthographic projection** (FS × WL × BL)
+- Projection angle: 30° (configurable)
+- WL scale factor: 3x (configurable)
+- Manhattan routing: BL → FS → WL (horizontal first, vertical at inner component)
 - Print-optimized for 8.5×11 portrait paper
 - Professional titles with expanded system names (e.g., "L - Lighting System")
 
+**3D Projection Details**:
+
+Converts 3D aircraft coordinates (FS, WL, BL) to 2D screen coordinates (x, y):
+
+```
+screen_x = FS + (WL × wl_scale) × cos(angle)
+screen_y = BL + (WL × wl_scale) × sin(angle)
+```
+
+Where:
+- `wl_scale` = 3.0 (default, makes WL dimension 3x more prominent)
+- `angle` = 30° (default projection angle)
+- cos(30°) ≈ 0.866
+- sin(30°) = 0.5
+
+**Example**: Component at (FS=100, WL=35, BL=50) projects to:
+- screen_x = 100 + (35 × 3) × 0.866 = 100 + 90.93 = **190.93**
+- screen_y = 50 + (35 × 3) × 0.5 = 50 + 52.5 = **102.5**
+
+Higher components (larger WL) appear offset right and up, creating clear 3D effect.
+
 **Content**:
-- All components in the system plotted by FS/BL coordinates
-- All wire segments for system's circuits
+- All components in the system plotted by FS/WL/BL coordinates (3D projection)
+- All wire segments for system's circuits with 3D routing
 - Component labels (reference designators)
 - Wire segment labels (circuit IDs)
 - Non-linear BL compression for wingtip lights (improves readability)
+
+**3D Wire Routing**:
+
+Wires are routed using 4-segment Manhattan path (BL → FS → WL order):
+
+From component C1 (outer, larger abs(BL)) to C2 (inner, smaller abs(BL)):
+1. **Start** at C1: (FS1, WL1, BL1)
+2. **BL segment**: Move to (FS1, WL1, BL2) - lateral move, stay at C1's WL
+3. **FS segment**: Move to (FS2, WL1, BL2) - fore/aft move, still at C1's WL
+4. **WL segment**: Move to (FS2, WL2, BL2) - vertical drop/rise at C2's location
+5. **End** at C2
+
+**Routing Rationale**: Keeps wires horizontal (at outer component's WL) as long as possible, only routing vertically when reaching the inner component location. Matches typical aircraft wiring practice where wires run horizontally through outer structures (wings, tail) before dropping/rising at fuselage/panel.
 
 **Generated Files**:
 - One SVG per system code present in schematic
@@ -1664,20 +1723,24 @@ All outputs sorted by:
 
 ### 7.10 Component Wiring Diagrams (`<component>_Component.svg`) **[NEW - 2025-10-26]**
 
-**Purpose**: Visual representation of first-hop connections for individual components, showing what each component directly wires to.
+**Purpose**: Visual representation of first-hop connections for individual components in 3D, showing what each component directly wires to.
 
 **Format**: SVG (Scalable Vector Graphics)
-- 2D top-down view (FS × BL axes)
-- Manhattan routing (horizontal then vertical)
+- **3D elongated orthographic projection** (FS × WL × BL) - same as system diagrams
+- Projection angle: 30° (configurable)
+- WL scale factor: 3x (configurable)
+- Manhattan routing: BL → FS → WL (horizontal first, vertical at inner component)
 - Similar styling to system diagrams for consistency
 - Print-optimized
 
 **Content**:
-- The component itself (plotted by FS/BL coordinates)
+- The component itself (plotted by FS/WL/BL coordinates with 3D projection)
 - All components it directly connects to (first-hop neighbors in connectivity graph)
-- Wire segments connecting component to its neighbors
+- Wire segments connecting component to its neighbors (3D Manhattan routing)
 - Component labels (reference designators)
 - Wire segment labels (circuit IDs)
+
+**3D Projection**: Uses same formulas as system diagrams (see Section 7.9) for consistent 3D visualization across all diagram types.
 
 **Naming Convention**:
 - Filename: `<component_ref>_Component.svg`
