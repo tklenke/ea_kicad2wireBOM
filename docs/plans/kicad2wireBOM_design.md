@@ -20,6 +20,8 @@
 - Section 2.2: Additional Component Fields (value, description, datasheet extraction)
 - Section 7.2: Output Directory Structure (complete rewrite)
 - Section 7.6-7.8: NEW sections for component_bom.csv, engineering_report.md, HTML index
+- Section 7.9: System Routing Diagrams (renamed from *_routing.svg to *_System.svg)
+- Section 7.10: NEW section for Component Wiring Diagrams (*_Component.svg)
 - Section 9.1-9.4: Command-Line Arguments and usage examples (updated dest semantics)
 - Section 11.1: Implementation Architecture (added 4 new output modules)
 
@@ -33,14 +35,15 @@
 - `-f/--force` flag deletes and recreates entire output directory
 - Component dataclass expanded with `datasheet` field from KiCad property
 
-**New Output Files** (7 total per run):
+**New Output Files** (7+ per run):
 - `<basename>.html` - HTML index with links to all outputs and embedded console logs
 - `wire_bom.csv` - Wire BOM in CSV format (builder-focused)
 - `component_bom.csv` - Component BOM with all extracted schematic data
 - `engineering_report.md` - Comprehensive engineering analysis and calculations
 - `stdout.txt` - Captured console output
 - `stderr.txt` - Captured error output
-- `<system>_routing.svg` - One SVG diagram per system code
+- `<system>_System.svg` - One SVG system diagram per system code (renamed from *_routing.svg)
+- `<component>_Component.svg` - One SVG component diagram per component showing first-hop connections
 
 **New Modules**:
 - `output_manager.py` - Directory management and stdout/stderr capture
@@ -1392,7 +1395,8 @@ Two primary output formats:
 - `engineering_report.md` - Comprehensive engineering report (wire + component analysis)
 - `stdout.txt` - Captured console output (info messages, progress, summaries)
 - `stderr.txt` - Captured error output (validation errors, warnings)
-- `L_routing.svg`, `P_routing.svg`, etc. - One SVG routing diagram per system code
+- `L_System.svg`, `P_System.svg`, etc. - One SVG system routing diagram per system code
+- `LIGHT1_Component.svg`, `SW1_Component.svg`, etc. - One SVG component diagram per component showing first-hop connections
 
 **Force Overwrite Behavior**:
 - If output directory exists and `-f/--force` flag provided: Delete entire directory and recreate
@@ -1626,6 +1630,90 @@ All outputs sorted by:
 - Easy access to all related files
 - Console log review without terminal access
 - Validation status check
+
+### 7.9 System Routing Diagrams (`<system>_System.svg`) **[REVISED - 2025-10-26]**
+
+**Purpose**: Visual representation of wire routing for all circuits within one system code.
+
+**Previous Name**: `<system>_routing.svg` (renamed for clarity and consistency)
+
+**Format**: SVG (Scalable Vector Graphics)
+- 2D top-down view (FS × BL axes)
+- Manhattan routing (horizontal then vertical)
+- Print-optimized for 8.5×11 portrait paper
+- Professional titles with expanded system names (e.g., "L - Lighting System")
+
+**Content**:
+- All components in the system plotted by FS/BL coordinates
+- All wire segments for system's circuits
+- Component labels (reference designators)
+- Wire segment labels (circuit IDs)
+- Non-linear BL compression for wingtip lights (improves readability)
+
+**Generated Files**:
+- One SVG per system code present in schematic
+- Examples: `L_System.svg`, `P_System.svg`, `G_System.svg`
+
+**Implementation**: See `wire_routing_diagrams_design.md` for complete Phase 10 specification
+
+**Use Cases**:
+- Build planning and wire routing visualization
+- Understanding system-wide wire paths
+- Print reference during harness construction
+- Design review and optimization
+
+### 7.10 Component Wiring Diagrams (`<component>_Component.svg`) **[NEW - 2025-10-26]**
+
+**Purpose**: Visual representation of first-hop connections for individual components, showing what each component directly wires to.
+
+**Format**: SVG (Scalable Vector Graphics)
+- 2D top-down view (FS × BL axes)
+- Manhattan routing (horizontal then vertical)
+- Similar styling to system diagrams for consistency
+- Print-optimized
+
+**Content**:
+- The component itself (plotted by FS/BL coordinates)
+- All components it directly connects to (first-hop neighbors in connectivity graph)
+- Wire segments connecting component to its neighbors
+- Component labels (reference designators)
+- Wire segment labels (circuit IDs)
+
+**Naming Convention**:
+- Filename: `<component_ref>_Component.svg`
+- Examples: `LIGHT1_Component.svg`, `SW1_Component.svg`, `CB1_Component.svg`, `GND1_Component.svg`
+
+**Special Handling - Power Symbols**:
+- Power symbols (GND, +12V, etc.) may appear multiple times in schematic as separate symbol instances
+- Treated as **single logical component** in diagram
+- All connections from any instance of the power symbol are shown together
+- Example: `GND1_Component.svg` shows all components that connect to any GND symbol in the schematic
+
+**Generated Files**:
+- One SVG per unique component reference designator
+- Includes all regular components (lights, switches, breakers, connectors, etc.)
+- Includes power symbols (GND, +12V, etc.) as logical components
+
+**Example Content**:
+
+`LIGHT1_Component.svg` would show:
+- LIGHT1 (the component itself)
+- SW1 (if LIGHT1 connects to SW1)
+- GND1 (if LIGHT1 connects to ground)
+- Wire segments: L1A (SW1→LIGHT1), L1B (LIGHT1→GND1)
+
+`SW1_Component.svg` would show:
+- SW1 (the component itself)
+- CB1 (if SW1 connects to CB1)
+- LIGHT1 (if SW1 connects to LIGHT1)
+- LIGHT2 (if SW1 also connects to LIGHT2)
+- Wire segments: L1A (CB1→SW1), L1B (SW1→LIGHT1), L2A (SW1→LIGHT2)
+
+**Use Cases**:
+- Build reference during component installation (what do I connect to this component?)
+- Troubleshooting individual component connections
+- Installation planning (gather wires needed for this component)
+- Component-focused view vs. system-wide view
 
 ---
 

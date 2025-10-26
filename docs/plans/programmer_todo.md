@@ -65,7 +65,8 @@ Consolidate all output files into a single directory for each run. Generate comp
   - `engineering_report.md` - Comprehensive engineering report
   - `stdout.txt` - Captured console output (also tee to console)
   - `stderr.txt` - Captured error output (also tee to console)
-  - `L_routing.svg`, `P_routing.svg`, etc. - Routing diagrams (one per system)
+  - `L_System.svg`, `P_System.svg`, etc. - System diagrams (one per system)
+  - `LIGHT1_Component.svg`, `SW1_Component.svg`, etc. - Component diagrams (one per component)
 
 **CLI Changes**:
 - Remove `--routing-diagrams` flag (always generate all outputs)
@@ -111,15 +112,35 @@ Consolidate all output files into a single directory for each run. Generate comp
 - [ ] Update existing tests to work with new directory structure
 
 **Phase 11.4: Update diagram_generator.py** [~]
-- [ ] Remove output_dir parameter validation (caller handles directory creation)
-- [ ] Simplify `generate_routing_diagrams()` - assumes output_dir exists and is writable
-- [ ] Update tests if needed
+- [ ] Rename system diagram files: `<system>_routing.svg` → `<system>_System.svg`
+  - Update output filename in `render_system_diagram()`
+  - Update all references in comments and function names
+- [ ] Add `generate_component_diagrams()` function
+  - Takes: wire_connections, components_dict, output_dir
+  - For each unique component reference:
+    - Extract all wire connections where component appears (from or to)
+    - Build set of first-hop neighbor components
+    - For power symbols (GND, +12V): treat all instances as one logical component
+    - Create DiagramWireSegment objects for wires to/from this component
+    - Render component diagram SVG
+- [ ] Add `render_component_diagram()` function
+  - Similar to render_system_diagram but centered on single component
+  - Title: "<component_ref> - Component Wiring"
+  - Shows component + all first-hop neighbors
+  - Auto-scale to fit components (may be smaller than system diagrams)
+- [ ] Update `generate_routing_diagrams()` to call both system and component generation
+- [ ] Update tests for renamed files and new component diagrams
 
 **Phase 11.5: Integration Testing** [~]
 - [ ] Create end-to-end test with fixture schematic
-- [ ] Verify all expected files created in output directory
+- [ ] Verify all expected files created in output directory:
+  - HTML index, wire BOM, component BOM, engineering report
+  - stdout.txt and stderr.txt
+  - System diagrams (*_System.svg) - one per system code
+  - Component diagrams (*_Component.svg) - one per component
 - [ ] Verify stdout.txt and stderr.txt contain expected content
 - [ ] Verify console output still appears (tee behavior)
+- [ ] Verify HTML index links to all generated files (relative paths work)
 - [ ] Test force flag (directory deletion and recreation)
 - [ ] Test without force flag (user prompt)
 

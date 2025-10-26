@@ -32,24 +32,32 @@
 - [x] Design component BOM CSV format and content
 - [x] Design engineering report markdown structure
 - [x] Design HTML index page layout and features
+- [x] Design system diagram renaming (*_routing.svg → *_System.svg)
+- [x] Design component wiring diagrams (*_Component.svg)
 - [x] Update kicad2wireBOM_design.md with new outputs (v3.3)
 - [x] Create implementation tasks in programmer_todo.md
 - [ ] Review implementation when complete
 - [ ] Update opportunities_for_improvement.md if new OFIs identified
 
 **Design Summary**:
-- All outputs consolidated into single directory per run (7 files total)
+- All outputs consolidated into single directory per run (7+ files)
 - Directory name matches source schematic basename
 - Always generate all outputs (removed `--routing-diagrams` flag)
 - Capture stdout/stderr to files while teeing to console
 - HTML index provides user-friendly entry point with links and summary
 - Engineering report combines wire + component data with calculations
 - Component BOM enables procurement and build planning
+- System diagrams show all wiring for each system code (renamed *_System.svg)
+- Component diagrams show first-hop connections for each component (*_Component.svg)
 
 **New Output Files**:
 - `<basename>.html` - HTML index with embedded console logs
 - `component_bom.csv` - Component data with reference, value, description, datasheet, coordinates, electrical properties
 - `engineering_report.md` - Comprehensive engineering documentation
+- `<component>_Component.svg` - Per-component wiring diagrams (first-hop connections)
+
+**Modified Output Files**:
+- `<system>_System.svg` - Renamed from `<system>_routing.svg` for clarity
 
 **New Modules**:
 - `output_manager.py` - Directory management and stream capture
