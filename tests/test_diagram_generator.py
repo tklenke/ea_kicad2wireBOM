@@ -593,7 +593,7 @@ def test_scale_bl_nonlinear_preserves_sign():
 
 def test_3d_projection_constants_exist():
     """Test that 3D projection constants are defined with correct values."""
-    assert DEFAULT_WL_SCALE == 3.0
+    assert DEFAULT_WL_SCALE == 1.5
     assert DEFAULT_PROJECTION_ANGLE == 30
 
 

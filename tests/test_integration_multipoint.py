@@ -183,8 +183,10 @@ def test_circuit_based_wire_sizing():
     for s in symbol_sexps:
         try:
             components.append(parse_symbol_element(s))
-        except ValueError:
-            pass  # Skip components without load/rating data
+        except ValueError as e:
+            # Component missing LocLoad encoding - skip for BOM but warn
+            print(f"  Warning: {e} (skipping for BOM calculations)")
+            pass
 
     # Associate labels with wires
     associate_labels_with_wires(wires, labels, threshold=10.0)
