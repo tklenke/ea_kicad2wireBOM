@@ -35,36 +35,39 @@ def test_diagram_component_creation():
 
 
 def test_manhattan_path_calculation():
-    """Test manhattan_path property returns 3-point BL-first path."""
-    # Test case 1: comp1=(10, 30), comp2=(50, 10)
+    """Test manhattan_path property returns 5-point 3D path with BL→FS→WL routing."""
+    # Test case 1: comp1=(FS=10, WL=0, BL=30), comp2=(FS=50, WL=0, BL=10)
     comp1 = DiagramComponent(ref="CB1", fs=10.0, wl=0.0, bl=30.0)
     comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=0.0, bl=10.0)
     segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
 
     path = segment.manhattan_path
 
-    # Expected: [(10, 30), (10, 10), (50, 10)]
-    # First move along BL axis (30→10), then along FS axis (10→50)
-    assert len(path) == 3
-    assert path[0] == (10.0, 30.0)  # Start at comp1
-    assert path[1] == (10.0, 10.0)  # Corner (BL move)
-    assert path[2] == (50.0, 10.0)  # End at comp2 (FS move)
+    # Expected: 5 3D points with BL→FS→WL routing
+    assert len(path) == 5
+    assert path[0] == (10.0, 0.0, 30.0)  # Start at comp1
+    assert path[1] == (10.0, 0.0, 10.0)  # BL move
+    assert path[2] == (50.0, 0.0, 10.0)  # FS move
+    assert path[3] == (50.0, 0.0, 10.0)  # WL move (no change since WL1=WL2=0)
+    assert path[4] == (50.0, 0.0, 10.0)  # End at comp2
 
 
 def test_manhattan_path_calculation_case2():
     """Test manhattan_path with different coordinates."""
-    # Test case 2: comp1=(0, 0), comp2=(100, 50)
+    # Test case 2: comp1=(FS=0, WL=0, BL=0), comp2=(FS=100, WL=0, BL=50)
     comp1 = DiagramComponent(ref="BT1", fs=0.0, wl=0.0, bl=0.0)
     comp2 = DiagramComponent(ref="BUS1", fs=100.0, wl=0.0, bl=50.0)
     segment = DiagramWireSegment(label="P1A", comp1=comp1, comp2=comp2)
 
     path = segment.manhattan_path
 
-    # Expected: [(0, 0), (0, 50), (100, 50)]
-    assert len(path) == 3
-    assert path[0] == (0.0, 0.0)
-    assert path[1] == (0.0, 50.0)
-    assert path[2] == (100.0, 50.0)
+    # Expected: 5 3D points with BL→FS→WL routing
+    assert len(path) == 5
+    assert path[0] == (0.0, 0.0, 0.0)    # Start at comp1
+    assert path[1] == (0.0, 0.0, 50.0)   # BL move
+    assert path[2] == (100.0, 0.0, 50.0) # FS move
+    assert path[3] == (100.0, 0.0, 50.0) # WL move (no change since WL1=WL2=0)
+    assert path[4] == (100.0, 0.0, 50.0) # End at comp2
 
 
 def test_system_diagram_creation():
@@ -326,39 +329,62 @@ def test_transform_to_svg_negative_coords():
 
 
 def test_label_position_longer_horizontal():
-    """Test label position when horizontal segment is longer."""
-    # Path: [(10, 30), (10, 10), (50, 10)]
-    # Vertical segment (BL): 30 to 10 = 20 inches
-    # Horizontal segment (FS): 10 to 50 = 40 inches
-    # Horizontal is longer, so label should be at midpoint of horizontal segment
-    path = [(10.0, 30.0), (10.0, 10.0), (50.0, 10.0)]
-    label_fs, label_bl = calculate_wire_label_position(path)
+    """Test label position when FS segment is longer."""
+    # Path: 5 3D points representing BL→FS→WL routing
+    # Segment 1 (BL): 30 to 10 = 20 inches
+    # Segment 2 (FS): 10 to 50 = 40 inches (longest)
+    # Segment 3 (WL): 0 to 0 = 0 inches
+    # FS segment is longest, so label should be at its midpoint
+    path = [(10.0, 0.0, 30.0), (10.0, 0.0, 10.0), (50.0, 0.0, 10.0),
+            (50.0, 0.0, 10.0), (50.0, 0.0, 10.0)]
+    label_fs, label_wl, label_bl = calculate_wire_label_position(path)
 
-    # Midpoint of horizontal segment: ((10 + 50) / 2, 10) = (30, 10)
+    # Midpoint of FS segment: ((10 + 50) / 2, 0, 10) = (30, 0, 10)
     assert label_fs == 30.0
+    assert label_wl == 0.0
     assert label_bl == 10.0
 
 
 def test_label_position_longer_vertical():
-    """Test label position when vertical segment is longer."""
-    # Path: [(10, 30), (10, 5), (20, 5)]
-    # Vertical segment (BL): 30 to 5 = 25 inches
-    # Horizontal segment (FS): 10 to 20 = 10 inches
-    # Vertical is longer, so label should be at midpoint of vertical segment
-    path = [(10.0, 30.0), (10.0, 5.0), (20.0, 5.0)]
-    label_fs, label_bl = calculate_wire_label_position(path)
+    """Test label position when BL segment is longer."""
+    # Path: 5 3D points representing BL→FS→WL routing
+    # Segment 1 (BL): 30 to 5 = 25 inches (longest)
+    # Segment 2 (FS): 10 to 20 = 10 inches
+    # Segment 3 (WL): 0 to 0 = 0 inches
+    # BL segment is longest, so label should be at its midpoint
+    path = [(10.0, 0.0, 30.0), (10.0, 0.0, 5.0), (20.0, 0.0, 5.0),
+            (20.0, 0.0, 5.0), (20.0, 0.0, 5.0)]
+    label_fs, label_wl, label_bl = calculate_wire_label_position(path)
 
-    # Midpoint of vertical segment: (10, (30 + 5) / 2) = (10, 17.5)
+    # Midpoint of BL segment: (10, 0, (30 + 5) / 2) = (10, 0, 17.5)
     assert label_fs == 10.0
+    assert label_wl == 0.0
     assert label_bl == 17.5
+
+
+def test_label_position_longer_wl():
+    """Test label position when WL segment is longer."""
+    # Path: 5 3D points representing BL→FS→WL routing
+    # Segment 1 (BL): 30 to 10 = 20 inches
+    # Segment 2 (FS): 10 to 30 = 20 inches
+    # Segment 3 (WL): 5 to 35 = 30 inches (longest)
+    # WL segment is longest, so label should be at its midpoint
+    path = [(10.0, 5.0, 30.0), (10.0, 5.0, 10.0), (30.0, 5.0, 10.0),
+            (30.0, 35.0, 10.0), (30.0, 35.0, 10.0)]
+    label_fs, label_wl, label_bl = calculate_wire_label_position(path)
+
+    # Midpoint of WL segment: (30, (5 + 35) / 2, 10) = (30, 20, 10)
+    assert label_fs == 30.0
+    assert label_wl == 20.0
+    assert label_bl == 10.0
 
 
 def test_label_position_invalid_path():
     """Test that invalid path raises ValueError."""
-    # Path with only 2 points (not a Manhattan 3-point path)
-    path = [(10.0, 30.0), (50.0, 10.0)]
+    # Path with only 2 points (not a valid 5-point 3D Manhattan path)
+    path = [(10.0, 0.0, 30.0), (50.0, 0.0, 10.0)]
 
-    with pytest.raises(ValueError, match="Manhattan path must have exactly 3 points"):
+    with pytest.raises(ValueError, match="Manhattan path must have exactly 5 points"):
         calculate_wire_label_position(path)
 
 
@@ -654,3 +680,28 @@ def test_project_3d_to_2d_custom_angle():
 
     assert screen_x == pytest.approx(expected_x)
     assert screen_y == pytest.approx(expected_y)
+
+
+def test_manhattan_path_3d_routing():
+    """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
+    # Component 1: (FS1=10, WL1=5, BL1=30)
+    # Component 2: (FS2=50, WL2=15, BL2=10)
+    comp1 = DiagramComponent(ref="CB1", fs=10.0, wl=5.0, bl=30.0)
+    comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=15.0, bl=10.0)
+    segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
+
+    path = segment.manhattan_path
+
+    # Expected 5 points with BL → FS → WL routing:
+    # Point 1: (FS1, WL1, BL1) - start at C1
+    # Point 2: (FS1, WL1, BL2) - BL move, horizontal at C1's WL
+    # Point 3: (FS2, WL1, BL2) - FS move, still horizontal at C1's WL
+    # Point 4: (FS2, WL2, BL2) - WL move, vertical at C2's location
+    # Point 5: (FS2, WL2, BL2) - end at C2 (same as point 4)
+
+    assert len(path) == 5
+    assert path[0] == (10.0, 5.0, 30.0)   # Start at C1
+    assert path[1] == (10.0, 5.0, 10.0)   # BL move (30→10), horizontal at WL1=5
+    assert path[2] == (50.0, 5.0, 10.0)   # FS move (10→50), still at WL1=5
+    assert path[3] == (50.0, 15.0, 10.0)  # WL move (5→15), vertical at C2's FS/BL
+    assert path[4] == (50.0, 15.0, 10.0)  # End at C2 (same as point 3)

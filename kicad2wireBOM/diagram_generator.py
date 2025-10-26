@@ -72,22 +72,31 @@ class DiagramWireSegment:
     comp2: DiagramComponent
 
     @property
-    def manhattan_path(self) -> List[Tuple[float, float]]:
+    def manhattan_path(self) -> List[Tuple[float, float, float]]:
         """
-        Return Manhattan-routed path as list of (FS, BL) points.
+        Return 3D Manhattan-routed path as list of (FS, WL, BL) points.
 
-        Returns:
-            [(start_fs, start_bl), (mid_fs, mid_bl), (end_fs, end_bl)]
+        Returns 5 points following BL → FS → WL routing order:
+            [(FS1, WL1, BL1), (FS1, WL1, BL2), (FS2, WL1, BL2),
+             (FS2, WL2, BL2), (FS2, WL2, BL2)]
+
+        Routing sequence (from outer component C1 to inner component C2):
+            1. Start at C1: (FS1, WL1, BL1)
+            2. BL move: (FS1, WL1, BL2) - horizontal at C1's WL
+            3. FS move: (FS2, WL1, BL2) - still horizontal at C1's WL
+            4. WL move: (FS2, WL2, BL2) - vertical drop/rise at C2's location
+            5. End at C2: (FS2, WL2, BL2) - same as point 4
 
         Example:
-            comp1=(10, 30), comp2=(50, 10)
-            Returns: [(10, 30), (10, 10), (50, 10)]
-            First move along BL axis (30→10), then along FS axis (10→50)
+            comp1=(FS=10, WL=5, BL=30), comp2=(FS=50, WL=15, BL=10)
+            Returns: [(10, 5, 30), (10, 5, 10), (50, 5, 10), (50, 15, 10), (50, 15, 10)]
         """
         return [
-            (self.comp1.fs, self.comp1.bl),           # Start
-            (self.comp1.fs, self.comp2.bl),           # Corner (BL move)
-            (self.comp2.fs, self.comp2.bl),           # End (FS move)
+            (self.comp1.fs, self.comp1.wl, self.comp1.bl),  # Point 1: Start at C1
+            (self.comp1.fs, self.comp1.wl, self.comp2.bl),  # Point 2: BL move
+            (self.comp2.fs, self.comp1.wl, self.comp2.bl),  # Point 3: FS move
+            (self.comp2.fs, self.comp2.wl, self.comp2.bl),  # Point 4: WL move
+            (self.comp2.fs, self.comp2.wl, self.comp2.bl),  # Point 5: End at C2
         ]
 
 
@@ -266,36 +275,44 @@ def transform_to_svg(fs: float, bl: float,
     return (svg_x, svg_y)
 
 
-def calculate_wire_label_position(path: List[Tuple[float, float]]) -> Tuple[float, float]:
+def calculate_wire_label_position(path: List[Tuple[float, float, float]]) -> Tuple[float, float, float]:
     """
-    Calculate position for wire segment label.
+    Calculate position for wire segment label in 3D Manhattan path.
 
-    Places label at midpoint of longer segment in Manhattan path.
+    Places label at midpoint of longest segment in the 3D path.
 
     Args:
-        path: [(fs1, bl1), (fs2, bl2), (fs3, bl3)] - 3-point Manhattan path
+        path: 5-point 3D Manhattan path [(fs1,wl1,bl1), (fs1,wl1,bl2), (fs2,wl1,bl2),
+                                         (fs2,wl2,bl2), (fs2,wl2,bl2)]
 
     Returns:
-        (fs, bl) - position for label in aircraft coordinates
+        (fs, wl, bl) - position for label in 3D aircraft coordinates
     """
-    if len(path) != 3:
-        raise ValueError("Manhattan path must have exactly 3 points")
+    if len(path) != 5:
+        raise ValueError("Manhattan path must have exactly 5 points")
 
-    p1, p2, p3 = path
+    p0, p1, p2, p3, p4 = path
 
-    # Segment 1: p1 → p2 (vertical, along BL axis)
-    seg1_length = abs(p2[1] - p1[1])
+    # Calculate lengths of the three meaningful segments
+    # Segment 1 (p0→p1): BL axis move
+    seg1_length = abs(p1[2] - p0[2])
 
-    # Segment 2: p2 → p3 (horizontal, along FS axis)
-    seg2_length = abs(p3[0] - p2[0])
+    # Segment 2 (p1→p2): FS axis move
+    seg2_length = abs(p2[0] - p1[0])
 
-    # Place label on longer segment
-    if seg1_length > seg2_length:
-        # Midpoint of vertical segment
-        return (p1[0], (p1[1] + p2[1]) / 2)
+    # Segment 3 (p2→p3): WL axis move
+    seg3_length = abs(p3[1] - p2[1])
+
+    # Place label on longest segment
+    if seg1_length >= seg2_length and seg1_length >= seg3_length:
+        # Midpoint of BL segment (p0→p1)
+        return (p0[0], p0[1], (p0[2] + p1[2]) / 2)
+    elif seg2_length >= seg3_length:
+        # Midpoint of FS segment (p1→p2)
+        return ((p1[0] + p2[0]) / 2, p1[1], p1[2])
     else:
-        # Midpoint of horizontal segment
-        return ((p2[0] + p3[0]) / 2, p2[1])
+        # Midpoint of WL segment (p2→p3)
+        return (p2[0], (p2[1] + p3[1]) / 2, p2[2])
 
 
 def build_system_diagram(system_code: str, wires: List, components: Dict) -> SystemDiagram:
