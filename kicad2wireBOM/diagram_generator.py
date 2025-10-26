@@ -8,6 +8,23 @@ from collections import defaultdict
 import math
 
 
+# System code to full name mapping (per MIL-W-5088L and EAWMS)
+SYSTEM_NAMES = {
+    'A': 'Avionics',
+    'E': 'Engine Instrument',
+    'F': 'Flight Instrument',
+    'G': 'Ground',
+    'K': 'Engine Control',
+    'L': 'Lighting',
+    'M': 'Miscellaneous Electrical',
+    'P': 'Power',
+    'R': 'Radio',
+    'U': 'Miscellaneous Electronic',
+    'V': 'AC Power',
+    'W': 'Warning and Emergency',
+}
+
+
 @dataclass
 class DiagramComponent:
     """Component position for diagram rendering."""
@@ -368,8 +385,9 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
 
     # Title (larger fonts for print)
+    system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
     svg_lines.append('  <g id="title" font-family="Arial">')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="35" font-size="18" font-weight="bold" text-anchor="middle">System {diagram.system_code} Routing Diagram</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="35" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
     svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="55" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
