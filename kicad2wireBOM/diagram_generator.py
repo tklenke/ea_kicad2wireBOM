@@ -445,9 +445,80 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     output_path.write_text('\n'.join(svg_lines))
 
 
-def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+def build_component_diagram(component_ref: str, wires: List, components: Dict) -> SystemDiagram:
     """
-    Generate routing diagram SVG files for all systems.
+    Build diagram data structure for one component and its first-hop neighbors.
+
+    Args:
+        component_ref: Component reference (e.g., "CB1", "SW2")
+        wires: All wire connections involving this component
+        components: Dict mapping component ref to Component object
+
+    Returns:
+        SystemDiagram with component, its neighbors, wire segments, and bounds
+        (Reuses SystemDiagram structure with component_ref as system_code)
+    """
+    # Extract unique components from all wires (component + all neighbors)
+    component_dict = {}  # {ref: DiagramComponent}
+
+    for wire in wires:
+        # Add from_component if not already present
+        if wire.from_component and wire.from_component in components:
+            if wire.from_component not in component_dict:
+                comp = components[wire.from_component]
+                component_dict[wire.from_component] = DiagramComponent(
+                    ref=comp.ref,
+                    fs=comp.fs,
+                    bl=comp.bl
+                )
+
+        # Add to_component if not already present
+        if wire.to_component and wire.to_component in components:
+            if wire.to_component not in component_dict:
+                comp = components[wire.to_component]
+                component_dict[wire.to_component] = DiagramComponent(
+                    ref=comp.ref,
+                    fs=comp.fs,
+                    bl=comp.bl
+                )
+
+    diagram_components = list(component_dict.values())
+
+    # Build wire segments
+    wire_segments = []
+    for wire in wires:
+        if wire.from_component in component_dict and wire.to_component in component_dict:
+            segment = DiagramWireSegment(
+                label=wire.wire_label,
+                comp1=component_dict[wire.from_component],
+                comp2=component_dict[wire.to_component]
+            )
+            wire_segments.append(segment)
+
+    # Calculate bounds (both original and scaled)
+    fs_min, fs_max, bl_min_scaled, bl_max_scaled = calculate_bounds(diagram_components)
+
+    # Also calculate original BL bounds for grid lines
+    bl_values = [c.bl for c in diagram_components]
+    bl_min_original = min(bl_values)
+    bl_max_original = max(bl_values)
+
+    return SystemDiagram(
+        system_code=component_ref,  # Reuse system_code field for component ref
+        components=diagram_components,
+        wire_segments=wire_segments,
+        fs_min=fs_min,
+        fs_max=fs_max,
+        bl_min_original=bl_min_original,
+        bl_max_original=bl_max_original,
+        bl_min_scaled=bl_min_scaled,
+        bl_max_scaled=bl_max_scaled
+    )
+
+
+def generate_component_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+    """
+    Generate component wiring diagram SVG files for all components.
 
     Args:
         wire_connections: All wire connections from BOM
@@ -455,18 +526,61 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
         output_dir: Directory to write SVG files
 
     Outputs:
-        One SVG file per system code (L_routing.svg, P_routing.svg, etc.)
+        One component diagram SVG per component (CB1_Component.svg, SW2_Component.svg, etc.)
+        Shows component and all first-hop neighbor components
+    """
+    # Group wires by component (find all wires connected to each component)
+    component_wires = defaultdict(list)
+
+    for wire in wire_connections:
+        # Add wire to both source and destination component groups
+        if wire.from_component:
+            component_wires[wire.from_component].append(wire)
+        if wire.to_component and wire.to_component != wire.from_component:
+            component_wires[wire.to_component].append(wire)
+
+    # Generate one diagram per component
+    for comp_ref, wires in component_wires.items():
+        # Skip power symbols (they connect to many components)
+        if comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V']:
+            continue
+
+        # Build diagram for this component
+        diagram = build_component_diagram(comp_ref, wires, components)
+
+        # Generate SVG
+        output_path = output_dir / f"{comp_ref}_Component.svg"
+        generate_svg(diagram, output_path)
+
+        print(f"Generated {output_path}")
+
+
+def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+    """
+    Generate routing diagram SVG files for all systems and components.
+
+    Args:
+        wire_connections: All wire connections from BOM
+        components: Dict mapping component ref to Component object
+        output_dir: Directory to write SVG files
+
+    Outputs:
+        One system diagram SVG per system code (L_System.svg, P_System.svg, etc.)
+        One component diagram SVG per component (CB1_Component.svg, SW2_Component.svg, etc.)
     """
     # Group wires by system
     system_groups = group_wires_by_system(wire_connections)
 
-    # Generate one diagram per system
+    # Generate one system diagram per system
     for system_code, wires in system_groups.items():
         # Build diagram data structure
         diagram = build_system_diagram(system_code, wires, components)
 
-        # Generate SVG
-        output_path = output_dir / f"{system_code}_routing.svg"
+        # Generate SVG with new naming convention
+        output_path = output_dir / f"{system_code}_System.svg"
         generate_svg(diagram, output_path)
 
         print(f"Generated {output_path}")
+
+    # Generate component diagrams
+    generate_component_diagrams(wire_connections, components, output_dir)
