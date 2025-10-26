@@ -25,19 +25,20 @@ import tempfile
 
 
 def test_diagram_component_creation():
-    """Test DiagramComponent stores ref, fs, bl correctly."""
-    comp = DiagramComponent(ref="CB1", fs=10.0, bl=20.0)
+    """Test DiagramComponent stores ref, fs, wl, bl correctly."""
+    comp = DiagramComponent(ref="CB1", fs=10.0, wl=5.0, bl=20.0)
 
     assert comp.ref == "CB1"
     assert comp.fs == 10.0
+    assert comp.wl == 5.0
     assert comp.bl == 20.0
 
 
 def test_manhattan_path_calculation():
     """Test manhattan_path property returns 3-point BL-first path."""
     # Test case 1: comp1=(10, 30), comp2=(50, 10)
-    comp1 = DiagramComponent(ref="CB1", fs=10.0, bl=30.0)
-    comp2 = DiagramComponent(ref="SW1", fs=50.0, bl=10.0)
+    comp1 = DiagramComponent(ref="CB1", fs=10.0, wl=0.0, bl=30.0)
+    comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=0.0, bl=10.0)
     segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
 
     path = segment.manhattan_path
@@ -53,8 +54,8 @@ def test_manhattan_path_calculation():
 def test_manhattan_path_calculation_case2():
     """Test manhattan_path with different coordinates."""
     # Test case 2: comp1=(0, 0), comp2=(100, 50)
-    comp1 = DiagramComponent(ref="BT1", fs=0.0, bl=0.0)
-    comp2 = DiagramComponent(ref="BUS1", fs=100.0, bl=50.0)
+    comp1 = DiagramComponent(ref="BT1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="BUS1", fs=100.0, wl=0.0, bl=50.0)
     segment = DiagramWireSegment(label="P1A", comp1=comp1, comp2=comp2)
 
     path = segment.manhattan_path
@@ -68,8 +69,8 @@ def test_manhattan_path_calculation_case2():
 
 def test_system_diagram_creation():
     """Test SystemDiagram stores all required data."""
-    comp1 = DiagramComponent(ref="CB1", fs=10.0, bl=20.0)
-    comp2 = DiagramComponent(ref="SW1", fs=50.0, bl=30.0)
+    comp1 = DiagramComponent(ref="CB1", fs=10.0, wl=0.0, bl=20.0)
+    comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=0.0, bl=30.0)
     segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
 
     diagram = SystemDiagram(
@@ -182,9 +183,9 @@ def test_group_wires_skips_unparseable():
 
 def test_calculate_bounds_normal():
     """Test bounds calculation with normal coordinates."""
-    comp1 = DiagramComponent(ref="C1", fs=0.0, bl=0.0)
-    comp2 = DiagramComponent(ref="C2", fs=100.0, bl=50.0)
-    comp3 = DiagramComponent(ref="C3", fs=50.0, bl=25.0)
+    comp1 = DiagramComponent(ref="C1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="C2", fs=100.0, wl=0.0, bl=50.0)
+    comp3 = DiagramComponent(ref="C3", fs=50.0, wl=0.0, bl=25.0)
 
     components = [comp1, comp2, comp3]
     fs_min, fs_max, bl_scaled_min, bl_scaled_max = calculate_bounds(components)
@@ -198,8 +199,8 @@ def test_calculate_bounds_normal():
 
 def test_calculate_bounds_negative_coords():
     """Test bounds calculation with negative coordinates."""
-    comp1 = DiagramComponent(ref="C1", fs=-10.0, bl=-20.0)
-    comp2 = DiagramComponent(ref="C2", fs=30.0, bl=40.0)
+    comp1 = DiagramComponent(ref="C1", fs=-10.0, wl=0.0, bl=-20.0)
+    comp2 = DiagramComponent(ref="C2", fs=30.0, wl=0.0, bl=40.0)
 
     components = [comp1, comp2]
     fs_min, fs_max, bl_scaled_min, bl_scaled_max = calculate_bounds(components)
@@ -426,8 +427,8 @@ def test_build_system_diagram_multiple_wires():
 def test_generate_svg_creates_file():
     """Test that generate_svg creates an SVG file."""
     # Create a simple diagram
-    comp1 = DiagramComponent(ref="CB1", fs=0.0, bl=0.0)
-    comp2 = DiagramComponent(ref="SW1", fs=100.0, bl=50.0)
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=100.0, wl=0.0, bl=50.0)
     segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
 
     diagram = SystemDiagram(
@@ -459,8 +460,8 @@ def test_generate_svg_creates_file():
 def test_generate_svg_dimensions():
     """Test that SVG has correct dimensions."""
     # Create diagram with known bounds
-    comp1 = DiagramComponent(ref="CB1", fs=0.0, bl=0.0)
-    comp2 = DiagramComponent(ref="SW1", fs=100.0, bl=50.0)
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=100.0, wl=0.0, bl=50.0)
 
     diagram = SystemDiagram(
         system_code="L",
@@ -489,8 +490,8 @@ def test_generate_svg_dimensions():
 def test_wire_labels_offset_from_lines():
     """Test that wire labels are offset to the right from wire lines."""
     # Create diagram with a wire segment
-    comp1 = DiagramComponent(ref="CB1", fs=0.0, bl=0.0)
-    comp2 = DiagramComponent(ref="SW1", fs=100.0, bl=50.0)
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=100.0, wl=0.0, bl=50.0)
     segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
 
     diagram = SystemDiagram(

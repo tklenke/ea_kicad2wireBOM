@@ -60,6 +60,7 @@ class DiagramComponent:
     """Component position for diagram rendering."""
     ref: str           # Component reference (e.g., "CB1", "SW2")
     fs: float          # Fuselage Station coordinate
+    wl: float          # Water Line coordinate
     bl: float          # Butt Line coordinate
 
 
@@ -320,6 +321,7 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
                 component_dict[wire.from_component] = DiagramComponent(
                     ref=comp.ref,
                     fs=comp.fs,
+                    wl=comp.wl,
                     bl=comp.bl
                 )
 
@@ -330,6 +332,7 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
                 component_dict[wire.to_component] = DiagramComponent(
                     ref=comp.ref,
                     fs=comp.fs,
+                    wl=comp.wl,
                     bl=comp.bl
                 )
 
@@ -499,6 +502,7 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
                 component_dict[wire.from_component] = DiagramComponent(
                     ref=comp.ref,
                     fs=comp.fs,
+                    wl=comp.wl,
                     bl=comp.bl
                 )
 
@@ -509,6 +513,7 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
                 component_dict[wire.to_component] = DiagramComponent(
                     ref=comp.ref,
                     fs=comp.fs,
+                    wl=comp.wl,
                     bl=comp.bl
                 )
 
