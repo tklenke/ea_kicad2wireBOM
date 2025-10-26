@@ -13,6 +13,7 @@ from kicad2wireBOM.diagram_generator import (
     calculate_wire_label_position,
     build_system_diagram,
     generate_svg,
+    scale_bl_nonlinear,
 )
 from kicad2wireBOM.wire_bom import WireConnection
 from kicad2wireBOM.component import Component
@@ -74,8 +75,10 @@ def test_system_diagram_creation():
         wire_segments=[segment],
         fs_min=10.0,
         fs_max=50.0,
-        bl_min=20.0,
-        bl_max=30.0
+        bl_min_original=20.0,
+        bl_max_original=30.0,
+        bl_min_scaled=scale_bl_nonlinear(20.0),
+        bl_max_scaled=scale_bl_nonlinear(30.0)
     )
 
     assert diagram.system_code == "L"
@@ -83,8 +86,8 @@ def test_system_diagram_creation():
     assert len(diagram.wire_segments) == 1
     assert diagram.fs_min == 10.0
     assert diagram.fs_max == 50.0
-    assert diagram.bl_min == 20.0
-    assert diagram.bl_max == 30.0
+    assert diagram.bl_min_original == 20.0
+    assert diagram.bl_max_original == 30.0
 
 
 def test_group_wires_by_system():
@@ -181,12 +184,13 @@ def test_calculate_bounds_normal():
     comp3 = DiagramComponent(ref="C3", fs=50.0, bl=25.0)
 
     components = [comp1, comp2, comp3]
-    fs_min, fs_max, bl_min, bl_max = calculate_bounds(components)
+    fs_min, fs_max, bl_scaled_min, bl_scaled_max = calculate_bounds(components)
 
     assert fs_min == 0.0
     assert fs_max == 100.0
-    assert bl_min == 0.0
-    assert bl_max == 50.0
+    # BL bounds are scaled now
+    assert bl_scaled_min == scale_bl_nonlinear(0.0)  # 0.0
+    assert bl_scaled_max == pytest.approx(scale_bl_nonlinear(50.0))
 
 
 def test_calculate_bounds_negative_coords():
@@ -195,12 +199,13 @@ def test_calculate_bounds_negative_coords():
     comp2 = DiagramComponent(ref="C2", fs=30.0, bl=40.0)
 
     components = [comp1, comp2]
-    fs_min, fs_max, bl_min, bl_max = calculate_bounds(components)
+    fs_min, fs_max, bl_scaled_min, bl_scaled_max = calculate_bounds(components)
 
     assert fs_min == -10.0
     assert fs_max == 30.0
-    assert bl_min == -20.0
-    assert bl_max == 40.0
+    # BL bounds are scaled now
+    assert bl_scaled_min == pytest.approx(scale_bl_nonlinear(-20.0))
+    assert bl_scaled_max == pytest.approx(scale_bl_nonlinear(40.0))
 
 
 def test_calculate_bounds_empty_raises():
@@ -261,9 +266,10 @@ def test_transform_to_svg_origin():
     """Test transforming origin coordinates to SVG."""
     # Transform (0, 0) with bounds (0, 100, 0, 50), scale=2, margin=10
     # New orientation: BL->X (right), FS->Y (up, flipped)
+    # BL is scaled non-linearly: scale_bl_nonlinear(0) = 0
     svg_x, svg_y = transform_to_svg(
         fs=0.0, bl=0.0,
-        fs_min=0.0, fs_max=100.0, bl_min=0.0,
+        fs_min=0.0, fs_max=100.0, bl_scaled_min=0.0,
         scale=2.0, margin=10.0
     )
 
@@ -277,15 +283,20 @@ def test_transform_to_svg_max_coords():
     """Test transforming max coordinates to SVG."""
     # Transform (100, 50) with bounds (0, 100, 0, 50), scale=2, margin=10
     # New orientation: BL->X (right), FS->Y (up, flipped)
+    # BL is scaled: scale_bl_nonlinear(50) ≈ 40.5
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear
+    bl_scaled = scale_bl_nonlinear(50.0)
+
     svg_x, svg_y = transform_to_svg(
         fs=100.0, bl=50.0,
-        fs_min=0.0, fs_max=100.0, bl_min=0.0,
+        fs_min=0.0, fs_max=100.0, bl_scaled_min=0.0,
         scale=2.0, margin=10.0
     )
 
-    # X = (50 - 0) * 2 + 10 = 110 (BL maps to X)
+    # X = (bl_scaled - 0) * 2 + 10
     # Y = (100 - 100) * 2 + 10 = 10 (FS=100 is at top, maps to low Y)
-    assert svg_x == 110.0
+    expected_x = bl_scaled * 2.0 + 10.0
+    assert svg_x == pytest.approx(expected_x)
     assert svg_y == 10.0
 
 
@@ -293,13 +304,18 @@ def test_transform_to_svg_negative_coords():
     """Test transforming negative coordinates to SVG."""
     # Transform (-10, -20) with bounds (-10, 30, -20, 40), scale=2, margin=10
     # New orientation: BL->X (right), FS->Y (up, flipped)
+    # BL is scaled: scale_bl_nonlinear(-20) and scale_bl_nonlinear(-20) for min
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear
+    bl_scaled_min = scale_bl_nonlinear(-20.0)
+    bl_scaled = scale_bl_nonlinear(-20.0)
+
     svg_x, svg_y = transform_to_svg(
         fs=-10.0, bl=-20.0,
-        fs_min=-10.0, fs_max=30.0, bl_min=-20.0,
+        fs_min=-10.0, fs_max=30.0, bl_scaled_min=bl_scaled_min,
         scale=2.0, margin=10.0
     )
 
-    # X = (-20 - (-20)) * 2 + 10 = 0 * 2 + 10 = 10
+    # X = (bl_scaled - bl_scaled_min) * 2 + 10 = 0 * 2 + 10 = 10
     # Y = (30 - (-10)) * 2 + 10 = 40 * 2 + 10 = 90
     assert svg_x == 10.0
     assert svg_y == 90.0
@@ -365,8 +381,8 @@ def test_build_system_diagram_single_wire():
     assert len(diagram.wire_segments) == 1
     assert diagram.fs_min == 10.0
     assert diagram.fs_max == 50.0
-    assert diagram.bl_min == 20.0
-    assert diagram.bl_max == 30.0
+    assert diagram.bl_min_original == 20.0
+    assert diagram.bl_max_original == 30.0
 
 
 def test_build_system_diagram_multiple_wires():
@@ -400,8 +416,8 @@ def test_build_system_diagram_multiple_wires():
     assert len(diagram.wire_segments) == 2  # L1A, L1B
     assert diagram.fs_min == 10.0
     assert diagram.fs_max == 80.0
-    assert diagram.bl_min == 20.0
-    assert diagram.bl_max == 30.0
+    assert diagram.bl_min_original == 20.0
+    assert diagram.bl_max_original == 30.0
 
 
 def test_generate_svg_creates_file():
@@ -417,8 +433,10 @@ def test_generate_svg_creates_file():
         wire_segments=[segment],
         fs_min=0.0,
         fs_max=100.0,
-        bl_min=0.0,
-        bl_max=50.0
+        bl_min_original=0.0,
+        bl_max_original=50.0,
+        bl_min_scaled=0.0,
+        bl_max_scaled=scale_bl_nonlinear(50.0)
     )
 
     # Generate SVG to temporary file
@@ -447,8 +465,10 @@ def test_generate_svg_dimensions():
         wire_segments=[],
         fs_min=0.0,
         fs_max=100.0,
-        bl_min=0.0,
-        bl_max=50.0
+        bl_min_original=0.0,
+        bl_max_original=50.0,
+        bl_min_scaled=0.0,
+        bl_max_scaled=scale_bl_nonlinear(50.0)
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -476,8 +496,10 @@ def test_wire_labels_offset_from_lines():
         wire_segments=[segment],
         fs_min=0.0,
         fs_max=100.0,
-        bl_min=0.0,
-        bl_max=50.0
+        bl_min_original=0.0,
+        bl_max_original=50.0,
+        bl_min_scaled=0.0,
+        bl_max_scaled=scale_bl_nonlinear(50.0)
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -490,3 +512,39 @@ def test_wire_labels_offset_from_lines():
         assert 'dx="' in content
         # Should also still have dy for vertical adjustment
         assert 'dy=' in content
+
+
+def test_scale_bl_nonlinear_zero():
+    """Test that zero BL remains zero."""
+    result = scale_bl_nonlinear(0.0)
+    assert result == 0.0
+
+
+def test_scale_bl_nonlinear_small_values():
+    """Test that small BL values are mostly unchanged."""
+    # For small values (less than compression factor), scaling should be approximately linear
+    result = scale_bl_nonlinear(10.0, compression_factor=50.0)
+    # log(1 + 10/50) = log(1.2) ≈ 0.182, scaled: 50 * 0.182 ≈ 9.1
+    # Should be close to original but slightly compressed
+    assert 8.0 < result < 11.0
+    assert result < 10.0  # Should be slightly compressed
+
+
+def test_scale_bl_nonlinear_large_values():
+    """Test that large BL values are significantly compressed."""
+    # For large values (much larger than compression factor), compression should be significant
+    result = scale_bl_nonlinear(200.0, compression_factor=50.0)
+    # log(1 + 200/50) = log(5) ≈ 1.609, scaled: 50 * 1.609 ≈ 80.5
+    # Should be significantly less than original 200
+    assert 70.0 < result < 90.0
+    assert result < 100.0  # Should be much less than original
+
+
+def test_scale_bl_nonlinear_preserves_sign():
+    """Test that negative BL values remain negative."""
+    result_positive = scale_bl_nonlinear(100.0, compression_factor=50.0)
+    result_negative = scale_bl_nonlinear(-100.0, compression_factor=50.0)
+
+    assert result_positive > 0
+    assert result_negative < 0
+    assert abs(result_positive) == pytest.approx(abs(result_negative))

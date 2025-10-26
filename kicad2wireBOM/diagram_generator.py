@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 from collections import defaultdict
+import math
 
 
 @dataclass
@@ -52,8 +53,10 @@ class SystemDiagram:
     # Calculated bounds for auto-scaling
     fs_min: float
     fs_max: float
-    bl_min: float
-    bl_max: float
+    bl_min_original: float  # Minimum BL in original (unscaled) coordinates
+    bl_max_original: float  # Maximum BL in original (unscaled) coordinates
+    bl_min_scaled: float    # Minimum BL after non-linear compression
+    bl_max_scaled: float    # Maximum BL after non-linear compression
 
 
 def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
@@ -85,15 +88,51 @@ def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
     return dict(system_groups)
 
 
+def scale_bl_nonlinear(bl: float, compression_factor: float = 50.0) -> float:
+    """
+    Apply non-linear scaling to BL coordinate to compress large values.
+
+    Uses logarithmic compression to make diagrams more readable when
+    components span large BL ranges (e.g., tip lights far from centerline).
+
+    For small BL values (near centerline), scaling is mostly linear.
+    For large BL values (far from centerline), scaling compresses significantly.
+
+    Args:
+        bl: BL coordinate in inches
+        compression_factor: Compression strength (default: 50.0)
+                           Smaller values = more aggressive compression
+
+    Returns:
+        Scaled BL coordinate (sign preserved)
+
+    Example:
+        scale_bl_nonlinear(10.0) ≈ 9.1   (slightly compressed)
+        scale_bl_nonlinear(200.0) ≈ 80.5 (heavily compressed)
+    """
+    if bl == 0.0:
+        return 0.0
+
+    sign = 1 if bl >= 0 else -1
+    abs_bl = abs(bl)
+
+    # Logarithmic compression: compresses large values while keeping small values similar
+    scaled = sign * compression_factor * math.log(1 + abs_bl / compression_factor)
+
+    return scaled
+
+
 def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, float, float]:
     """
     Calculate bounding box for all components.
+
+    Applies non-linear BL scaling to handle large BL ranges.
 
     Args:
         components: List of components with FS/BL coordinates
 
     Returns:
-        (fs_min, fs_max, bl_min, bl_max)
+        (fs_min, fs_max, bl_scaled_min, bl_scaled_max)
 
     Raises:
         ValueError: If components list is empty
@@ -102,9 +141,9 @@ def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, 
         raise ValueError("Cannot calculate bounds for empty component list")
 
     fs_values = [c.fs for c in components]
-    bl_values = [c.bl for c in components]
+    bl_scaled_values = [scale_bl_nonlinear(c.bl) for c in components]
 
-    return (min(fs_values), max(fs_values), min(bl_values), max(bl_values))
+    return (min(fs_values), max(fs_values), min(bl_scaled_values), max(bl_scaled_values))
 
 
 def calculate_scale(fs_range: float, bl_range: float,
@@ -145,7 +184,7 @@ def calculate_scale(fs_range: float, bl_range: float,
 
 
 def transform_to_svg(fs: float, bl: float,
-                     fs_min: float, fs_max: float, bl_min: float,
+                     fs_min: float, fs_max: float, bl_scaled_min: float,
                      scale: float, margin: float) -> Tuple[float, float]:
     """
     Transform aircraft coordinates to SVG coordinates.
@@ -154,19 +193,24 @@ def transform_to_svg(fs: float, bl: float,
     SVG coords: X increases right, Y increases down
     Diagram orientation: Front (high FS) at top of page
 
+    Applies non-linear scaling to BL to handle large ranges (e.g., tip lights).
+
     Args:
         fs, bl: Aircraft coordinates (inches)
         fs_min: Minimum FS in diagram (for offset)
         fs_max: Maximum FS in diagram (for Y-axis flip)
-        bl_min: Minimum BL in diagram (for offset)
+        bl_scaled_min: Minimum scaled BL in diagram (for offset)
         scale: Pixels per inch
         margin: Margin in pixels
 
     Returns:
         (svg_x, svg_y) in SVG pixel coordinates
     """
-    # X: BL maps to horizontal (right), offset, scale, add margin
-    svg_x = (bl - bl_min) * scale + margin
+    # Apply non-linear scaling to BL
+    bl_scaled = scale_bl_nonlinear(bl)
+
+    # X: Scaled BL maps to horizontal (right), offset, scale, add margin
+    svg_x = (bl_scaled - bl_scaled_min) * scale + margin
 
     # Y: FS maps to vertical (up), flip axis (FS up → SVG down), offset, scale, add margin
     svg_y = (fs_max - fs) * scale + margin
@@ -255,8 +299,13 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
             )
             wire_segments.append(segment)
 
-    # Calculate bounds
-    fs_min, fs_max, bl_min, bl_max = calculate_bounds(diagram_components)
+    # Calculate bounds (both original and scaled)
+    fs_min, fs_max, bl_min_scaled, bl_max_scaled = calculate_bounds(diagram_components)
+
+    # Also calculate original BL bounds for grid lines
+    bl_values = [c.bl for c in diagram_components]
+    bl_min_original = min(bl_values)
+    bl_max_original = max(bl_values)
 
     return SystemDiagram(
         system_code=system_code,
@@ -264,8 +313,10 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
         wire_segments=wire_segments,
         fs_min=fs_min,
         fs_max=fs_max,
-        bl_min=bl_min,
-        bl_max=bl_max
+        bl_min_original=bl_min_original,
+        bl_max_original=bl_max_original,
+        bl_min_scaled=bl_min_scaled,
+        bl_max_scaled=bl_max_scaled
     )
 
 
@@ -292,13 +343,13 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     TARGET_WIDTH = 800
     GRID_SPACING = 12  # inches
 
-    # Calculate scale
+    # Calculate scale (use scaled BL range for proper sizing)
     fs_range = diagram.fs_max - diagram.fs_min
-    bl_range = diagram.bl_max - diagram.bl_min
-    scale = calculate_scale(fs_range, bl_range, TARGET_WIDTH, MARGIN)
+    bl_scaled_range = diagram.bl_max_scaled - diagram.bl_min_scaled
+    scale = calculate_scale(fs_range, bl_scaled_range, TARGET_WIDTH, MARGIN)
 
     # Calculate SVG dimensions (BL->width/X, FS->height/Y)
-    svg_width = bl_range * scale + 2 * MARGIN
+    svg_width = bl_scaled_range * scale + 2 * MARGIN
     svg_height = fs_range * scale + 2 * MARGIN
 
     # Start building SVG
@@ -308,20 +359,20 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Background
     svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
 
-    # Grid lines (12-inch spacing)
+    # Grid lines (12-inch spacing in original coordinates)
     svg_lines.append('  <g id="grid" stroke="#e0e0e0" stroke-width="0.5">')
     # Vertical grid lines (BL axis - now horizontal on page)
-    bl_start = int(diagram.bl_min / GRID_SPACING) * GRID_SPACING
+    bl_start = int(diagram.bl_min_original / GRID_SPACING) * GRID_SPACING
     bl = bl_start
-    while bl <= diagram.bl_max:
-        x, _ = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+    while bl <= diagram.bl_max_original:
+        x, _ = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
         bl += GRID_SPACING
     # Horizontal grid lines (FS axis - now vertical on page)
     fs_start = int(diagram.fs_min / GRID_SPACING) * GRID_SPACING
     fs = fs_start
     while fs <= diagram.fs_max:
-        _, y = transform_to_svg(fs, diagram.bl_min, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+        _, y = transform_to_svg(fs, diagram.bl_min_original, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         svg_lines.append(f'    <line x1="{MARGIN}" y1="{y:.1f}" x2="{svg_width - MARGIN}" y2="{y:.1f}"/>')
         fs += GRID_SPACING
     svg_lines.append('  </g>')
@@ -332,7 +383,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
         path = segment.manhattan_path
         points = []
         for fs, bl in path:
-            x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+            x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
             points.append(f"{x:.1f},{y:.1f}")
         svg_lines.append(f'    <polyline points="{" ".join(points)}"/>')
     svg_lines.append('  </g>')
@@ -342,28 +393,28 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
         label_fs, label_bl = calculate_wire_label_position(path)
-        x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+        x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="8" dy="-3">{segment.label}</text>')
     svg_lines.append('  </g>')
 
     # Component markers (blue circles)
     svg_lines.append('  <g id="components">')
     for comp in diagram.components:
-        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="blue" stroke="navy" stroke-width="1"/>')
     svg_lines.append('  </g>')
 
     # Component labels
     svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="10" fill="navy" text-anchor="middle">')
     for comp in diagram.components:
-        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="15">{comp.ref}</text>')
     svg_lines.append('  </g>')
 
     # Title
     svg_lines.append('  <g id="title" font-family="Arial">')
     svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="30" font-size="16" font-weight="bold" text-anchor="middle">System {diagram.system_code} Routing Diagram</text>')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="45" font-size="10" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min:.0f}"-{diagram.bl_max:.0f}"</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="45" font-size="10" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
     svg_lines.append('</svg>')
