@@ -461,3 +461,32 @@ def test_generate_svg_dimensions():
         assert 'height=' in content
         # Should have white background
         assert 'fill="white"' in content or "fill='white'" in content
+
+
+def test_wire_labels_offset_from_lines():
+    """Test that wire labels are offset to the right from wire lines."""
+    # Create diagram with a wire segment
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=100.0, bl=50.0)
+    segment = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
+
+    diagram = SystemDiagram(
+        system_code="L",
+        components=[comp1, comp2],
+        wire_segments=[segment],
+        fs_min=0.0,
+        fs_max=100.0,
+        bl_min=0.0,
+        bl_max=50.0
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_diagram.svg"
+        generate_svg(diagram, output_path)
+
+        content = output_path.read_text()
+        # Wire labels should have dx offset (to the right)
+        # Look for wire label text element with dx attribute
+        assert 'dx="' in content
+        # Should also still have dy for vertical adjustment
+        assert 'dy=' in content

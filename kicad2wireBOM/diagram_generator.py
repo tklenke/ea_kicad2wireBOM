@@ -343,7 +343,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
         path = segment.manhattan_path
         label_fs, label_bl = calculate_wire_label_position(path)
         x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
-        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="-3">{segment.label}</text>')
+        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="8" dy="-3">{segment.label}</text>')
     svg_lines.append('  </g>')
 
     # Component markers (blue circles)
