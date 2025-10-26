@@ -4,14 +4,29 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.1 (Circuit-Based Wire Sizing)
-**Date**: 2025-10-25
-**Status**: Phase 1-8 Complete, Phase 9 Designed ✅
+**Version**: 3.2 (Wire Routing Diagrams Complete)
+**Date**: 2025-10-26
+**Status**: Phase 1-10 Complete ✅ (224 tests passing)
 
 **Related Documents**:
-- `wire_routing_diagrams_design.md` - SVG routing diagram generation (Phase 10)
+- `wire_routing_diagrams_design.md` - SVG routing diagram generation (Phase 10) - COMPLETE
 
 ## Design Revision History
+
+### Version 3.2 (2025-10-26)
+**Changed**: Phase 10 (Wire Routing Diagrams) completed with 16 print optimization enhancements
+
+**Sections Modified**:
+- Document header: Updated status to Phase 1-10 Complete
+- Section 11.1: Added diagram_generator.py to module list
+
+**Summary**: Wire routing diagrams fully implemented with SVG output showing 2D top-down view (FS×BL) with Manhattan routing. Includes 16 post-implementation enhancements for 8.5×11 portrait printing: orientation correction (FS vertical), non-linear BL compression for wingtip lights, print-optimized styling (larger fonts/lines), professional titles with expanded system names, and fixed-width layout for consistent printing.
+
+**Module**: `kicad2wireBOM/diagram_generator.py`
+**CLI**: `--routing-diagrams [OUTPUT_DIR]` flag
+**Output**: One SVG per system code (L_routing.svg, P_routing.svg, etc.)
+
+See `wire_routing_diagrams_design.md` Section 15 for complete implementation summary.
 
 ### Version 3.1 (2025-10-25)
 **Changed**: Redesigned wire gauge calculation to use circuit-based grouping instead of per-wire analysis
@@ -2009,11 +2024,12 @@ The `kicad2wireBOM/` package contains the following modules:
 7. **`connectivity_graph.py`** - Graph data structures and component tracing
 8. **`graph_builder.py`** - Build connectivity graph from schematic
 9. **`wire_connections.py`** - Wire connection identification (2-point and multipoint)
-10. **`bom_generator.py`** - **[NEW]** Unified BOM entry generation (combines multipoint and regular)
+10. **`bom_generator.py`** - Unified BOM entry generation (combines multipoint and regular)
 11. **`wire_calculator.py`** - Length, gauge, voltage drop calculations
 12. **`wire_bom.py`** - WireBOM and WireConnection data models
 13. **`reference_data.py`** - Wire resistance, ampacity, color mapping tables
 14. **`output_csv.py`** - CSV output generation
+15. **`diagram_generator.py`** - SVG routing diagram generation (Phase 10)
 
 **Note**: Module 10 (`bom_generator.py`) is new as of v2.6 to eliminate code duplication between CLI and integration tests.
 
@@ -2163,18 +2179,42 @@ The `kicad2wireBOM/` package contains the following modules:
 - ✅ All 125 unit and integration tests pass
 - ✅ Tool works with test fixtures from real KiCAD schematics
 
-### Phase 7 (Hierarchical Schematics) - DESIGNED
+### Phase 7 (Hierarchical Schematics) ✅ COMPLETE
 
-**Status**: Design complete (Section 8), ready for implementation
+**Status**: Implemented and tested
 
 **Success Criteria**:
-1. ⏳ Parser handles hierarchical schematics (main + sub-sheets)
-2. ⏳ Connectivity graph built across all sheets
-3. ⏳ Wire tracing works across sheet boundaries
-4. ⏳ Global power nets handled correctly
-5. ⏳ BOM generated from test_06 with all expected circuits
-6. ⏳ All tests passing (new hierarchical + existing flat)
-7. ⏳ CLI generates CSV from hierarchical schematic input
+1. ✅ Parser handles hierarchical schematics (main + sub-sheets)
+2. ✅ Connectivity graph built across all sheets
+3. ✅ Wire tracing works across sheet boundaries
+4. ✅ Global power nets handled correctly
+5. ✅ BOM generated from test_06 with all expected circuits
+6. ✅ All tests passing (new hierarchical + existing flat)
+7. ✅ CLI generates CSV from hierarchical schematic input
+
+### Phase 8-9 ✅ COMPLETE
+
+Circuit-based wire gauge calculation and validation framework implemented.
+
+### Phase 10 (Wire Routing Diagrams) ✅ COMPLETE
+
+**Status**: Implemented with 16 print optimization enhancements (2025-10-26)
+
+**Success Criteria**:
+1. ✅ CLI flag `--routing-diagrams` implemented
+2. ✅ One SVG generated per system code
+3. ✅ Components shown at correct (FS, BL) positions with non-linear BL compression
+4. ✅ Wires drawn with Manhattan routing (BL-axis first, FS-axis second)
+5. ✅ Component labels visible and positioned correctly
+6. ✅ Wire segment labels visible and offset for readability
+7. ✅ Professional titles with expanded system names
+8. ✅ Auto-scaling and fixed-width layout for consistent printing
+9. ✅ SVGs optimized for 8.5×11 portrait printing
+10. ✅ All unit tests pass (224/224)
+11. ✅ All integration tests pass
+12. ✅ Generated SVGs visually validated
+
+See `wire_routing_diagrams_design.md` for detailed design and implementation summary.
 
 ### Phase 6 (Validation & Error Handling) - COMPLETE ✅
 

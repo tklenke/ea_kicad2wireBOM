@@ -211,16 +211,22 @@ system_colors:
 
 **Description:** Visualize wire routing in 3D aircraft model.
 
-**Opportunity:**
+**Status:** Partially Implemented - 2D diagrams complete ✅, 3D deferred
+
+**2D Implementation (Phase 10 ✅)**:
+- SVG diagrams with FS×BL top-down view
+- Manhattan routing visualization
+- Component positions plotted
+- Print-optimized for 8.5×11 paper
+- See "Wire Routing Diagrams" in COMPLETED section below
+
+**Remaining 3D Opportunity**:
 - Import aircraft 3D model (STEP, STL)
-- Plot component locations using FS/WL/BL coordinates
-- Render wire paths (Manhattan routing)
+- Add WL (vertical) dimension to visualization
+- Render isometric or interactive 3D view
 - Interactive routing review and adjustment
-- Export routing diagrams for documentation
 
-**Priority:** Low - Interesting but not essential
-
-**Status:** Deferred
+**Priority:** Low - 2D diagrams meet current needs
 
 ---
 
@@ -331,6 +337,38 @@ system_colors:
 **Priority:** Low - Standard ampacity tables are already conservative for bundled wires
 
 **Status:** Deferred
+
+---
+
+---
+
+## COMPLETED / IMPLEMENTED
+
+### Wire Routing Diagrams ✅ IMPLEMENTED (Phase 10)
+
+**Status**: ✅ COMPLETE (2025-10-26)
+
+**Implementation**: SVG routing diagrams showing 2D top-down view (FS×BL) with Manhattan routing, optimized for 8.5×11 portrait printing. Includes professional titles with expanded system names, non-linear BL compression for wingtip lights, and print-optimized styling.
+
+**Module**: `kicad2wireBOM/diagram_generator.py`
+**CLI**: `--routing-diagrams [OUTPUT_DIR]`
+**Documentation**: `docs/plans/wire_routing_diagrams_design.md`
+
+**Originally Deferred Features Now Implemented**:
+- One diagram per system code ✅
+- Auto-scaling with fixed-width layout ✅
+- Component positions and labels ✅
+- Wire segment labels ✅
+- Professional titles with system name mapping ✅
+
+**Still Deferred** (from original OFI):
+- 3D visualization with WL dimension
+- Interactive HTML with zoom/pan
+- Color coding by gauge/current
+- Export to PDF or PNG
+- Component symbols (different shapes by type)
+
+See design document for complete feature list.
 
 ---
 
