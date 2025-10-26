@@ -4,14 +4,39 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.2 (Wire Routing Diagrams Complete)
+**Version**: 3.3 (Unified Output Directory - In Progress)
 **Date**: 2025-10-26
-**Status**: Phase 1-10 Complete ✅ (224 tests passing)
+**Status**: Phase 1-10 Complete ✅ (224 tests passing), Phase 11 In Progress
 
 **Related Documents**:
 - `wire_routing_diagrams_design.md` - SVG routing diagram generation (Phase 10) - COMPLETE
 
 ## Design Revision History
+
+### Version 3.3 (2025-10-26)
+**Changed**: Phase 11 - Unified output directory structure for all generated files
+
+**Sections Modified**:
+- Section 7.2: Output Directory Structure (complete rewrite)
+- Section 9.2: Command-Line Arguments (updated dest semantics, removed --routing-diagrams)
+- Section 11.1: Implementation Architecture (added output_manager.py module)
+
+**Rationale**: Tool now generates multiple output files (CSV, SVG diagrams, captured stdout/stderr). Consolidating all outputs into a single directory improves organization and makes it easier to manage related files. Since the tool is fast, always generating all outputs eliminates the need for output-specific flags.
+
+**Impact**:
+- All outputs now go into `<basename>/` directory (e.g., `myproject/` for `myproject.kicad_sch`)
+- `dest` argument now specifies parent output directory instead of CSV file path
+- Routing diagrams always generated (no more `--routing-diagrams` flag)
+- Console output captured to `stdout.txt` and `stderr.txt` while also displaying to console (tee behavior)
+- `-f/--force` flag deletes and recreates entire output directory
+
+**New Output Files**:
+- `wire_bom.csv` - Wire BOM in CSV format
+- `stdout.txt` - Captured console output
+- `stderr.txt` - Captured error output
+- `<system>_routing.svg` - One SVG diagram per system code
+
+**Module**: `kicad2wireBOM/output_manager.py` (new)
 
 ### Version 3.2 (2025-10-26)
 **Changed**: Phase 10 (Wire Routing Diagrams) completed with 16 print optimization enhancements
@@ -1328,18 +1353,30 @@ Two primary output formats:
 1. **CSV** (default): Comma-separated values for spreadsheet import and manipulation
 2. **Markdown** (`.md` extension or `--format md`): Rich formatted document with sections and tables
 
-### 7.2 Output Filename Generation
+### 7.2 Output Directory Structure **[REVISED - 2025-10-26]**
 
-**If destination not specified**:
-- Extract base name from input file
-- Append revision suffix: `_REVnnn` where nnn is incremented revision number
-- Add format extension: `.csv` or `.md`
-- Check directory for existing REVnnn files and increment to next available
+**Directory Creation**:
+- All output files are written to a dedicated directory
+- Directory name matches source schematic base name
+- Directory location determined by optional `dest` argument
 
-**Example**:
-- Input: `aircraft_electrical.kicad_sch`
-- Output: `aircraft_electrical_REV001.csv`
-- Next run: `aircraft_electrical_REV002.csv`
+**Examples**:
+- Source: `myproject.kicad_sch`, no dest → Creates `./myproject/`
+- Source: `myproject.kicad_sch`, dest=`/output/` → Creates `/output/myproject/`
+- Source: `/path/to/aircraft.kicad_sch`, dest=`/builds/` → Creates `/builds/aircraft/`
+
+**Output Files in Directory**:
+- `wire_bom.csv` - Wire BOM in CSV format
+- `stdout.txt` - Captured console output (info messages, progress, summaries)
+- `stderr.txt` - Captured error output (validation errors, warnings)
+- `L_routing.svg`, `P_routing.svg`, etc. - One SVG routing diagram per system code
+
+**Force Overwrite Behavior**:
+- If output directory exists and `-f/--force` flag provided: Delete entire directory and recreate
+- If output directory exists and no `-f` flag: Prompt user for confirmation before proceeding
+- If user declines overwrite: Abort operation
+
+**Note**: Console output continues to display to terminal while also being captured to files (tee behavior)
 
 ### 7.3 Builder Mode (Default) **[REVISED - 2025-10-20]**
 
@@ -1867,22 +1904,30 @@ Phase 7 complete when:
 
 ## 9. Command-Line Interface
 
-### 9.1 Basic Usage
+### 9.1 Basic Usage **[REVISED - 2025-10-26]**
 
 ```bash
-python -m kicad2wireBOM input.kicad_sch output.csv
-python -m kicad2wireBOM input.kicad_sch output.md
-python -m kicad2wireBOM input.kicad_sch  # Auto-generates output_REV001.csv
+# Generate all outputs in ./myproject/ directory
+python -m kicad2wireBOM myproject.kicad_sch
+
+# Generate all outputs in /output/myproject/ directory
+python -m kicad2wireBOM myproject.kicad_sch /output/
+
+# All outputs always include:
+#   - wire_bom.csv
+#   - stdout.txt and stderr.txt
+#   - routing diagrams (one SVG per system)
 ```
 
-### 9.2 Command-Line Arguments
+### 9.2 Command-Line Arguments **[REVISED - 2025-10-26]**
 
 **Required Arguments**:
 - `source`: Path to KiCAD schematic file (.kicad_sch)
 
 **Optional Arguments**:
-- `dest`: Path to output file (if omitted, auto-generates with REVnnn suffix)
-  - Extension determines format (.csv or .md)
+- `dest`: Parent directory for output (if omitted, uses current working directory)
+  - Output files will be created in `<dest>/<basename>/` subdirectory
+  - Example: If source is `myproject.kicad_sch` and dest is `/output/`, files go in `/output/myproject/`
 
 ### 9.3 Command-Line Flags
 
@@ -1896,38 +1941,41 @@ python -m kicad2wireBOM input.kicad_sch  # Auto-generates output_REV001.csv
 - `--engineering`: Enable engineering mode output (detailed calculations)
 
 **Configuration Options**:
+- `-f`, `--force`: Force overwrite of output directory without prompting
 - `--system-voltage VOLTS`: System voltage for calculations (default: 12)
 - `--slack-length INCHES`: Extra wire length per segment (default: 24)
+- `--label-threshold MM`: Max distance for label-to-wire association (default: 10)
+
+**Future Configuration Options** (not yet implemented):
 - `--format {csv,md}`: Explicitly specify output format (overrides file extension)
 - `--label-format {compact,dashes}`: Wire label format (default: compact)
   - `compact`: `L1A`, `P12B` (no separators)
   - `dashes`: `L-1-A`, `P-12-B` (dash separators)
-- `--label-threshold MM`: Max distance for label-to-wire association (default: 10)
 - `--config FILE`: Path to configuration file (overrides default .kicad2wireBOM.yaml search)
 
-### 9.4 Usage Examples
+### 9.4 Usage Examples **[REVISED - 2025-10-26]**
 
 ```bash
-# Basic BOM generation (builder mode, CSV)
-python -m kicad2wireBOM schematic.kicad_sch wire_bom.csv
+# Basic BOM generation - creates ./aircraft/ with all outputs
+python -m kicad2wireBOM aircraft.kicad_sch
 
-# Auto-generate filename with revision
-python -m kicad2wireBOM schematic.kicad_sch
+# Specify output parent directory - creates /builds/aircraft/
+python -m kicad2wireBOM aircraft.kicad_sch /builds/
 
 # 14V system with custom slack
-python -m kicad2wireBOM --system-voltage 14 --slack-length 30 schematic.kicad_sch bom.csv
-
-# Engineering mode markdown output
-python -m kicad2wireBOM --engineering schematic.kicad_sch analysis.md
+python -m kicad2wireBOM --system-voltage 14 --slack-length 30 aircraft.kicad_sch
 
 # Permissive mode for incomplete schematic
-python -m kicad2wireBOM --permissive draft.kicad_sch draft_bom.csv
+python -m kicad2wireBOM --permissive draft.kicad_sch
+
+# Force overwrite existing output directory
+python -m kicad2wireBOM -f aircraft.kicad_sch
 
 # Show what's needed in schematic
 python -m kicad2wireBOM --schematic-requirements
 
-# Use custom config file
-python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
+# Future: Engineering mode (not yet implemented)
+# python -m kicad2wireBOM --engineering aircraft.kicad_sch
 ```
 
 ### 9.5 Exit Codes
@@ -2009,7 +2057,7 @@ python -m kicad2wireBOM --config my_project.yaml schematic.kicad_sch
 
 ## 11. Implementation Architecture
 
-### 11.1 Module Structure **[REVISED - 2025-10-21]**
+### 11.1 Module Structure **[REVISED - 2025-10-26]**
 
 The `kicad2wireBOM/` package contains the following modules:
 
@@ -2030,8 +2078,11 @@ The `kicad2wireBOM/` package contains the following modules:
 13. **`reference_data.py`** - Wire resistance, ampacity, color mapping tables
 14. **`output_csv.py`** - CSV output generation
 15. **`diagram_generator.py`** - SVG routing diagram generation (Phase 10)
+16. **`output_manager.py`** - Output directory creation and stdout/stderr capture (Phase 11)
+17. **`validator.py`** - Schematic validation framework
 
 **Note**: Module 10 (`bom_generator.py`) is new as of v2.6 to eliminate code duplication between CLI and integration tests.
+**Note**: Module 16 (`output_manager.py`) is new as of v3.3 for unified output directory management.
 
 **Hierarchical Support** (Phase 7):
 - **`hierarchical_schematic.py`** - NEW module for multi-sheet data models

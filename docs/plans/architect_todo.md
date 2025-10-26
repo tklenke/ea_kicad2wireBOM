@@ -23,6 +23,30 @@
 
 ---
 
+## PHASE 11: UNIFIED OUTPUT DIRECTORY
+
+**Status**: Design complete, ready for implementation
+
+**Deliverables**:
+- [x] Design unified output directory structure
+- [x] Update kicad2wireBOM_design.md with new CLI and output structure (v3.3)
+- [x] Create implementation tasks in programmer_todo.md
+- [ ] Review implementation when complete
+- [ ] Update opportunities_for_improvement.md if new OFIs identified
+
+**Design Summary**:
+- All outputs consolidated into single directory per run
+- Directory name matches source schematic basename
+- Remove `--routing-diagrams` flag (always generate all outputs)
+- Capture stdout/stderr to files while teeing to console
+- New module: `output_manager.py`
+
+**Files Modified**:
+- `kicad2wireBOM_design.md` - Sections 7.2, 9.1, 9.2, 9.3, 9.4, 11.1
+- `programmer_todo.md` - Phase 11 implementation tasks added
+
+---
+
 ## FUTURE OPTIONS
 
 See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.
@@ -33,5 +57,3 @@ See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.
 - Wire harness weight calculation for W&B
 - Multiple netlist processing (entire KiCad project at once)
 - Temperature derating for hot environments
-
-**No active architecture work pending.** System is production-ready.
