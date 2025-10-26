@@ -409,13 +409,14 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
     )
 
 
-def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
+def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None) -> None:
     """
     Generate SVG file for system diagram optimized for 8.5x11 portrait printing.
 
     Args:
         diagram: SystemDiagram with all data
         output_path: Path to write SVG file
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     Creates SVG with:
     - Background (white)
@@ -423,7 +424,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     - Wire labels (12pt bold black text)
     - Component markers (blue circles, 6px radius)
     - Component labels (12pt navy text)
-    - Title (18pt bold) and legend (11pt)
+    - Title (18pt bold) with project info and legend (11pt)
 
     Optimized for printing on 8.5x11 portrait paper.
     """
@@ -459,8 +460,18 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Title (larger fonts for print)
     system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
     svg_lines.append('  <g id="title" font-family="Arial">')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="35" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="55" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
+
+    # Add project title_block info if available
+    y_offset = 20
+    if title_block:
+        project_title = title_block.get('title', 'Untitled')
+        project_rev = title_block.get('rev', 'N/A')
+        project_date = title_block.get('date', 'N/A')
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{project_title} - Rev {project_rev} - {project_date}</text>')
+        y_offset += 20
+
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 35}" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
     # Separator line below title/legend (fixed width for all diagrams)
@@ -611,7 +622,7 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
     )
 
 
-def generate_component_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+def generate_component_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None) -> None:
     """
     Generate component wiring diagram SVG files for all components.
 
@@ -619,6 +630,7 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
         wire_connections: All wire connections from BOM
         components: Dict mapping component ref to Component object
         output_dir: Directory to write SVG files
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     Outputs:
         One component diagram SVG per component (CB1_Component.svg, SW2_Component.svg, etc.)
@@ -645,12 +657,12 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
 
         # Generate SVG
         output_path = output_dir / f"{comp_ref}_Component.svg"
-        generate_svg(diagram, output_path)
+        generate_svg(diagram, output_path, title_block)
 
         print(f"Generated {output_path}")
 
 
-def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None) -> None:
     """
     Generate routing diagram SVG files for all systems and components.
 
@@ -658,6 +670,7 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
         wire_connections: All wire connections from BOM
         components: Dict mapping component ref to Component object
         output_dir: Directory to write SVG files
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     Outputs:
         One system diagram SVG per system code (L_System.svg, P_System.svg, etc.)
@@ -673,9 +686,9 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
 
         # Generate SVG with new naming convention
         output_path = output_dir / f"{system_code}_System.svg"
-        generate_svg(diagram, output_path)
+        generate_svg(diagram, output_path, title_block)
 
         print(f"Generated {output_path}")
 
     # Generate component diagrams
-    generate_component_diagrams(wire_connections, components, output_dir)
+    generate_component_diagrams(wire_connections, components, output_dir, title_block)

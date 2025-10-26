@@ -16,7 +16,8 @@ from kicad2wireBOM.parser import (
     extract_sheets,
     parse_wire_element,
     parse_label_element,
-    parse_symbol_element
+    parse_symbol_element,
+    parse_title_block
 )
 from kicad2wireBOM.label_association import associate_labels_with_wires
 from kicad2wireBOM.wire_calculator import (
@@ -150,6 +151,11 @@ def main():
             sheet_elements = extract_sheets(sexp_check)
             is_hierarchical = len(sheet_elements) > 0
 
+            # Parse title_block (applies to all schematics)
+            title_block = parse_title_block(sexp_check)
+            if title_block:
+                print(f"  Project: {title_block.get('title', 'Untitled')} Rev {title_block.get('rev', 'N/A')} ({title_block.get('date', 'N/A')})")
+
             if is_hierarchical:
                 print(f"  Detected hierarchical schematic with {len(sheet_elements)} sub-sheets")
 
@@ -252,7 +258,7 @@ def main():
                 # Create index.html before exiting so user can access logs
                 print("\nWriting index.html with error logs...", file=sys.stderr)
                 index_path = str(output_dir / 'index.html')
-                write_html_index(output_dir, index_path)
+                write_html_index(output_dir, index_path, title_block)
                 print(f"See {index_path} for details", file=sys.stderr)
 
                 sys.exit(1)
@@ -380,7 +386,7 @@ def main():
             bom.wires.sort(key=lambda w: parse_wire_label_for_sort(w.wire_label))
 
             # Write wire BOM CSV to output directory
-            write_builder_csv(bom, str(output_dir / 'wire_bom.csv'))
+            write_builder_csv(bom, str(output_dir / 'wire_bom.csv'), title_block)
 
             print(f"\nSuccessfully generated wire BOM: {output_dir / 'wire_bom.csv'}")
             print(f"  Total wires: {len(bom.wires)}")
@@ -393,21 +399,21 @@ def main():
 
             # Generate diagrams
             print(f"\nGenerating routing diagrams...")
-            generate_routing_diagrams(bom.wires, components_dict, output_dir)
+            generate_routing_diagrams(bom.wires, components_dict, output_dir, title_block)
 
             # Generate component BOM
             print(f"\nGenerating component BOM...")
-            write_component_bom(components, str(output_dir / 'component_bom.csv'))
+            write_component_bom(components, str(output_dir / 'component_bom.csv'), title_block)
             print(f"  Generated: {output_dir / 'component_bom.csv'}")
 
             # Generate engineering report
             print(f"\nGenerating engineering report...")
-            write_engineering_report(components, bom.wires, str(output_dir / 'engineering_report.txt'))
+            write_engineering_report(components, bom.wires, str(output_dir / 'engineering_report.txt'), title_block)
             print(f"  Generated: {output_dir / 'engineering_report.txt'}")
 
             # Generate HTML index
             print(f"\nGenerating HTML index...")
-            write_html_index(output_dir, str(output_dir / 'index.html'))
+            write_html_index(output_dir, str(output_dir / 'index.html'), title_block)
             print(f"  Generated: {output_dir / 'index.html'}")
 
             print(f"\nAll outputs written to: {output_dir}")
@@ -422,7 +428,7 @@ def main():
             # Create index.html before exiting so user can access logs
             print("\nWriting index.html with error logs...", file=sys.stderr)
             index_path = str(output_dir / 'index.html')
-            write_html_index(output_dir, index_path)
+            write_html_index(output_dir, index_path, title_block)
             print(f"See {index_path} for details", file=sys.stderr)
 
             return 1

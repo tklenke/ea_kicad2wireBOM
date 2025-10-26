@@ -2,3 +2,6 @@
 Validation Errors:
   ERROR: Component FH1 missing LocLoad encoding
          Suggestion: Add LocLoad field to component with format: (FS,WL,BL)<L|R|S|G><amps>
+
+Writing index.html with error logs...
+See /home/tom/projects/ea_tools/test_07_fixture/index.html for details

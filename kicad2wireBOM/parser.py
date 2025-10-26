@@ -631,6 +631,55 @@ def extract_sheet_uuid(sexp: Any) -> Optional[str]:
     return None
 
 
+def parse_title_block(sexp: Any) -> dict:
+    """
+    Parse title_block from schematic s-expression.
+
+    Title block format:
+    (title_block
+        (title "Project Name")
+        (date "2025-10-26")
+        (rev "1.0")
+        (company "Company Name")
+        (comment 1 "Comment line 1")
+        ...
+    )
+
+    Args:
+        sexp: Parsed s-expression (nested lists)
+
+    Returns:
+        Dict with title_block fields (title, date, rev, company, comment_1, etc.)
+        Returns empty dict if no title_block found.
+    """
+    for item in sexp:
+        if isinstance(item, list) and len(item) > 0:
+            key = item[0]
+            if isinstance(key, Symbol):
+                key = key.value()
+            if key == 'title_block':
+                # Found title_block, parse fields
+                title_data = {}
+                for field in item[1:]:
+                    if isinstance(field, list) and len(field) >= 2:
+                        field_key = field[0]
+                        if isinstance(field_key, Symbol):
+                            field_key = field_key.value()
+
+                        # Handle both simple fields (title "value") and indexed fields (comment 1 "value")
+                        if field_key == 'comment' and len(field) >= 3:
+                            # Indexed comment: (comment 1 "text")
+                            index = field[1]
+                            value = str(field[2]).strip('"')
+                            title_data[f'comment_{index}'] = value
+                        else:
+                            # Simple field: (title "value")
+                            value = str(field[1]).strip('"')
+                            title_data[field_key] = value
+                return title_data
+    return {}
+
+
 def parse_schematic_hierarchical(file_path: Union[str, Path]) -> HierarchicalSchematic:
     """
     Parse a hierarchical schematic with recursive sub-sheet loading.

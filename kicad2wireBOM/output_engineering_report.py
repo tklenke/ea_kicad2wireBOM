@@ -1,7 +1,7 @@
 # ABOUTME: Engineering report text file generation
 # ABOUTME: Creates summary report with component and wire statistics
 
-from typing import List
+from typing import List, Dict
 from collections import defaultdict
 import re
 
@@ -9,7 +9,7 @@ from kicad2wireBOM.component import Component
 from kicad2wireBOM.wire_bom import WireConnection
 
 
-def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str) -> None:
+def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.
 
@@ -17,8 +17,10 @@ def write_engineering_report(components: List[Component], wires: List[WireConnec
         components: List of Component objects
         wires: List of WireConnection objects
         output_path: Path to output text file
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     Report includes:
+        - Project title block information
         - Overall summary statistics
         - Component breakdown by type
         - Wire breakdown by system
@@ -31,6 +33,20 @@ def write_engineering_report(components: List[Component], wires: List[WireConnec
     lines.append("kicad2wireBOM Wire Harness Analysis")
     lines.append("=" * 60)
     lines.append("")
+
+    # Title block information
+    if title_block:
+        lines.append("PROJECT INFORMATION")
+        lines.append("-" * 60)
+        if 'title' in title_block:
+            lines.append(f"Project:     {title_block['title']}")
+        if 'rev' in title_block:
+            lines.append(f"Revision:    {title_block['rev']}")
+        if 'date' in title_block:
+            lines.append(f"Issue Date:  {title_block['date']}")
+        if 'company' in title_block:
+            lines.append(f"Company:     {title_block['company']}")
+        lines.append("")
 
     # Overall summary
     lines.append("OVERALL SUMMARY")

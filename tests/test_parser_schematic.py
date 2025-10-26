@@ -242,3 +242,36 @@ def test_extract_hierarchical_labels():
     assert tip_lt is not None
     assert tip_lt.shape == "input"
     assert tip_lt.position == (31.75, 36.83)
+
+
+def test_parse_title_block_test_08():
+    """Test parsing title_block from test_08_fixture.kicad_sch"""
+    from kicad2wireBOM.parser import parse_schematic_file, parse_title_block
+
+    fixture_path = Path('tests/fixtures/test_08_fixture.kicad_sch')
+    sexp = parse_schematic_file(fixture_path)
+
+    title_block = parse_title_block(sexp)
+
+    # Verify title_block was found and parsed
+    assert title_block is not None
+    assert isinstance(title_block, dict)
+
+    # Verify specific fields
+    assert title_block.get('title') == 'Simplified Z-11'
+    assert title_block.get('date') == '2025-10-26'
+    assert title_block.get('rev') == '1.0'
+
+
+def test_parse_title_block_no_title_block():
+    """Test parsing title_block from schematic without title_block"""
+    from kicad2wireBOM.parser import parse_schematic_file, parse_title_block
+
+    # Use test_01 which likely has no title_block
+    fixture_path = Path('tests/fixtures/test_01_fixture.kicad_sch')
+    sexp = parse_schematic_file(fixture_path)
+
+    title_block = parse_title_block(sexp)
+
+    # Should return empty dict if no title_block found
+    assert title_block == {}

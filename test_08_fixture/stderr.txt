@@ -1,0 +1,7 @@
+
+Validation Errors:
+  ERROR: No circuit ID labels found in schematic
+         Suggestion: Add wire labels matching pattern [SYSTEM][CIRCUIT][SEGMENT] (e.g., L1A, P12B)
+
+Writing index.html with error logs...
+See /home/tom/projects/ea_tools/test_08_fixture/index.html for details

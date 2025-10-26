@@ -2,18 +2,20 @@
 # ABOUTME: Creates index.html with links to all output files
 
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 
-def write_html_index(output_dir: Path, output_path: str) -> None:
+def write_html_index(output_dir: Path, output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write HTML index page with links to all outputs.
 
     Args:
         output_dir: Directory containing output files
         output_path: Path to output HTML file
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     HTML includes:
+        - Project title block information
         - Links to wire and component BOMs
         - Links to system diagrams
         - Links to component diagrams
@@ -54,6 +56,22 @@ def write_html_index(output_dir: Path, output_path: str) -> None:
     html_lines.append("</head>")
     html_lines.append("<body>")
     html_lines.append("    <h1>kicad2wireBOM Output Index</h1>")
+
+    # Project information section
+    if title_block:
+        html_lines.append("    <div class=\"section\">")
+        html_lines.append("        <h2>Project Information</h2>")
+        html_lines.append("        <ul>")
+        if 'title' in title_block:
+            html_lines.append(f"            <li><strong>Project:</strong> {title_block['title']}</li>")
+        if 'rev' in title_block:
+            html_lines.append(f"            <li><strong>Revision:</strong> {title_block['rev']}</li>")
+        if 'date' in title_block:
+            html_lines.append(f"            <li><strong>Issue Date:</strong> {title_block['date']}</li>")
+        if 'company' in title_block:
+            html_lines.append(f"            <li><strong>Company:</strong> {title_block['company']}</li>")
+        html_lines.append("        </ul>")
+        html_lines.append("    </div>")
 
     # Bill of Materials section
     html_lines.append("    <div class=\"section\">")

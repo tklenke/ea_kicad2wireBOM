@@ -3,11 +3,11 @@
 
 import csv
 from pathlib import Path
-from typing import Union
+from typing import Union, Dict
 from kicad2wireBOM.wire_bom import WireBOM
 
 
-def write_builder_csv(bom: WireBOM, output_path: Union[str, Path]) -> None:
+def write_builder_csv(bom: WireBOM, output_path: Union[str, Path], title_block: Dict[str, str] = None) -> None:
     """
     Write wire BOM to CSV file in builder format.
 
@@ -17,12 +17,23 @@ def write_builder_csv(bom: WireBOM, output_path: Union[str, Path]) -> None:
     Args:
         bom: WireBOM object containing wire connections
         output_path: Path to output CSV file
+        title_block: Optional dict with title, date, rev from schematic title_block
     """
     output_path = Path(output_path)
 
     headers = ['Wire Label', 'From Component', 'From Pin', 'To Component', 'To Pin', 'Wire Gauge', 'Wire Color', 'Length', 'Wire Type', 'Notes', 'Warnings']
 
     with open(output_path, 'w', newline='') as f:
+        # Write title_block as comment lines if available
+        if title_block:
+            if 'title' in title_block:
+                f.write(f"# Project: {title_block['title']}\n")
+            if 'date' in title_block:
+                f.write(f"# Issue Date: {title_block['date']}\n")
+            if 'rev' in title_block:
+                f.write(f"# Revision: {title_block['rev']}\n")
+            f.write("#\n")
+
         writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
 
