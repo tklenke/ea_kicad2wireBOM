@@ -50,7 +50,7 @@
 **Status**: Ready to implement
 
 ### Overview
-Consolidate all output files into a single directory for each run. Remove `--routing-diagrams` flag since all outputs are always generated.
+Consolidate all output files into a single directory for each run. Generate comprehensive output set including HTML index, component BOM, and engineering report.
 
 ### Design Changes
 
@@ -59,7 +59,10 @@ Consolidate all output files into a single directory for each run. Remove `--rou
 - If `dest` not provided: Creates `./myproject/` in current working directory
 - If `dest=/output/dir/`: Creates `/output/dir/myproject/` directory
 - All outputs go into this directory:
-  - `wire_bom.csv` - Main wire BOM
+  - `myproject.html` - HTML index with links, stdout/stderr, and summary
+  - `wire_bom.csv` - Wire BOM for builders
+  - `component_bom.csv` - Component BOM with all extracted data
+  - `engineering_report.md` - Comprehensive engineering report
   - `stdout.txt` - Captured console output (also tee to console)
   - `stderr.txt` - Captured error output (also tee to console)
   - `L_routing.svg`, `P_routing.svg`, etc. - Routing diagrams (one per system)
@@ -120,9 +123,57 @@ Consolidate all output files into a single directory for each run. Remove `--rou
 - [ ] Test force flag (directory deletion and recreation)
 - [ ] Test without force flag (user prompt)
 
-**Phase 11.6: Documentation Updates** [~]
+**Phase 11.6: Component BOM Generation** [~]
+- [ ] Add `datasheet` field to Component dataclass in component.py
+- [ ] Update parse_symbol_element() in parser.py to extract Datasheet property
+- [ ] Create output_component_bom.py module
+- [ ] Implement write_component_csv() function
+  - CSV columns: Reference, Value, Description, Datasheet, FS, WL, BL, Type, Amps
+  - Type column: "Load", "Rating", "Source", or "Ground" based on component properties
+  - Amps column: load/rating/source value (or blank for Ground)
+  - Sort by reference designator (natural sort: CB1, CB2, CB10 not CB1, CB10, CB2)
+- [ ] Write tests for component BOM generation
+
+**Phase 11.7: Engineering Report Generation** [~]
+- [ ] Create output_engineering_report.py module
+- [ ] Implement write_engineering_report() function with sections:
+  - Header: Project name, timestamp, tool version, source file
+  - Summary: Total wires, total components, system counts, validation status
+  - Validation Results: Errors and warnings with details
+  - Wire BOM: Grouped by system code, formatted markdown tables
+  - Component BOM: Formatted markdown table with all fields
+  - Wire Calculations: Voltage drops, gauge selection rationale per circuit
+  - Purchasing Summary: Total wire length needed by gauge and color
+  - Configuration: System voltage, slack length, label threshold used
+- [ ] Write tests for engineering report generation
+
+**Phase 11.8: HTML Index Generation** [~]
+- [ ] Create output_html_index.py module
+- [ ] Implement write_html_index() function with:
+  - Minimal CSS styling (just clean and functional)
+  - Project title (extracted from source filename)
+  - Generation metadata: timestamp, kicad2wireBOM version
+  - Summary statistics: total wires, total components, systems processed
+  - Validation section: warnings/errors highlighted (if any)
+  - File links section: relative links to all output files
+  - Console output section: stdout and stderr as `<pre><code>` blocks
+  - All paths relative (works when directory is moved)
+- [ ] Write tests for HTML index generation
+
+**Phase 11.9: Integration and Testing** [~]
+- [ ] Update main() in __main__.py to generate all new outputs:
+  - Call write_component_csv()
+  - Call write_engineering_report()
+  - Call write_html_index() (must be last, reads stdout.txt/stderr.txt)
+- [ ] Update end-to-end tests to verify all 7+ output files created
+- [ ] Verify file contents are correct and complete
+- [ ] Test with hierarchical and flat schematics
+- [ ] Test with validation errors/warnings
+
+**Phase 11.10: Documentation Updates** [~]
 - [ ] Update kicad2wireBOM_design.md Section 7 (Output Formats)
 - [ ] Update kicad2wireBOM_design.md Section 9 (CLI)
+- [ ] Update kicad2wireBOM_design.md Section 11.1 (add new modules)
 - [ ] Update README or usage documentation if exists
 - [ ] Mark Phase 11 complete in architect_todo.md
 

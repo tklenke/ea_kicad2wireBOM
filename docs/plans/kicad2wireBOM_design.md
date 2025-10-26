@@ -14,29 +14,39 @@
 ## Design Revision History
 
 ### Version 3.3 (2025-10-26)
-**Changed**: Phase 11 - Unified output directory structure for all generated files
+**Changed**: Phase 11 - Comprehensive output generation with unified directory structure
 
 **Sections Modified**:
+- Section 2.2: Additional Component Fields (value, description, datasheet extraction)
 - Section 7.2: Output Directory Structure (complete rewrite)
-- Section 9.2: Command-Line Arguments (updated dest semantics, removed --routing-diagrams)
-- Section 11.1: Implementation Architecture (added output_manager.py module)
+- Section 7.6-7.8: NEW sections for component_bom.csv, engineering_report.md, HTML index
+- Section 9.1-9.4: Command-Line Arguments and usage examples (updated dest semantics)
+- Section 11.1: Implementation Architecture (added 4 new output modules)
 
-**Rationale**: Tool now generates multiple output files (CSV, SVG diagrams, captured stdout/stderr). Consolidating all outputs into a single directory improves organization and makes it easier to manage related files. Since the tool is fast, always generating all outputs eliminates the need for output-specific flags.
+**Rationale**: Tool now generates comprehensive output set for experimental aircraft builders. Consolidating all outputs into a single directory improves organization. HTML index provides user-friendly entry point. Engineering report combines all technical data in one document. Component BOM enables procurement and build planning.
 
 **Impact**:
 - All outputs now go into `<basename>/` directory (e.g., `myproject/` for `myproject.kicad_sch`)
 - `dest` argument now specifies parent output directory instead of CSV file path
-- Routing diagrams always generated (no more `--routing-diagrams` flag)
+- Always generate all outputs (removed `--routing-diagrams` flag)
 - Console output captured to `stdout.txt` and `stderr.txt` while also displaying to console (tee behavior)
 - `-f/--force` flag deletes and recreates entire output directory
+- Component dataclass expanded with `datasheet` field from KiCad property
 
-**New Output Files**:
-- `wire_bom.csv` - Wire BOM in CSV format
+**New Output Files** (7 total per run):
+- `<basename>.html` - HTML index with links to all outputs and embedded console logs
+- `wire_bom.csv` - Wire BOM in CSV format (builder-focused)
+- `component_bom.csv` - Component BOM with all extracted schematic data
+- `engineering_report.md` - Comprehensive engineering analysis and calculations
 - `stdout.txt` - Captured console output
 - `stderr.txt` - Captured error output
 - `<system>_routing.svg` - One SVG diagram per system code
 
-**Module**: `kicad2wireBOM/output_manager.py` (new)
+**New Modules**:
+- `output_manager.py` - Directory management and stdout/stderr capture
+- `output_component_bom.py` - Component BOM CSV generation
+- `output_engineering_report.py` - Engineering report markdown generation
+- `output_html_index.py` - HTML index page generation
 
 ### Version 3.2 (2025-10-26)
 **Changed**: Phase 10 (Wire Routing Diagrams) completed with 16 print optimization enhancements
@@ -305,6 +315,16 @@ Component physical location and electrical characteristics are encoded in a cust
 - **Compact**: ~20 chars for typical encoding
 - **Human-typeable**: Minimal special characters, logical grouping
 - **Unambiguous**: Simple regex parsing, clear structure
+
+**Additional Component Fields** **[REVISED - 2025-10-26]**:
+
+In addition to LocLoad custom field, the parser extracts standard KiCad symbol properties:
+- **Reference**: Component reference designator (e.g., "CB1", "SW2") - from `Reference` property (always present)
+- **Value**: Component value (e.g., "10A Circuit Breaker", "Landing Light") - from `Value` property
+- **Description**: Component description (e.g., "Klixon 10A breaker") - from `Description` property
+- **Datasheet**: Component datasheet URL or filename - from `Datasheet` property
+
+These fields are stored in the Component dataclass alongside the parsed LocLoad data and used in component_bom.csv output.
 
 ### 2.3 Wire Segment Labels
 
@@ -1366,7 +1386,10 @@ Two primary output formats:
 - Source: `/path/to/aircraft.kicad_sch`, dest=`/builds/` → Creates `/builds/aircraft/`
 
 **Output Files in Directory**:
-- `wire_bom.csv` - Wire BOM in CSV format
+- `<basename>.html` - HTML index page with links to all outputs, stdout/stderr blocks, and summary
+- `wire_bom.csv` - Wire BOM in CSV format (builder-focused)
+- `component_bom.csv` - Component BOM with all extracted data
+- `engineering_report.md` - Comprehensive engineering report (wire + component analysis)
 - `stdout.txt` - Captured console output (info messages, progress, summaries)
 - `stderr.txt` - Captured error output (validation errors, warnings)
 - `L_routing.svg`, `P_routing.svg`, etc. - One SVG routing diagram per system code
@@ -1463,6 +1486,146 @@ All outputs sorted by:
 1. System code (alphabetically: G, L, P, R, etc.)
 2. Circuit number (numerically within each system)
 3. Segment letter (A, B, C... within each circuit)
+
+### 7.6 Component BOM (`component_bom.csv`) **[NEW - 2025-10-26]**
+
+**Purpose**: Complete listing of all components with extracted schematic data and calculated electrical properties.
+
+**CSV Columns**:
+- **Reference**: Component reference designator (e.g., "CB1", "SW2", "LIGHT1")
+- **Value**: Component value from schematic (e.g., "10A Circuit Breaker", "Landing Light")
+- **Description**: Component description from schematic (e.g., "Klixon 10A breaker", "GE 4509 landing light")
+- **Datasheet**: Component datasheet URL or filename (if provided in schematic)
+- **FS**: Fuselage Station coordinate (inches)
+- **WL**: Water Line coordinate (inches)
+- **BL**: Butt Line coordinate (inches)
+- **Type**: Component electrical type - one of:
+  - `Load` - Consuming device (has Load value)
+  - `Rating` - Pass-through device (has Rating value)
+  - `Source` - Power source (has Source value)
+  - `Ground` - Ground connection point (LocLoad type G)
+- **Amps**: Amperage value (load/rating/source depending on Type, blank for Ground)
+
+**Sorting**: Natural sort by Reference (CB1, CB2, CB10 not CB1, CB10, CB2)
+
+**Use Cases**:
+- Component procurement and sourcing
+- Installation reference during build
+- Weight & balance calculations (when combined with component weights)
+- Troubleshooting reference (find component by reference)
+
+### 7.7 Engineering Report (`engineering_report.md`) **[NEW - 2025-10-26]**
+
+**Purpose**: Comprehensive technical documentation combining wire analysis, component data, calculations, and validation results.
+
+**Report Sections**:
+
+1. **Header**
+   - Project name (from source filename)
+   - Generation timestamp
+   - kicad2wireBOM version
+   - Source schematic file path
+
+2. **Summary**
+   - Total wire count
+   - Total component count
+   - System codes processed (with counts per system)
+   - Validation status (Pass/Warnings/Errors)
+
+3. **Validation Results**
+   - All validation errors (if any)
+   - All validation warnings (if any)
+   - Each with description and suggested resolution
+
+4. **Wire BOM**
+   - Grouped by system code (L-circuits, P-circuits, etc.)
+   - Markdown table format
+   - Columns: Label, From, To, Gauge, Color, Length, Type, Notes
+   - Sorted by system/circuit/segment
+
+5. **Component BOM**
+   - Markdown table format
+   - All columns from component_bom.csv
+   - Sorted by reference designator
+
+6. **Wire Calculations**
+   - Per-circuit analysis showing:
+     - Circuit ID (e.g., "L1")
+     - Total circuit current (sum of all loads)
+     - Maximum wire length in circuit
+     - Calculated voltage drop
+     - Selected wire gauge with rationale
+   - Grouped by system code
+
+7. **Purchasing Summary**
+   - Total wire length needed by gauge and color
+   - Format: "20 AWG White: 45.2 ft"
+   - Useful for ordering wire
+
+8. **Configuration**
+   - System voltage used (volts)
+   - Slack length per segment (inches)
+   - Label association threshold (mm)
+   - Validation mode (strict/permissive)
+
+**Use Cases**:
+- Design review and verification
+- FAA documentation for experimental aircraft
+- Build planning and cost estimation
+- Troubleshooting and maintenance reference
+
+### 7.8 HTML Index (`<basename>.html`) **[NEW - 2025-10-26]**
+
+**Purpose**: User-friendly entry point to all generated outputs with embedded console logs and summary information.
+
+**Page Structure**:
+
+1. **Header**
+   - Page title: Project name
+   - Generation timestamp
+   - kicad2wireBOM version
+
+2. **Summary Section**
+   - Total wires
+   - Total components
+   - Systems processed (with system names, e.g., "L - Lighting")
+   - Validation status
+
+3. **Validation Section** (if warnings or errors exist)
+   - Highlighted warnings/errors
+   - Count of each severity level
+   - Brief description (full details in engineering_report.md)
+
+4. **Output Files Section**
+   - Relative links to all generated files:
+     - engineering_report.md
+     - wire_bom.csv
+     - component_bom.csv
+     - Each SVG routing diagram (listed by system)
+   - Link text includes file description
+
+5. **Console Output Section**
+   - **stdout**: Contents of stdout.txt in `<pre><code>` block
+   - **stderr**: Contents of stderr.txt in `<pre><code>` block (if non-empty)
+
+6. **Styling**
+   - Minimal inline CSS (no external dependencies)
+   - Clean, professional appearance
+   - Readable font sizes
+   - Sections clearly separated
+   - Links easily identifiable
+
+**Technical Details**:
+- All file paths are relative (works when directory is moved)
+- HTML is self-contained (no external resources)
+- Valid HTML5
+- Generated last (after stdout.txt and stderr.txt exist)
+
+**Use Cases**:
+- Quick overview of build outputs
+- Easy access to all related files
+- Console log review without terminal access
+- Validation status check
 
 ---
 
@@ -2076,13 +2239,16 @@ The `kicad2wireBOM/` package contains the following modules:
 11. **`wire_calculator.py`** - Length, gauge, voltage drop calculations
 12. **`wire_bom.py`** - WireBOM and WireConnection data models
 13. **`reference_data.py`** - Wire resistance, ampacity, color mapping tables
-14. **`output_csv.py`** - CSV output generation
+14. **`output_csv.py`** - CSV output generation (wire_bom.csv)
 15. **`diagram_generator.py`** - SVG routing diagram generation (Phase 10)
 16. **`output_manager.py`** - Output directory creation and stdout/stderr capture (Phase 11)
-17. **`validator.py`** - Schematic validation framework
+17. **`output_component_bom.py`** - Component BOM CSV generation (Phase 11)
+18. **`output_engineering_report.py`** - Engineering report markdown generation (Phase 11)
+19. **`output_html_index.py`** - HTML index page generation (Phase 11)
+20. **`validator.py`** - Schematic validation framework
 
 **Note**: Module 10 (`bom_generator.py`) is new as of v2.6 to eliminate code duplication between CLI and integration tests.
-**Note**: Module 16 (`output_manager.py`) is new as of v3.3 for unified output directory management.
+**Note**: Modules 16-19 are new as of v3.3 for comprehensive output generation.
 
 **Hierarchical Support** (Phase 7):
 - **`hierarchical_schematic.py`** - NEW module for multi-sheet data models

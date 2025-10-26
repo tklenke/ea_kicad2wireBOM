@@ -23,27 +23,44 @@
 
 ---
 
-## PHASE 11: UNIFIED OUTPUT DIRECTORY
+## PHASE 11: COMPREHENSIVE OUTPUT GENERATION
 
 **Status**: Design complete, ready for implementation
 
 **Deliverables**:
 - [x] Design unified output directory structure
-- [x] Update kicad2wireBOM_design.md with new CLI and output structure (v3.3)
+- [x] Design component BOM CSV format and content
+- [x] Design engineering report markdown structure
+- [x] Design HTML index page layout and features
+- [x] Update kicad2wireBOM_design.md with new outputs (v3.3)
 - [x] Create implementation tasks in programmer_todo.md
 - [ ] Review implementation when complete
 - [ ] Update opportunities_for_improvement.md if new OFIs identified
 
 **Design Summary**:
-- All outputs consolidated into single directory per run
+- All outputs consolidated into single directory per run (7 files total)
 - Directory name matches source schematic basename
-- Remove `--routing-diagrams` flag (always generate all outputs)
+- Always generate all outputs (removed `--routing-diagrams` flag)
 - Capture stdout/stderr to files while teeing to console
-- New module: `output_manager.py`
+- HTML index provides user-friendly entry point with links and summary
+- Engineering report combines wire + component data with calculations
+- Component BOM enables procurement and build planning
+
+**New Output Files**:
+- `<basename>.html` - HTML index with embedded console logs
+- `component_bom.csv` - Component data with reference, value, description, datasheet, coordinates, electrical properties
+- `engineering_report.md` - Comprehensive engineering documentation
+
+**New Modules**:
+- `output_manager.py` - Directory management and stream capture
+- `output_component_bom.py` - Component BOM generation
+- `output_engineering_report.py` - Engineering report generation
+- `output_html_index.py` - HTML index generation
 
 **Files Modified**:
-- `kicad2wireBOM_design.md` - Sections 7.2, 9.1, 9.2, 9.3, 9.4, 11.1
-- `programmer_todo.md` - Phase 11 implementation tasks added
+- `kicad2wireBOM_design.md` - Sections 2.2, 7.2, 7.6-7.8, 9.1-9.4, 11.1
+- `programmer_todo.md` - Phase 11 implementation tasks (11.1-11.10)
+- `component.py` - Add datasheet field (implementation task)
 
 ---
 
