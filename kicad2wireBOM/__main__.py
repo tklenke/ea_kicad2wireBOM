@@ -248,6 +248,13 @@ def main():
                     print(f"  ERROR: {error.message}", file=sys.stderr)
                     if error.suggestion:
                         print(f"         Suggestion: {error.suggestion}", file=sys.stderr)
+
+                # Create index.html before exiting so user can access logs
+                print("\nWriting index.html with error logs...", file=sys.stderr)
+                index_path = str(output_dir / 'index.html')
+                write_html_index(output_dir, index_path)
+                print(f"See {index_path} for details", file=sys.stderr)
+
                 sys.exit(1)
 
             if validation_result.warnings:
@@ -411,6 +418,13 @@ def main():
             print(f"Error processing schematic: {e}", file=sys.stderr)
             import traceback
             traceback.print_exc()
+
+            # Create index.html before exiting so user can access logs
+            print("\nWriting index.html with error logs...", file=sys.stderr)
+            index_path = str(output_dir / 'index.html')
+            write_html_index(output_dir, index_path)
+            print(f"See {index_path} for details", file=sys.stderr)
+
             return 1
 
 

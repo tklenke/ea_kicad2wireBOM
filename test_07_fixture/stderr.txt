@@ -1,0 +1,4 @@
+
+Validation Errors:
+  ERROR: Component FH1 missing LocLoad encoding
+         Suggestion: Add LocLoad field to component with format: (FS,WL,BL)<L|R|S|G><amps>

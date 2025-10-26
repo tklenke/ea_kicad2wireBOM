@@ -1,0 +1,8 @@
+Processing tests/fixtures/test_07_fixture.kicad_sch...
+  Detected single-sheet schematic
+  Found 26 wire segments
+  Found 10 labels
+  Found 10 components
+  Building connectivity graph...
+    Graph has 38 nodes, 15 pins, 2 junctions
+  Associated 10 wires with labels
