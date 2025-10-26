@@ -98,6 +98,20 @@ Successfully implemented 3D elongated orthographic projection for all routing di
 - Phase 12.2: Add WL coordinate to DiagramComponent dataclass
 - Phase 12.3: Update DiagramWireSegment for 4-segment 3D routing
 - Phase 12.4: Update rendering functions for 3D projection
+- Bug fix: Fix negative SVG coordinates bug in 3D projection
+
+### Bug Fix: Negative SVG Coordinates
+**Issue**: Polyline points with negative values causing lines to go off SVG page.
+
+**Root Cause**: Bounds were calculated on raw FS/BL coordinates, but 3D projection adds WL offsets. When WL was negative or large, projected coordinates fell outside calculated bounds, resulting in negative SVG coordinates.
+
+**Solution**:
+- Updated `calculate_bounds()` to project all 3D components to 2D screen coordinates first
+- Calculate bounds on projected coordinates instead of raw 3D coordinates
+- Updated `SystemDiagram` dataclass to track both projected bounds (for SVG rendering) and original bounds (for legend display)
+- Added 4 new fields to SystemDiagram: `fs_min_original`, `fs_max_original`, `bl_min_original`, `bl_max_original`
+
+**Result**: All 260 tests passing. No negative coordinates possible in SVG output.
 
 ---
 
