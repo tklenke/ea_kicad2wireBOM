@@ -4,14 +4,41 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.4 (3D Diagram Projection - Design Phase)
+**Version**: 3.5 (Post-Implementation Enhancements)
 **Date**: 2025-10-26
-**Status**: Phase 1-10 Complete ✅ (224 tests passing), Phase 11 In Progress, Phase 12 Design
+**Status**: Phase 1-12 Complete ✅ (265 tests passing)
 
 **Related Documents**:
 - `wire_routing_diagrams_design.md` - SVG routing diagram generation (Phase 10) - COMPLETE
 
 ## Design Revision History
+
+### Version 3.5 (2025-10-26)
+**Changed**: Post-implementation bug fixes and diagram enhancements
+
+**Sections Modified**:
+- Section 11.1: Implementation Architecture (updated modules with bug fixes)
+- Section 9.1: Command-Line Arguments (added --2d flag)
+
+**Bug Fixes**:
+- Fixed multipoint power symbol handling - power symbols (GND, +12V, etc.) now correctly treated as common pin in multipoint groups since all components connect to same global net
+- Fixed UnboundLocalError when components missing LocLoad data - wire length calculation now handles missing coordinates gracefully with fallback to default length
+- Fixed overly aggressive cross-connection filter that was hiding legitimate multipoint wires in component diagrams
+
+**New Features**:
+- Added --2d flag to generate 2D diagrams (FS/BL only) instead of default 3D projection with WL axis
+- Added component value and description to component diagram titles (e.g., "CB1: 30A - Circuit Breaker")
+
+**Enhancements**:
+- Updated DEFAULT_WL_SCALE from 3.0 to 1.5 for improved 3D projection readability
+- Updated diagram rendering to support independent X/Y scaling for better space utilization
+- Wire label position calculation now returns axis name ('BL', 'FS', 'WL') for future enhancements
+
+**Impact**:
+- All 265 tests passing (Phase 1-12 complete)
+- More robust handling of edge cases in multipoint connections
+- Improved diagram flexibility with optional 2D mode for simpler aircraft
+- Better component identification in component diagrams
 
 ### Version 3.4 (2025-10-26)
 **Changed**: Phase 12 - 3D projection for diagrams using elongated orthographic projection
