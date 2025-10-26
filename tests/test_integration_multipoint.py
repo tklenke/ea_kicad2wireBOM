@@ -2,6 +2,7 @@
 # ABOUTME: Tests end-to-end BOM generation including 3+way connections and circuit-based wire sizing
 
 import pytest
+import re
 from pathlib import Path
 from kicad2wireBOM.parser import (
     parse_schematic_file,
@@ -180,12 +181,16 @@ def test_circuit_based_wire_sizing():
 
     # Parse components (skip those with missing LocLoad encoding)
     components = []
+    missing_locload_components = []
     for s in symbol_sexps:
         try:
             components.append(parse_symbol_element(s))
         except ValueError as e:
-            # Component missing LocLoad encoding - skip for BOM but warn
-            print(f"  Warning: {e} (skipping for BOM calculations)")
+            # Component missing LocLoad encoding - track for validation
+            # Extract component reference from error message "Component {ref} missing LocLoad encoding"
+            match = re.search(r'Component (\S+) missing', str(e))
+            if match:
+                missing_locload_components.append(match.group(1))
             pass
 
     # Associate labels with wires

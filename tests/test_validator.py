@@ -179,7 +179,7 @@ def test_check_no_labels_strict_mode():
         Label(text="24AWG", position=(50, 2), uuid="l1")  # Not a circuit ID
     ]
 
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     assert result.has_errors()
     assert len(result.errors) > 0
@@ -199,7 +199,7 @@ def test_check_no_labels_permissive_mode():
         Label(text="24AWG", position=(50, 2), uuid="l1")
     ]
 
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     assert not result.has_errors()
     assert len(result.warnings) > 0
@@ -218,7 +218,7 @@ def test_check_wire_missing_label_strict():
     wires = [wire]
     labels = []
 
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     assert result.has_errors()
     # Should have error about wire w1 having no valid circuit ID label
@@ -256,7 +256,7 @@ def test_check_wire_missing_label_includes_connections():
     wires = [wire]
     labels = []
 
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     assert result.has_errors()
     wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
@@ -282,7 +282,7 @@ def test_check_wire_multiple_circuit_ids():
     wires = [wire]
     labels = []
 
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     assert result.has_errors()
     wire_errors = [e for e in result.errors if e.wire_uuid == "w1"]
@@ -304,7 +304,7 @@ def test_check_wire_with_piped_label():
     wires = [wire]
     labels = []
 
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     # Should NOT have errors - piped label is valid
     assert not result.has_errors()
@@ -327,7 +327,7 @@ def test_check_duplicate_circuit_ids_strict():
 
     wires = [wire1, wire2]
 
-    result = validator.validate_all(wires, [], [])
+    result = validator.validate_all(wires, [], [], missing_locload_components=[])
 
     assert result.has_errors()
     dup_errors = [e for e in result.errors if "Duplicate" in e.message]
@@ -350,7 +350,7 @@ def test_check_duplicate_circuit_ids_permissive():
 
     wires = [wire1, wire2]
 
-    result = validator.validate_all(wires, [], [])
+    result = validator.validate_all(wires, [], [], missing_locload_components=[])
 
     assert not result.has_errors()
     assert len(result.warnings) > 0
@@ -498,7 +498,7 @@ def test_connectivity_aware_duplicate_detection_connected():
     ]
 
     validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
-    result = validator.validate_all([wire1, wire2], labels, [])
+    result = validator.validate_all([wire1, wire2], labels, [], missing_locload_components=[])
 
     # Should NOT have errors - connected wires can share circuit ID
     assert not result.has_errors()
@@ -532,10 +532,86 @@ def test_connectivity_aware_duplicate_detection_unconnected():
     ]
 
     validator = HierarchicalValidator(strict_mode=True, connectivity_graph=graph)
-    result = validator.validate_all([wire1, wire2], labels, [])
+    result = validator.validate_all([wire1, wire2], labels, [], missing_locload_components=[])
 
     # Should have errors - unconnected wires cannot share circuit ID
     assert result.has_errors()
     dup_errors = [e for e in result.errors if "UNCONNECTED" in e.message]
     assert len(dup_errors) > 0
     assert "L2B" in dup_errors[0].message
+
+
+def test_check_component_locload_strict_mode():
+    """Test that missing LocLoad causes error in strict mode"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    validator = SchematicValidator(strict_mode=True)
+    missing_locload = ["FH1", "SW2"]
+
+    # Create a valid wire with circuit_id to avoid "No circuit ID labels" error
+    wire = WireSegment(
+        uuid="w1",
+        start_point=(0, 0),
+        end_point=(10, 0),
+        circuit_id="L1A",
+        circuit_ids=["L1A"]
+    )
+
+    result = validator.validate_all([wire], [], [], missing_locload_components=missing_locload)
+
+    # Should have errors in strict mode
+    assert result.has_errors()
+    assert len(result.errors) == 2
+
+    # Check error messages
+    error_messages = [e.message for e in result.errors]
+    assert any("FH1" in msg and "missing LocLoad" in msg for msg in error_messages)
+    assert any("SW2" in msg and "missing LocLoad" in msg for msg in error_messages)
+
+
+def test_check_component_locload_permissive_mode():
+    """Test that missing LocLoad causes warning in permissive mode"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    validator = SchematicValidator(strict_mode=False)
+    missing_locload = ["FH1"]
+
+    # Create a valid wire with circuit_id to avoid "No circuit ID labels" warning
+    wire = WireSegment(
+        uuid="w1",
+        start_point=(0, 0),
+        end_point=(10, 0),
+        circuit_id="L1A",
+        circuit_ids=["L1A"]
+    )
+
+    result = validator.validate_all([wire], [], [], missing_locload_components=missing_locload)
+
+    # Should NOT have errors in permissive mode
+    assert not result.has_errors()
+
+    # Should have warnings
+    assert len(result.warnings) == 1
+    assert "FH1" in result.warnings[0].message
+    assert "missing LocLoad" in result.warnings[0].message
+
+
+def test_check_component_locload_no_missing():
+    """Test that no missing LocLoad components passes validation"""
+    from kicad2wireBOM.schematic import WireSegment
+
+    validator = SchematicValidator(strict_mode=True)
+
+    # Create a valid wire with circuit_id to avoid "No circuit ID labels" error
+    wire = WireSegment(
+        uuid="w1",
+        start_point=(0, 0),
+        end_point=(10, 0),
+        circuit_id="L1A",
+        circuit_ids=["L1A"]
+    )
+
+    result = validator.validate_all([wire], [], [], missing_locload_components=[])
+
+    # Should have no errors
+    assert not result.has_errors()

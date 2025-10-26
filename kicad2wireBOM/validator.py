@@ -42,11 +42,12 @@ class SchematicValidator:
         self.connectivity_graph = connectivity_graph
         self.result = ValidationResult(errors=[], warnings=[])
 
-    def validate_all(self, wires, labels, components) -> ValidationResult:
+    def validate_all(self, wires, labels, components, missing_locload_components=None) -> ValidationResult:
         """Run all validation checks"""
         self._check_no_labels(wires, labels)
         self._check_wire_labels(wires)
         self._check_duplicate_circuit_ids(wires)
+        self._check_component_locload(missing_locload_components or [])
         self._check_orphaned_labels(labels, wires)
         return self.result
 
@@ -160,6 +161,14 @@ class SchematicValidator:
                     f"Duplicate circuit ID '{circuit_id}' found on {count} wire segments",
                     suggestion="Each wire must have unique circuit ID. Check segment letters."
                 )
+
+    def _check_component_locload(self, missing_locload_components):
+        """Check for components missing LocLoad encoding"""
+        for component_ref in missing_locload_components:
+            self._add_error(
+                f"Component {component_ref} missing LocLoad encoding",
+                suggestion="Add LocLoad field to component with format: (FS,WL,BL)<L|R|S|G><amps>"
+            )
 
     def _check_orphaned_labels(self, labels, wires, threshold=10.0):
         """Check for labels not associated with wires"""

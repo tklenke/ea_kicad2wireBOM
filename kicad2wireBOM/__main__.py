@@ -179,6 +179,7 @@ def main():
                 wires = all_wires
                 labels = all_labels
                 components = all_components
+                missing_locload_components = []  # TODO: Handle hierarchical missing LocLoad
 
                 # Build connectivity graph (hierarchical)
                 print(f"  Building hierarchical connectivity graph...")
@@ -206,12 +207,16 @@ def main():
 
                 # Parse components (may fail if LocLoad encodings missing)
                 components = []
+                missing_locload_components = []
                 for s in symbol_sexps:
                     try:
                         components.append(parse_symbol_element(s))
                     except ValueError as e:
-                        # Component missing LocLoad encoding - skip for BOM but continue for connectivity
-                        print(f"  Warning: {e} (skipping for BOM calculations)")
+                        # Component missing LocLoad encoding - track for validation
+                        # Extract component reference from error message "Component {ref} missing LocLoad encoding"
+                        match = re.search(r'Component (\S+) missing', str(e))
+                        if match:
+                            missing_locload_components.append(match.group(1))
                         pass
 
                 # Build connectivity graph (single-sheet)
@@ -234,7 +239,7 @@ def main():
             else:
                 # Use flat validator with connectivity graph for enhanced error messages
                 validator = SchematicValidator(strict_mode=strict_mode, connectivity_graph=graph)
-            validation_result = validator.validate_all(wires, labels, components)
+            validation_result = validator.validate_all(wires, labels, components, missing_locload_components)
 
             # Handle validation errors/warnings
             if validation_result.has_errors():

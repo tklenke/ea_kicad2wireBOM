@@ -33,7 +33,7 @@ def test_05_baseline_passes_validation():
 
     # Validate in strict mode
     validator = SchematicValidator(strict_mode=True)
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     # Should pass with no errors
     assert not result.has_errors(), \
@@ -90,7 +90,7 @@ def test_05A_missing_labels_fails_strict_validation():
 
     # Validate in strict mode
     validator = SchematicValidator(strict_mode=True)
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     # Should fail validation
     assert result.has_errors(), "test_05A should fail strict validation"
@@ -121,7 +121,7 @@ def test_05A_missing_labels_warns_permissive_mode():
 
     # Validate in permissive mode
     validator = SchematicValidator(strict_mode=False)
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     # Should NOT abort (no errors)
     assert not result.has_errors(), "Permissive mode should not have errors"
@@ -152,7 +152,7 @@ def test_05B_duplicate_labels_fails_strict_validation():
 
     # Validate in strict mode
     validator = SchematicValidator(strict_mode=True)
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     # Should fail validation
     assert result.has_errors(), "test_05B should fail strict validation"
@@ -183,7 +183,7 @@ def test_05B_duplicate_labels_warns_permissive_mode():
 
     # Validate in permissive mode
     validator = SchematicValidator(strict_mode=False)
-    result = validator.validate_all(wires, labels, [])
+    result = validator.validate_all(wires, labels, [], missing_locload_components=[])
 
     # Should NOT abort (no errors)
     assert not result.has_errors(), "Permissive mode should not have errors"
