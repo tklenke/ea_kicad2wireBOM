@@ -322,7 +322,7 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
 
 def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     """
-    Generate SVG file for system diagram.
+    Generate SVG file for system diagram optimized for 8.5x11 portrait printing.
 
     Args:
         diagram: SystemDiagram with all data
@@ -330,19 +330,18 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
 
     Creates SVG with:
     - Background (white)
-    - Grid lines (light gray, 12-inch spacing)
-    - Axes (dark gray)
-    - Wire segments (black lines, Manhattan routing)
-    - Wire labels (black text)
-    - Component markers (blue circles)
-    - Component labels (navy text)
-    - Title and legend
+    - Wire segments (black lines, Manhattan routing, 3px width)
+    - Wire labels (12pt bold black text)
+    - Component markers (blue circles, 6px radius)
+    - Component labels (12pt navy text)
+    - Title (18pt bold) and legend (11pt)
+
+    Optimized for printing on 8.5x11 portrait paper.
     """
-    # Constants
-    MARGIN = 50
-    TITLE_HEIGHT = 70  # Space for title and legend at top
-    TARGET_WIDTH = 800
-    GRID_SPACING = 12  # inches
+    # Constants optimized for 8.5x11 portrait printing
+    MARGIN = 40  # Print margins
+    TITLE_HEIGHT = 80  # Space for title and legend at top
+    TARGET_WIDTH = 750  # Optimized for 8.5" width (8.5" = ~816px at 96dpi)
 
     # Calculate scale (use scaled BL range for proper sizing)
     fs_range = diagram.fs_max - diagram.fs_min
@@ -360,27 +359,8 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Background
     svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
 
-    # Grid lines (12-inch spacing in original coordinates)
-    svg_lines.append('  <g id="grid" stroke="#e0e0e0" stroke-width="0.5">')
-    # Vertical grid lines (BL axis - now horizontal on page)
-    bl_start = int(diagram.bl_min_original / GRID_SPACING) * GRID_SPACING
-    bl = bl_start
-    while bl <= diagram.bl_max_original:
-        x, _ = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
-        svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN + TITLE_HEIGHT}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
-        bl += GRID_SPACING
-    # Horizontal grid lines (FS axis - now vertical on page)
-    fs_start = int(diagram.fs_min / GRID_SPACING) * GRID_SPACING
-    fs = fs_start
-    while fs <= diagram.fs_max:
-        _, y = transform_to_svg(fs, diagram.bl_min_original, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
-        y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <line x1="{MARGIN}" y1="{y:.1f}" x2="{svg_width - MARGIN}" y2="{y:.1f}"/>')
-        fs += GRID_SPACING
-    svg_lines.append('  </g>')
-
-    # Wire segments (Manhattan routing)
-    svg_lines.append('  <g id="wires" stroke="black" stroke-width="2" fill="none">')
+    # Wire segments (Manhattan routing - thicker for print visibility)
+    svg_lines.append('  <g id="wires" stroke="black" stroke-width="3" fill="none">')
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
         points = []
@@ -391,36 +371,36 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
         svg_lines.append(f'    <polyline points="{" ".join(points)}"/>')
     svg_lines.append('  </g>')
 
-    # Wire labels
-    svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="10" fill="black" text-anchor="middle">')
+    # Wire labels (larger font for print readability)
+    svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
         label_fs, label_bl = calculate_wire_label_position(path)
         x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="8" dy="-3">{segment.label}</text>')
+        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="10" dy="-4">{segment.label}</text>')
     svg_lines.append('  </g>')
 
-    # Component markers (blue circles)
+    # Component markers (larger for print visibility)
     svg_lines.append('  <g id="components">')
     for comp in diagram.components:
         x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="blue" stroke="navy" stroke-width="1"/>')
+        svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="blue" stroke="navy" stroke-width="2"/>')
     svg_lines.append('  </g>')
 
-    # Component labels (offset to the right to avoid wire overlap)
-    svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="10" fill="navy" text-anchor="start">')
+    # Component labels (larger font, offset to the right to avoid wire overlap)
+    svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="12" fill="navy" text-anchor="start">')
     for comp in diagram.components:
         x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="8" dy="3">{comp.ref}</text>')
+        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="10" dy="4">{comp.ref}</text>')
     svg_lines.append('  </g>')
 
-    # Title
+    # Title (larger fonts for print)
     svg_lines.append('  <g id="title" font-family="Arial">')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="30" font-size="16" font-weight="bold" text-anchor="middle">System {diagram.system_code} Routing Diagram</text>')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="45" font-size="10" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="35" font-size="18" font-weight="bold" text-anchor="middle">System {diagram.system_code} Routing Diagram</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="55" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
     svg_lines.append('</svg>')
