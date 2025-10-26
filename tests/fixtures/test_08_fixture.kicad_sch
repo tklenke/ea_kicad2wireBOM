@@ -3551,7 +3551,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 130.81) (xy 68.58 172.72)
+			(xy 68.58 135.89) (xy 68.58 172.72)
 		)
 		(stroke
 			(width 0)
@@ -3561,7 +3561,7 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 124.46) (xy 74.93 148.59)
+			(xy 74.93 129.54) (xy 74.93 148.59)
 		)
 		(stroke
 			(width 0)
@@ -3591,7 +3591,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 92.71) (xy 53.34 95.25)
+			(xy 53.34 92.71) (xy 53.34 100.33)
 		)
 		(stroke
 			(width 0)
@@ -3691,7 +3691,7 @@
 	)
 	(wire
 		(pts
-			(xy 62.23 130.81) (xy 68.58 130.81)
+			(xy 62.23 135.89) (xy 68.58 135.89)
 		)
 		(stroke
 			(width 0)
@@ -3701,7 +3701,7 @@
 	)
 	(wire
 		(pts
-			(xy 62.23 124.46) (xy 74.93 124.46)
+			(xy 62.23 129.54) (xy 74.93 129.54)
 		)
 		(stroke
 			(width 0)
@@ -4069,6 +4069,236 @@
 		)
 		(uuid "f413c23a-0775-4e54-84f4-806c79cb81e7")
 	)
+	(label "P4A"
+		(at 53.34 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "07852de1-0c72-4e2f-8b29-38d57abbd866")
+	)
+	(label "P3E"
+		(at 119.38 96.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "10acdf89-fce1-49bf-98fe-17bfc87ba50f")
+	)
+	(label "P2A"
+		(at 59.69 85.09 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "15ad339c-bdef-4713-afef-ddd3d3736ed0")
+	)
+	(label "G6A"
+		(at 176.53 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1892814e-f64b-4e74-bc1d-2b94966e4d09")
+	)
+	(label "P5A"
+		(at 163.83 86.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1d42390b-06ef-4c87-92a5-473996591195")
+	)
+	(label "G1A"
+		(at 22.86 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1f58e95f-a59a-42fd-9ee2-1c388a4e8186")
+	)
+	(label "L1A"
+		(at 95.25 146.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "27ab6c0d-718e-4518-b14c-bcf65b97a165")
+	)
+	(label "G2A"
+		(at 119.38 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "331ffe19-dd6d-4756-8b80-e9c1b7971897")
+	)
+	(label "P5C"
+		(at 185.42 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "332c00a7-3687-483c-9a47-9c58e28dd4c8")
+	)
+	(label "E1B"
+		(at 193.04 76.2 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4b195248-f405-44f5-9afb-b94bc0c9852e")
+	)
+	(label "G5A"
+		(at 119.38 181.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4c6d8151-2209-495c-aefd-9b98273972f4")
+	)
+	(label "G4A"
+		(at 118.11 165.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "626d8643-93f6-4b5c-a0dc-24d892363939")
+	)
+	(label "P3A"
+		(at 68.58 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "88298af5-38d1-4712-be07-0eb9461186a7")
+	)
+	(label "P5B"
+		(at 185.42 96.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a3e59e55-3d9a-4c0f-b2d4-53df0afbf834")
+	)
+	(label "P1A"
+		(at 22.86 72.39 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a5726da4-834c-4bcb-b23c-774ef664a1e5")
+	)
+	(label "G3A"
+		(at 123.19 158.75 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b6405156-fb6d-4b5f-82b2-5c641c9c74bd")
+	)
+	(label "P2B"
+		(at 110.49 82.55 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bc501278-c93b-42fd-bfc3-c72131eccb2c")
+	)
+	(label "P3D"
+		(at 143.51 87.63 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c7ddeee0-a3b1-4c0f-9921-7cfc7b9de53d")
+	)
+	(label "E1A"
+		(at 193.04 86.36 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e4664c60-4f0c-49fb-9a8c-e77b6b3d9d8b")
+	)
+	(label "L2B"
+		(at 100.33 181.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e82d8b1b-89e3-4b27-8404-1bc53a8cca7a")
+	)
+	(label "P3B"
+		(at 107.95 90.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "eff3c961-cb0a-40ba-940b-8ef3d8ddfdab")
+	)
+	(label "P3C"
+		(at 127 90.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f9797e8b-4ba6-418e-88d7-dff9506b655b")
+	)
+	(label "L2A"
+		(at 99.06 165.1 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ffa6a875-a425-449e-a075-ab5a0bfcaeba")
+	)
 	(symbol
 		(lib_id "power:GND1")
 		(at 176.53 120.65 0)
@@ -4225,7 +4455,7 @@
 	)
 	(symbol
 		(lib_id "AeroElectricConnectionSymbols:Fuse_Holder_6x")
-		(at 57.15 116.84 0)
+		(at 57.15 121.92 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4234,7 +4464,7 @@
 		(fields_autoplaced yes)
 		(uuid "31b04a52-4ce8-4455-806b-d9881ac86279")
 		(property "Reference" "FH1"
-			(at 53.594 131.572 90)
+			(at 53.594 136.652 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -4244,7 +4474,7 @@
 			)
 		)
 		(property "Value" "Panel Fuse Block"
-			(at 53.34 125.73 90)
+			(at 53.34 130.81 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -4254,7 +4484,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 54.61 105.41 0)
+			(at 54.61 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4263,7 +4493,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 54.61 105.41 0)
+			(at 54.61 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4272,7 +4502,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 54.61 105.41 0)
+			(at 54.61 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4281,7 +4511,7 @@
 			)
 		)
 		(property "LocLoad" "(40,20,10)R40"
-			(at 57.15 116.84 90)
+			(at 57.15 121.92 90)
 			(effects
 				(font
 					(size 1.27 1.27)

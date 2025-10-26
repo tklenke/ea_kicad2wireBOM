@@ -409,14 +409,16 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
     )
 
 
-def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None) -> None:
+def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None, component_value: str = None, component_desc: str = None) -> None:
     """
-    Generate SVG file for system diagram optimized for 8.5x11 portrait printing.
+    Generate SVG file for system or component diagram optimized for 8.5x11 portrait printing.
 
     Args:
         diagram: SystemDiagram with all data
         output_path: Path to write SVG file
         title_block: Optional dict with title, date, rev from schematic title_block
+        component_value: Optional component value (for component diagrams)
+        component_desc: Optional component description (for component diagrams)
 
     Creates SVG with:
     - Background (white)
@@ -425,6 +427,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     - Component markers (blue circles, 6px radius)
     - Component labels (12pt navy text)
     - Title (18pt bold) with project info and legend (11pt)
+    - For component diagrams: includes component value and description
 
     Optimized for printing on 8.5x11 portrait paper.
     """
@@ -458,7 +461,9 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
 
     # Title (larger fonts for print)
-    system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
+    # Detect if this is a component diagram or system diagram
+    is_component_diagram = diagram.system_code not in SYSTEM_NAMES
+
     svg_lines.append('  <g id="title" font-family="Arial">')
 
     # Add project title_block info if available
@@ -470,7 +475,24 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{project_title} - Rev {project_rev} - {project_date}</text>')
         y_offset += 20
 
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
+    # Add component info for component diagrams
+    if is_component_diagram and (component_value or component_desc):
+        comp_info_parts = []
+        if component_value:
+            comp_info_parts.append(component_value)
+        if component_desc:
+            comp_info_parts.append(component_desc)
+        comp_info = " - ".join(comp_info_parts)
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{diagram.system_code}: {comp_info}</text>')
+        y_offset += 20
+
+    # Main title
+    if is_component_diagram:
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{diagram.system_code} Component Diagram</text>')
+    else:
+        system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
+
     svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 35}" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
@@ -655,9 +677,14 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
         # Build diagram for this component
         diagram = build_component_diagram(comp_ref, wires, components)
 
-        # Generate SVG
+        # Get component value and description
+        comp = components.get(comp_ref)
+        comp_value = comp.value if comp else None
+        comp_desc = comp.desc if comp else None
+
+        # Generate SVG with component info
         output_path = output_dir / f"{comp_ref}_Component.svg"
-        generate_svg(diagram, output_path, title_block)
+        generate_svg(diagram, output_path, title_block, comp_value, comp_desc)
 
         print(f"Generated {output_path}")
 
