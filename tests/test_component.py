@@ -76,3 +76,29 @@ def test_component_is_source_property():
     # Component with no load/rating/source -> not source
     c1 = Component(ref='C1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None, source=None)
     assert not c1.is_source
+
+
+def test_component_datasheet_field():
+    """Test component datasheet field"""
+    # Component with datasheet URL
+    comp_with_datasheet = Component(
+        ref='CB1',
+        fs=100.0,
+        wl=25.0,
+        bl=0.0,
+        load=None,
+        rating=10.0,
+        datasheet='https://example.com/cb1.pdf'
+    )
+    assert comp_with_datasheet.datasheet == 'https://example.com/cb1.pdf'
+
+    # Component without datasheet (default empty string)
+    comp_no_datasheet = Component(
+        ref='SW1',
+        fs=100.0,
+        wl=25.0,
+        bl=0.0,
+        load=None,
+        rating=20.0
+    )
+    assert comp_no_datasheet.datasheet == ''

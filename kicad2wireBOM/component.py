@@ -20,6 +20,7 @@ class Component:
         source: Source capacity in amps (for power sources), None if not a source
         value: Component value field from schematic (e.g., "Landing Light")
         desc: Component description field from schematic
+        datasheet: Component datasheet URL or filename from schematic
     """
     ref: str
     fs: float
@@ -30,6 +31,7 @@ class Component:
     source: Optional[float] = None
     value: str = ''
     desc: str = ''
+    datasheet: str = ''
 
     @property
     def coordinates(self) -> Tuple[float, float, float]:

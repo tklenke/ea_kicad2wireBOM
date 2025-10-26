@@ -359,7 +359,8 @@ def parse_symbol_element(symbol_sexp: Any) -> Component:
         rating=rating,
         source=source,
         value=properties.get('Value', ''),
-        desc=properties.get('Description', '')
+        desc=properties.get('Description', ''),
+        datasheet=properties.get('Datasheet', '')
     )
 
 
