@@ -48,3 +48,7 @@ DEFAULT_CONFIG: Dict[str, any] = {
     'label_threshold': 10.0,         # 10mm max distance for label association
     'default_wire_type': 'M22759/16' # MIL-SPEC wire type
 }
+
+# 3D projection constants for diagram generation
+DEFAULT_WL_SCALE = 3.0               # WL scale factor (makes WL 3x more visible)
+DEFAULT_PROJECTION_ANGLE = 30        # Projection angle in degrees

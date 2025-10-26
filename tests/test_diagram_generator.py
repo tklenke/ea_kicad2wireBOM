@@ -2,6 +2,7 @@
 # ABOUTME: Validates data structures, coordinate transformations, and SVG rendering
 
 import pytest
+import math
 from kicad2wireBOM.diagram_generator import (
     DiagramComponent,
     DiagramWireSegment,
@@ -14,7 +15,9 @@ from kicad2wireBOM.diagram_generator import (
     build_system_diagram,
     generate_svg,
     scale_bl_nonlinear,
+    project_3d_to_2d,
 )
+from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
 from kicad2wireBOM.wire_bom import WireConnection
 from kicad2wireBOM.component import Component
 from pathlib import Path
@@ -551,3 +554,102 @@ def test_scale_bl_nonlinear_preserves_sign():
     assert result_positive > 0
     assert result_negative < 0
     assert abs(result_positive) == pytest.approx(abs(result_negative))
+
+
+def test_3d_projection_constants_exist():
+    """Test that 3D projection constants are defined with correct values."""
+    assert DEFAULT_WL_SCALE == 3.0
+    assert DEFAULT_PROJECTION_ANGLE == 30
+
+
+def test_project_3d_to_2d_origin():
+    """Test 3D projection of origin point."""
+    # Origin (0, 0, 0) should project to (0, 0)
+    screen_x, screen_y = project_3d_to_2d(0.0, 0.0, 0.0, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+
+    assert screen_x == pytest.approx(0.0)
+    assert screen_y == pytest.approx(0.0)
+
+
+def test_project_3d_to_2d_fs_only():
+    """Test projection of point with only FS coordinate."""
+    # Point at (100, 0, 0) - FS forward, no WL/BL
+    # screen_x = 100 + (0 × 3) × cos(30°) = 100
+    # screen_y = 0 + (0 × 3) × sin(30°) = 0
+    screen_x, screen_y = project_3d_to_2d(100.0, 0.0, 0.0, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+
+    assert screen_x == pytest.approx(100.0)
+    assert screen_y == pytest.approx(0.0)
+
+
+def test_project_3d_to_2d_wl_only():
+    """Test projection of point with only WL coordinate."""
+    # Point at (0, 10, 0) - WL up, no FS/BL
+    # screen_x = 0 + (10 × 3) × cos(30°) = 30 × 0.866... ≈ 25.98
+    # screen_y = 0 + (10 × 3) × sin(30°) = 30 × 0.5 = 15.0
+    screen_x, screen_y = project_3d_to_2d(0.0, 10.0, 0.0, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+
+    angle_rad = math.radians(DEFAULT_PROJECTION_ANGLE)
+    expected_x = (10.0 * DEFAULT_WL_SCALE) * math.cos(angle_rad)
+    expected_y = (10.0 * DEFAULT_WL_SCALE) * math.sin(angle_rad)
+
+    assert screen_x == pytest.approx(expected_x)
+    assert screen_y == pytest.approx(expected_y)
+
+
+def test_project_3d_to_2d_bl_only():
+    """Test projection of point with only BL coordinate."""
+    # Point at (0, 0, 50) - BL starboard, no FS/WL
+    # screen_x = 0 + (0 × 3) × cos(30°) = 0
+    # screen_y = 50 + (0 × 3) × sin(30°) = 50
+    screen_x, screen_y = project_3d_to_2d(0.0, 0.0, 50.0, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+
+    assert screen_x == pytest.approx(0.0)
+    assert screen_y == pytest.approx(50.0)
+
+
+def test_project_3d_to_2d_all_coordinates():
+    """Test projection of point with all three coordinates."""
+    # Point at (100, 10, 50)
+    # screen_x = 100 + (10 × 3) × cos(30°)
+    # screen_y = 50 + (10 × 3) × sin(30°)
+    screen_x, screen_y = project_3d_to_2d(100.0, 10.0, 50.0, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+
+    angle_rad = math.radians(DEFAULT_PROJECTION_ANGLE)
+    wl_scaled = 10.0 * DEFAULT_WL_SCALE
+    expected_x = 100.0 + wl_scaled * math.cos(angle_rad)
+    expected_y = 50.0 + wl_scaled * math.sin(angle_rad)
+
+    assert screen_x == pytest.approx(expected_x)
+    assert screen_y == pytest.approx(expected_y)
+
+
+def test_project_3d_to_2d_custom_scale():
+    """Test projection with custom WL scale factor."""
+    # Point at (0, 10, 0) with wl_scale=5.0
+    # screen_x = 0 + (10 × 5) × cos(30°) = 50 × 0.866... ≈ 43.3
+    # screen_y = 0 + (10 × 5) × sin(30°) = 50 × 0.5 = 25.0
+    screen_x, screen_y = project_3d_to_2d(0.0, 10.0, 0.0, 5.0, DEFAULT_PROJECTION_ANGLE)
+
+    angle_rad = math.radians(DEFAULT_PROJECTION_ANGLE)
+    expected_x = (10.0 * 5.0) * math.cos(angle_rad)
+    expected_y = (10.0 * 5.0) * math.sin(angle_rad)
+
+    assert screen_x == pytest.approx(expected_x)
+    assert screen_y == pytest.approx(expected_y)
+
+
+def test_project_3d_to_2d_custom_angle():
+    """Test projection with custom projection angle."""
+    # Point at (0, 10, 0) with angle=45°
+    # screen_x = 0 + (10 × 3) × cos(45°) = 30 × 0.707... ≈ 21.21
+    # screen_y = 0 + (10 × 3) × sin(45°) = 30 × 0.707... ≈ 21.21
+    screen_x, screen_y = project_3d_to_2d(0.0, 10.0, 0.0, DEFAULT_WL_SCALE, 45.0)
+
+    angle_rad = math.radians(45.0)
+    wl_scaled = 10.0 * DEFAULT_WL_SCALE
+    expected_x = wl_scaled * math.cos(angle_rad)
+    expected_y = wl_scaled * math.sin(angle_rad)
+
+    assert screen_x == pytest.approx(expected_x)
+    assert screen_y == pytest.approx(expected_y)

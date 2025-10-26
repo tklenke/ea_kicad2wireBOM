@@ -25,6 +25,36 @@ SYSTEM_NAMES = {
 }
 
 
+def project_3d_to_2d(fs: float, wl: float, bl: float, wl_scale: float, angle: float) -> Tuple[float, float]:
+    """
+    Project 3D aircraft coordinates to 2D screen coordinates using elongated orthographic projection.
+
+    Shows all three aircraft axes (FS, WL, BL) on 2D printed output by projecting
+    the WL (vertical) axis at an angle.
+
+    Args:
+        fs: Fuselage Station coordinate (inches, forward is positive)
+        wl: Water Line coordinate (inches, up is positive)
+        bl: Butt Line coordinate (inches, starboard/right is positive)
+        wl_scale: Scale factor for WL axis (default: 3.0 makes WL 3x more visible)
+        angle: Projection angle in degrees (default: 30°)
+
+    Returns:
+        (screen_x, screen_y) in projected 2D coordinates
+
+    Projection formula:
+        screen_x = FS + (WL × wl_scale) × cos(angle)
+        screen_y = BL + (WL × wl_scale) × sin(angle)
+    """
+    angle_rad = math.radians(angle)
+    wl_scaled = wl * wl_scale
+
+    screen_x = fs + wl_scaled * math.cos(angle_rad)
+    screen_y = bl + wl_scaled * math.sin(angle_rad)
+
+    return (screen_x, screen_y)
+
+
 @dataclass
 class DiagramComponent:
     """Component position for diagram rendering."""
