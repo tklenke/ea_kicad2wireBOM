@@ -8,8 +8,9 @@
 
 ## CURRENT STATUS
 
-✅ **219/219 tests passing** - All features complete including routing diagrams
+✅ **224/224 tests passing** - All features complete including routing diagrams
 ✅ **Phase 10: Wire Routing Diagrams** - COMPLETE
+✅ **Phase 10 Enhancements: Print Optimization** - COMPLETE (2025-10-26)
 
 ---
 
@@ -1015,3 +1016,191 @@ Phase 10 is complete when:
 ---
 
 **Ready to begin implementation following TDD discipline.**
+
+---
+
+## PHASE 10 ENHANCEMENTS: PRINT OPTIMIZATION
+
+**Completed**: 2025-10-26
+**Status**: ✅ ALL COMPLETE (16 improvements)
+**Tests**: 224/224 passing
+
+### Overview
+
+Post-Phase 10 iterative improvements based on user feedback for 8.5x11 portrait printing.
+
+---
+
+### Enhancement 1: Orientation Fix
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Swapped coordinate mapping: FS (forward) now points UP instead of right
+- BL (lateral) maps to horizontal X axis
+- FS (longitudinal) maps to vertical Y axis (inverted for SVG)
+- Updated transform_to_svg() to use (fs_max - fs) for Y coordinate
+
+**Commits**: c98cfc5
+
+---
+
+### Enhancement 2: Wire Label Readability
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Added dx="8" horizontal offset to wire labels
+- Labels now appear to the right of wire lines
+- Prevents label/line overlap
+
+**Commits**: 04c266a
+
+---
+
+### Enhancement 3: Non-Linear BL Compression
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Implemented scale_bl_nonlinear() with logarithmic compression
+- Compression factor: 50.0 (initial)
+- Small BL values (~10") minimally compressed (~9.1")
+- Large BL values (~200") heavily compressed (~80.5")
+- Handles tip lights far from centerline
+- Updated SystemDiagram to store both original and scaled BL bounds
+- Grid lines use original coordinates, positioned with scaling
+
+**Commits**: d6d413d
+
+---
+
+### Enhancement 4-5: Readability Improvements
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Added TITLE_HEIGHT = 70px for spacing below title/legend
+- All diagram elements offset down by TITLE_HEIGHT
+- Component labels: left-aligned, offset 8px right, 3px down
+- Prevents overlap between title and diagram
+- Prevents component labels from overlapping wires
+
+**Commits**: db78ff8
+
+---
+
+### Enhancement 6: Aggressive BL Compression
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Reduced compression_factor from 50.0 to 25.0 (2x more aggressive)
+- BL=200" now compresses to ~55" (was ~80") - 31% more compression
+- BL=10" now compresses to ~8.4" (was ~9.1")
+- Better handling of extreme lateral positions (tip lights)
+- Updated all tests to reflect new compression
+
+**Commits**: db78ff8
+
+---
+
+### Enhancement 7-11: Print Optimization for 8.5x11 Portrait
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Removed grid lines completely (cleaner print output)
+- Increased fonts for print readability:
+  - Wire labels: 10pt → 12pt bold
+  - Component labels: 10pt → 12pt
+  - Title: 16pt → 18pt bold
+  - Legend: 10pt → 11pt
+- Increased wire thickness: 2px → 3px
+- Increased component markers: 4px radius → 6px radius, 2px stroke
+- Optimized page layout:
+  - Target width: 750px (optimized for 8.5" at 96dpi)
+  - Margins: 50px → 40px
+  - Title height: 70px → 80px
+
+**Commits**: c71b60e
+
+---
+
+### Enhancement 12-14: Fixed Width for Consistent Printing
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Added FIXED_WIDTH = 750px for all diagrams
+- Prevents title/legend cropping on narrow diagrams
+- Narrow diagrams auto-centered within fixed width
+- Added horizontal separator line below title/legend:
+  - 1px black line spanning full width (margin to margin)
+  - Creates visual separation between title and diagram
+- Increased TITLE_HEIGHT: 80px → 90px to accommodate separator
+- Title and legend rendered first (logical ordering)
+
+**Rationale**: When diagrams have small BL spread (components near centerline), the calculated diagram width was narrower than the title text, causing cropping when printing.
+
+**Commits**: 19fb52e
+
+---
+
+### Enhancement 15-16: Professional Titles
+**Status**: ✅ COMPLETE
+
+**Changes**:
+- Added SYSTEM_NAMES dictionary mapping codes to full names
+- Title format change:
+  - Old: "System P Routing Diagram"
+  - New: "Power (P) System Diagram"
+- Mapping based on MIL-W-5088L Appendix B and EAWMS:
+  - A: Avionics
+  - E: Engine Instrument
+  - F: Flight Instrument
+  - G: Ground
+  - K: Engine Control
+  - L: Lighting
+  - M: Miscellaneous Electrical
+  - P: Power
+  - R: Radio
+  - U: Miscellaneous Electronic
+  - V: AC Power
+  - W: Warning and Emergency
+- Unknown codes fall back to displaying code only
+
+**Commits**: 2faae26
+
+---
+
+### Complete Enhancement Summary
+
+**16 Total Improvements Across 6 Phases**:
+
+**Phase 1: Initial Orientation and Layout** (3 changes)
+1. ✅ Fixed orientation - FS points up instead of right
+2. ✅ Wire label offset - 8px right to avoid overlap
+3. ✅ Non-linear BL compression - Logarithmic scaling for large ranges
+
+**Phase 2: Readability Enhancements** (2 changes)
+4. ✅ Title/legend spacing - 70px space to prevent overlap
+5. ✅ Component label positioning - 8px right, left-aligned
+
+**Phase 3: Aggressive Compression** (1 change)
+6. ✅ 2x BL compression - Factor reduced 50→25 for tip lights
+
+**Phase 4: Print Optimization for 8.5x11 Portrait** (5 changes)
+7. ✅ Removed grid lines - Cleaner appearance
+8. ✅ Increased fonts - 10pt→12pt labels, 16pt→18pt title
+9. ✅ Thicker wires - 2px→3px for print visibility
+10. ✅ Larger markers - 4px→6px radius for print
+11. ✅ Optimized layout - 750px width, 40px margins, 80px→90px title
+
+**Phase 5: Consistent Width for Printing** (3 changes)
+12. ✅ Fixed 750px width - Prevents title cropping
+13. ✅ Auto-centering - Narrow diagrams centered
+14. ✅ Separator line - 1px black line below title/legend
+
+**Phase 6: Professional Titles** (2 changes)
+15. ✅ Expanded system names - "P" → "Power (P) System Diagram"
+16. ✅ System name mapping - Complete MIL-W-5088L dictionary
+
+**Final Result**: Print-ready routing diagrams optimized for 8.5x11 portrait paper with professional appearance and consistent formatting.
+
+**All 224 tests passing throughout all enhancements.**
+
+---
