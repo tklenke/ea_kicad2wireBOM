@@ -88,7 +88,7 @@ def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
     return dict(system_groups)
 
 
-def scale_bl_nonlinear(bl: float, compression_factor: float = 50.0) -> float:
+def scale_bl_nonlinear(bl: float, compression_factor: float = 25.0) -> float:
     """
     Apply non-linear scaling to BL coordinate to compress large values.
 
@@ -100,15 +100,15 @@ def scale_bl_nonlinear(bl: float, compression_factor: float = 50.0) -> float:
 
     Args:
         bl: BL coordinate in inches
-        compression_factor: Compression strength (default: 50.0)
+        compression_factor: Compression strength (default: 25.0)
                            Smaller values = more aggressive compression
 
     Returns:
         Scaled BL coordinate (sign preserved)
 
     Example:
-        scale_bl_nonlinear(10.0) ≈ 9.1   (slightly compressed)
-        scale_bl_nonlinear(200.0) ≈ 80.5 (heavily compressed)
+        scale_bl_nonlinear(10.0) ≈ 8.5   (slightly compressed)
+        scale_bl_nonlinear(200.0) ≈ 55.5 (heavily compressed)
     """
     if bl == 0.0:
         return 0.0
@@ -340,6 +340,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     """
     # Constants
     MARGIN = 50
+    TITLE_HEIGHT = 70  # Space for title and legend at top
     TARGET_WIDTH = 800
     GRID_SPACING = 12  # inches
 
@@ -350,7 +351,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
 
     # Calculate SVG dimensions (BL->width/X, FS->height/Y)
     svg_width = bl_scaled_range * scale + 2 * MARGIN
-    svg_height = fs_range * scale + 2 * MARGIN
+    svg_height = fs_range * scale + 2 * MARGIN + TITLE_HEIGHT
 
     # Start building SVG
     svg_lines = []
@@ -366,13 +367,14 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     bl = bl_start
     while bl <= diagram.bl_max_original:
         x, _ = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
-        svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
+        svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN + TITLE_HEIGHT}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
         bl += GRID_SPACING
     # Horizontal grid lines (FS axis - now vertical on page)
     fs_start = int(diagram.fs_min / GRID_SPACING) * GRID_SPACING
     fs = fs_start
     while fs <= diagram.fs_max:
         _, y = transform_to_svg(fs, diagram.bl_min_original, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <line x1="{MARGIN}" y1="{y:.1f}" x2="{svg_width - MARGIN}" y2="{y:.1f}"/>')
         fs += GRID_SPACING
     svg_lines.append('  </g>')
@@ -384,6 +386,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
         points = []
         for fs, bl in path:
             x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+            y += TITLE_HEIGHT  # Offset for title
             points.append(f"{x:.1f},{y:.1f}")
         svg_lines.append(f'    <polyline points="{" ".join(points)}"/>')
     svg_lines.append('  </g>')
@@ -394,6 +397,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
         path = segment.manhattan_path
         label_fs, label_bl = calculate_wire_label_position(path)
         x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="8" dy="-3">{segment.label}</text>')
     svg_lines.append('  </g>')
 
@@ -401,14 +405,16 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     svg_lines.append('  <g id="components">')
     for comp in diagram.components:
         x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="blue" stroke="navy" stroke-width="1"/>')
     svg_lines.append('  </g>')
 
-    # Component labels
-    svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="10" fill="navy" text-anchor="middle">')
+    # Component labels (offset to the right to avoid wire overlap)
+    svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="10" fill="navy" text-anchor="start">')
     for comp in diagram.components:
         x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
-        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="15">{comp.ref}</text>')
+        y += TITLE_HEIGHT  # Offset for title
+        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="8" dy="3">{comp.ref}</text>')
     svg_lines.append('  </g>')
 
     # Title

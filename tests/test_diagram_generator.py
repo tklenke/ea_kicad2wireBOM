@@ -523,27 +523,30 @@ def test_scale_bl_nonlinear_zero():
 def test_scale_bl_nonlinear_small_values():
     """Test that small BL values are mostly unchanged."""
     # For small values (less than compression factor), scaling should be approximately linear
-    result = scale_bl_nonlinear(10.0, compression_factor=50.0)
-    # log(1 + 10/50) = log(1.2) ≈ 0.182, scaled: 50 * 0.182 ≈ 9.1
+    # Using default compression_factor=25.0
+    result = scale_bl_nonlinear(10.0)
+    # log(1 + 10/25) = log(1.4) ≈ 0.336, scaled: 25 * 0.336 ≈ 8.4
     # Should be close to original but slightly compressed
-    assert 8.0 < result < 11.0
+    assert 7.0 < result < 10.0
     assert result < 10.0  # Should be slightly compressed
 
 
 def test_scale_bl_nonlinear_large_values():
     """Test that large BL values are significantly compressed."""
     # For large values (much larger than compression factor), compression should be significant
-    result = scale_bl_nonlinear(200.0, compression_factor=50.0)
-    # log(1 + 200/50) = log(5) ≈ 1.609, scaled: 50 * 1.609 ≈ 80.5
+    # Using default compression_factor=25.0
+    result = scale_bl_nonlinear(200.0)
+    # log(1 + 200/25) = log(9) ≈ 2.197, scaled: 25 * 2.197 ≈ 54.9
     # Should be significantly less than original 200
-    assert 70.0 < result < 90.0
+    assert 50.0 < result < 60.0
     assert result < 100.0  # Should be much less than original
 
 
 def test_scale_bl_nonlinear_preserves_sign():
     """Test that negative BL values remain negative."""
-    result_positive = scale_bl_nonlinear(100.0, compression_factor=50.0)
-    result_negative = scale_bl_nonlinear(-100.0, compression_factor=50.0)
+    # Using default compression_factor=25.0
+    result_positive = scale_bl_nonlinear(100.0)
+    result_negative = scale_bl_nonlinear(-100.0)
 
     assert result_positive > 0
     assert result_negative < 0
