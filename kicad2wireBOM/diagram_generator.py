@@ -107,13 +107,17 @@ class SystemDiagram:
     components: List[DiagramComponent]      # All unique components
     wire_segments: List[DiagramWireSegment] # All wire segments in system
 
-    # Calculated bounds for auto-scaling
-    fs_min: float
-    fs_max: float
-    bl_min_original: float  # Minimum BL in original (unscaled) coordinates
-    bl_max_original: float  # Maximum BL in original (unscaled) coordinates
-    bl_min_scaled: float    # Minimum BL after non-linear compression
-    bl_max_scaled: float    # Maximum BL after non-linear compression
+    # Projected bounds for SVG coordinate system (after 3D projection)
+    fs_min: float           # Min screen_x after projection (used for SVG transform)
+    fs_max: float           # Max screen_x after projection (used for SVG transform)
+    bl_min_scaled: float    # Min screen_y after projection and scaling (used for SVG transform)
+    bl_max_scaled: float    # Max screen_y after projection and scaling (used for SVG transform)
+
+    # Original bounds for legend display
+    fs_min_original: float  # Minimum FS in original coordinates (for legend)
+    fs_max_original: float  # Maximum FS in original coordinates (for legend)
+    bl_min_original: float  # Minimum BL in original coordinates (for legend)
+    bl_max_original: float  # Maximum BL in original coordinates (for legend)
 
 
 def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
@@ -181,15 +185,17 @@ def scale_bl_nonlinear(bl: float, compression_factor: float = 25.0) -> float:
 
 def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, float, float]:
     """
-    Calculate bounding box for all components.
+    Calculate bounding box for all components after 3D projection.
 
-    Applies non-linear BL scaling to handle large BL ranges.
+    Projects all 3D component positions to 2D screen coordinates, then calculates
+    bounds on those projected coordinates. Ensures all projected coordinates will
+    fit within SVG bounds (no negative coordinates).
 
     Args:
-        components: List of components with FS/BL coordinates
+        components: List of components with FS/WL/BL coordinates
 
     Returns:
-        (fs_min, fs_max, bl_scaled_min, bl_scaled_max)
+        (screen_x_min, screen_x_max, screen_y_min, screen_y_max) in projected 2D space
 
     Raises:
         ValueError: If components list is empty
@@ -197,10 +203,21 @@ def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, 
     if not components:
         raise ValueError("Cannot calculate bounds for empty component list")
 
-    fs_values = [c.fs for c in components]
-    bl_scaled_values = [scale_bl_nonlinear(c.bl) for c in components]
+    from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
 
-    return (min(fs_values), max(fs_values), min(bl_scaled_values), max(bl_scaled_values))
+    # Project all components to 2D screen coordinates
+    screen_coords = []
+    for c in components:
+        screen_x, screen_y = project_3d_to_2d(c.fs, c.wl, c.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        screen_coords.append((screen_x, screen_y))
+
+    screen_x_values = [x for x, y in screen_coords]
+    screen_y_values = [y for x, y in screen_coords]
+
+    # Apply non-linear scaling to screen_y values (which contain BL component)
+    screen_y_scaled = [scale_bl_nonlinear(y) for y in screen_y_values]
+
+    return (min(screen_x_values), max(screen_x_values), min(screen_y_scaled), max(screen_y_scaled))
 
 
 def calculate_scale(fs_range: float, bl_range: float,
@@ -366,11 +383,14 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
             )
             wire_segments.append(segment)
 
-    # Calculate bounds (both original and scaled)
-    fs_min, fs_max, bl_min_scaled, bl_max_scaled = calculate_bounds(diagram_components)
+    # Calculate projected screen bounds (for SVG coordinate system)
+    screen_x_min, screen_x_max, screen_y_min, screen_y_max = calculate_bounds(diagram_components)
 
-    # Also calculate original BL bounds for grid lines
+    # Also calculate original FS/BL bounds for legend display
+    fs_values = [c.fs for c in diagram_components]
     bl_values = [c.bl for c in diagram_components]
+    fs_min_original = min(fs_values)
+    fs_max_original = max(fs_values)
     bl_min_original = min(bl_values)
     bl_max_original = max(bl_values)
 
@@ -378,12 +398,14 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
         system_code=system_code,
         components=diagram_components,
         wire_segments=wire_segments,
-        fs_min=fs_min,
-        fs_max=fs_max,
+        fs_min=screen_x_min,
+        fs_max=screen_x_max,
+        bl_min_scaled=screen_y_min,
+        bl_max_scaled=screen_y_max,
+        fs_min_original=fs_min_original,
+        fs_max_original=fs_max_original,
         bl_min_original=bl_min_original,
-        bl_max_original=bl_max_original,
-        bl_min_scaled=bl_min_scaled,
-        bl_max_scaled=bl_max_scaled
+        bl_max_original=bl_max_original
     )
 
 
@@ -438,7 +460,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
     svg_lines.append('  <g id="title" font-family="Arial">')
     svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="35" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="55" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min:.0f}"-{diagram.fs_max:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="55" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
     # Separator line below title/legend (fixed width for all diagrams)
@@ -563,11 +585,14 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
             )
             wire_segments.append(segment)
 
-    # Calculate bounds (both original and scaled)
-    fs_min, fs_max, bl_min_scaled, bl_max_scaled = calculate_bounds(diagram_components)
+    # Calculate projected screen bounds (for SVG coordinate system)
+    screen_x_min, screen_x_max, screen_y_min, screen_y_max = calculate_bounds(diagram_components)
 
-    # Also calculate original BL bounds for grid lines
+    # Also calculate original FS/BL bounds for legend display
+    fs_values = [c.fs for c in diagram_components]
     bl_values = [c.bl for c in diagram_components]
+    fs_min_original = min(fs_values)
+    fs_max_original = max(fs_values)
     bl_min_original = min(bl_values)
     bl_max_original = max(bl_values)
 
@@ -575,12 +600,14 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
         system_code=component_ref,  # Reuse system_code field for component ref
         components=diagram_components,
         wire_segments=wire_segments,
-        fs_min=fs_min,
-        fs_max=fs_max,
+        fs_min=screen_x_min,
+        fs_max=screen_x_max,
+        bl_min_scaled=screen_y_min,
+        bl_max_scaled=screen_y_max,
+        fs_min_original=fs_min_original,
+        fs_max_original=fs_max_original,
         bl_min_original=bl_min_original,
-        bl_max_original=bl_max_original,
-        bl_min_scaled=bl_min_scaled,
-        bl_max_scaled=bl_max_scaled
+        bl_max_original=bl_max_original
     )
 
 

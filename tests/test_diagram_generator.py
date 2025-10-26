@@ -82,10 +82,12 @@ def test_system_diagram_creation():
         wire_segments=[segment],
         fs_min=10.0,
         fs_max=50.0,
-        bl_min_original=20.0,
-        bl_max_original=30.0,
         bl_min_scaled=scale_bl_nonlinear(20.0),
-        bl_max_scaled=scale_bl_nonlinear(30.0)
+        bl_max_scaled=scale_bl_nonlinear(30.0),
+        fs_min_original=10.0,
+        fs_max_original=50.0,
+        bl_min_original=20.0,
+        bl_max_original=30.0
     )
 
     assert diagram.system_code == "L"
@@ -463,10 +465,12 @@ def test_generate_svg_creates_file():
         wire_segments=[segment],
         fs_min=0.0,
         fs_max=100.0,
-        bl_min_original=0.0,
-        bl_max_original=50.0,
         bl_min_scaled=0.0,
-        bl_max_scaled=scale_bl_nonlinear(50.0)
+        bl_max_scaled=scale_bl_nonlinear(50.0),
+        fs_min_original=0.0,
+        fs_max_original=100.0,
+        bl_min_original=0.0,
+        bl_max_original=50.0
     )
 
     # Generate SVG to temporary file
@@ -495,10 +499,12 @@ def test_generate_svg_dimensions():
         wire_segments=[],
         fs_min=0.0,
         fs_max=100.0,
-        bl_min_original=0.0,
-        bl_max_original=50.0,
         bl_min_scaled=0.0,
-        bl_max_scaled=scale_bl_nonlinear(50.0)
+        bl_max_scaled=scale_bl_nonlinear(50.0),
+        fs_min_original=0.0,
+        fs_max_original=100.0,
+        bl_min_original=0.0,
+        bl_max_original=50.0
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -526,10 +532,12 @@ def test_wire_labels_offset_from_lines():
         wire_segments=[segment],
         fs_min=0.0,
         fs_max=100.0,
-        bl_min_original=0.0,
-        bl_max_original=50.0,
         bl_min_scaled=0.0,
-        bl_max_scaled=scale_bl_nonlinear(50.0)
+        bl_max_scaled=scale_bl_nonlinear(50.0),
+        fs_min_original=0.0,
+        fs_max_original=100.0,
+        bl_min_original=0.0,
+        bl_max_original=50.0
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
