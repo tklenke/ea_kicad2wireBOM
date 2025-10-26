@@ -104,5 +104,36 @@ def test_write_component_bom_headers(tmp_path):
         reader = csv.reader(f)
         headers = next(reader)
 
-    expected_headers = ['Reference', 'Value', 'Description', 'Datasheet', 'FS', 'WL', 'BL']
+    expected_headers = ['Reference', 'Value', 'Description', 'Datasheet', 'Type', 'Amps', 'FS', 'WL', 'BL']
     assert headers == expected_headers
+
+
+def test_write_component_bom_type_and_amps(tmp_path):
+    """Test that type and amps columns are populated correctly"""
+    components = [
+        Component(ref='CB1', fs=100.0, wl=25.0, bl=-5.0, load=None, rating=10.0),
+        Component(ref='LIGHT1', fs=200.0, wl=35.0, bl=5.0, load=5.0, rating=None),
+        Component(ref='BT1', fs=50.0, wl=20.0, bl=0.0, load=None, rating=None, source=40.0),
+    ]
+
+    output_file = tmp_path / "component_bom.csv"
+    write_component_bom(components, str(output_file))
+
+    with open(output_file, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    # CB1 is a rating (R) component
+    assert rows[1]['Reference'] == 'CB1'
+    assert rows[1]['Type'] == 'R'
+    assert rows[1]['Amps'] == '10.0'
+
+    # LIGHT1 is a load (L) component
+    assert rows[2]['Reference'] == 'LIGHT1'
+    assert rows[2]['Type'] == 'L'
+    assert rows[2]['Amps'] == '5.0'
+
+    # BT1 is a source (S) component
+    assert rows[0]['Reference'] == 'BT1'
+    assert rows[0]['Type'] == 'S'
+    assert rows[0]['Amps'] == '40.0'
