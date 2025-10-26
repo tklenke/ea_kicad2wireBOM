@@ -145,30 +145,31 @@ def calculate_scale(fs_range: float, bl_range: float,
 
 
 def transform_to_svg(fs: float, bl: float,
-                     fs_min: float, bl_min: float, bl_max: float,
+                     fs_min: float, fs_max: float, bl_min: float,
                      scale: float, margin: float) -> Tuple[float, float]:
     """
     Transform aircraft coordinates to SVG coordinates.
 
-    Aircraft coords: FS increases forward (right), BL increases starboard (up)
+    Aircraft coords: FS increases forward, BL increases starboard (right)
     SVG coords: X increases right, Y increases down
+    Diagram orientation: Front (high FS) at top of page
 
     Args:
         fs, bl: Aircraft coordinates (inches)
         fs_min: Minimum FS in diagram (for offset)
+        fs_max: Maximum FS in diagram (for Y-axis flip)
         bl_min: Minimum BL in diagram (for offset)
-        bl_max: Maximum BL in diagram (for Y-axis flip)
         scale: Pixels per inch
         margin: Margin in pixels
 
     Returns:
         (svg_x, svg_y) in SVG pixel coordinates
     """
-    # X: Offset to make all FS positive, scale, add margin
-    svg_x = (fs - fs_min) * scale + margin
+    # X: BL maps to horizontal (right), offset, scale, add margin
+    svg_x = (bl - bl_min) * scale + margin
 
-    # Y: Flip axis (BL up → SVG down), offset, scale, add margin
-    svg_y = (bl_max - bl) * scale + margin
+    # Y: FS maps to vertical (up), flip axis (FS up → SVG down), offset, scale, add margin
+    svg_y = (fs_max - fs) * scale + margin
 
     return (svg_x, svg_y)
 
@@ -296,9 +297,9 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     bl_range = diagram.bl_max - diagram.bl_min
     scale = calculate_scale(fs_range, bl_range, TARGET_WIDTH, MARGIN)
 
-    # Calculate SVG dimensions
-    svg_width = fs_range * scale + 2 * MARGIN
-    svg_height = bl_range * scale + 2 * MARGIN
+    # Calculate SVG dimensions (BL->width/X, FS->height/Y)
+    svg_width = bl_range * scale + 2 * MARGIN
+    svg_height = fs_range * scale + 2 * MARGIN
 
     # Start building SVG
     svg_lines = []
@@ -309,20 +310,20 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
 
     # Grid lines (12-inch spacing)
     svg_lines.append('  <g id="grid" stroke="#e0e0e0" stroke-width="0.5">')
-    # Vertical grid lines (FS axis)
-    fs_start = int(diagram.fs_min / GRID_SPACING) * GRID_SPACING
-    fs = fs_start
-    while fs <= diagram.fs_max:
-        x, _ = transform_to_svg(fs, diagram.bl_min, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
-        svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
-        fs += GRID_SPACING
-    # Horizontal grid lines (BL axis)
+    # Vertical grid lines (BL axis - now horizontal on page)
     bl_start = int(diagram.bl_min / GRID_SPACING) * GRID_SPACING
     bl = bl_start
     while bl <= diagram.bl_max:
-        _, y = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
-        svg_lines.append(f'    <line x1="{MARGIN}" y1="{y:.1f}" x2="{svg_width - MARGIN}" y2="{y:.1f}"/>')
+        x, _ = transform_to_svg(diagram.fs_min, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+        svg_lines.append(f'    <line x1="{x:.1f}" y1="{MARGIN}" x2="{x:.1f}" y2="{svg_height - MARGIN}"/>')
         bl += GRID_SPACING
+    # Horizontal grid lines (FS axis - now vertical on page)
+    fs_start = int(diagram.fs_min / GRID_SPACING) * GRID_SPACING
+    fs = fs_start
+    while fs <= diagram.fs_max:
+        _, y = transform_to_svg(fs, diagram.bl_min, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
+        svg_lines.append(f'    <line x1="{MARGIN}" y1="{y:.1f}" x2="{svg_width - MARGIN}" y2="{y:.1f}"/>')
+        fs += GRID_SPACING
     svg_lines.append('  </g>')
 
     # Wire segments (Manhattan routing)
@@ -331,7 +332,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
         path = segment.manhattan_path
         points = []
         for fs, bl in path:
-            x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+            x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
             points.append(f"{x:.1f},{y:.1f}")
         svg_lines.append(f'    <polyline points="{" ".join(points)}"/>')
     svg_lines.append('  </g>')
@@ -341,21 +342,21 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
         label_fs, label_bl = calculate_wire_label_position(path)
-        x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="-3">{segment.label}</text>')
     svg_lines.append('  </g>')
 
     # Component markers (blue circles)
     svg_lines.append('  <g id="components">')
     for comp in diagram.components:
-        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="blue" stroke="navy" stroke-width="1"/>')
     svg_lines.append('  </g>')
 
     # Component labels
     svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="10" fill="navy" text-anchor="middle">')
     for comp in diagram.components:
-        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.bl_min, diagram.bl_max, scale, MARGIN)
+        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min, scale, MARGIN)
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dy="15">{comp.ref}</text>')
     svg_lines.append('  </g>')
 

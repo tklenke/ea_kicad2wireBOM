@@ -260,46 +260,49 @@ def test_calculate_scale_zero_range():
 def test_transform_to_svg_origin():
     """Test transforming origin coordinates to SVG."""
     # Transform (0, 0) with bounds (0, 100, 0, 50), scale=2, margin=10
+    # New orientation: BL->X (right), FS->Y (up, flipped)
     svg_x, svg_y = transform_to_svg(
         fs=0.0, bl=0.0,
-        fs_min=0.0, bl_min=0.0, bl_max=50.0,
+        fs_min=0.0, fs_max=100.0, bl_min=0.0,
         scale=2.0, margin=10.0
     )
 
     # X = (0 - 0) * 2 + 10 = 10
-    # Y = (50 - 0) * 2 + 10 = 110
+    # Y = (100 - 0) * 2 + 10 = 210 (FS=0 is at bottom, maps to high Y)
     assert svg_x == 10.0
-    assert svg_y == 110.0
+    assert svg_y == 210.0
 
 
 def test_transform_to_svg_max_coords():
     """Test transforming max coordinates to SVG."""
     # Transform (100, 50) with bounds (0, 100, 0, 50), scale=2, margin=10
+    # New orientation: BL->X (right), FS->Y (up, flipped)
     svg_x, svg_y = transform_to_svg(
         fs=100.0, bl=50.0,
-        fs_min=0.0, bl_min=0.0, bl_max=50.0,
+        fs_min=0.0, fs_max=100.0, bl_min=0.0,
         scale=2.0, margin=10.0
     )
 
-    # X = (100 - 0) * 2 + 10 = 210
-    # Y = (50 - 50) * 2 + 10 = 10
-    assert svg_x == 210.0
+    # X = (50 - 0) * 2 + 10 = 110 (BL maps to X)
+    # Y = (100 - 100) * 2 + 10 = 10 (FS=100 is at top, maps to low Y)
+    assert svg_x == 110.0
     assert svg_y == 10.0
 
 
 def test_transform_to_svg_negative_coords():
     """Test transforming negative coordinates to SVG."""
     # Transform (-10, -20) with bounds (-10, 30, -20, 40), scale=2, margin=10
+    # New orientation: BL->X (right), FS->Y (up, flipped)
     svg_x, svg_y = transform_to_svg(
         fs=-10.0, bl=-20.0,
-        fs_min=-10.0, bl_min=-20.0, bl_max=40.0,
+        fs_min=-10.0, fs_max=30.0, bl_min=-20.0,
         scale=2.0, margin=10.0
     )
 
-    # X = (-10 - (-10)) * 2 + 10 = 0 * 2 + 10 = 10
-    # Y = (40 - (-20)) * 2 + 10 = 60 * 2 + 10 = 130
+    # X = (-20 - (-20)) * 2 + 10 = 0 * 2 + 10 = 10
+    # Y = (30 - (-10)) * 2 + 10 = 40 * 2 + 10 = 90
     assert svg_x == 10.0
-    assert svg_y == 130.0
+    assert svg_y == 90.0
 
 
 def test_label_position_longer_horizontal():
