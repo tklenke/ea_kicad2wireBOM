@@ -31,6 +31,7 @@ from kicad2wireBOM.reference_data import DEFAULT_CONFIG, SYSTEM_COLOR_MAP
 from kicad2wireBOM.graph_builder import build_connectivity_graph, build_connectivity_graph_hierarchical
 from kicad2wireBOM.bom_generator import generate_bom_entries
 from kicad2wireBOM.validator import SchematicValidator, HierarchicalValidator
+from kicad2wireBOM.output_manager import create_output_directory, capture_output
 
 
 def should_swap_components(comp1, comp2) -> bool:
@@ -89,13 +90,13 @@ def main():
     parser.add_argument(
         'dest',
         nargs='?',
-        help='Output CSV file (optional, auto-generated if not provided)'
+        help='Output directory (optional, defaults to current directory)'
     )
 
     parser.add_argument(
         '-f', '--force',
         action='store_true',
-        help='Force overwrite of existing destination file without prompting'
+        help='Force overwrite of existing output directory without prompting'
     )
 
     parser.add_argument(
@@ -125,14 +126,6 @@ def main():
         help='Permissive mode: warn about validation errors but continue processing (default: strict mode aborts on errors)'
     )
 
-    parser.add_argument(
-        '--routing-diagrams',
-        nargs='?',
-        const='',  # Use empty string if flag provided without argument
-        metavar='OUTPUT_DIR',
-        help='Generate routing diagram SVG files (optional: specify output directory)'
-    )
-
     args = parser.parse_args()
 
     # Check if source file exists
@@ -140,279 +133,262 @@ def main():
         print(f"Error: Source file not found: {args.source}", file=sys.stderr)
         return 1
 
-    # Auto-generate destination if not provided
-    if not args.dest:
-        source_path = Path(args.source)
-        args.dest = str(source_path.with_suffix('.csv'))
+    # Create output directory
+    output_dir = create_output_directory(args.source, args.dest, force=args.force)
 
-    # Check if destination exists and prompt if needed
-    if os.path.exists(args.dest) and not args.force:
-        response = input(f"Destination file '{args.dest}' already exists. Overwrite? (y/n): ")
-        if response.lower() != 'y':
-            print("Operation cancelled.", file=sys.stderr)
-            return 1
+    # Wrap processing in capture_output context manager to tee stdout/stderr to files
+    with capture_output(output_dir):
+        # Process the schematic
+        print(f"Processing {args.source}...")
 
-    # Process the schematic
-    print(f"Processing {args.source}...")
+        try:
+            # First, check if this is a hierarchical schematic
+            sexp_check = parse_schematic_file(args.source)
+            sheet_elements = extract_sheets(sexp_check)
+            is_hierarchical = len(sheet_elements) > 0
 
-    try:
-        # First, check if this is a hierarchical schematic
-        sexp_check = parse_schematic_file(args.source)
-        sheet_elements = extract_sheets(sexp_check)
-        is_hierarchical = len(sheet_elements) > 0
+            if is_hierarchical:
+                print(f"  Detected hierarchical schematic with {len(sheet_elements)} sub-sheets")
 
-        if is_hierarchical:
-            print(f"  Detected hierarchical schematic with {len(sheet_elements)} sub-sheets")
+                # Parse hierarchical schematic
+                hierarchical_schematic = parse_schematic_hierarchical(args.source)
 
-            # Parse hierarchical schematic
-            hierarchical_schematic = parse_schematic_hierarchical(args.source)
+                # Collect all wires, labels, components from all sheets
+                all_wires = []
+                all_labels = []
+                all_components = []
 
-            # Collect all wires, labels, components from all sheets
-            all_wires = []
-            all_labels = []
-            all_components = []
+                # Process root sheet
+                all_wires.extend(hierarchical_schematic.root_sheet.wire_segments)
+                all_labels.extend(hierarchical_schematic.root_sheet.labels)
+                all_components.extend(hierarchical_schematic.root_sheet.components)
 
-            # Process root sheet
-            all_wires.extend(hierarchical_schematic.root_sheet.wire_segments)
-            all_labels.extend(hierarchical_schematic.root_sheet.labels)
-            all_components.extend(hierarchical_schematic.root_sheet.components)
+                # Process sub-sheets
+                for sheet_uuid, sheet in hierarchical_schematic.sub_sheets.items():
+                    all_wires.extend(sheet.wire_segments)
+                    all_labels.extend(sheet.labels)
+                    all_components.extend(sheet.components)
 
-            # Process sub-sheets
-            for sheet_uuid, sheet in hierarchical_schematic.sub_sheets.items():
-                all_wires.extend(sheet.wire_segments)
-                all_labels.extend(sheet.labels)
-                all_components.extend(sheet.components)
+                print(f"  Found {len(all_wires)} wire segments across all sheets")
+                print(f"  Found {len(all_labels)} labels across all sheets")
+                print(f"  Found {len(all_components)} components across all sheets")
 
-            print(f"  Found {len(all_wires)} wire segments across all sheets")
-            print(f"  Found {len(all_labels)} labels across all sheets")
-            print(f"  Found {len(all_components)} components across all sheets")
+                wires = all_wires
+                labels = all_labels
+                components = all_components
 
-            wires = all_wires
-            labels = all_labels
-            components = all_components
+                # Build connectivity graph (hierarchical)
+                print(f"  Building hierarchical connectivity graph...")
+                graph = build_connectivity_graph_hierarchical(hierarchical_schematic)
+                print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
 
-            # Build connectivity graph (hierarchical)
-            print(f"  Building hierarchical connectivity graph...")
-            graph = build_connectivity_graph_hierarchical(hierarchical_schematic)
-            print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
-
-        else:
-            print(f"  Detected single-sheet schematic")
-
-            # Parse single-sheet schematic (existing code path)
-            sexp = sexp_check
-
-            # Extract elements
-            wire_sexps = extract_wires(sexp)
-            label_sexps = extract_labels(sexp)
-            symbol_sexps = extract_symbols(sexp)
-
-            print(f"  Found {len(wire_sexps)} wire segments")
-            print(f"  Found {len(label_sexps)} labels")
-            print(f"  Found {len(symbol_sexps)} components")
-
-            # Convert to data objects
-            wires = [parse_wire_element(w) for w in wire_sexps]
-            labels = [parse_label_element(l) for l in label_sexps]
-
-            # Parse components (may fail if LocLoad encodings missing)
-            components = []
-            for s in symbol_sexps:
-                try:
-                    components.append(parse_symbol_element(s))
-                except ValueError as e:
-                    # Component missing LocLoad encoding - skip for BOM but continue for connectivity
-                    print(f"  Warning: {e} (skipping for BOM calculations)")
-                    pass
-
-            # Build connectivity graph (single-sheet)
-            print(f"  Building connectivity graph...")
-            graph = build_connectivity_graph(sexp)
-            print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
-
-        # Associate labels with wires (same for both paths)
-        associate_labels_with_wires(wires, labels, threshold=args.label_threshold)
-
-        # Count labeled wires
-        labeled_wires = [w for w in wires if w.circuit_id]
-        print(f"  Associated {len(labeled_wires)} wires with labels")
-
-        # Validate schematic
-        strict_mode = not args.permissive
-        if is_hierarchical:
-            # Use hierarchical validator with connectivity graph for cross-sheet validation
-            validator = HierarchicalValidator(strict_mode=strict_mode, connectivity_graph=graph)
-        else:
-            # Use flat validator with connectivity graph for enhanced error messages
-            validator = SchematicValidator(strict_mode=strict_mode, connectivity_graph=graph)
-        validation_result = validator.validate_all(wires, labels, components)
-
-        # Handle validation errors/warnings
-        if validation_result.has_errors():
-            print("\nValidation Errors:", file=sys.stderr)
-            for error in validation_result.errors:
-                print(f"  ERROR: {error.message}", file=sys.stderr)
-                if error.suggestion:
-                    print(f"         Suggestion: {error.suggestion}", file=sys.stderr)
-            sys.exit(1)
-
-        if validation_result.warnings:
-            print("\nValidation Warnings:")
-            for warning in validation_result.warnings:
-                print(f"  WARNING: {warning.message}")
-                if warning.suggestion:
-                    print(f"           Suggestion: {warning.suggestion}")
-
-        # Generate BOM entries (handles both multipoint and regular)
-        print(f"  Generating BOM entries...")
-        bom_entries = generate_bom_entries(wires, graph)
-        print(f"    Generated {len(bom_entries)} BOM entries")
-
-        # Create component lookup map
-        comp_map = {comp.ref: comp for comp in components}
-
-        # Create wire lookup map (for system_code)
-        wire_map = {wire.circuit_id: wire for wire in wires if wire.circuit_id}
-
-        # Build wire BOM
-        bom = WireBOM(config=DEFAULT_CONFIG)
-
-        # FIRST PASS: Create all WireConnection objects with placeholder gauge
-        # (gauge will be determined by circuit-based calculation after grouping)
-        for entry in bom_entries:
-            circuit_id = entry['circuit_id']
-            from_component = entry['from_component']
-            from_pin = entry['from_pin']
-            to_component = entry['to_component']
-            to_pin = entry['to_pin']
-
-            # Look up components
-            comp1 = comp_map.get(from_component) if from_component else None
-            comp2 = comp_map.get(to_component) if to_component else None
-
-            # Calculate wire length (if we have both components)
-            if comp1 and comp2:
-                length = calculate_length(comp1, comp2, slack=args.slack_length)
             else:
-                # Use wire segment length as fallback
-                import math
-                dx = wire.end_point[0] - wire.start_point[0]
-                dy = wire.end_point[1] - wire.start_point[1]
-                length_mm = math.sqrt(dx*dx + dy*dy)
-                length = length_mm / 25.4  # Convert mm to inches
-                length += args.slack_length
+                print(f"  Detected single-sheet schematic")
 
-            # Get wire color from system code (lookup wire by circuit_id)
-            wire = wire_map.get(circuit_id)
-            system_code = wire.system_code if wire else None
-            wire_color = SYSTEM_COLOR_MAP.get(system_code, 'White')
+                # Parse single-sheet schematic (existing code path)
+                sexp = sexp_check
 
-            # Get notes from BOM entry
-            notes = entry.get('notes', '')
+                # Extract elements
+                wire_sexps = extract_wires(sexp)
+                label_sexps = extract_labels(sexp)
+                symbol_sexps = extract_symbols(sexp)
 
-            # Order components by aircraft coordinates (furthest from centerline first)
-            if should_swap_components(comp1, comp2):
-                # Swap components
-                from_component, to_component = to_component, from_component
-                from_pin, to_pin = to_pin, from_pin
+                print(f"  Found {len(wire_sexps)} wire segments")
+                print(f"  Found {len(label_sexps)} labels")
+                print(f"  Found {len(symbol_sexps)} components")
 
-            # Create wire connection with placeholder gauge (-99)
-            # Actual gauge will be determined by circuit-based calculation
-            wire_conn = WireConnection(
-                wire_label=circuit_id,
-                from_component=from_component,
-                from_pin=from_pin,
-                to_component=to_component,
-                to_pin=to_pin,
-                wire_gauge=-99,  # Placeholder - will be updated by circuit-based sizing
-                wire_color=wire_color,
-                length=length,
-                wire_type=DEFAULT_CONFIG['default_wire_type'],
-                notes=notes,
-                warnings=[]
-            )
+                # Convert to data objects
+                wires = [parse_wire_element(w) for w in wire_sexps]
+                labels = [parse_label_element(l) for l in label_sexps]
 
-            bom.add_wire(wire_conn)
+                # Parse components (may fail if LocLoad encodings missing)
+                components = []
+                for s in symbol_sexps:
+                    try:
+                        components.append(parse_symbol_element(s))
+                    except ValueError as e:
+                        # Component missing LocLoad encoding - skip for BOM but continue for connectivity
+                        print(f"  Warning: {e} (skipping for BOM calculations)")
+                        pass
 
-        # SECOND PASS: Circuit-based wire gauge calculation
-        # Group wires by circuit_id (e.g., L1, L2, G1)
-        circuit_groups = group_wires_by_circuit(bom.wires)
+                # Build connectivity graph (single-sheet)
+                print(f"  Building connectivity graph...")
+                graph = build_connectivity_graph(sexp)
+                print(f"    Graph has {len(graph.nodes)} nodes, {len(graph.component_pins)} pins, {len(graph.junctions)} junctions")
 
-        # For each circuit, determine total current and calculate gauge
-        circuit_gauges = {}  # {circuit_id: gauge}
-        for circuit_id, circuit_wires in circuit_groups.items():
-            # Determine total circuit current
-            circuit_current = determine_circuit_current(circuit_wires, components, graph)
+            # Associate labels with wires (same for both paths)
+            associate_labels_with_wires(wires, labels, threshold=args.label_threshold)
 
-            # Find longest wire in circuit (for voltage drop calculation)
-            max_length = max(wire.length for wire in circuit_wires)
+            # Count labeled wires
+            labeled_wires = [w for w in wires if w.circuit_id]
+            print(f"  Associated {len(labeled_wires)} wires with labels")
 
-            # Determine gauge for entire circuit
-            gauge = determine_min_gauge(circuit_current, max_length, args.system_voltage)
-            circuit_gauges[circuit_id] = gauge
-
-        # THIRD PASS: Apply circuit gauge to each wire and add warnings for missing data
-        for wire in bom.wires:
-            # Extract circuit_id from wire label (e.g., "L-1-A" → "L1")
-            from kicad2wireBOM.wire_calculator import parse_net_name
-            parsed = parse_net_name(f"/{wire.wire_label}")
-            if parsed:
-                circuit_id = f"{parsed['system']}{parsed['circuit']}"
-                wire.wire_gauge = circuit_gauges.get(circuit_id, -99)
-
-                # Add warning if gauge is -99 (missing load/source data)
-                if wire.wire_gauge == -99:
-                    wire.warnings.append("Cannot determine circuit current - missing load/source data")
-
-        # Sort BOM by system code, circuit number, segment letter
-        def parse_wire_label_for_sort(label):
-            """Parse wire label to extract system_code, circuit_num, segment_letter for sorting"""
-            pattern = r'^([A-Z])-?(\d+)-?([A-Z])$'
-            match = re.match(pattern, label)
-            if match:
-                system_code = match.group(1)
-                circuit_num = int(match.group(2))
-                segment_letter = match.group(3)
-                return (system_code, circuit_num, segment_letter)
-            return ('', 0, '')  # Fallback for invalid labels
-
-        bom.wires.sort(key=lambda w: parse_wire_label_for_sort(w.wire_label))
-
-        # Write output
-        write_builder_csv(bom, args.dest)
-
-        print(f"\nSuccessfully generated wire BOM: {args.dest}")
-        print(f"  Total wires: {len(bom.wires)}")
-
-        # Generate routing diagrams if requested
-        if args.routing_diagrams is not None:
-            from kicad2wireBOM.diagram_generator import generate_routing_diagrams
-
-            # Determine output directory
-            if args.routing_diagrams:
-                # User provided explicit directory
-                diagram_dir = Path(args.routing_diagrams)
+            # Validate schematic
+            strict_mode = not args.permissive
+            if is_hierarchical:
+                # Use hierarchical validator with connectivity graph for cross-sheet validation
+                validator = HierarchicalValidator(strict_mode=strict_mode, connectivity_graph=graph)
             else:
-                # Use same directory as CSV output
-                if args.dest:
-                    diagram_dir = Path(args.dest).parent
+                # Use flat validator with connectivity graph for enhanced error messages
+                validator = SchematicValidator(strict_mode=strict_mode, connectivity_graph=graph)
+            validation_result = validator.validate_all(wires, labels, components)
+
+            # Handle validation errors/warnings
+            if validation_result.has_errors():
+                print("\nValidation Errors:", file=sys.stderr)
+                for error in validation_result.errors:
+                    print(f"  ERROR: {error.message}", file=sys.stderr)
+                    if error.suggestion:
+                        print(f"         Suggestion: {error.suggestion}", file=sys.stderr)
+                sys.exit(1)
+
+            if validation_result.warnings:
+                print("\nValidation Warnings:")
+                for warning in validation_result.warnings:
+                    print(f"  WARNING: {warning.message}")
+                    if warning.suggestion:
+                        print(f"           Suggestion: {warning.suggestion}")
+
+            # Generate BOM entries (handles both multipoint and regular)
+            print(f"  Generating BOM entries...")
+            bom_entries = generate_bom_entries(wires, graph)
+            print(f"    Generated {len(bom_entries)} BOM entries")
+
+            # Create component lookup map
+            comp_map = {comp.ref: comp for comp in components}
+
+            # Create wire lookup map (for system_code)
+            wire_map = {wire.circuit_id: wire for wire in wires if wire.circuit_id}
+
+            # Build wire BOM
+            bom = WireBOM(config=DEFAULT_CONFIG)
+
+            # FIRST PASS: Create all WireConnection objects with placeholder gauge
+            # (gauge will be determined by circuit-based calculation after grouping)
+            for entry in bom_entries:
+                circuit_id = entry['circuit_id']
+                from_component = entry['from_component']
+                from_pin = entry['from_pin']
+                to_component = entry['to_component']
+                to_pin = entry['to_pin']
+
+                # Look up components
+                comp1 = comp_map.get(from_component) if from_component else None
+                comp2 = comp_map.get(to_component) if to_component else None
+
+                # Calculate wire length (if we have both components)
+                if comp1 and comp2:
+                    length = calculate_length(comp1, comp2, slack=args.slack_length)
                 else:
-                    diagram_dir = Path.cwd()
+                    # Use wire segment length as fallback
+                    import math
+                    dx = wire.end_point[0] - wire.start_point[0]
+                    dy = wire.end_point[1] - wire.start_point[1]
+                    length_mm = math.sqrt(dx*dx + dy*dy)
+                    length = length_mm / 25.4  # Convert mm to inches
+                    length += args.slack_length
+
+                # Get wire color from system code (lookup wire by circuit_id)
+                wire = wire_map.get(circuit_id)
+                system_code = wire.system_code if wire else None
+                wire_color = SYSTEM_COLOR_MAP.get(system_code, 'White')
+
+                # Get notes from BOM entry
+                notes = entry.get('notes', '')
+
+                # Order components by aircraft coordinates (furthest from centerline first)
+                if should_swap_components(comp1, comp2):
+                    # Swap components
+                    from_component, to_component = to_component, from_component
+                    from_pin, to_pin = to_pin, from_pin
+
+                # Create wire connection with placeholder gauge (-99)
+                # Actual gauge will be determined by circuit-based calculation
+                wire_conn = WireConnection(
+                    wire_label=circuit_id,
+                    from_component=from_component,
+                    from_pin=from_pin,
+                    to_component=to_component,
+                    to_pin=to_pin,
+                    wire_gauge=-99,  # Placeholder - will be updated by circuit-based sizing
+                    wire_color=wire_color,
+                    length=length,
+                    wire_type=DEFAULT_CONFIG['default_wire_type'],
+                    notes=notes,
+                    warnings=[]
+                )
+
+                bom.add_wire(wire_conn)
+
+            # SECOND PASS: Circuit-based wire gauge calculation
+            # Group wires by circuit_id (e.g., L1, L2, G1)
+            circuit_groups = group_wires_by_circuit(bom.wires)
+
+            # For each circuit, determine total current and calculate gauge
+            circuit_gauges = {}  # {circuit_id: gauge}
+            for circuit_id, circuit_wires in circuit_groups.items():
+                # Determine total circuit current
+                circuit_current = determine_circuit_current(circuit_wires, components, graph)
+
+                # Find longest wire in circuit (for voltage drop calculation)
+                max_length = max(wire.length for wire in circuit_wires)
+
+                # Determine gauge for entire circuit
+                gauge = determine_min_gauge(circuit_current, max_length, args.system_voltage)
+                circuit_gauges[circuit_id] = gauge
+
+            # THIRD PASS: Apply circuit gauge to each wire and add warnings for missing data
+            for wire in bom.wires:
+                # Extract circuit_id from wire label (e.g., "L-1-A" → "L1")
+                from kicad2wireBOM.wire_calculator import parse_net_name
+                parsed = parse_net_name(f"/{wire.wire_label}")
+                if parsed:
+                    circuit_id = f"{parsed['system']}{parsed['circuit']}"
+                    wire.wire_gauge = circuit_gauges.get(circuit_id, -99)
+
+                    # Add warning if gauge is -99 (missing load/source data)
+                    if wire.wire_gauge == -99:
+                        wire.warnings.append("Cannot determine circuit current - missing load/source data")
+
+            # Sort BOM by system code, circuit number, segment letter
+            def parse_wire_label_for_sort(label):
+                """Parse wire label to extract system_code, circuit_num, segment_letter for sorting"""
+                pattern = r'^([A-Z])-?(\d+)-?([A-Z])$'
+                match = re.match(pattern, label)
+                if match:
+                    system_code = match.group(1)
+                    circuit_num = int(match.group(2))
+                    segment_letter = match.group(3)
+                    return (system_code, circuit_num, segment_letter)
+                return ('', 0, '')  # Fallback for invalid labels
+
+            bom.wires.sort(key=lambda w: parse_wire_label_for_sort(w.wire_label))
+
+            # Write wire BOM CSV to output directory
+            write_builder_csv(bom, str(output_dir / 'wire_bom.csv'))
+
+            print(f"\nSuccessfully generated wire BOM: {output_dir / 'wire_bom.csv'}")
+            print(f"  Total wires: {len(bom.wires)}")
+
+            # Always generate routing diagrams (Phase 11: diagrams always generated)
+            from kicad2wireBOM.diagram_generator import generate_routing_diagrams
 
             # Convert components list to dict
             components_dict = {comp.ref: comp for comp in components}
 
             # Generate diagrams
             print(f"\nGenerating routing diagrams...")
-            generate_routing_diagrams(bom.wires, components_dict, diagram_dir)
+            generate_routing_diagrams(bom.wires, components_dict, output_dir)
 
-        return 0
+            print(f"\nAll outputs written to: {output_dir}")
 
-    except Exception as e:
-        print(f"Error processing schematic: {e}", file=sys.stderr)
-        import traceback
-        traceback.print_exc()
-        return 1
+            return 0
+
+        except Exception as e:
+            print(f"Error processing schematic: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc()
+            return 1
 
 
 if __name__ == '__main__':
