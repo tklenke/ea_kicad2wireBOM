@@ -32,6 +32,9 @@ from kicad2wireBOM.graph_builder import build_connectivity_graph, build_connecti
 from kicad2wireBOM.bom_generator import generate_bom_entries
 from kicad2wireBOM.validator import SchematicValidator, HierarchicalValidator
 from kicad2wireBOM.output_manager import create_output_directory, capture_output
+from kicad2wireBOM.output_component_bom import write_component_bom
+from kicad2wireBOM.output_engineering_report import write_engineering_report
+from kicad2wireBOM.output_html_index import write_html_index
 
 
 def should_swap_components(comp1, comp2) -> bool:
@@ -379,6 +382,21 @@ def main():
             # Generate diagrams
             print(f"\nGenerating routing diagrams...")
             generate_routing_diagrams(bom.wires, components_dict, output_dir)
+
+            # Generate component BOM
+            print(f"\nGenerating component BOM...")
+            write_component_bom(components, str(output_dir / 'component_bom.csv'))
+            print(f"  Generated: {output_dir / 'component_bom.csv'}")
+
+            # Generate engineering report
+            print(f"\nGenerating engineering report...")
+            write_engineering_report(components, bom.wires, str(output_dir / 'engineering_report.txt'))
+            print(f"  Generated: {output_dir / 'engineering_report.txt'}")
+
+            # Generate HTML index
+            print(f"\nGenerating HTML index...")
+            write_html_index(output_dir, str(output_dir / 'index.html'))
+            print(f"  Generated: {output_dir / 'index.html'}")
 
             print(f"\nAll outputs written to: {output_dir}")
 
