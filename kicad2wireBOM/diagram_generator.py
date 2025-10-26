@@ -259,22 +259,24 @@ def calculate_scale(fs_range: float, bl_range: float,
 
 def transform_to_svg(fs: float, bl: float,
                      fs_min: float, fs_max: float, bl_scaled_min: float,
-                     scale: float, margin: float) -> Tuple[float, float]:
+                     scale_x: float, scale_y: float, margin: float) -> Tuple[float, float]:
     """
-    Transform aircraft coordinates to SVG coordinates.
+    Transform aircraft coordinates to SVG coordinates with independent X/Y scaling.
 
     Aircraft coords: FS increases forward, BL increases starboard (right)
     SVG coords: X increases right, Y increases down
     Diagram orientation: Front (high FS) at top of page
 
     Applies non-linear scaling to BL to handle large ranges (e.g., tip lights).
+    Uses independent scale factors for X and Y to fill available space.
 
     Args:
         fs, bl: Aircraft coordinates (inches)
         fs_min: Minimum FS in diagram (for offset)
         fs_max: Maximum FS in diagram (for Y-axis flip)
         bl_scaled_min: Minimum scaled BL in diagram (for offset)
-        scale: Pixels per inch
+        scale_x: Horizontal scale (pixels per inch for BL dimension)
+        scale_y: Vertical scale (pixels per inch for FS dimension)
         margin: Margin in pixels
 
     Returns:
@@ -284,15 +286,15 @@ def transform_to_svg(fs: float, bl: float,
     bl_scaled = scale_bl_nonlinear(bl)
 
     # X: Scaled BL maps to horizontal (right), offset, scale, add margin
-    svg_x = (bl_scaled - bl_scaled_min) * scale + margin
+    svg_x = (bl_scaled - bl_scaled_min) * scale_x + margin
 
     # Y: FS maps to vertical (up), flip axis (FS up → SVG down), offset, scale, add margin
-    svg_y = (fs_max - fs) * scale + margin
+    svg_y = (fs_max - fs) * scale_y + margin
 
     return (svg_x, svg_y)
 
 
-def calculate_wire_label_position(path: List[Tuple[float, float, float]]) -> Tuple[float, float, float]:
+def calculate_wire_label_position(path: List[Tuple[float, float, float]]) -> Tuple[float, float, float, str]:
     """
     Calculate position for wire segment label in 3D Manhattan path.
 
@@ -303,7 +305,8 @@ def calculate_wire_label_position(path: List[Tuple[float, float, float]]) -> Tup
                                          (fs2,wl2,bl2), (fs2,wl2,bl2)]
 
     Returns:
-        (fs, wl, bl) - position for label in 3D aircraft coordinates
+        (fs, wl, bl, axis) - position for label in 3D aircraft coordinates and axis name
+        axis is one of: 'BL', 'FS', 'WL'
     """
     if len(path) != 5:
         raise ValueError("Manhattan path must have exactly 5 points")
@@ -322,14 +325,14 @@ def calculate_wire_label_position(path: List[Tuple[float, float, float]]) -> Tup
 
     # Place label on longest segment
     if seg1_length >= seg2_length and seg1_length >= seg3_length:
-        # Midpoint of BL segment (p0→p1)
-        return (p0[0], p0[1], (p0[2] + p1[2]) / 2)
+        # Midpoint of BL segment (p0→p1) - horizontal segment
+        return (p0[0], p0[1], (p0[2] + p1[2]) / 2, 'BL')
     elif seg2_length >= seg3_length:
-        # Midpoint of FS segment (p1→p2)
-        return ((p1[0] + p2[0]) / 2, p1[1], p1[2])
+        # Midpoint of FS segment (p1→p2) - vertical segment (maps to SVG Y)
+        return ((p1[0] + p2[0]) / 2, p1[1], p1[2], 'FS')
     else:
         # Midpoint of WL segment (p2→p3)
-        return (p2[0], (p2[1] + p3[1]) / 2, p2[2])
+        return (p2[0], (p2[1] + p3[1]) / 2, p2[2], 'WL')
 
 
 def build_system_diagram(system_code: str, wires: List, components: Dict) -> SystemDiagram:
@@ -409,7 +412,7 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
     )
 
 
-def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None, component_value: str = None, component_desc: str = None) -> None:
+def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None, component_value: str = None, component_desc: str = None, use_2d: bool = False) -> None:
     """
     Generate SVG file for system or component diagram optimized for 8.5x11 portrait printing.
 
@@ -419,6 +422,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         title_block: Optional dict with title, date, rev from schematic title_block
         component_value: Optional component value (for component diagrams)
         component_desc: Optional component description (for component diagrams)
+        use_2d: If True, generate 2D diagram (FS/BL only); if False, use 3D projection (default)
 
     Creates SVG with:
     - Background (white)
@@ -434,24 +438,44 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     # Constants optimized for 8.5x11 portrait printing
     MARGIN = 40  # Print margins
     TITLE_HEIGHT = 90  # Space for title, legend, and separator line
-    TARGET_WIDTH = 750  # Optimized for 8.5" width (8.5" = ~816px at 96dpi)
-    FIXED_WIDTH = 750  # Fixed diagram width for consistent printing
+    FIXED_WIDTH = 750  # Fixed diagram width for all diagrams
+    FIXED_HEIGHT = 950  # Fixed diagram height for all diagrams
 
-    # Calculate scale (use scaled BL range for proper sizing)
-    fs_range = diagram.fs_max - diagram.fs_min
-    bl_scaled_range = diagram.bl_max_scaled - diagram.bl_min_scaled
-    scale = calculate_scale(fs_range, bl_scaled_range, TARGET_WIDTH, MARGIN)
+    # Get bounds based on projection mode
+    if use_2d:
+        # Recalculate bounds for 2D mode (FS/BL only, no WL projection)
+        fs_values = [c.fs for c in diagram.components]
+        bl_values = [c.bl for c in diagram.components]
+        fs_min = min(fs_values)
+        fs_max = max(fs_values)
+        bl_scaled_values = [scale_bl_nonlinear(bl) for bl in bl_values]
+        bl_min_scaled = min(bl_scaled_values)
+        bl_max_scaled = max(bl_scaled_values)
+    else:
+        # Use 3D projected bounds from diagram
+        fs_min = diagram.fs_min
+        fs_max = diagram.fs_max
+        bl_min_scaled = diagram.bl_min_scaled
+        bl_max_scaled = diagram.bl_max_scaled
 
-    # Calculate diagram content dimensions
-    diagram_width = bl_scaled_range * scale + 2 * MARGIN
-    diagram_height = fs_range * scale + 2 * MARGIN
+    # Calculate independent scales for X and Y to fill available space
+    fs_range = fs_max - fs_min
+    bl_scaled_range = bl_max_scaled - bl_min_scaled
 
-    # Use fixed width for all diagrams (ensures title/legend don't get cropped)
+    # Available space after margins and title
+    available_width = FIXED_WIDTH - 2 * MARGIN
+    available_height = FIXED_HEIGHT - TITLE_HEIGHT - 2 * MARGIN
+
+    # Independent scaling for each axis
+    scale_x = available_width / bl_scaled_range if bl_scaled_range > 0 else 1.0
+    scale_y = available_height / fs_range if fs_range > 0 else 1.0
+
+    # Use fixed dimensions for all diagrams
     svg_width = FIXED_WIDTH
-    svg_height = diagram_height + TITLE_HEIGHT
+    svg_height = FIXED_HEIGHT
 
-    # Calculate offset to center narrow diagrams
-    diagram_offset_x = (svg_width - diagram_width) / 2 if diagram_width < svg_width else 0
+    # No need to center diagrams - they fill the space
+    diagram_offset_x = 0
 
     # Start building SVG
     svg_lines = []
@@ -493,7 +517,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
         svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
 
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 35}" font-size="11" text-anchor="middle">Scale: {scale:.1f} px/inch | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 35}" font-size="11" text-anchor="middle">Scale: {scale_y:.1f}×{scale_x:.1f} px/inch (Y×X) | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
     # Separator line below title/legend (fixed width for all diagrams)
@@ -507,11 +531,15 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         path = segment.manhattan_path
         points = []
         for fs, wl, bl in path:
-            # Project 3D aircraft coordinates to 2D screen coordinates
-            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-            screen_x, screen_y = project_3d_to_2d(fs, wl, bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+            if use_2d:
+                # 2D mode: use FS/BL directly (ignore WL)
+                screen_x, screen_y = fs, bl
+            else:
+                # 3D mode: project 3D aircraft coordinates to 2D screen coordinates
+                from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+                screen_x, screen_y = project_3d_to_2d(fs, wl, bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
             # Transform to SVG coordinates
-            x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+            x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
             x += diagram_offset_x  # Center narrow diagrams
             y += TITLE_HEIGHT  # Offset for title
             points.append(f"{x:.1f},{y:.1f}")
@@ -519,44 +547,105 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_lines.append('  </g>')
 
     # Wire labels (larger font for print readability)
+    # Track label positions to avoid overlaps
+    used_label_positions = []
+    COLLISION_THRESHOLD = 20  # pixels - labels closer than this are considered overlapping
+
     svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
-        label_fs, label_wl, label_bl = calculate_wire_label_position(path)
-        # Project 3D label position to 2D screen coordinates
-        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-        screen_x, screen_y = project_3d_to_2d(label_fs, label_wl, label_bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        label_fs, label_wl, label_bl, axis = calculate_wire_label_position(path)
+        if use_2d:
+            # 2D mode: use FS/BL directly (ignore WL)
+            screen_x, screen_y = label_fs, label_bl
+        else:
+            # 3D mode: project 3D label position to 2D screen coordinates
+            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+            screen_x, screen_y = project_3d_to_2d(label_fs, label_wl, label_bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
         # Transform to SVG coordinates
-        x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="10" dy="-4">{segment.label}</text>')
+
+        # Choose offset based on axis orientation
+        # FS segments are vertical (Y-axis in SVG), need more horizontal offset
+        # BL segments are horizontal (X-axis in SVG), current offset is fine
+        # WL segments depend on projection angle
+        if axis == 'FS':
+            # Vertical wire - offset more to the right
+            dx, dy = "25", "-4"
+        elif axis == 'BL':
+            # Horizontal wire - offset up
+            dx, dy = "10", "-10"
+        else:  # WL
+            # Diagonal wire - offset to upper right
+            dx, dy = "15", "-8"
+
+        # Check for collision with existing labels
+        collision_offset_y = 0
+        for existing_x, existing_y in used_label_positions:
+            distance = ((x - existing_x)**2 + (y - existing_y)**2)**0.5
+            if distance < COLLISION_THRESHOLD:
+                # Collision detected - offset this label upward (negative y = up in SVG)
+                collision_offset_y -= 18  # Move up by font size + spacing to stay above wires
+
+        # Apply collision offset
+        final_y = y + collision_offset_y
+        used_label_positions.append((x, final_y))
+
+        svg_lines.append(f'    <text x="{x:.1f}" y="{final_y:.1f}" dx="{dx}" dy="{dy}">{segment.label}</text>')
     svg_lines.append('  </g>')
 
     # Component markers (larger for print visibility)
     svg_lines.append('  <g id="components">')
     for comp in diagram.components:
-        # Project 3D component position to 2D screen coordinates
-        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-        screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        if use_2d:
+            # 2D mode: use FS/BL directly (ignore WL)
+            screen_x, screen_y = comp.fs, comp.bl
+        else:
+            # 3D mode: project 3D component position to 2D screen coordinates
+            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
         # Transform to SVG coordinates
-        x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="blue" stroke="navy" stroke-width="2"/>')
     svg_lines.append('  </g>')
 
-    # Component labels (larger font, offset to the right to avoid wire overlap)
+    # Component labels (larger font, offset down and to the right to avoid wire overlap)
+    # Track component label positions to avoid overlaps
+    used_comp_label_positions = []
+    COMP_COLLISION_THRESHOLD = 30  # pixels - component labels closer than this are considered overlapping
+
     svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="12" fill="navy" text-anchor="start">')
     for comp in diagram.components:
-        # Project 3D component position to 2D screen coordinates
-        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-        screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        if use_2d:
+            # 2D mode: use FS/BL directly (ignore WL)
+            screen_x, screen_y = comp.fs, comp.bl
+        else:
+            # 3D mode: project 3D component position to 2D screen coordinates
+            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
         # Transform to SVG coordinates
-        x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="10" dy="4">{comp.ref}</text>')
+
+        # Check for collision with existing component labels
+        collision_offset_y = 0
+        for existing_x, existing_y in used_comp_label_positions:
+            distance = ((x - existing_x)**2 + (y - existing_y)**2)**0.5
+            if distance < COMP_COLLISION_THRESHOLD:
+                # Collision detected - offset this label further downward
+                collision_offset_y += 18  # Move down by font size + spacing
+
+        # Apply collision offset
+        final_y = y + collision_offset_y
+        used_comp_label_positions.append((x, final_y))
+
+        # Offset down and right: works well for both 2D and 3D modes
+        svg_lines.append(f'    <text x="{x:.1f}" y="{final_y:.1f}" dx="12" dy="18">{comp.ref}</text>')
     svg_lines.append('  </g>')
 
     svg_lines.append('</svg>')
@@ -579,6 +668,11 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
         SystemDiagram with component, its neighbors, wire segments, and bounds
         (Reuses SystemDiagram structure with component_ref as system_code)
     """
+    # Helper function to check if a component is a power symbol
+    def is_power_symbol(comp_ref):
+        return comp_ref and (comp_ref.startswith('GND') or comp_ref.startswith('+') or
+                            comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V'])
+
     # Extract unique components from all wires (component + all neighbors)
     component_dict = {}  # {ref: DiagramComponent}
 
@@ -611,6 +705,18 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
     wire_segments = []
     for wire in wires:
         if wire.from_component in component_dict and wire.to_component in component_dict:
+            # Skip wires that connect two non-center components through a power net
+            # (These are indirect connections, not direct point-to-point wires)
+            from_is_center = wire.from_component == component_ref
+            to_is_center = wire.to_component == component_ref
+            from_is_power = is_power_symbol(wire.from_component)
+            to_is_power = is_power_symbol(wire.to_component)
+
+            # Skip if neither endpoint is the center component
+            # This filters out cross-connections between non-center components
+            if not from_is_center and not to_is_center:
+                continue
+
             segment = DiagramWireSegment(
                 label=wire.wire_label,
                 comp1=component_dict[wire.from_component],
@@ -644,7 +750,7 @@ def build_component_diagram(component_ref: str, wires: List, components: Dict) -
     )
 
 
-def generate_component_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None) -> None:
+def generate_component_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None, use_2d: bool = False) -> None:
     """
     Generate component wiring diagram SVG files for all components.
 
@@ -653,6 +759,7 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
         components: Dict mapping component ref to Component object
         output_dir: Directory to write SVG files
         title_block: Optional dict with title, date, rev from schematic title_block
+        use_2d: If True, generate 2D diagrams (FS/BL only); if False, use 3D projection (default)
 
     Outputs:
         One component diagram SVG per component (CB1_Component.svg, SW2_Component.svg, etc.)
@@ -671,7 +778,8 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
     # Generate one diagram per component
     for comp_ref, wires in component_wires.items():
         # Skip power symbols (they connect to many components)
-        if comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V']:
+        # Match GND, GND1, GND2, etc. and power rails like +12V, +5V, etc.
+        if comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V'] or comp_ref.startswith('GND') or comp_ref.startswith('+'):
             continue
 
         # Build diagram for this component
@@ -684,12 +792,12 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
 
         # Generate SVG with component info
         output_path = output_dir / f"{comp_ref}_Component.svg"
-        generate_svg(diagram, output_path, title_block, comp_value, comp_desc)
+        generate_svg(diagram, output_path, title_block, comp_value, comp_desc, use_2d)
 
         print(f"Generated {output_path}")
 
 
-def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None) -> None:
+def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None, use_2d: bool = False) -> None:
     """
     Generate routing diagram SVG files for all systems and components.
 
@@ -698,6 +806,7 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
         components: Dict mapping component ref to Component object
         output_dir: Directory to write SVG files
         title_block: Optional dict with title, date, rev from schematic title_block
+        use_2d: If True, generate 2D diagrams (FS/BL only); if False, use 3D projection (default)
 
     Outputs:
         One system diagram SVG per system code (L_System.svg, P_System.svg, etc.)
@@ -713,9 +822,9 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
 
         # Generate SVG with new naming convention
         output_path = output_dir / f"{system_code}_System.svg"
-        generate_svg(diagram, output_path, title_block)
+        generate_svg(diagram, output_path, title_block, use_2d=use_2d)
 
         print(f"Generated {output_path}")
 
     # Generate component diagrams
-    generate_component_diagrams(wire_connections, components, output_dir, title_block)
+    generate_component_diagrams(wire_connections, components, output_dir, title_block, use_2d)

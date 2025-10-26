@@ -7,7 +7,7 @@
 ## CURRENT STATUS
 
 ✅ **Phase 1-10 Complete** - Production-ready wire BOM generation tool with routing diagrams
-✅ **224/224 tests passing**
+✅ **265/265 tests passing**
 
 **Design Documents**:
 - `kicad2wireBOM_design.md` v3.2 - Main design specification
@@ -20,6 +20,18 @@
 - N-way multipoint connections
 - Comprehensive validation framework
 - SVG routing diagrams (optimized for 8.5×11 portrait printing)
+
+---
+
+## RECENT FIXES (2025-10-26)
+
+**Multipoint Power Symbol Bug** - Fixed multipoint connections involving power symbols (GND, +12V). Power symbols now treated as common pin in multipoint groups since all components connect to same global net. (`wire_connections.py`)
+
+**Component Diagram Filtering** - Fixed overly aggressive cross-connection filter that was hiding legitimate multipoint wires in component diagrams. (`diagram_generator.py`)
+
+**Wire Length Calculation** - Fixed UnboundLocalError when components missing LocLoad data. (`__main__.py`)
+
+All 265 tests pass. See git history for details.
 
 ---
 

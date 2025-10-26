@@ -130,6 +130,13 @@ def main():
         help='Permissive mode: warn about validation errors but continue processing (default: strict mode aborts on errors)'
     )
 
+    parser.add_argument(
+        '--2d',
+        dest='two_d',
+        action='store_true',
+        help='Generate 2D diagrams (FS/BL only) instead of default 3D projection with WL axis'
+    )
+
     args = parser.parse_args()
 
     # Check if source file exists
@@ -297,20 +304,26 @@ def main():
                 comp1 = comp_map.get(from_component) if from_component else None
                 comp2 = comp_map.get(to_component) if to_component else None
 
+                # Look up wire segment for this circuit (needed for color and fallback length)
+                wire = wire_map.get(circuit_id)
+
                 # Calculate wire length (if we have both components)
                 if comp1 and comp2:
                     length = calculate_length(comp1, comp2, slack=args.slack_length)
                 else:
                     # Use wire segment length as fallback
                     import math
-                    dx = wire.end_point[0] - wire.start_point[0]
-                    dy = wire.end_point[1] - wire.start_point[1]
-                    length_mm = math.sqrt(dx*dx + dy*dy)
-                    length = length_mm / 25.4  # Convert mm to inches
-                    length += args.slack_length
+                    if wire:
+                        dx = wire.end_point[0] - wire.start_point[0]
+                        dy = wire.end_point[1] - wire.start_point[1]
+                        length_mm = math.sqrt(dx*dx + dy*dy)
+                        length = length_mm / 25.4  # Convert mm to inches
+                        length += args.slack_length
+                    else:
+                        # No wire found and no components - use default length
+                        length = 12.0 + args.slack_length  # Default 12" + slack
 
-                # Get wire color from system code (lookup wire by circuit_id)
-                wire = wire_map.get(circuit_id)
+                # Get wire color from system code
                 system_code = wire.system_code if wire else None
                 wire_color = SYSTEM_COLOR_MAP.get(system_code, 'White')
 
@@ -398,8 +411,9 @@ def main():
             components_dict = {comp.ref: comp for comp in components}
 
             # Generate diagrams
-            print(f"\nGenerating routing diagrams...")
-            generate_routing_diagrams(bom.wires, components_dict, output_dir, title_block)
+            diagram_mode = "2D (FS/BL only)" if args.two_d else "3D (FS/WL/BL projection)"
+            print(f"\nGenerating routing diagrams ({diagram_mode})...")
+            generate_routing_diagrams(bom.wires, components_dict, output_dir, title_block, use_2d=args.two_d)
 
             # Generate component BOM
             print(f"\nGenerating component BOM...")

@@ -384,6 +384,16 @@
 		)
 		(uuid "6e0d0494-3f81-46e5-a758-516f98afe5b5")
 	)
+	(wire
+		(pts
+			(xy 149.86 86.36) (xy 144.78 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df8e8529-eb70-4977-89a7-a3a8ae7d4d32")
+	)
 	(label "P1A"
 		(at 138.43 73.66 0)
 		(effects
@@ -459,7 +469,7 @@
 				)
 			)
 		)
-		(property "LocLoad" "(0,1,0)R20"
+		(property "LocLoad" "(0,1,2)R20"
 			(at 119.38 105.41 0)
 			(effects
 				(font
@@ -570,7 +580,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x01")
-		(at 149.86 86.36 0)
+		(at 154.94 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -579,7 +589,7 @@
 		(fields_autoplaced yes)
 		(uuid "433e19c2-40a5-4577-b981-486296744030")
 		(property "Reference" "J1"
-			(at 152.4 85.0899 0)
+			(at 157.48 85.0899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -588,7 +598,7 @@
 			)
 		)
 		(property "Value" "Conn_01x01"
-			(at 152.4 87.6299 0)
+			(at 157.48 87.6299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -597,7 +607,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 86.36 0)
+			(at 154.94 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -606,7 +616,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 149.86 86.36 0)
+			(at 154.94 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -615,7 +625,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 149.86 86.36 0)
+			(at 154.94 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -624,7 +634,7 @@
 			)
 		)
 		(property "LocLoad" "(20,0,0)S10"
-			(at 149.86 86.36 0)
+			(at 154.94 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)

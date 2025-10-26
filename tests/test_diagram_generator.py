@@ -279,7 +279,7 @@ def test_transform_to_svg_origin():
     svg_x, svg_y = transform_to_svg(
         fs=0.0, bl=0.0,
         fs_min=0.0, fs_max=100.0, bl_scaled_min=0.0,
-        scale=2.0, margin=10.0
+        scale_x=2.0, scale_y=2.0, margin=10.0
     )
 
     # X = (0 - 0) * 2 + 10 = 10
@@ -299,7 +299,7 @@ def test_transform_to_svg_max_coords():
     svg_x, svg_y = transform_to_svg(
         fs=100.0, bl=50.0,
         fs_min=0.0, fs_max=100.0, bl_scaled_min=0.0,
-        scale=2.0, margin=10.0
+        scale_x=2.0, scale_y=2.0, margin=10.0
     )
 
     # X = (bl_scaled - 0) * 2 + 10
@@ -321,7 +321,7 @@ def test_transform_to_svg_negative_coords():
     svg_x, svg_y = transform_to_svg(
         fs=-10.0, bl=-20.0,
         fs_min=-10.0, fs_max=30.0, bl_scaled_min=bl_scaled_min,
-        scale=2.0, margin=10.0
+        scale_x=2.0, scale_y=2.0, margin=10.0
     )
 
     # X = (bl_scaled - bl_scaled_min) * 2 + 10 = 0 * 2 + 10 = 10
@@ -339,12 +339,13 @@ def test_label_position_longer_horizontal():
     # FS segment is longest, so label should be at its midpoint
     path = [(10.0, 0.0, 30.0), (10.0, 0.0, 10.0), (50.0, 0.0, 10.0),
             (50.0, 0.0, 10.0), (50.0, 0.0, 10.0)]
-    label_fs, label_wl, label_bl = calculate_wire_label_position(path)
+    label_fs, label_wl, label_bl, axis = calculate_wire_label_position(path)
 
     # Midpoint of FS segment: ((10 + 50) / 2, 0, 10) = (30, 0, 10)
     assert label_fs == 30.0
     assert label_wl == 0.0
     assert label_bl == 10.0
+    assert axis == 'FS'
 
 
 def test_label_position_longer_vertical():
@@ -356,12 +357,13 @@ def test_label_position_longer_vertical():
     # BL segment is longest, so label should be at its midpoint
     path = [(10.0, 0.0, 30.0), (10.0, 0.0, 5.0), (20.0, 0.0, 5.0),
             (20.0, 0.0, 5.0), (20.0, 0.0, 5.0)]
-    label_fs, label_wl, label_bl = calculate_wire_label_position(path)
+    label_fs, label_wl, label_bl, axis = calculate_wire_label_position(path)
 
     # Midpoint of BL segment: (10, 0, (30 + 5) / 2) = (10, 0, 17.5)
     assert label_fs == 10.0
     assert label_wl == 0.0
     assert label_bl == 17.5
+    assert axis == 'BL'
 
 
 def test_label_position_longer_wl():
@@ -373,12 +375,13 @@ def test_label_position_longer_wl():
     # WL segment is longest, so label should be at its midpoint
     path = [(10.0, 5.0, 30.0), (10.0, 5.0, 10.0), (30.0, 5.0, 10.0),
             (30.0, 35.0, 10.0), (30.0, 35.0, 10.0)]
-    label_fs, label_wl, label_bl = calculate_wire_label_position(path)
+    label_fs, label_wl, label_bl, axis = calculate_wire_label_position(path)
 
     # Midpoint of WL segment: (30, (5 + 35) / 2, 10) = (30, 20, 10)
     assert label_fs == 30.0
     assert label_wl == 20.0
     assert label_bl == 10.0
+    assert axis == 'WL'
 
 
 def test_label_position_invalid_path():

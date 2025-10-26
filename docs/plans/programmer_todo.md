@@ -7,7 +7,7 @@
 ## CURRENT STATUS
 
 ✅ **Phase 1-12 Complete** - All features implemented and tested
-✅ **260/260 tests passing**
+✅ **265/265 tests passing** (includes post-Phase 12 enhancements)
 
 **Implemented Features**:
 - Flat and hierarchical schematic parsing
@@ -90,7 +90,7 @@ Successfully implemented 3D elongated orthographic projection for all routing di
 **Testing**:
 - Added 10 new tests for 3D projection functionality
 - Updated all existing diagram tests for 3D format
-- 260/260 tests passing (up from 250)
+- All tests passing after Phase 12 (up from 250 to 260)
 - Comprehensive test coverage for projection formula, routing, and rendering
 
 ### Commits
@@ -111,7 +111,65 @@ Successfully implemented 3D elongated orthographic projection for all routing di
 - Updated `SystemDiagram` dataclass to track both projected bounds (for SVG rendering) and original bounds (for legend display)
 - Added 4 new fields to SystemDiagram: `fs_min_original`, `fs_max_original`, `bl_min_original`, `bl_max_original`
 
-**Result**: All 260 tests passing. No negative coordinates possible in SVG output.
+**Result**: All tests passing after fix. No negative coordinates possible in SVG output.
+
+---
+
+## POST-PHASE 12 ENHANCEMENTS ✅
+
+**Status**: COMPLETE - 2025-10-26
+
+### Summary
+Completed several quality-of-life and usability enhancements including validation improvements, title block support, and 2D diagram mode.
+
+### Enhancements Implemented
+
+**1. Missing LocLoad Validation** (5 tests added):
+- Fixed silent failure when components missing LocLoad encoding
+- Added `_check_component_locload()` to validator.py
+- Respects strict/permissive mode (error vs warning)
+- Updated __main__.py to track and pass missing LocLoad components to validator
+
+**2. Error-Resilient Index.html** (manual testing):
+- Create index.html before sys.exit(1) on validation errors
+- Ensures users can access stdout.txt and stderr.txt even when processing fails
+- Applied to both validation error handler and general exception handler
+
+**3. Title Block Support** (2 tests added):
+- Added `parse_title_block()` to parser.py to extract title, date, rev, company from schematics
+- Updated all output functions to accept and display title_block:
+  - CSV headers (wire_bom.csv and component_bom.csv) include project info as comment lines
+  - Engineering report includes PROJECT INFORMATION section
+  - HTML index includes Project Information section
+  - SVG diagrams include project title line (title, rev, date)
+
+**4. Component Info in Component Diagrams** (manual testing):
+- Updated generate_svg() to accept component_value and component_desc parameters
+- Component diagrams now show "{CompRef}: {Value} - {Description}" in title
+- Example: "CB1: 30A - Circuit Breaker"
+
+**5. 2D Diagram Mode** (manual testing):
+- Added `--2d` command line argument to enable 2D diagrams (FS/BL only)
+- Default remains 3D projection with WL axis
+- Updated generate_svg() to skip 3D projection when use_2d=True
+- Recalculates bounds for 2D mode using FS/BL coordinates directly
+- All wire paths, labels, and component positions use simple FS/BL mapping in 2D mode
+
+### Testing
+- 5 new tests added (missing LocLoad validation, title_block parsing)
+- 265/265 tests passing (up from 260)
+- Manual testing confirmed all enhancements working correctly
+
+### Files Modified
+- `validator.py` - Added missing LocLoad validation
+- `parser.py` - Added parse_title_block() function
+- `__main__.py` - Track missing LocLoad, create index.html on errors, parse title_block, add --2d flag
+- `diagram_generator.py` - Add title_block and component info to SVGs, implement 2D mode
+- `output_csv.py` - Add title_block comment headers to wire BOM
+- `output_component_bom.py` - Add title_block comment headers to component BOM
+- `output_engineering_report.py` - Add PROJECT INFORMATION section
+- `output_html_index.py` - Add Project Information section
+- `reference_data.py` - Updated DEFAULT_WL_SCALE from 3.0 to 1.5
 
 ---
 

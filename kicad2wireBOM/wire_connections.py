@@ -91,8 +91,9 @@ def generate_multipoint_bom_entries(
     the labeled pin to the common pin.
 
     Algorithm:
-    1. Identify the common pin in the group
-    2. For each pin in the group (except common pin):
+    1. Check if group contains a power symbol - if so, skip (these are separate 2-point wires)
+    2. Identify the common pin in the group
+    3. For each pin in the group (except common pin):
        - Trace segment from pin to find if it has a label
        - If labeled, create BOM entry: labeled-pin → common-pin
 
@@ -110,10 +111,29 @@ def generate_multipoint_bom_entries(
     """
     bom_entries = []
 
-    # Identify common pin
-    common_pin = graph.identify_common_pin(group)
+    # Check if this group contains a power symbol
+    # Power symbols (GND, +12V, etc.) represent global nets, not physical junctions
+    # If present, the power symbol IS the common pin (all other pins connect to it)
+    def is_power_symbol(comp_ref):
+        return comp_ref and (comp_ref.startswith('GND') or comp_ref.startswith('+') or
+                            comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V'])
+
+    # Check if group contains a power symbol
+    power_pins = [pin for pin in group if is_power_symbol(pin['component_ref'])]
+
+    if power_pins:
+        # Power symbol multipoint: treat power symbol as common pin
+        # All other pins connect to the power symbol with separate labeled wires
+        if len(power_pins) > 1:
+            # Multiple power symbols in group - ambiguous, skip
+            return []
+        common_pin = power_pins[0]
+    else:
+        # Regular multipoint: identify common pin using label analysis
+        common_pin = graph.identify_common_pin(group)
+
     if common_pin is None:
-        # Cannot identify common pin - skip this group
+        # Cannot identify common pin (only applies to non-power symbol groups)
         return []
 
     common_pin_key = f"{common_pin['component_ref']}-{common_pin['pin_number']}"
