@@ -451,8 +451,12 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
         points = []
-        for fs, bl in path:
-            x, y = transform_to_svg(fs, bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        for fs, wl, bl in path:
+            # Project 3D aircraft coordinates to 2D screen coordinates
+            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+            screen_x, screen_y = project_3d_to_2d(fs, wl, bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+            # Transform to SVG coordinates
+            x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
             x += diagram_offset_x  # Center narrow diagrams
             y += TITLE_HEIGHT  # Offset for title
             points.append(f"{x:.1f},{y:.1f}")
@@ -463,8 +467,12 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
-        label_fs, label_bl = calculate_wire_label_position(path)
-        x, y = transform_to_svg(label_fs, label_bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        label_fs, label_wl, label_bl = calculate_wire_label_position(path)
+        # Project 3D label position to 2D screen coordinates
+        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+        screen_x, screen_y = project_3d_to_2d(label_fs, label_wl, label_bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        # Transform to SVG coordinates
+        x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="10" dy="-4">{segment.label}</text>')
@@ -473,7 +481,11 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Component markers (larger for print visibility)
     svg_lines.append('  <g id="components">')
     for comp in diagram.components:
-        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        # Project 3D component position to 2D screen coordinates
+        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+        screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        # Transform to SVG coordinates
+        x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="blue" stroke="navy" stroke-width="2"/>')
@@ -482,7 +494,11 @@ def generate_svg(diagram: SystemDiagram, output_path: Path) -> None:
     # Component labels (larger font, offset to the right to avoid wire overlap)
     svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="12" fill="navy" text-anchor="start">')
     for comp in diagram.components:
-        x, y = transform_to_svg(comp.fs, comp.bl, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
+        # Project 3D component position to 2D screen coordinates
+        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+        screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        # Transform to SVG coordinates
+        x, y = transform_to_svg(screen_x, screen_y, diagram.fs_min, diagram.fs_max, diagram.bl_min_scaled, scale, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
         svg_lines.append(f'    <text x="{x:.1f}" y="{y:.1f}" dx="10" dy="4">{comp.ref}</text>')
