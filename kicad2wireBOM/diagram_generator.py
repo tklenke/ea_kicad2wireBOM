@@ -122,6 +122,33 @@ class SystemDiagram:
     bl_max_original: float  # Maximum BL in original coordinates (for legend)
 
 
+@dataclass
+class StarDiagramComponent:
+    """Component for star diagram rendering (Phase 13.6.3)."""
+    ref: str           # Component reference (e.g., "CB1", "SW2")
+    value: str         # Component value (e.g., "5A", "SPDT")
+    desc: str          # Component description (e.g., "Circuit Breaker")
+    x: float           # SVG X coordinate (pixels)
+    y: float           # SVG Y coordinate (pixels)
+    radius: float      # Circle radius (pixels, 40-80)
+
+
+@dataclass
+class StarDiagramWire:
+    """Wire connection for star diagram (Phase 13.6.3)."""
+    circuit_id: str    # Circuit identifier (e.g., "L1A")
+    from_ref: str      # Source component reference
+    to_ref: str        # Destination component reference
+
+
+@dataclass
+class ComponentStarDiagram:
+    """Complete star diagram for one component and its neighbors (Phase 13.6.3)."""
+    center: StarDiagramComponent              # Center component
+    neighbors: List[StarDiagramComponent]     # Neighbor components (arranged in star)
+    wires: List[StarDiagramWire]              # Wire connections between center and neighbors
+
+
 def group_wires_by_system(wire_connections: List) -> Dict[str, List]:
     """
     Group wire connections by system code.

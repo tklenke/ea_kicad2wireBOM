@@ -1192,6 +1192,63 @@ def test_calculate_circle_radius_very_long_text():
     assert radius == 80.0
 
 
+def test_build_component_star_diagram():
+    """Test building star diagram data structures (Phase 13.6.3)."""
+    from kicad2wireBOM.diagram_generator import (
+        StarDiagramComponent,
+        StarDiagramWire,
+        ComponentStarDiagram
+    )
+
+    # Create center component
+    center = StarDiagramComponent(
+        ref="CB1",
+        value="5A",
+        desc="Circuit Breaker",
+        x=400.0,
+        y=400.0,
+        radius=50.0
+    )
+
+    # Create neighbor components
+    neighbor1 = StarDiagramComponent(
+        ref="SW1",
+        value="SPDT",
+        desc="Power Switch",
+        x=600.0,
+        y=400.0,
+        radius=45.0
+    )
+    neighbor2 = StarDiagramComponent(
+        ref="L1",
+        value="LED",
+        desc="Indicator",
+        x=400.0,
+        y=600.0,
+        radius=40.0
+    )
+
+    # Create wire connections
+    wire1 = StarDiagramWire(circuit_id="L1A", from_ref="CB1", to_ref="SW1")
+    wire2 = StarDiagramWire(circuit_id="L2A", from_ref="CB1", to_ref="L1")
+
+    # Create star diagram
+    diagram = ComponentStarDiagram(
+        center=center,
+        neighbors=[neighbor1, neighbor2],
+        wires=[wire1, wire2]
+    )
+
+    # Verify structure
+    assert diagram.center.ref == "CB1"
+    assert len(diagram.neighbors) == 2
+    assert len(diagram.wires) == 2
+    assert diagram.neighbors[0].ref == "SW1"
+    assert diagram.neighbors[1].ref == "L1"
+    assert diagram.wires[0].circuit_id == "L1A"
+    assert diagram.wires[1].circuit_id == "L2A"
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)

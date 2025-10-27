@@ -170,7 +170,7 @@
     - Long text → larger radius (up to 80px)
     - Very long text → max radius + wrapping
 
-- [ ] **Task 13.6.3**: Create star diagram data structures
+- [x] **Task 13.6.3**: Create star diagram data structures
   - Add `StarDiagramComponent` dataclass (ref, value, desc, x, y, radius)
   - Add `StarDiagramWire` dataclass (circuit_id, from_ref, to_ref)
   - Add `ComponentStarDiagram` dataclass (center, neighbors, wires)
