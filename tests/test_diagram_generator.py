@@ -882,6 +882,49 @@ def test_project_3d_to_2d_custom_angle():
     assert screen_y == pytest.approx(expected_y)
 
 
+def test_build_component_circuits_map():
+    """Test building component-to-circuits mapping (Phase 13.4.1)."""
+    # Create components and wire segments
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=0.0, bl=20.0)
+    comp3 = DiagramComponent(ref="L1", fs=100.0, wl=0.0, bl=10.0)
+
+    seg1 = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
+    seg2 = DiagramWireSegment(label="L1B", comp1=comp2, comp2=comp3)
+    seg3 = DiagramWireSegment(label="L2A", comp1=comp1, comp2=comp3)
+
+    # Build mapping as done in generate_svg()
+    component_circuits = {}
+    for segment in [seg1, seg2, seg3]:
+        # Add to comp1
+        if segment.comp1.ref not in component_circuits:
+            component_circuits[segment.comp1.ref] = []
+        component_circuits[segment.comp1.ref].append(segment.label)
+
+        # Add to comp2
+        if segment.comp2.ref not in component_circuits:
+            component_circuits[segment.comp2.ref] = []
+        component_circuits[segment.comp2.ref].append(segment.label)
+
+    # Sort and deduplicate
+    for ref in component_circuits:
+        component_circuits[ref] = sorted(set(component_circuits[ref]))
+
+    # Verify mapping
+    assert "CB1" in component_circuits
+    assert "SW1" in component_circuits
+    assert "L1" in component_circuits
+
+    # CB1 connects to L1A and L2A
+    assert component_circuits["CB1"] == ["L1A", "L2A"]
+
+    # SW1 connects to L1A and L1B
+    assert component_circuits["SW1"] == ["L1A", "L1B"]
+
+    # L1 connects to L1B and L2A
+    assert component_circuits["L1"] == ["L1B", "L2A"]
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)

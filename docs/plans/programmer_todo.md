@@ -94,7 +94,7 @@
 
 ### Phase 13.4: Circuit Labels Under Components
 
-- [ ] **Task 13.4.1**: Build component-to-circuits mapping in `generate_svg()`
+- [x] **Task 13.4.1**: Build component-to-circuits mapping in `generate_svg()`
   - Before rendering, create `component_circuits: Dict[str, List[str]]`
   - Loop through `diagram.wire_segments`
   - Add `segment.label` to lists for both `comp1.ref` and `comp2.ref`

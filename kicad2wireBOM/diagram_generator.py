@@ -627,6 +627,23 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_lines.append(f'    <line x1="{MARGIN}" y1="{TITLE_HEIGHT - 10}" x2="{svg_width - MARGIN}" y2="{TITLE_HEIGHT - 10}" stroke="black" stroke-width="1"/>')
     svg_lines.append('  </g>')
 
+    # Build component-to-circuits mapping (Phase 13.4.1)
+    component_circuits = {}
+    for segment in diagram.wire_segments:
+        # Add to comp1
+        if segment.comp1.ref not in component_circuits:
+            component_circuits[segment.comp1.ref] = []
+        component_circuits[segment.comp1.ref].append(segment.label)
+
+        # Add to comp2
+        if segment.comp2.ref not in component_circuits:
+            component_circuits[segment.comp2.ref] = []
+        component_circuits[segment.comp2.ref].append(segment.label)
+
+    # Sort and deduplicate each component's circuit list
+    for ref in component_circuits:
+        component_circuits[ref] = sorted(set(component_circuits[ref]))
+
     # Wire segments (Manhattan routing - thicker for print visibility)
     svg_lines.append(f'  <g id="wires" stroke="black" stroke-width="{DIAGRAM_CONFIG["wire_stroke_width"]}" fill="none">')
     for segment in diagram.wire_segments:
