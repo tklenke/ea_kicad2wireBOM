@@ -754,46 +754,10 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="{DIAGRAM_CONFIG["component_radius"]}" fill="blue" stroke="navy" stroke-width="{DIAGRAM_CONFIG["component_stroke_width"]}"/>')
     svg_lines.append('  </g>')
 
-    # Component labels (larger font, offset down and to the right to avoid wire overlap)
-    # Track component label positions to avoid overlaps
-    used_comp_label_positions = []
-    COMP_COLLISION_THRESHOLD = 30  # pixels - component labels closer than this are considered overlapping
-
-    svg_lines.append('  <g id="component-labels" font-family="Arial" font-size="12" fill="navy" text-anchor="start">')
-    for comp in diagram.components:
-        if use_2d:
-            # 2D mode: use FS/BL directly (ignore WL)
-            screen_x, screen_y = comp.fs, comp.bl
-        else:
-            # 3D mode: project 3D component position to 2D screen coordinates
-            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
-        # Transform to SVG coordinates (Phase 13 v2: origin-centered)
-        x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
-
-        # Check for collision with existing component labels
-        collision_offset_y = 0
-        for existing_x, existing_y in used_comp_label_positions:
-            distance = ((x - existing_x)**2 + (y - existing_y)**2)**0.5
-            if distance < COMP_COLLISION_THRESHOLD:
-                # Collision detected - offset this label further downward
-                collision_offset_y += 18  # Move down by font size + spacing
-
-        # Apply collision offset
-        final_y = y + collision_offset_y
-        used_comp_label_positions.append((x, final_y))
-
-        # Offset down and right: works well for both 2D and 3D modes
-        svg_lines.append(f'    <text x="{x:.1f}" y="{final_y:.1f}" dx="12" dy="18">{comp.ref}</text>')
-    svg_lines.append('  </g>')
-
-    # Circuit label boxes under components (Phase 13.4.2/13.4.3)
-    svg_lines.append('  <g id="component-circuits" font-family="Arial" font-size="10" fill="navy">')
+    # Component label boxes (component ref + circuits together in one box)
+    svg_lines.append('  <g id="component-labels" font-family="Arial" fill="navy">')
     used_circuit_box_positions = []  # Track boxes to detect collisions
     for comp in diagram.components:
-        # Skip components with no circuits
-        if comp.ref not in component_circuits or not component_circuits[comp.ref]:
-            continue
 
         # Get component position in SVG
         if use_2d:
@@ -803,12 +767,16 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
             screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
         x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
 
-        # Format circuit labels
-        circuit_text = ", ".join(component_circuits[comp.ref])
+        # Format text: component ref + circuit labels (if any)
+        comp_ref_text = comp.ref
+        circuit_text = ", ".join(component_circuits.get(comp.ref, []))
 
-        # Estimate box dimensions
-        text_width = len(circuit_text) * 7 + 10  # Approximate
-        text_height = 16
+        # Determine box dimensions (two lines: ref + circuits)
+        # Use the longer of the two lines for width calculation
+        ref_width = len(comp_ref_text) * 8  # Bold text is slightly wider
+        circuit_width = len(circuit_text) * 7 if circuit_text else 0
+        text_width = max(ref_width, circuit_width) + 10  # Add padding
+        text_height = 30 if circuit_text else 18  # Taller box if showing circuits
 
         # Calculate initial box position (below component marker)
         box_x = x - text_width / 2
@@ -848,10 +816,18 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         # Render white background rect with navy stroke
         svg_lines.append(f'    <rect x="{box_x:.1f}" y="{box_y:.1f}" width="{text_width}" height="{text_height}" fill="white" stroke="navy" stroke-width="1"/>')
 
-        # Render centered text inside box
-        text_x = x  # Center of box
-        text_y = box_y + text_height / 2 + 3  # Vertical center + slight adjustment for baseline
-        svg_lines.append(f'    <text x="{text_x:.1f}" y="{text_y:.1f}" text-anchor="middle">{circuit_text}</text>')
+        # Render centered text inside box (two lines: ref + circuits)
+        text_x = x  # Center of box horizontally
+        if circuit_text:
+            # Two lines: component ref (bold) + circuits
+            ref_y = box_y + 12  # First line
+            circuit_y = box_y + 24  # Second line
+            svg_lines.append(f'    <text x="{text_x:.1f}" y="{ref_y:.1f}" text-anchor="middle" font-weight="bold" font-size="11">{comp_ref_text}</text>')
+            svg_lines.append(f'    <text x="{text_x:.1f}" y="{circuit_y:.1f}" text-anchor="middle" font-size="10">{circuit_text}</text>')
+        else:
+            # Single line: just component ref
+            ref_y = box_y + text_height / 2 + 4  # Vertically centered
+            svg_lines.append(f'    <text x="{text_x:.1f}" y="{ref_y:.1f}" text-anchor="middle" font-weight="bold" font-size="11">{comp_ref_text}</text>')
     svg_lines.append('  </g>')
 
     svg_lines.append('</svg>')
@@ -919,7 +895,7 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
             svg_lines.append(f'    <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}"/>')
     svg_lines.append('  </g>')
 
-    # Wire labels (at midpoint of each line)
+    # Wire labels (at midpoint of each line, offset up from line)
     svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
     for wire in diagram.wires:
         if wire.from_ref in comp_positions and wire.to_ref in comp_positions:
@@ -927,7 +903,8 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
             x2, y2 = comp_positions[wire.to_ref]
             mid_x = (x1 + x2) / 2
             mid_y = (y1 + y2) / 2
-            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}">{wire.circuit_id}</text>')
+            # Offset label up from line by 12 pixels
+            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}" dy="-12">{wire.circuit_id}</text>')
     svg_lines.append('  </g>')
 
     # Circles

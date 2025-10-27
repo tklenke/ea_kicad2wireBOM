@@ -1038,16 +1038,18 @@ def test_circuit_labels_under_components(tmp_path):
     # Read SVG and verify circuit label boxes exist
     svg_content = output_file.read_text()
 
-    # Verify component-circuits group exists
-    assert '<g id="component-circuits"' in svg_content
+    # Verify component-labels group exists (merged with circuits)
+    assert '<g id="component-labels"' in svg_content
 
     # Verify boxes with white fill and navy stroke
     assert 'fill="white"' in svg_content
     assert 'stroke="navy"' in svg_content
 
-    # Verify circuit labels appear
+    # Verify component refs and circuit labels appear
     assert 'L1A' in svg_content
     assert 'L1B' in svg_content
+    assert 'SW1' in svg_content  # Component ref
+    assert 'L1' in svg_content   # Component ref
 
 
 def test_calculate_star_layout_single_neighbor():
