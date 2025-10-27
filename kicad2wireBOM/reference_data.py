@@ -50,5 +50,5 @@ DEFAULT_CONFIG: Dict[str, any] = {
 }
 
 # 3D projection constants for diagram generation
-DEFAULT_WL_SCALE = 1.5               # WL scale factor (makes WL 1.5x more visible)
+DEFAULT_WL_SCALE = 0.3              # WL scale factor (makes WL 1.5x more visible)
 DEFAULT_PROJECTION_ANGLE = 30        # Projection angle in degrees

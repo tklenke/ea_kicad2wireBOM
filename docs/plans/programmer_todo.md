@@ -21,6 +21,128 @@
 
 ---
 
+## CURRENT WORK: Phase 13 - Routing Diagram Enhancements v2.0
+
+**Design Document**: `docs/plans/routing_diagram_enhancements_v2.md`
+
+### Phase 13.1: Configuration Setup
+
+- [ ] **Task 13.1.1**: Add diagram configuration to `reference_data.py`
+  - Add `DIAGRAM_CONFIG` dict with layout constants (svg_width, svg_height, margins, etc.)
+  - Add BL scaling parameters: `BL_CENTER_EXPANSION = 3.0`, `BL_TIP_COMPRESSION = 10.0`, `BL_CENTER_THRESHOLD = 30.0`
+  - Add `WIRE_STROKE_WIDTH = 3.0` (make configurable)
+  - TEST: Verify constants importable and have correct types
+
+- [ ] **Task 13.1.2**: Update imports in `diagram_generator.py`
+  - Import `DIAGRAM_CONFIG` from reference_data
+  - Replace hardcoded constants (FIXED_WIDTH, FIXED_HEIGHT, MARGIN, etc.) with config values
+  - Replace hardcoded wire stroke width with `DIAGRAM_CONFIG['wire_stroke_width']`
+  - TEST: Run existing tests, verify no regressions
+
+### Phase 13.2: Coordinate System Changes
+
+- [ ] **Task 13.2.1**: Implement `scale_bl_nonlinear_v2()` function
+  - Create new function in `diagram_generator.py` alongside existing `scale_bl_nonlinear()`
+  - Piecewise scaling: BL < 30" → expand by center_expansion factor
+  - BL > 30" → compress logarithmically
+  - Parameters from reference_data.py
+  - TEST: Write `test_scale_bl_nonlinear_v2()` with test cases:
+    - BL=0 → 0
+    - BL=10 → 30 (3x expansion)
+    - BL=30 → 90 (threshold)
+    - BL=200 → ~130 (heavy compression)
+    - BL=-10 → -30 (sign preserved)
+
+- [ ] **Task 13.2.2**: Create new `transform_to_svg_v2()` function
+  - Accept `origin_svg_x, origin_svg_y` parameters instead of bounds
+  - Call `scale_bl_nonlinear_v2()` for BL scaling
+  - Map BL to horizontal offset from center: `svg_x = origin_svg_x + (bl_scaled * scale_x)`
+  - Map FS to vertical with inversion (FS+ goes up): `svg_y = origin_svg_y - (fs * scale_y)`
+  - TEST: Write `test_transform_to_svg_v2()` with test cases:
+    - FS=0, BL=0 → origin position
+    - FS=+50, BL=0 → above origin (lower svg_y)
+    - FS=-50, BL=0 → below origin (higher svg_y)
+    - FS=0, BL=+20 → right of origin
+    - FS=0, BL=-20 → left of origin
+
+- [ ] **Task 13.2.3**: Update `generate_svg()` for landscape layout
+  - Change dimensions to landscape (1100×700 from DIAGRAM_CONFIG)
+  - Calculate origin position: `origin_svg_x = svg_width/2`, `origin_svg_y = title_height + origin_offset_y`
+  - Update all coordinate transformation calls to use `transform_to_svg_v2()`
+  - Update wire segment rendering loop
+  - Update component marker rendering loop
+  - Update component label rendering loop
+  - Update wire label rendering loop
+  - TEST: Generate diagram from test_01 fixture, verify landscape, verify origin centered
+
+### Phase 13.3: Scaling Calculations
+
+- [ ] **Task 13.3.1**: Update scale calculation for reversed BL scaling
+  - Apply `scale_bl_nonlinear_v2()` to all BL values to get scaled range
+  - Calculate `bl_scaled_min` and `bl_scaled_max` from scaled values
+  - Calculate scale_x to fit `bl_scaled_max - bl_scaled_min` in available width
+  - Calculate scale_y to fit FS range in available height
+  - TEST: Write `test_scale_calculation_v2()` to verify scale factors reasonable
+
+- [ ] **Task 13.3.2**: Update `calculate_bounds()` for v2 scaling
+  - Option A: Create `calculate_bounds_v2()` that uses `scale_bl_nonlinear_v2()`
+  - Option B: Add parameter to `calculate_bounds()` to select scaling function
+  - Return scaled bounds for layout calculations
+  - TEST: Verify bounds calculation with new scaling
+
+### Phase 13.4: Circuit Labels Under Components
+
+- [ ] **Task 13.4.1**: Build component-to-circuits mapping in `generate_svg()`
+  - Before rendering, create `component_circuits: Dict[str, List[str]]`
+  - Loop through `diagram.wire_segments`
+  - Add `segment.label` to lists for both `comp1.ref` and `comp2.ref`
+  - Sort and deduplicate each component's circuit list
+  - TEST: Write `test_build_component_circuits_map()` to verify mapping correct
+
+- [ ] **Task 13.4.2**: Implement circuit label box rendering
+  - After component labels section, add new section `<g id="component-circuits">`
+  - For each component with circuits:
+    - Format label text as comma-separated: `", ".join(circuit_labels)`
+    - Estimate text width: `text_width = len(label_text) * 7 + 10` (approximate)
+    - Set text height: `text_height = 16`
+    - Calculate box position below component marker
+    - Render white background rect with navy stroke-1
+    - Render centered text inside box
+  - TEST: Generate diagram, verify circuit labels appear with boxes
+
+- [ ] **Task 13.4.3**: Handle circuit label box collisions
+  - Track rendered box positions
+  - Before rendering each box, check for overlaps
+  - If overlap detected, offset box downward by text_height + 4
+  - Continue until no overlap
+  - TEST: Create test with multiple components at similar positions, verify boxes don't overlap
+
+### Phase 13.5: Testing and Validation
+
+- [ ] **Task 13.5.1**: Update existing integration tests
+  - Run all existing diagram tests
+  - Update assertions for new layout (landscape dimensions, origin position)
+  - Verify all tests pass
+
+- [ ] **Task 13.5.2**: Add new integration tests for v2 features
+  - Test: `test_diagram_landscape_orientation()` - verify width > height
+  - Test: `test_diagram_origin_centered()` - verify FS=0,BL=0 at expected position
+  - Test: `test_diagram_fs_axis_inverted()` - verify FS+ renders above FS-
+  - Test: `test_diagram_bl_expansion_at_center()` - verify centerline spacing
+  - Test: `test_circuit_labels_under_components()` - verify boxes and labels render
+
+- [ ] **Task 13.5.3**: Visual validation
+  - Generate diagrams from test_01, test_03A, test_07 fixtures
+  - Open in browser
+  - Verify aircraft points UP (nose at bottom, tail at top)
+  - Verify origin (FS=0, BL=0) centered below title
+  - Verify BL expansion at centerline, compression at tips
+  - Verify circuit labels grouped under components with stroke boxes
+  - Verify wire stroke width from config
+  - Print on 11×8.5 landscape, verify legibility
+
+---
+
 ## WORKFLOW REMINDERS
 
 **TDD Cycle**:
