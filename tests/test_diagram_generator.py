@@ -925,6 +925,131 @@ def test_build_component_circuits_map():
     assert component_circuits["L1"] == ["L1B", "L2A"]
 
 
+def test_diagram_landscape_orientation(tmp_path):
+    """Test that Phase 13 diagrams use landscape orientation (Phase 13.5.2)."""
+    from kicad2wireBOM.diagram_generator import SystemDiagram, generate_svg
+
+    # Create simple diagram
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=0.0, bl=20.0)
+    seg = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
+
+    diagram = SystemDiagram(
+        system_code="L",
+        components=[comp1, comp2],
+        wire_segments=[seg],
+        fs_min=0.0, fs_max=50.0,
+        bl_min_scaled=-40.0, bl_max_scaled=40.0,
+        bl_min_original=-20.0, bl_max_original=20.0,
+        fs_min_original=0.0, fs_max_original=50.0
+    )
+
+    output_file = tmp_path / "test_landscape.svg"
+    generate_svg(diagram, output_file, use_2d=True)
+
+    # Read SVG and verify landscape dimensions
+    svg_content = output_file.read_text()
+    assert 'width="1100"' in svg_content
+    assert 'height="700"' in svg_content
+    # Verify width > height (landscape)
+    assert 1100 > 700
+
+
+def test_diagram_origin_centered(tmp_path):
+    """Test that FS=0,BL=0 appears at expected origin position (Phase 13.5.2)."""
+    from kicad2wireBOM.diagram_generator import SystemDiagram, generate_svg, transform_to_svg_v2
+    from kicad2wireBOM.reference_data import DIAGRAM_CONFIG
+
+    # Origin should be at (svg_width/2, title_height + origin_offset_y)
+    expected_origin_x = 1100 / 2  # 550
+    expected_origin_y = DIAGRAM_CONFIG['title_height'] + DIAGRAM_CONFIG['origin_offset_y']  # 80 + 100 = 180
+
+    # Verify transform_to_svg_v2 maps (0,0) to origin
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=0.0, bl=0.0,
+        origin_svg_x=expected_origin_x,
+        origin_svg_y=expected_origin_y,
+        scale_x=2.0, scale_y=2.0
+    )
+
+    assert svg_x == expected_origin_x
+    assert svg_y == expected_origin_y
+
+
+def test_diagram_fs_axis_direction(tmp_path):
+    """Test that FS+ renders below FS- (nose up, rear down) (Phase 13.5.2)."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2
+
+    origin_x, origin_y = 550.0, 200.0
+    scale_x, scale_y = 2.0, 2.0
+
+    # FS+ (rear) should be below origin (higher svg_y)
+    svg_x_plus, svg_y_plus = transform_to_svg_v2(50.0, 0.0, origin_x, origin_y, scale_x, scale_y)
+
+    # FS- (nose) should be above origin (lower svg_y)
+    svg_x_minus, svg_y_minus = transform_to_svg_v2(-50.0, 0.0, origin_x, origin_y, scale_x, scale_y)
+
+    # Verify FS+ has higher Y (below) than FS- (above)
+    assert svg_y_plus > origin_y  # FS+ below origin
+    assert svg_y_minus < origin_y  # FS- above origin
+    assert svg_y_plus > svg_y_minus  # Rear below nose
+
+
+def test_diagram_bl_expansion_at_center(tmp_path):
+    """Test that centerline BL values are expanded 3x (Phase 13.5.2)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+
+    # BL values < 30" should be expanded by 3x
+    bl_10 = scale_bl_nonlinear_v2(10.0)
+    bl_20 = scale_bl_nonlinear_v2(20.0)
+    bl_30 = scale_bl_nonlinear_v2(30.0)
+
+    # Verify 3x expansion in centerline region
+    assert bl_10 == pytest.approx(30.0)  # 10 * 3.0
+    assert bl_20 == pytest.approx(60.0)  # 20 * 3.0
+    assert bl_30 == pytest.approx(90.0)  # 30 * 3.0 (threshold)
+
+
+def test_circuit_labels_under_components(tmp_path):
+    """Test that circuit labels render in boxes under components (Phase 13.5.2)."""
+    from kicad2wireBOM.diagram_generator import SystemDiagram, generate_svg
+
+    # Create diagram with labeled wires
+    comp1 = DiagramComponent(ref="CB1", fs=0.0, wl=0.0, bl=0.0)
+    comp2 = DiagramComponent(ref="SW1", fs=50.0, wl=0.0, bl=20.0)
+    comp3 = DiagramComponent(ref="L1", fs=100.0, wl=0.0, bl=10.0)
+
+    seg1 = DiagramWireSegment(label="L1A", comp1=comp1, comp2=comp2)
+    seg2 = DiagramWireSegment(label="L1B", comp1=comp2, comp2=comp3)
+
+    diagram = SystemDiagram(
+        system_code="L",
+        components=[comp1, comp2, comp3],
+        wire_segments=[seg1, seg2],
+        fs_min=0.0, fs_max=100.0,
+        bl_min_scaled=0.0, bl_max_scaled=60.0,
+        bl_min_original=0.0, bl_max_original=20.0,
+        fs_min_original=0.0, fs_max_original=100.0
+    )
+
+    output_file = tmp_path / "test_circuit_labels.svg"
+    generate_svg(diagram, output_file, use_2d=True)
+
+    # Read SVG and verify circuit label boxes exist
+    svg_content = output_file.read_text()
+
+    # Verify component-circuits group exists
+    assert '<g id="component-circuits"' in svg_content
+
+    # Verify boxes with white fill and navy stroke
+    assert 'fill="white"' in svg_content
+    assert 'stroke="navy"' in svg_content
+
+    # Verify circuit labels appear
+    assert 'L1A' in svg_content
+    assert 'L1B' in svg_content
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)

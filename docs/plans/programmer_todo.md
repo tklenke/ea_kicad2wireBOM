@@ -121,15 +121,15 @@
 
 ### Phase 13.5: Testing and Validation
 
-- [ ] **Task 13.5.1**: Update existing integration tests
+- [x] **Task 13.5.1**: Update existing integration tests
   - Run all existing diagram tests
   - Update assertions for new layout (landscape dimensions, origin position)
   - Verify all tests pass
 
-- [ ] **Task 13.5.2**: Add new integration tests for v2 features
+- [x] **Task 13.5.2**: Add new integration tests for v2 features
   - Test: `test_diagram_landscape_orientation()` - verify width > height
   - Test: `test_diagram_origin_centered()` - verify FS=0,BL=0 at expected position
-  - Test: `test_diagram_fs_axis_inverted()` - verify FS+ renders above FS-
+  - Test: `test_diagram_fs_axis_direction()` - verify FS+ renders below FS- (nose up, rear down)
   - Test: `test_diagram_bl_expansion_at_center()` - verify centerline spacing
   - Test: `test_circuit_labels_under_components()` - verify boxes and labels render
 
