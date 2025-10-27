@@ -112,3 +112,24 @@ def test_write_html_index_only_component_diagrams(tmp_path):
     assert 'href="CB1_Component.svg"' in content
     assert 'href="CB2_Component.svg"' in content
     assert 'href="SW1_Component.svg"' in content
+
+
+def test_write_html_index_with_star_diagrams(tmp_path):
+    """Test HTML index includes star diagrams section"""
+    # Create some star diagram files
+    (tmp_path / "CB1_Star.svg").touch()
+    (tmp_path / "CB2_Star.svg").touch()
+    (tmp_path / "SW1_Star.svg").touch()
+
+    output_file = tmp_path / "index.html"
+    write_html_index(tmp_path, str(output_file))
+
+    content = output_file.read_text()
+
+    # Should have Star Diagrams section
+    assert "Star Diagrams" in content
+
+    # Should have links to all star diagrams
+    assert 'href="CB1_Star.svg"' in content
+    assert 'href="CB2_Star.svg"' in content
+    assert 'href="SW1_Star.svg"' in content

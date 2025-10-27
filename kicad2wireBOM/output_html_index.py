@@ -19,6 +19,7 @@ def write_html_index(output_dir: Path, output_path: str, title_block: Dict[str, 
         - Links to wire and component BOMs
         - Links to system diagrams
         - Links to component diagrams
+        - Links to star diagrams
         - Link to engineering report
         - Link to stdout/stderr logs
     """
@@ -34,6 +35,9 @@ def write_html_index(output_dir: Path, output_path: str, title_block: Dict[str, 
 
     # Find component diagrams (*_Component.svg)
     component_diagrams = sorted([f.name for f in output_dir.glob("*_Component.svg")])
+
+    # Find star diagrams (*_Star.svg)
+    star_diagrams = sorted([f.name for f in output_dir.glob("*_Star.svg")])
 
     # Build HTML
     html_lines = []
@@ -105,6 +109,18 @@ def write_html_index(output_dir: Path, output_path: str, title_block: Dict[str, 
         html_lines.append("        <ul>")
         for diagram in component_diagrams:
             # Extract component ref from filename (e.g., "CB1_Component.svg" -> "CB1")
+            comp_ref = diagram.split('_')[0]
+            html_lines.append(f"            <li><a href=\"{diagram}\">{comp_ref}</a></li>")
+        html_lines.append("        </ul>")
+        html_lines.append("    </div>")
+
+    # Star Diagrams section
+    if star_diagrams:
+        html_lines.append("    <div class=\"section\">")
+        html_lines.append("        <h2>Star Diagrams</h2>")
+        html_lines.append("        <ul>")
+        for diagram in star_diagrams:
+            # Extract component ref from filename (e.g., "CB1_Star.svg" -> "CB1")
             comp_ref = diagram.split('_')[0]
             html_lines.append(f"            <li><a href=\"{diagram}\">{comp_ref}</a></li>")
         html_lines.append("        </ul>")
