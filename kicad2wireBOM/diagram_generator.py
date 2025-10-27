@@ -883,6 +883,87 @@ def calculate_star_layout(center_x: float, center_y: float, neighbor_refs: List[
     return layout
 
 
+def wrap_text(text: str, max_width: int) -> List[str]:
+    """
+    Wrap text at word boundaries to fit within max_width characters (Phase 13.6.2).
+
+    Args:
+        text: Text string to wrap
+        max_width: Maximum characters per line
+
+    Returns:
+        List of wrapped text lines
+    """
+    if not text or len(text) <= max_width:
+        return [text]
+
+    lines = []
+    words = text.split()
+    current_line = []
+    current_length = 0
+
+    for word in words:
+        word_length = len(word)
+        # Add space if not first word
+        space_length = 1 if current_line else 0
+
+        if current_length + space_length + word_length <= max_width:
+            current_line.append(word)
+            current_length += space_length + word_length
+        else:
+            # Start new line
+            if current_line:
+                lines.append(' '.join(current_line))
+            current_line = [word]
+            current_length = word_length
+
+    # Add remaining words
+    if current_line:
+        lines.append(' '.join(current_line))
+
+    return lines if lines else [""]
+
+
+def calculate_circle_radius(text_lines: List[str], font_size: int = 10) -> float:
+    """
+    Calculate circle radius needed to fit text (Phase 13.6.2).
+
+    Estimates text dimensions and returns appropriate circle radius.
+    Minimum radius: 40px, Maximum radius: 80px.
+
+    Args:
+        text_lines: List of text strings (e.g., ref, value, description)
+        font_size: Font size in pixels (default 10)
+
+    Returns:
+        Circle radius in pixels (40-80)
+    """
+    if not text_lines:
+        return 40.0
+
+    # Estimate character width (monospace approximation: ~0.6 * font_size)
+    char_width = 0.6 * font_size
+
+    # Find longest line
+    max_text_length = max(len(line) for line in text_lines)
+    estimated_text_width = max_text_length * char_width
+
+    # Estimate text height (font_size + line spacing)
+    line_height = font_size + 4
+    estimated_text_height = len(text_lines) * line_height
+
+    # Calculate radius to fit text (use diagonal + padding)
+    # Diagonal of text bounding box
+    diagonal = math.sqrt(estimated_text_width**2 + estimated_text_height**2)
+    # Add padding (20% of diagonal)
+    required_radius = diagonal / 2 * 1.2
+
+    # Clamp to min/max
+    radius = max(40.0, min(80.0, required_radius))
+
+    return radius
+
+
 def build_component_diagram(component_ref: str, wires: List, components: Dict) -> SystemDiagram:
     """
     Build diagram data structure for one component and its first-hop neighbors.

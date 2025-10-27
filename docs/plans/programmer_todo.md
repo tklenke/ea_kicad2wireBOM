@@ -159,7 +159,7 @@
     - 4 neighbors → 0°, 90°, 180°, 270° positions
     - Verify even angular distribution
 
-- [ ] **Task 13.6.2**: Implement circle sizing logic
+- [x] **Task 13.6.2**: Implement circle sizing logic
   - Add `calculate_circle_radius()` function to `diagram_generator.py`
   - Input: list of text strings (ref, value, desc), font size
   - Estimate text width and height

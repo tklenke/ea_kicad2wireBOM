@@ -1128,6 +1128,70 @@ def test_calculate_star_layout_four_neighbors():
     assert y4 == pytest.approx(center_y - radius)
 
 
+def test_wrap_text():
+    """Test text wrapping for long component descriptions (Phase 13.6.2)."""
+    from kicad2wireBOM.diagram_generator import wrap_text
+
+    # Short text - no wrapping needed
+    result = wrap_text("Short", max_width=50)
+    assert result == ["Short"]
+
+    # Medium text - fits in one line
+    result = wrap_text("Circuit Breaker", max_width=50)
+    assert result == ["Circuit Breaker"]
+
+    # Long text - needs wrapping
+    result = wrap_text("This is a very long component description that should wrap", max_width=30)
+    assert len(result) > 1
+    # Each line should be shorter than max_width
+    for line in result:
+        assert len(line) <= 30
+
+    # Empty text
+    result = wrap_text("", max_width=50)
+    assert result == [""]
+
+
+def test_calculate_circle_radius_short_text():
+    """Test circle radius calculation with short text returns minimum (Phase 13.6.2)."""
+    from kicad2wireBOM.diagram_generator import calculate_circle_radius
+
+    # Short text should return minimum radius
+    text_lines = ["CB1", "5A", "Breaker"]
+    radius = calculate_circle_radius(text_lines, font_size=10)
+
+    # Minimum radius is 40px
+    assert radius == 40.0
+
+
+def test_calculate_circle_radius_long_text():
+    """Test circle radius calculation with long text returns larger radius (Phase 13.6.2)."""
+    from kicad2wireBOM.diagram_generator import calculate_circle_radius
+
+    # Longer text should return larger radius
+    text_lines = ["SWITCH1", "SPDT Toggle", "Main Power Switch"]
+    radius = calculate_circle_radius(text_lines, font_size=10)
+
+    # Should be larger than minimum but less than max
+    assert 40.0 < radius <= 80.0
+
+
+def test_calculate_circle_radius_very_long_text():
+    """Test circle radius calculation with very long text returns max + wrapping (Phase 13.6.2)."""
+    from kicad2wireBOM.diagram_generator import calculate_circle_radius
+
+    # Very long text should return maximum radius
+    text_lines = [
+        "CB-MASTER-CONTROL-1",
+        "50A Circuit Breaker",
+        "This is a very long description that exceeds normal component text length"
+    ]
+    radius = calculate_circle_radius(text_lines, font_size=10)
+
+    # Maximum radius is 80px
+    assert radius == 80.0
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)
