@@ -350,7 +350,7 @@ def test_transform_to_svg_v2_origin():
 
 
 def test_transform_to_svg_v2_fs_positive():
-    """Test that FS+ renders above origin (lower svg_y) (v2 transform)."""
+    """Test that FS+ renders below origin (higher svg_y) (v2 transform)."""
     from kicad2wireBOM.diagram_generator import transform_to_svg_v2
 
     origin_x, origin_y = 550.0, 200.0
@@ -362,13 +362,13 @@ def test_transform_to_svg_v2_fs_positive():
         scale_x=scale_x, scale_y=scale_y
     )
 
-    # FS+ should move up (svg_y decreases)
+    # FS+ should move down (svg_y increases) - rear down
     assert svg_x == origin_x  # BL=0, no horizontal movement
-    assert svg_y == origin_y - (50.0 * scale_y)  # 200 - 100 = 100
+    assert svg_y == origin_y + (50.0 * scale_y)  # 200 + 100 = 300
 
 
 def test_transform_to_svg_v2_fs_negative():
-    """Test that FS- renders below origin (higher svg_y) (v2 transform)."""
+    """Test that FS- renders above origin (lower svg_y) (v2 transform)."""
     from kicad2wireBOM.diagram_generator import transform_to_svg_v2
 
     origin_x, origin_y = 550.0, 200.0
@@ -380,9 +380,9 @@ def test_transform_to_svg_v2_fs_negative():
         scale_x=scale_x, scale_y=scale_y
     )
 
-    # FS- should move down (svg_y increases)
+    # FS- should move up (svg_y decreases) - nose up
     assert svg_x == origin_x  # BL=0, no horizontal movement
-    assert svg_y == origin_y - (-50.0 * scale_y)  # 200 - (-100) = 300
+    assert svg_y == origin_y + (-50.0 * scale_y)  # 200 + (-100) = 100
 
 
 def test_transform_to_svg_v2_bl_positive():

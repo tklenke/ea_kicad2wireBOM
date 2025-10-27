@@ -359,7 +359,7 @@ def transform_to_svg_v2(fs: float, bl: float,
 
     Aircraft coords: FS increases aft (rear), BL increases starboard (right)
     SVG coords: X increases right, Y increases down
-    Diagram orientation: Rear (high FS) at TOP of drawing area (low SVG Y)
+    Diagram orientation: Nose (low FS) at TOP, Rear (high FS) at BOTTOM
 
     Args:
         fs, bl: Aircraft coordinates (inches)
@@ -373,7 +373,7 @@ def transform_to_svg_v2(fs: float, bl: float,
 
     Coordinate mapping:
         - BL → SVG X: BL=0 at origin_x, BL+ right, BL- left
-        - FS → SVG Y (inverted): FS=0 at origin_y, FS+ up (lower Y), FS- down (higher Y)
+        - FS → SVG Y: FS=0 at origin_y, FS+ down (higher Y), FS- up (lower Y)
     """
     # Apply reversed non-linear scaling to BL (expands center, compresses tips)
     bl_scaled = scale_bl_nonlinear_v2(bl)
@@ -381,8 +381,8 @@ def transform_to_svg_v2(fs: float, bl: float,
     # X: Scaled BL offset from origin (positive BL → right, negative BL → left)
     svg_x = origin_svg_x + (bl_scaled * scale_x)
 
-    # Y: FS offset from origin, INVERTED (positive FS → up = lower svg_y)
-    svg_y = origin_svg_y - (fs * scale_y)
+    # Y: FS offset from origin (positive FS → down = higher svg_y)
+    svg_y = origin_svg_y + (fs * scale_y)
 
     return (svg_x, svg_y)
 
@@ -529,7 +529,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     Layout (Phase 13 v2):
     - Landscape orientation (1100×700px from DIAGRAM_CONFIG)
     - Origin-centered coordinate system (FS=0, BL=0 at center)
-    - FS+ points up (rear at top), BL+ points right (starboard)
+    - FS+ points down (nose at top, rear at bottom), BL+ points right (starboard)
     - Non-linear BL scaling v2: expands centerline, compresses wingtips
     """
     # Use diagram configuration constants
