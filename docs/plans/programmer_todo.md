@@ -141,6 +141,70 @@
   - Verify wire stroke width from config
   - Print on 11×8.5 landscape, verify legibility
 
+### Phase 13.6: Component Star Diagrams (NEW)
+
+**See design document Section 11 for detailed specification**
+
+- [ ] **Task 13.6.1**: Implement star layout algorithm
+  - Add `calculate_star_layout()` function to `diagram_generator.py`
+  - Input: center component, list of neighbor components, radius (default 250px)
+  - Calculate polar coordinates: angle = 360° / N for each neighbor
+  - Return dict mapping component ref to (x, y) SVG coordinates
+  - TEST: Write `test_calculate_star_layout()` with:
+    - 1 neighbor → 0° position
+    - 2 neighbors → 0°, 180° positions
+    - 4 neighbors → 0°, 90°, 180°, 270° positions
+    - Verify even angular distribution
+
+- [ ] **Task 13.6.2**: Implement circle sizing logic
+  - Add `calculate_circle_radius()` function to `diagram_generator.py`
+  - Input: list of text strings (ref, value, desc), font size
+  - Estimate text width and height
+  - Return radius that fits text (min 40px, max 80px)
+  - Add `wrap_text()` helper for long descriptions
+  - TEST: Write `test_calculate_circle_radius()` with:
+    - Short text → minimum radius (40px)
+    - Long text → larger radius (up to 80px)
+    - Very long text → max radius + wrapping
+
+- [ ] **Task 13.6.3**: Create star diagram data structures
+  - Add `StarDiagramComponent` dataclass (ref, value, desc, x, y, radius)
+  - Add `StarDiagramWire` dataclass (circuit_id, from_ref, to_ref)
+  - Add `ComponentStarDiagram` dataclass (center, neighbors, wires)
+  - Add `build_component_star_diagram()` function
+  - TEST: Write `test_build_component_star_diagram()` to verify data structure creation
+
+- [ ] **Task 13.6.4**: Implement star SVG generation
+  - Add `generate_star_svg()` function to `diagram_generator.py`
+  - Portrait layout (750×950 px)
+  - Title block with component ref, value, description
+  - Render order: background → wires → wire labels → circles → circle text
+  - Center circle: lightblue fill, navy stroke, 3px width
+  - Outer circles: white fill, blue stroke, 2px width
+  - Wire labels: positioned at midpoint of each line
+  - Circle text: multi-line, centered, wrapped if needed
+  - TEST: Write `test_generate_star_svg()` - generate test diagram, verify SVG structure
+
+- [ ] **Task 13.6.5**: Integrate star diagrams into main generation
+  - Add `generate_component_star_diagrams()` function
+  - Loop through all components
+  - Skip power symbols (GND, +12V, etc.)
+  - For each component: find neighbors, build star diagram, generate SVG
+  - File naming: `{comp_ref}_Star.svg`
+  - Call from `generate_routing_diagrams()` after system and component diagrams
+  - TEST: Run on test_07 fixture, verify star diagrams generated for all non-power components
+
+- [ ] **Task 13.6.6**: Handle edge cases and polish
+  - Components with 1 neighbor: still show as star (center + 1 outer)
+  - Components with 20+ neighbors: use smaller circles or warning message
+  - Long component descriptions: wrap text inside circles
+  - Empty value or description: skip that line in circle
+  - TEST: Create test cases for:
+    - Single neighbor component
+    - Many neighbor component (10+)
+    - Long text wrapping
+    - Missing component data
+
 ---
 
 ## WORKFLOW REMINDERS

@@ -482,4 +482,333 @@ Deferred for later:
 
 ---
 
+## 11. Component Star Diagrams (NEW)
+
+### 11.1 Overview
+
+Generate logical connectivity diagrams showing each component and its first-hop neighbors in a radial/star layout. One diagram per component, focusing on what connects to what rather than physical routing.
+
+**Motivation**:
+- Quick visual reference for component connections during wiring
+- Easy to see all circuits connected to a specific component
+- Complements spatial routing diagrams with logical view
+- Useful for troubleshooting and wire tracing
+
+### 11.2 Layout Design
+
+```
+         Portrait (750×950 px)
+┌─────────────────────────────────────┐
+│  Title: CB1 Component Star          │
+│  CB1 = Circuit Breaker, 25A         │
+├─────────────────────────────────────┤
+│                                     │
+│         ┌────────┐                  │
+│         │  SW3   │                  │
+│         │ Switch │                  │
+│         └────────┘                  │
+│              │ L2A                  │
+│              │                      │
+│  ┌────────┐  ○  ┌────────┐         │
+│  │  BUS1  │─────│  CB1   │─────────│ P1A
+│  │ Power  │ P1B │Circuit │         │
+│  │  Bus   │     │Breaker │         │
+│  └────────┘     │  25A   │         │
+│                 └────────┘          │
+│                      │ L1A          │
+│                 ┌────────┐          │
+│                 │ LIGHT1 │          │
+│                 │Landing │          │
+│                 │ Light  │          │
+│                 └────────┘          │
+└─────────────────────────────────────┘
+
+Center: Target component with ref, value, desc
+Outer: First-hop neighbors with ref, desc
+Lines: Wires labeled with circuit IDs
+```
+
+### 11.3 Requirements
+
+**FR-STAR-1**: Generate one SVG per component (excluding power symbols)
+**FR-STAR-2**: Center circle shows: component ref, value, description
+**FR-STAR-3**: Outer circles show: component ref, description (no value)
+**FR-STAR-4**: Lines connect center to outer circles, labeled with circuit ID
+**FR-STAR-5**: Radial layout: arrange outer circles evenly around center
+**FR-STAR-6**: Auto-size circles based on text content
+**FR-STAR-7**: Portrait orientation (750×950 or similar)
+
+### 11.4 Layout Algorithm
+
+**Radial/Polar Layout**:
+- Center component at origin (center of SVG)
+- Outer components arranged in circle around center
+- Angular spacing: `θ = 360° / N` where N = number of neighbors
+- Radius: Fixed distance from center (e.g., 250px)
+
+```python
+def calculate_star_layout(center_comp: Component,
+                          neighbors: List[Component],
+                          radius: float = 250.0) -> Dict[str, Tuple[float, float]]:
+    """
+    Calculate polar coordinates for star diagram.
+
+    Args:
+        center_comp: Center component
+        neighbors: List of connected neighbor components
+        radius: Distance from center to neighbors (pixels)
+
+    Returns:
+        Dict mapping component ref to (x, y) SVG coordinates
+    """
+    layout = {}
+
+    # Center component at origin
+    center_x = svg_width / 2
+    center_y = svg_height / 2
+    layout[center_comp.ref] = (center_x, center_y)
+
+    # Arrange neighbors in circle
+    n = len(neighbors)
+    angle_step = 360.0 / n if n > 0 else 0
+
+    for i, neighbor in enumerate(neighbors):
+        angle = i * angle_step
+        angle_rad = math.radians(angle)
+
+        x = center_x + radius * math.cos(angle_rad)
+        y = center_y + radius * math.sin(angle_rad)
+
+        layout[neighbor.ref] = (x, y)
+
+    return layout
+```
+
+### 11.5 Circle Sizing
+
+**Dynamic sizing based on text**:
+- Measure text content (ref, value, desc)
+- Calculate required width and height
+- Use larger of width or height to ensure circular shape
+- Minimum radius: 40px
+- Maximum radius: 80px
+
+```python
+def calculate_circle_radius(texts: List[str],
+                           font_size: int = 12) -> float:
+    """
+    Calculate circle radius needed to fit text.
+
+    Args:
+        texts: List of text strings to fit (ref, value, desc)
+        font_size: Font size in points
+
+    Returns:
+        Circle radius in pixels
+    """
+    # Estimate text width (rough approximation)
+    max_text_width = max(len(text) * font_size * 0.6 for text in texts)
+
+    # Height for N lines of text with padding
+    text_height = len(texts) * (font_size + 4) + 10
+
+    # Circle must fit the larger dimension
+    required = max(max_text_width, text_height) * 0.6  # Factor for circular fit
+
+    # Clamp to reasonable range
+    return max(40.0, min(80.0, required))
+```
+
+### 11.6 Data Structures
+
+```python
+@dataclass
+class StarDiagramComponent:
+    """Component in star diagram."""
+    ref: str              # Component reference
+    value: str            # Component value (center only)
+    desc: str             # Component description
+    x: float              # SVG X position
+    y: float              # SVG Y position
+    radius: float         # Circle radius
+
+@dataclass
+class StarDiagramWire:
+    """Wire connection in star diagram."""
+    circuit_id: str       # Circuit label (e.g., "L1A")
+    from_ref: str         # Source component ref
+    to_ref: str           # Destination component ref
+
+@dataclass
+class ComponentStarDiagram:
+    """Star diagram for one component."""
+    center: StarDiagramComponent          # Center component
+    neighbors: List[StarDiagramComponent] # Outer components
+    wires: List[StarDiagramWire]          # Connecting wires
+```
+
+### 11.7 SVG Generation
+
+**Structure**:
+```xml
+<svg width="750" height="950">
+  <!-- Background -->
+  <rect fill="white" width="100%" height="100%"/>
+
+  <!-- Title block -->
+  <text>CB1 Component Star</text>
+  <text>CB1 = Circuit Breaker, 25A</text>
+
+  <!-- Wire lines (drawn first, behind circles) -->
+  <g id="wires">
+    <line x1="375" y1="475" x2="375" y2="225" stroke="black" stroke-width="2"/>
+  </g>
+
+  <!-- Wire labels -->
+  <g id="wire-labels">
+    <text x="375" y="350">L1A</text>
+  </g>
+
+  <!-- Circles -->
+  <g id="circles">
+    <!-- Center circle (larger, blue fill) -->
+    <circle cx="375" cy="475" r="60" fill="lightblue" stroke="navy" stroke-width="3"/>
+
+    <!-- Outer circles (smaller, white fill) -->
+    <circle cx="375" cy="225" r="50" fill="white" stroke="blue" stroke-width="2"/>
+  </g>
+
+  <!-- Text inside circles -->
+  <g id="circle-text">
+    <!-- Center circle text (3 lines: ref, value, desc) -->
+    <text x="375" y="460">CB1</text>
+    <text x="375" y="475">25A</text>
+    <text x="375" y="490">Circuit Breaker</text>
+
+    <!-- Outer circle text (2 lines: ref, desc) -->
+    <text x="375" y="220">LIGHT1</text>
+    <text x="375" y="235">Landing Light</text>
+  </g>
+</svg>
+```
+
+### 11.8 Text Wrapping
+
+**Handle long text**:
+- Component descriptions may be long (e.g., "Left Landing Light Switch")
+- Need to wrap text inside circles
+- Break at word boundaries
+- Adjust circle size if needed
+
+```python
+def wrap_text(text: str, max_width: int) -> List[str]:
+    """
+    Wrap text to fit within max width.
+
+    Args:
+        text: Text to wrap
+        max_width: Maximum characters per line
+
+    Returns:
+        List of wrapped lines
+    """
+    words = text.split()
+    lines = []
+    current_line = []
+    current_length = 0
+
+    for word in words:
+        if current_length + len(word) + 1 <= max_width:
+            current_line.append(word)
+            current_length += len(word) + 1
+        else:
+            if current_line:
+                lines.append(' '.join(current_line))
+            current_line = [word]
+            current_length = len(word)
+
+    if current_line:
+        lines.append(' '.join(current_line))
+
+    return lines
+```
+
+### 11.9 Handling Power Symbols
+
+**Exclude power symbols from star diagrams**:
+- GND, +12V, +5V, +28V, etc. connect to many components
+- Would clutter star diagrams
+- Already shown in routing diagrams
+
+**Filter logic**:
+```python
+def should_generate_star_diagram(comp_ref: str) -> bool:
+    """
+    Determine if component should have star diagram.
+
+    Power symbols excluded (too many connections).
+    """
+    power_symbols = ['GND', '+12V', '+5V', '+3V3', '+28V']
+
+    if comp_ref in power_symbols:
+        return False
+
+    if comp_ref.startswith('GND') or comp_ref.startswith('+'):
+        return False
+
+    return True
+```
+
+### 11.10 File Naming
+
+**Output files**:
+- `CB1_Star.svg` - Star diagram for CB1
+- `SW2_Star.svg` - Star diagram for SW2
+- etc.
+
+**Differentiate from other diagrams**:
+- System diagrams: `L_System.svg`, `P_System.svg`
+- Component routing: `CB1_Component.svg`, `SW2_Component.svg`
+- Component star: `CB1_Star.svg`, `SW2_Star.svg`
+
+### 11.11 Implementation Tasks Summary
+
+**Phase 13.6: Component Star Diagrams** (to be added to programmer_todo.md):
+
+1. **Task 13.6.1**: Implement star layout algorithm
+   - `calculate_star_layout()` function
+   - Polar coordinate calculations
+   - TEST: Verify even angular distribution
+
+2. **Task 13.6.2**: Implement circle sizing logic
+   - `calculate_circle_radius()` function
+   - Text measurement and wrapping
+   - TEST: Verify circles fit text content
+
+3. **Task 13.6.3**: Create `ComponentStarDiagram` data structures
+   - `StarDiagramComponent`, `StarDiagramWire` dataclasses
+   - `ComponentStarDiagram` builder function
+   - TEST: Verify data structure creation
+
+4. **Task 13.6.4**: Implement `generate_star_svg()` function
+   - Portrait SVG with title block
+   - Draw wires first (background)
+   - Draw circles (foreground)
+   - Render text inside circles
+   - TEST: Generate test star diagram
+
+5. **Task 13.6.5**: Integrate with main diagram generation
+   - Add to `generate_routing_diagrams()` function
+   - Generate one star diagram per component
+   - Skip power symbols
+   - TEST: Verify star diagrams generated for all components
+
+6. **Task 13.6.6**: Handle edge cases
+   - Components with 1 neighbor (still show as star)
+   - Components with 20+ neighbors (may need smaller circles or multiple rings)
+   - Long component descriptions (text wrapping)
+   - TEST: Test with varying neighbor counts
+
+---
+
 **Document Status**: ✅ Ready for Implementation
