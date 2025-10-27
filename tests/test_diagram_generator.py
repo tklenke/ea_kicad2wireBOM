@@ -1249,6 +1249,85 @@ def test_build_component_star_diagram():
     assert diagram.wires[1].circuit_id == "L2A"
 
 
+def test_generate_star_svg(tmp_path):
+    """Test star SVG generation creates correct file structure (Phase 13.6.4)."""
+    from kicad2wireBOM.diagram_generator import (
+        StarDiagramComponent,
+        StarDiagramWire,
+        ComponentStarDiagram,
+        generate_star_svg
+    )
+
+    # Create center component
+    center = StarDiagramComponent(
+        ref="CB1",
+        value="5A",
+        desc="Circuit Breaker",
+        x=375.0,
+        y=475.0,
+        radius=50.0
+    )
+
+    # Create neighbor components
+    neighbor1 = StarDiagramComponent(
+        ref="SW1",
+        value="SPDT",
+        desc="Power Switch",
+        x=625.0,
+        y=475.0,
+        radius=45.0
+    )
+    neighbor2 = StarDiagramComponent(
+        ref="L1",
+        value="LED",
+        desc="Indicator",
+        x=375.0,
+        y=675.0,
+        radius=40.0
+    )
+
+    # Create wire connections
+    wire1 = StarDiagramWire(circuit_id="L1A", from_ref="CB1", to_ref="SW1")
+    wire2 = StarDiagramWire(circuit_id="L2A", from_ref="CB1", to_ref="L1")
+
+    # Create star diagram
+    diagram = ComponentStarDiagram(
+        center=center,
+        neighbors=[neighbor1, neighbor2],
+        wires=[wire1, wire2]
+    )
+
+    # Generate SVG
+    output_file = tmp_path / "test_star.svg"
+    generate_star_svg(diagram, output_file)
+
+    # Verify file exists
+    assert output_file.exists()
+
+    # Read and verify content
+    content = output_file.read_text()
+
+    # Verify SVG structure
+    assert '<svg' in content
+    assert 'width="750"' in content
+    assert 'height="950"' in content
+
+    # Verify title block
+    assert 'CB1' in content
+    assert '5A' in content
+    assert 'Circuit Breaker' in content
+
+    # Verify circles (3 total: 1 center + 2 neighbors)
+    assert content.count('<circle') == 3
+
+    # Verify wires (lines between center and neighbors)
+    assert content.count('<line') == 2
+
+    # Verify wire labels
+    assert 'L1A' in content
+    assert 'L2A' in content
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)

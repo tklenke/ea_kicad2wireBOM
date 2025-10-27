@@ -860,6 +860,112 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     output_path.write_text('\n'.join(svg_lines))
 
 
+def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
+    """
+    Generate star SVG diagram for one component and its neighbors (Phase 13.6.4).
+
+    Args:
+        diagram: ComponentStarDiagram with center, neighbors, and wires
+        output_path: Path to write SVG file
+
+    Creates portrait SVG (750×950px) with:
+    - Title block with center component ref, value, description
+    - Wires (lines from center to neighbors)
+    - Wire labels at midpoint
+    - Center circle (lightblue fill, navy stroke 3px)
+    - Outer circles (white fill, blue stroke 2px)
+    - Multi-line centered text in each circle
+
+    Render order: background → wires → wire labels → circles → circle text
+    """
+    # Portrait dimensions
+    svg_width = 750
+    svg_height = 950
+    title_height = 100
+    margin = 40
+
+    # Start building SVG
+    svg_lines = []
+    svg_lines.append(f'<svg width="{svg_width}" height="{svg_height}" xmlns="http://www.w3.org/2000/svg">')
+
+    # Background
+    svg_lines.append('  <rect fill="white" width="100%" height="100%"/>')
+
+    # Title block
+    svg_lines.append('  <g id="title" font-family="Arial" text-anchor="middle">')
+    svg_lines.append(f'    <text x="{svg_width/2}" y="30" font-size="24" font-weight="bold" fill="black">')
+    svg_lines.append(f'      Component Star Diagram: {diagram.center.ref}')
+    svg_lines.append('    </text>')
+    svg_lines.append(f'    <text x="{svg_width/2}" y="55" font-size="14" fill="navy">')
+    svg_lines.append(f'      {diagram.center.value}')
+    svg_lines.append('    </text>')
+    svg_lines.append(f'    <text x="{svg_width/2}" y="75" font-size="12" fill="navy">')
+    svg_lines.append(f'      {diagram.center.desc}')
+    svg_lines.append('    </text>')
+    svg_lines.append('  </g>')
+
+    # Create mapping of component ref to coordinates for wire drawing
+    comp_positions = {diagram.center.ref: (diagram.center.x, diagram.center.y)}
+    for neighbor in diagram.neighbors:
+        comp_positions[neighbor.ref] = (neighbor.x, neighbor.y)
+
+    # Wires (lines between components)
+    svg_lines.append('  <g id="wires" stroke="black" stroke-width="2">')
+    for wire in diagram.wires:
+        if wire.from_ref in comp_positions and wire.to_ref in comp_positions:
+            x1, y1 = comp_positions[wire.from_ref]
+            x2, y2 = comp_positions[wire.to_ref]
+            svg_lines.append(f'    <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}"/>')
+    svg_lines.append('  </g>')
+
+    # Wire labels (at midpoint of each line)
+    svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
+    for wire in diagram.wires:
+        if wire.from_ref in comp_positions and wire.to_ref in comp_positions:
+            x1, y1 = comp_positions[wire.from_ref]
+            x2, y2 = comp_positions[wire.to_ref]
+            mid_x = (x1 + x2) / 2
+            mid_y = (y1 + y2) / 2
+            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}">{wire.circuit_id}</text>')
+    svg_lines.append('  </g>')
+
+    # Circles
+    svg_lines.append('  <g id="circles">')
+
+    # Center circle (lightblue fill, navy stroke, 3px)
+    svg_lines.append(f'    <circle cx="{diagram.center.x:.1f}" cy="{diagram.center.y:.1f}" r="{diagram.center.radius:.1f}" ')
+    svg_lines.append('      fill="lightblue" stroke="navy" stroke-width="3"/>')
+
+    # Outer circles (white fill, blue stroke, 2px)
+    for neighbor in diagram.neighbors:
+        svg_lines.append(f'    <circle cx="{neighbor.x:.1f}" cy="{neighbor.y:.1f}" r="{neighbor.radius:.1f}" ')
+        svg_lines.append('      fill="white" stroke="blue" stroke-width="2"/>')
+
+    svg_lines.append('  </g>')
+
+    # Circle text (multi-line, centered)
+    svg_lines.append('  <g id="circle-text" font-family="Arial" font-size="10" text-anchor="middle" fill="black">')
+
+    # Center component text
+    svg_lines.append(f'    <text x="{diagram.center.x:.1f}" y="{diagram.center.y - 10:.1f}" font-weight="bold">{diagram.center.ref}</text>')
+    svg_lines.append(f'    <text x="{diagram.center.x:.1f}" y="{diagram.center.y + 5:.1f}">{diagram.center.value}</text>')
+    svg_lines.append(f'    <text x="{diagram.center.x:.1f}" y="{diagram.center.y + 20:.1f}" font-size="8">{diagram.center.desc}</text>')
+
+    # Neighbor component text
+    for neighbor in diagram.neighbors:
+        svg_lines.append(f'    <text x="{neighbor.x:.1f}" y="{neighbor.y - 10:.1f}" font-weight="bold">{neighbor.ref}</text>')
+        svg_lines.append(f'    <text x="{neighbor.x:.1f}" y="{neighbor.y + 5:.1f}">{neighbor.value}</text>')
+        svg_lines.append(f'    <text x="{neighbor.x:.1f}" y="{neighbor.y + 20:.1f}" font-size="8">{neighbor.desc}</text>')
+
+    svg_lines.append('  </g>')
+
+    svg_lines.append('</svg>')
+
+    # Write to file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text('\n'.join(svg_lines))
+
+
 def calculate_star_layout(center_x: float, center_y: float, neighbor_refs: List[str], radius: float = 250.0) -> Dict[str, Tuple[float, float]]:
     """
     Calculate polar star layout for neighbor components around a center point (Phase 13.6.1).
