@@ -833,6 +833,56 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     output_path.write_text('\n'.join(svg_lines))
 
 
+def calculate_star_layout(center_x: float, center_y: float, neighbor_refs: List[str], radius: float = 250.0) -> Dict[str, Tuple[float, float]]:
+    """
+    Calculate polar star layout for neighbor components around a center point (Phase 13.6.1).
+
+    Distributes neighbors evenly around a circle at specified radius from center.
+    First neighbor at 0° (right/east), continuing counter-clockwise.
+
+    Args:
+        center_x: X coordinate of center point (pixels)
+        center_y: Y coordinate of center point (pixels)
+        neighbor_refs: List of component references to position
+        radius: Distance from center to neighbors (default 250px)
+
+    Returns:
+        Dict mapping component ref to (x, y) SVG coordinates
+
+    Example:
+        1 neighbor: 0° (right)
+        2 neighbors: 0° (right), 180° (left)
+        4 neighbors: 0° (right), 90° (down), 180° (left), 270° (up)
+
+    Coordinates in SVG space (Y increases downward):
+        0° = right (+X)
+        90° = down (+Y)
+        180° = left (-X)
+        270° = up (-Y)
+    """
+    layout = {}
+    n = len(neighbor_refs)
+
+    if n == 0:
+        return layout
+
+    # Angular step between neighbors
+    angle_step = 360.0 / n
+
+    for i, ref in enumerate(neighbor_refs):
+        # Calculate angle in degrees (starting at 0° = right)
+        angle_deg = i * angle_step
+        angle_rad = math.radians(angle_deg)
+
+        # Calculate position (SVG: Y increases downward, so +sin for Y)
+        x = center_x + radius * math.cos(angle_rad)
+        y = center_y + radius * math.sin(angle_rad)
+
+        layout[ref] = (x, y)
+
+    return layout
+
+
 def build_component_diagram(component_ref: str, wires: List, components: Dict) -> SystemDiagram:
     """
     Build diagram data structure for one component and its first-hop neighbors.

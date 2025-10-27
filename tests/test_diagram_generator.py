@@ -1050,6 +1050,84 @@ def test_circuit_labels_under_components(tmp_path):
     assert 'L1B' in svg_content
 
 
+def test_calculate_star_layout_single_neighbor():
+    """Test star layout with 1 neighbor positioned at 0° (Phase 13.6.1)."""
+    from kicad2wireBOM.diagram_generator import calculate_star_layout
+    import math
+
+    center_x, center_y = 400.0, 400.0
+    radius = 250.0
+    neighbor_refs = ["SW1"]
+
+    layout = calculate_star_layout(center_x, center_y, neighbor_refs, radius)
+
+    # Single neighbor should be at 0° (right side)
+    assert "SW1" in layout
+    x, y = layout["SW1"]
+    # 0° = right side: x = center_x + radius, y = center_y
+    assert x == pytest.approx(center_x + radius)
+    assert y == pytest.approx(center_y)
+
+
+def test_calculate_star_layout_two_neighbors():
+    """Test star layout with 2 neighbors at 0° and 180° (Phase 13.6.1)."""
+    from kicad2wireBOM.diagram_generator import calculate_star_layout
+    import math
+
+    center_x, center_y = 400.0, 400.0
+    radius = 250.0
+    neighbor_refs = ["SW1", "L1"]
+
+    layout = calculate_star_layout(center_x, center_y, neighbor_refs, radius)
+
+    # Two neighbors: 0° and 180°
+    assert "SW1" in layout
+    assert "L1" in layout
+
+    x1, y1 = layout["SW1"]
+    x2, y2 = layout["L1"]
+
+    # 0° = right: (center_x + radius, center_y)
+    # 180° = left: (center_x - radius, center_y)
+    assert x1 == pytest.approx(center_x + radius)
+    assert y1 == pytest.approx(center_y)
+    assert x2 == pytest.approx(center_x - radius)
+    assert y2 == pytest.approx(center_y)
+
+
+def test_calculate_star_layout_four_neighbors():
+    """Test star layout with 4 neighbors at 0°, 90°, 180°, 270° (Phase 13.6.1)."""
+    from kicad2wireBOM.diagram_generator import calculate_star_layout
+    import math
+
+    center_x, center_y = 400.0, 400.0
+    radius = 250.0
+    neighbor_refs = ["N1", "N2", "N3", "N4"]
+
+    layout = calculate_star_layout(center_x, center_y, neighbor_refs, radius)
+
+    # Four neighbors at cardinal directions
+    assert len(layout) == 4
+
+    x1, y1 = layout["N1"]  # 0° = right
+    x2, y2 = layout["N2"]  # 90° = down
+    x3, y3 = layout["N3"]  # 180° = left
+    x4, y4 = layout["N4"]  # 270° = up
+
+    # Verify positions (SVG: Y increases downward)
+    assert x1 == pytest.approx(center_x + radius)  # Right
+    assert y1 == pytest.approx(center_y)
+
+    assert x2 == pytest.approx(center_x)  # Down
+    assert y2 == pytest.approx(center_y + radius)
+
+    assert x3 == pytest.approx(center_x - radius)  # Left
+    assert y3 == pytest.approx(center_y)
+
+    assert x4 == pytest.approx(center_x)  # Up
+    assert y4 == pytest.approx(center_y - radius)
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)

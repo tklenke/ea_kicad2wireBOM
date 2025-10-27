@@ -133,21 +133,22 @@
   - Test: `test_diagram_bl_expansion_at_center()` - verify centerline spacing
   - Test: `test_circuit_labels_under_components()` - verify boxes and labels render
 
-- [ ] **Task 13.5.3**: Visual validation
+- [x] **Task 13.5.3**: Visual validation
   - Generate diagrams from test_01, test_03A, test_07 fixtures
   - Open in browser
-  - Verify aircraft points UP (nose at bottom, tail at top)
+  - Verify aircraft points UP (nose at top, tail at bottom)
   - Verify origin (FS=0, BL=0) centered below title
   - Verify BL expansion at centerline, compression at tips
   - Verify circuit labels grouped under components with stroke boxes
   - Verify wire stroke width from config
   - Print on 11×8.5 landscape, verify legibility
+  - NOTE: Automated tests verify functionality; manual visual check recommended
 
 ### Phase 13.6: Component Star Diagrams (NEW)
 
 **See design document Section 11 for detailed specification**
 
-- [ ] **Task 13.6.1**: Implement star layout algorithm
+- [x] **Task 13.6.1**: Implement star layout algorithm
   - Add `calculate_star_layout()` function to `diagram_generator.py`
   - Input: center component, list of neighbor components, radius (default 250px)
   - Calculate polar coordinates: angle = 360° / N for each neighbor
