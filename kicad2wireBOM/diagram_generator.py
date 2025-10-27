@@ -896,6 +896,10 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
     svg_lines.append('  </g>')
 
     # Wire labels (at midpoint of each line, offset up from line)
+    # Track label positions to detect overlaps
+    used_label_positions = []  # List of (x, y, dy_offset) tuples
+    LABEL_COLLISION_THRESHOLD = 20  # pixels - labels closer than this are considered overlapping
+
     svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
     for wire in diagram.wires:
         if wire.from_ref in comp_positions and wire.to_ref in comp_positions:
@@ -903,8 +907,27 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
             x2, y2 = comp_positions[wire.to_ref]
             mid_x = (x1 + x2) / 2
             mid_y = (y1 + y2) / 2
-            # Offset label up from line by 12 pixels
-            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}" dy="-12">{wire.circuit_id}</text>')
+
+            # Start with default offset (12 pixels up)
+            dy_offset = -12
+
+            # Check for collision with existing labels
+            for existing_x, existing_y, existing_dy in used_label_positions:
+                # Calculate actual Y positions after dy offset
+                actual_y = mid_y + dy_offset
+                existing_actual_y = existing_y + existing_dy
+
+                # Check if positions are close enough to collide
+                distance = ((mid_x - existing_x)**2 + (actual_y - existing_actual_y)**2)**0.5
+                if distance < LABEL_COLLISION_THRESHOLD:
+                    # Collision detected - move this label further up
+                    dy_offset -= 15  # Move up by label height + spacing
+
+            # Track this label's position
+            used_label_positions.append((mid_x, mid_y, dy_offset))
+
+            # Render label with calculated offset
+            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}" dy="{dy_offset}">{wire.circuit_id}</text>')
     svg_lines.append('  </g>')
 
     # Circles
