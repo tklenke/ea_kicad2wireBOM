@@ -6,7 +6,11 @@ from kicad2wireBOM.reference_data import (
     WIRE_RESISTANCE,
     WIRE_AMPACITY,
     STANDARD_AWG_SIZES,
-    DEFAULT_CONFIG
+    DEFAULT_CONFIG,
+    DIAGRAM_CONFIG,
+    BL_CENTER_EXPANSION,
+    BL_TIP_COMPRESSION,
+    BL_CENTER_THRESHOLD
 )
 
 
@@ -78,3 +82,60 @@ def test_wire_data_reasonable_values():
     awg_sizes = sorted(WIRE_AMPACITY.keys())
     if len(awg_sizes) >= 2:
         assert WIRE_AMPACITY[awg_sizes[0]] > WIRE_AMPACITY[awg_sizes[-1]]
+
+
+def test_diagram_config_exists():
+    """Test that DIAGRAM_CONFIG dict has required keys for Phase 13"""
+    assert isinstance(DIAGRAM_CONFIG, dict)
+
+    # Required keys for diagram layout
+    required_keys = [
+        'wire_stroke_width',
+        'component_radius',
+        'component_stroke_width',
+        'svg_width',
+        'svg_height',
+        'margin',
+        'title_height',
+        'origin_offset_y'
+    ]
+
+    for key in required_keys:
+        assert key in DIAGRAM_CONFIG, f"Missing key: {key}"
+
+    # Validate types and values
+    assert isinstance(DIAGRAM_CONFIG['wire_stroke_width'], (int, float))
+    assert DIAGRAM_CONFIG['wire_stroke_width'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['component_radius'], (int, float))
+    assert DIAGRAM_CONFIG['component_radius'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['component_stroke_width'], (int, float))
+    assert DIAGRAM_CONFIG['component_stroke_width'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['svg_width'], int)
+    assert DIAGRAM_CONFIG['svg_width'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['svg_height'], int)
+    assert DIAGRAM_CONFIG['svg_height'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['margin'], int)
+    assert DIAGRAM_CONFIG['margin'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['title_height'], int)
+    assert DIAGRAM_CONFIG['title_height'] > 0
+
+    assert isinstance(DIAGRAM_CONFIG['origin_offset_y'], int)
+    assert DIAGRAM_CONFIG['origin_offset_y'] > 0
+
+
+def test_bl_scaling_constants_exist():
+    """Test that BL scaling constants are defined with correct values"""
+    assert isinstance(BL_CENTER_EXPANSION, (int, float))
+    assert BL_CENTER_EXPANSION == 3.0
+
+    assert isinstance(BL_TIP_COMPRESSION, (int, float))
+    assert BL_TIP_COMPRESSION == 10.0
+
+    assert isinstance(BL_CENTER_THRESHOLD, (int, float))
+    assert BL_CENTER_THRESHOLD == 30.0

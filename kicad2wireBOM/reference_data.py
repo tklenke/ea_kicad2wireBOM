@@ -52,3 +52,20 @@ DEFAULT_CONFIG: Dict[str, any] = {
 # 3D projection constants for diagram generation
 DEFAULT_WL_SCALE = 1.5              # WL scale factor (makes WL 1.5x more visible)
 DEFAULT_PROJECTION_ANGLE = 30        # Projection angle in degrees
+
+# Diagram configuration for Phase 13 enhancements
+DIAGRAM_CONFIG = {
+    'wire_stroke_width': 3.0,        # Wire line thickness in pixels
+    'component_radius': 6.0,         # Component marker radius in pixels
+    'component_stroke_width': 2.0,   # Component marker border thickness
+    'svg_width': 1100,               # Landscape width
+    'svg_height': 700,               # Landscape height
+    'margin': 40,                    # Page margins
+    'title_height': 80,              # Title block height
+    'origin_offset_y': 100,          # Distance from title to origin (FS=0, BL=0)
+}
+
+# BL scaling constants for Phase 13 non-linear scaling
+BL_CENTER_EXPANSION = 3.0            # Expansion factor near centerline
+BL_TIP_COMPRESSION = 10.0            # Compression factor at wing tips
+BL_CENTER_THRESHOLD = 30.0           # BL value where expansion transitions to compression

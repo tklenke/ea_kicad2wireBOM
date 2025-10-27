@@ -27,13 +27,13 @@
 
 ### Phase 13.1: Configuration Setup
 
-- [ ] **Task 13.1.1**: Add diagram configuration to `reference_data.py`
+- [x] **Task 13.1.1**: Add diagram configuration to `reference_data.py`
   - Add `DIAGRAM_CONFIG` dict with layout constants (svg_width, svg_height, margins, etc.)
   - Add BL scaling parameters: `BL_CENTER_EXPANSION = 3.0`, `BL_TIP_COMPRESSION = 10.0`, `BL_CENTER_THRESHOLD = 30.0`
   - Add `WIRE_STROKE_WIDTH = 3.0` (make configurable)
   - TEST: Verify constants importable and have correct types
 
-- [ ] **Task 13.1.2**: Update imports in `diagram_generator.py`
+- [~] **Task 13.1.2**: Update imports in `diagram_generator.py`
   - Import `DIAGRAM_CONFIG` from reference_data
   - Replace hardcoded constants (FIXED_WIDTH, FIXED_HEIGHT, MARGIN, etc.) with config values
   - Replace hardcoded wire stroke width with `DIAGRAM_CONFIG['wire_stroke_width']`
