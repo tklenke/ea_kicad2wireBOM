@@ -943,19 +943,49 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
 
     svg_lines.append('  </g>')
 
-    # Circle text (multi-line, centered)
+    # Circle text (multi-line, centered) - Phase 13.6.6: skip empty lines
     svg_lines.append('  <g id="circle-text" font-family="Arial" font-size="10" text-anchor="middle" fill="black">')
 
+    # Helper function to render component text (skips empty lines)
+    def render_component_text(comp: StarDiagramComponent, x: float, y: float, is_center: bool = False):
+        """Render component text lines, skipping empty values."""
+        lines = []
+
+        # Reference (always shown)
+        lines.append((comp.ref, 'bold', 10))
+
+        # Value (skip if empty)
+        if comp.value:
+            lines.append((comp.value, 'normal', 10))
+
+        # Description (skip if empty, truncate if too long)
+        if comp.desc:
+            # Truncate long descriptions
+            desc = comp.desc[:30] + '...' if len(comp.desc) > 30 else comp.desc
+            lines.append((desc, 'normal', 8))
+
+        # Calculate line spacing based on number of lines
+        line_count = len(lines)
+        if line_count == 1:
+            y_offsets = [0]
+        elif line_count == 2:
+            y_offsets = [-7, 7]
+        else:  # 3 lines
+            y_offsets = [-10, 5, 20]
+
+        # Render each line
+        for i, (text, weight, size) in enumerate(lines):
+            y_pos = y + y_offsets[i]
+            weight_attr = ' font-weight="bold"' if weight == 'bold' else ''
+            size_attr = f' font-size="{size}"' if size != 10 else ''
+            svg_lines.append(f'    <text x="{x:.1f}" y="{y_pos:.1f}"{weight_attr}{size_attr}>{text}</text>')
+
     # Center component text
-    svg_lines.append(f'    <text x="{diagram.center.x:.1f}" y="{diagram.center.y - 10:.1f}" font-weight="bold">{diagram.center.ref}</text>')
-    svg_lines.append(f'    <text x="{diagram.center.x:.1f}" y="{diagram.center.y + 5:.1f}">{diagram.center.value}</text>')
-    svg_lines.append(f'    <text x="{diagram.center.x:.1f}" y="{diagram.center.y + 20:.1f}" font-size="8">{diagram.center.desc}</text>')
+    render_component_text(diagram.center, diagram.center.x, diagram.center.y, is_center=True)
 
     # Neighbor component text
     for neighbor in diagram.neighbors:
-        svg_lines.append(f'    <text x="{neighbor.x:.1f}" y="{neighbor.y - 10:.1f}" font-weight="bold">{neighbor.ref}</text>')
-        svg_lines.append(f'    <text x="{neighbor.x:.1f}" y="{neighbor.y + 5:.1f}">{neighbor.value}</text>')
-        svg_lines.append(f'    <text x="{neighbor.x:.1f}" y="{neighbor.y + 20:.1f}" font-size="8">{neighbor.desc}</text>')
+        render_component_text(neighbor, neighbor.x, neighbor.y, is_center=False)
 
     svg_lines.append('  </g>')
 

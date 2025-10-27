@@ -1328,6 +1328,85 @@ def test_generate_star_svg(tmp_path):
     assert 'L2A' in content
 
 
+def test_generate_star_svg_single_neighbor(tmp_path):
+    """Test star diagram with single neighbor (Phase 13.6.6)."""
+    from kicad2wireBOM.diagram_generator import (
+        StarDiagramComponent,
+        StarDiagramWire,
+        ComponentStarDiagram,
+        generate_star_svg
+    )
+
+    center = StarDiagramComponent(ref="CB1", value="5A", desc="Breaker", x=375.0, y=475.0, radius=50.0)
+    neighbor = StarDiagramComponent(ref="SW1", value="SPDT", desc="Switch", x=625.0, y=475.0, radius=45.0)
+    wire = StarDiagramWire(circuit_id="L1A", from_ref="CB1", to_ref="SW1")
+
+    diagram = ComponentStarDiagram(center=center, neighbors=[neighbor], wires=[wire])
+    output_file = tmp_path / "single_neighbor.svg"
+    generate_star_svg(diagram, output_file)
+
+    assert output_file.exists()
+    content = output_file.read_text()
+    assert content.count('<circle') == 2  # Center + 1 neighbor
+
+
+def test_generate_star_svg_empty_fields(tmp_path):
+    """Test star diagram with empty value/description fields (Phase 13.6.6)."""
+    from kicad2wireBOM.diagram_generator import (
+        StarDiagramComponent,
+        StarDiagramWire,
+        ComponentStarDiagram,
+        generate_star_svg
+    )
+
+    # Component with empty value and description
+    center = StarDiagramComponent(ref="CB1", value="", desc="", x=375.0, y=475.0, radius=50.0)
+    neighbor = StarDiagramComponent(ref="SW1", value="SPDT", desc="", x=625.0, y=475.0, radius=45.0)
+    wire = StarDiagramWire(circuit_id="L1A", from_ref="CB1", to_ref="SW1")
+
+    diagram = ComponentStarDiagram(center=center, neighbors=[neighbor], wires=[wire])
+    output_file = tmp_path / "empty_fields.svg"
+    generate_star_svg(diagram, output_file)
+
+    assert output_file.exists()
+    content = output_file.read_text()
+    # Should still render but skip empty lines
+    assert 'CB1' in content
+    assert 'SW1' in content
+
+
+def test_generate_star_svg_many_neighbors(tmp_path):
+    """Test star diagram with many neighbors (Phase 13.6.6)."""
+    from kicad2wireBOM.diagram_generator import (
+        StarDiagramComponent,
+        StarDiagramWire,
+        ComponentStarDiagram,
+        generate_star_svg,
+        calculate_star_layout
+    )
+
+    center = StarDiagramComponent(ref="CB1", value="5A", desc="Breaker", x=375.0, y=475.0, radius=50.0)
+
+    # Create 12 neighbors
+    neighbor_refs = [f"C{i}" for i in range(1, 13)]
+    layout = calculate_star_layout(375.0, 475.0, neighbor_refs, radius=250.0)
+
+    neighbors = []
+    wires = []
+    for ref in neighbor_refs:
+        x, y = layout[ref]
+        neighbors.append(StarDiagramComponent(ref=ref, value="1uF", desc="Cap", x=x, y=y, radius=40.0))
+        wires.append(StarDiagramWire(circuit_id=f"L{ref}", from_ref="CB1", to_ref=ref))
+
+    diagram = ComponentStarDiagram(center=center, neighbors=neighbors, wires=wires)
+    output_file = tmp_path / "many_neighbors.svg"
+    generate_star_svg(diagram, output_file)
+
+    assert output_file.exists()
+    content = output_file.read_text()
+    assert content.count('<circle') == 13  # Center + 12 neighbors
+
+
 def test_manhattan_path_3d_routing():
     """Test 3D Manhattan routing returns 5 points with BL→FS→WL order."""
     # Component 1: (FS1=10, WL1=5, BL1=30)
