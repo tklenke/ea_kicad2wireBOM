@@ -1239,6 +1239,135 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
         print(f"Generated {output_path}")
 
 
+def generate_component_star_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+    """
+    Generate component star diagram SVG files for all components (Phase 13.6.5).
+
+    Args:
+        wire_connections: All wire connections from BOM
+        components: Dict mapping component ref to Component object
+        output_dir: Directory to write SVG files
+
+    Outputs:
+        One star diagram SVG per component ({comp_ref}_Star.svg)
+        Shows component at center with neighbors arranged in star pattern
+    """
+    # Group wires by component (find all wires connected to each component)
+    component_wires = defaultdict(list)
+
+    for wire in wire_connections:
+        # Add wire to both source and destination component groups
+        if wire.from_component:
+            component_wires[wire.from_component].append(wire)
+        if wire.to_component and wire.to_component != wire.from_component:
+            component_wires[wire.to_component].append(wire)
+
+    # Portrait layout center
+    center_x, center_y = 375.0, 475.0
+    star_radius = 250.0
+
+    # Generate one star diagram per component
+    for comp_ref, wires in component_wires.items():
+        # Skip power symbols (they connect to many components)
+        if comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V'] or comp_ref.startswith('GND') or comp_ref.startswith('+'):
+            continue
+
+        # Find neighbor components (all components connected to this one)
+        neighbors = set()
+        wire_connections_map = []  # List of (circuit_id, from_ref, to_ref) tuples
+
+        for wire in wires:
+            # Determine neighbor component
+            if wire.from_component == comp_ref and wire.to_component:
+                neighbor_ref = wire.to_component
+                neighbors.add(neighbor_ref)
+                wire_connections_map.append((wire.wire_label, comp_ref, neighbor_ref))
+            elif wire.to_component == comp_ref and wire.from_component:
+                neighbor_ref = wire.from_component
+                neighbors.add(neighbor_ref)
+                wire_connections_map.append((wire.wire_label, comp_ref, neighbor_ref))
+
+        # Skip if no neighbors
+        if not neighbors:
+            continue
+
+        # Remove power symbols from neighbors
+        neighbors = [n for n in neighbors if not (n in ['GND', '+12V', '+5V', '+3V3', '+28V'] or n.startswith('GND') or n.startswith('+'))]
+
+        if not neighbors:
+            continue
+
+        # Calculate star layout for neighbors
+        neighbor_refs_sorted = sorted(neighbors)  # Sort for consistent layout
+        layout = calculate_star_layout(center_x, center_y, neighbor_refs_sorted, star_radius)
+
+        # Get component data
+        center_comp = components.get(comp_ref)
+        center_value = center_comp.value if center_comp else ""
+        center_desc = center_comp.desc if center_comp else ""
+
+        # Calculate radius for center component
+        center_text_lines = [comp_ref, center_value, center_desc]
+        center_radius = calculate_circle_radius(center_text_lines, font_size=10)
+
+        # Build center component
+        center_star_comp = StarDiagramComponent(
+            ref=comp_ref,
+            value=center_value,
+            desc=center_desc,
+            x=center_x,
+            y=center_y,
+            radius=center_radius
+        )
+
+        # Build neighbor components
+        neighbor_star_comps = []
+        for neighbor_ref in neighbor_refs_sorted:
+            neighbor_comp = components.get(neighbor_ref)
+            neighbor_value = neighbor_comp.value if neighbor_comp else ""
+            neighbor_desc = neighbor_comp.desc if neighbor_comp else ""
+
+            # Calculate radius
+            neighbor_text_lines = [neighbor_ref, neighbor_value, neighbor_desc]
+            neighbor_radius = calculate_circle_radius(neighbor_text_lines, font_size=10)
+
+            # Get position from layout
+            x, y = layout[neighbor_ref]
+
+            neighbor_star_comps.append(StarDiagramComponent(
+                ref=neighbor_ref,
+                value=neighbor_value,
+                desc=neighbor_desc,
+                x=x,
+                y=y,
+                radius=neighbor_radius
+            ))
+
+        # Build wire list
+        star_wires = []
+        for circuit_id, from_ref, to_ref in wire_connections_map:
+            # Only include wires to neighbors in the diagram
+            if to_ref in neighbor_refs_sorted or from_ref in neighbor_refs_sorted:
+                star_wires.append(StarDiagramWire(
+                    circuit_id=circuit_id,
+                    from_ref=from_ref,
+                    to_ref=to_ref
+                ))
+
+        # Build star diagram
+        star_diagram = ComponentStarDiagram(
+            center=center_star_comp,
+            neighbors=neighbor_star_comps,
+            wires=star_wires
+        )
+
+        # Generate SVG
+        output_path = output_dir / f"{comp_ref}_Star.svg"
+        generate_star_svg(star_diagram, output_path)
+
+        print(f"Generated {output_path}")
+
+
 def generate_routing_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None, use_2d: bool = False) -> None:
     """
     Generate routing diagram SVG files for all systems and components.
@@ -1253,6 +1382,7 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
     Outputs:
         One system diagram SVG per system code (L_System.svg, P_System.svg, etc.)
         One component diagram SVG per component (CB1_Component.svg, SW2_Component.svg, etc.)
+        One star diagram SVG per component (CB1_Star.svg, SW2_Star.svg, etc.) - Phase 13.6.5
     """
     # Group wires by system
     system_groups = group_wires_by_system(wire_connections)
@@ -1270,3 +1400,6 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
 
     # Generate component diagrams
     generate_component_diagrams(wire_connections, components, output_dir, title_block, use_2d)
+
+    # Generate component star diagrams (Phase 13.6.5)
+    generate_component_star_diagrams(wire_connections, components, output_dir)
