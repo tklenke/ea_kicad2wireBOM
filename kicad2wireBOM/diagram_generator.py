@@ -759,8 +759,9 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         svg_lines.append(f'    <text x="{x:.1f}" y="{final_y:.1f}" dx="12" dy="18">{comp.ref}</text>')
     svg_lines.append('  </g>')
 
-    # Circuit label boxes under components (Phase 13.4.2)
+    # Circuit label boxes under components (Phase 13.4.2/13.4.3)
     svg_lines.append('  <g id="component-circuits" font-family="Arial" font-size="10" fill="navy">')
+    used_circuit_box_positions = []  # Track boxes to detect collisions
     for comp in diagram.components:
         # Skip components with no circuits
         if comp.ref not in component_circuits or not component_circuits[comp.ref]:
@@ -781,9 +782,40 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         text_width = len(circuit_text) * 7 + 10  # Approximate
         text_height = 16
 
-        # Calculate box position (below component marker)
+        # Calculate initial box position (below component marker)
         box_x = x - text_width / 2
         box_y = y + 12  # Offset below component marker
+
+        # Check for collisions with existing boxes (Phase 13.4.3)
+        collision_offset = 0
+        max_attempts = 10  # Prevent infinite loops
+        attempts = 0
+        while attempts < max_attempts:
+            current_box_y = box_y + collision_offset
+            collision_detected = False
+
+            # Check against all previously rendered boxes
+            for existing_x, existing_y, existing_width, existing_height in used_circuit_box_positions:
+                # Simple rectangle overlap detection
+                if not (box_x + text_width < existing_x or  # This box is left of existing
+                        box_x > existing_x + existing_width or  # This box is right of existing
+                        current_box_y + text_height < existing_y or  # This box is above existing
+                        current_box_y > existing_y + existing_height):  # This box is below existing
+                    # Collision detected
+                    collision_detected = True
+                    break
+
+            if not collision_detected:
+                # No collision, use this position
+                box_y = current_box_y
+                break
+
+            # Move box down to avoid collision
+            collision_offset += text_height + 4
+            attempts += 1
+
+        # Track this box position
+        used_circuit_box_positions.append((box_x, box_y, text_width, text_height))
 
         # Render white background rect with navy stroke
         svg_lines.append(f'    <rect x="{box_x:.1f}" y="{box_y:.1f}" width="{text_width}" height="{text_height}" fill="white" stroke="navy" stroke-width="1"/>')

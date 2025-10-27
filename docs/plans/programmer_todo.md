@@ -112,7 +112,7 @@
     - Render centered text inside box
   - TEST: Generate diagram, verify circuit labels appear with boxes
 
-- [ ] **Task 13.4.3**: Handle circuit label box collisions
+- [x] **Task 13.4.3**: Handle circuit label box collisions
   - Track rendered box positions
   - Before rendering each box, check for overlaps
   - If overlap detected, offset box downward by text_height + 4
