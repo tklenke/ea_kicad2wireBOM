@@ -33,7 +33,7 @@
   - Add `WIRE_STROKE_WIDTH = 3.0` (make configurable)
   - TEST: Verify constants importable and have correct types
 
-- [~] **Task 13.1.2**: Update imports in `diagram_generator.py`
+- [x] **Task 13.1.2**: Update imports in `diagram_generator.py`
   - Import `DIAGRAM_CONFIG` from reference_data
   - Replace hardcoded constants (FIXED_WIDTH, FIXED_HEIGHT, MARGIN, etc.) with config values
   - Replace hardcoded wire stroke width with `DIAGRAM_CONFIG['wire_stroke_width']`

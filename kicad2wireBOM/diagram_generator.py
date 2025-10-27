@@ -7,6 +7,8 @@ from pathlib import Path
 from collections import defaultdict
 import math
 
+from kicad2wireBOM.reference_data import DIAGRAM_CONFIG
+
 
 # System code to full name mapping (per MIL-W-5088L and EAWMS)
 SYSTEM_NAMES = {
@@ -435,11 +437,11 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
 
     Optimized for printing on 8.5x11 portrait paper.
     """
-    # Constants optimized for 8.5x11 portrait printing
-    MARGIN = 40  # Print margins
-    TITLE_HEIGHT = 90  # Space for title, legend, and separator line
-    FIXED_WIDTH = 750  # Fixed diagram width for all diagrams
-    FIXED_HEIGHT = 950  # Fixed diagram height for all diagrams
+    # Use diagram configuration constants
+    MARGIN = DIAGRAM_CONFIG['margin']
+    TITLE_HEIGHT = DIAGRAM_CONFIG['title_height']
+    FIXED_WIDTH = DIAGRAM_CONFIG['svg_width']
+    FIXED_HEIGHT = DIAGRAM_CONFIG['svg_height']
 
     # Get bounds based on projection mode
     if use_2d:
@@ -526,7 +528,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_lines.append('  </g>')
 
     # Wire segments (Manhattan routing - thicker for print visibility)
-    svg_lines.append('  <g id="wires" stroke="black" stroke-width="3" fill="none">')
+    svg_lines.append(f'  <g id="wires" stroke="black" stroke-width="{DIAGRAM_CONFIG["wire_stroke_width"]}" fill="none">')
     for segment in diagram.wire_segments:
         path = segment.manhattan_path
         points = []
@@ -610,7 +612,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
         x += diagram_offset_x  # Center narrow diagrams
         y += TITLE_HEIGHT  # Offset for title
-        svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="6" fill="blue" stroke="navy" stroke-width="2"/>')
+        svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="{DIAGRAM_CONFIG["component_radius"]}" fill="blue" stroke="navy" stroke-width="{DIAGRAM_CONFIG["component_stroke_width"]}"/>')
     svg_lines.append('  </g>')
 
     # Component labels (larger font, offset down and to the right to avoid wire overlap)
