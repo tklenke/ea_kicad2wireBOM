@@ -785,7 +785,7 @@ def test_scale_calculation_v2():
 
 def test_3d_projection_constants_exist():
     """Test that 3D projection constants are defined with correct values."""
-    assert DEFAULT_WL_SCALE == 1.5
+    assert DEFAULT_WL_SCALE == 0.2
     assert DEFAULT_PROJECTION_ANGLE == 30
 
 

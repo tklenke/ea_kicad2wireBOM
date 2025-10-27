@@ -603,9 +603,10 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_height = FIXED_HEIGHT
 
     # Calculate origin position (Phase 13 v2: centered horizontally, positioned to fit FS range)
-    # With inverted FS axis (FS+ up = lower Y), position origin so fs_min appears at bottom
+    # With inverted FS axis (FS+ up = lower Y), position origin with balanced top/bottom margins
+    # Use half of origin_offset_y to provide space at both top and bottom
     origin_svg_x = svg_width / 2.0
-    origin_svg_y = (FIXED_HEIGHT - MARGIN) + (fs_min * scale_y)
+    origin_svg_y = (FIXED_HEIGHT - MARGIN - origin_offset_y / 2) + (fs_min * scale_y)
 
     # Start building SVG
     svg_lines = []
@@ -912,14 +913,20 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
             dx = abs(x2 - x1)
             dy = abs(y2 - y1)
             is_vertical = dx < 10 and dy > dx  # Nearly vertical line
+            is_horizontal = dy < 10  # Nearly horizontal line
+            is_diagonal = not is_vertical and not is_horizontal
 
             # Choose offset direction based on wire orientation
             if is_vertical:
                 # Vertical wire: offset to the right
                 dx_offset = 25
                 dy_offset = 0
+            elif is_diagonal:
+                # Diagonal wire: offset both right and up to clear the line
+                dx_offset = 20
+                dy_offset = -15
             else:
-                # Horizontal or diagonal wire: offset upward
+                # Horizontal wire: offset upward
                 dx_offset = 0
                 dy_offset = -12
 
