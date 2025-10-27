@@ -11,7 +11,6 @@
 
 **Design Documents**:
 - `kicad2wireBOM_design.md` v3.5 - Main design specification
-- `wire_routing_diagrams_design.md` - Routing diagrams design
 - `ea_wire_marking_standard.md` - Wire marking standard
 
 **Core Capabilities**:
