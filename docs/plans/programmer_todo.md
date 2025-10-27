@@ -101,7 +101,7 @@
   - Sort and deduplicate each component's circuit list
   - TEST: Write `test_build_component_circuits_map()` to verify mapping correct
 
-- [ ] **Task 13.4.2**: Implement circuit label box rendering
+- [x] **Task 13.4.2**: Implement circuit label box rendering
   - After component labels section, add new section `<g id="component-circuits">`
   - For each component with circuits:
     - Format label text as comma-separated: `", ".join(circuit_labels)`

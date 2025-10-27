@@ -759,6 +759,41 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         svg_lines.append(f'    <text x="{x:.1f}" y="{final_y:.1f}" dx="12" dy="18">{comp.ref}</text>')
     svg_lines.append('  </g>')
 
+    # Circuit label boxes under components (Phase 13.4.2)
+    svg_lines.append('  <g id="component-circuits" font-family="Arial" font-size="10" fill="navy">')
+    for comp in diagram.components:
+        # Skip components with no circuits
+        if comp.ref not in component_circuits or not component_circuits[comp.ref]:
+            continue
+
+        # Get component position in SVG
+        if use_2d:
+            screen_x, screen_y = comp.fs, comp.bl
+        else:
+            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+        x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
+
+        # Format circuit labels
+        circuit_text = ", ".join(component_circuits[comp.ref])
+
+        # Estimate box dimensions
+        text_width = len(circuit_text) * 7 + 10  # Approximate
+        text_height = 16
+
+        # Calculate box position (below component marker)
+        box_x = x - text_width / 2
+        box_y = y + 12  # Offset below component marker
+
+        # Render white background rect with navy stroke
+        svg_lines.append(f'    <rect x="{box_x:.1f}" y="{box_y:.1f}" width="{text_width}" height="{text_height}" fill="white" stroke="navy" stroke-width="1"/>')
+
+        # Render centered text inside box
+        text_x = x  # Center of box
+        text_y = box_y + text_height / 2 + 3  # Vertical center + slight adjustment for baseline
+        svg_lines.append(f'    <text x="{text_x:.1f}" y="{text_y:.1f}" text-anchor="middle">{circuit_text}</text>')
+    svg_lines.append('  </g>')
+
     svg_lines.append('</svg>')
 
     # Write to file
