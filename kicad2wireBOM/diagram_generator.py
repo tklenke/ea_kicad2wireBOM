@@ -386,7 +386,7 @@ def transform_to_svg_v2(fs: float, bl: float,
 
     Aircraft coords: FS increases aft (rear), BL increases starboard (right)
     SVG coords: X increases right, Y increases down
-    Diagram orientation: Nose (low FS) at TOP, Rear (high FS) at BOTTOM
+    Diagram orientation: Rear (high FS) at TOP, Nose (low FS) at BOTTOM (per Phase 13 design)
 
     Args:
         fs, bl: Aircraft coordinates (inches)
@@ -400,7 +400,7 @@ def transform_to_svg_v2(fs: float, bl: float,
 
     Coordinate mapping:
         - BL → SVG X: BL=0 at origin_x, BL+ right, BL- left
-        - FS → SVG Y: FS=0 at origin_y, FS+ down (higher Y), FS- up (lower Y)
+        - FS → SVG Y: FS=0 at origin_y, FS+ up (lower Y), FS- down (higher Y)
     """
     # Apply reversed non-linear scaling to BL (expands center, compresses tips)
     bl_scaled = scale_bl_nonlinear_v2(bl)
@@ -408,8 +408,8 @@ def transform_to_svg_v2(fs: float, bl: float,
     # X: Scaled BL offset from origin (positive BL → right, negative BL → left)
     svg_x = origin_svg_x + (bl_scaled * scale_x)
 
-    # Y: FS offset from origin (positive FS → down = higher svg_y)
-    svg_y = origin_svg_y + (fs * scale_y)
+    # Y: FS offset from origin (positive FS → up = lower svg_y, per Phase 13 design)
+    svg_y = origin_svg_y - (fs * scale_y)
 
     return (svg_x, svg_y)
 
@@ -602,9 +602,10 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_width = FIXED_WIDTH
     svg_height = FIXED_HEIGHT
 
-    # Calculate origin position (Phase 13 v2: centered horizontally, below title)
+    # Calculate origin position (Phase 13 v2: centered horizontally, positioned to fit FS range)
+    # With inverted FS axis (FS+ up = lower Y), position origin so fs_min appears at bottom
     origin_svg_x = svg_width / 2.0
-    origin_svg_y = TITLE_HEIGHT + origin_offset_y
+    origin_svg_y = (FIXED_HEIGHT - MARGIN) + (fs_min * scale_y)
 
     # Start building SVG
     svg_lines = []
