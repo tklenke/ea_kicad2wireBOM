@@ -348,6 +348,45 @@ def transform_to_svg(fs: float, bl: float,
     return (svg_x, svg_y)
 
 
+def transform_to_svg_v2(fs: float, bl: float,
+                        origin_svg_x: float, origin_svg_y: float,
+                        scale_x: float, scale_y: float) -> Tuple[float, float]:
+    """
+    Transform aircraft coordinates to SVG coordinates with origin-centered layout (Phase 13 v2).
+
+    Maps aircraft coordinates relative to an origin point (FS=0, BL=0), using
+    reversed non-linear BL scaling and inverted FS axis.
+
+    Aircraft coords: FS increases aft (rear), BL increases starboard (right)
+    SVG coords: X increases right, Y increases down
+    Diagram orientation: Rear (high FS) at TOP of drawing area (low SVG Y)
+
+    Args:
+        fs, bl: Aircraft coordinates (inches)
+        origin_svg_x: SVG X coordinate of origin (FS=0, BL=0)
+        origin_svg_y: SVG Y coordinate of origin (FS=0, BL=0)
+        scale_x: Horizontal scale (pixels per inch for BL dimension)
+        scale_y: Vertical scale (pixels per inch for FS dimension)
+
+    Returns:
+        (svg_x, svg_y) in SVG pixel coordinates
+
+    Coordinate mapping:
+        - BL → SVG X: BL=0 at origin_x, BL+ right, BL- left
+        - FS → SVG Y (inverted): FS=0 at origin_y, FS+ up (lower Y), FS- down (higher Y)
+    """
+    # Apply reversed non-linear scaling to BL (expands center, compresses tips)
+    bl_scaled = scale_bl_nonlinear_v2(bl)
+
+    # X: Scaled BL offset from origin (positive BL → right, negative BL → left)
+    svg_x = origin_svg_x + (bl_scaled * scale_x)
+
+    # Y: FS offset from origin, INVERTED (positive FS → up = lower svg_y)
+    svg_y = origin_svg_y - (fs * scale_y)
+
+    return (svg_x, svg_y)
+
+
 def calculate_wire_label_position(path: List[Tuple[float, float, float]]) -> Tuple[float, float, float, str]:
     """
     Calculate position for wire segment label in 3D Manhattan path.

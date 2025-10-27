@@ -330,6 +330,101 @@ def test_transform_to_svg_negative_coords():
     assert svg_y == 90.0
 
 
+def test_transform_to_svg_v2_origin():
+    """Test that FS=0, BL=0 maps to origin position (v2 transform)."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2
+
+    # Origin at (550, 200) in SVG coordinates
+    origin_x, origin_y = 550.0, 200.0
+    scale_x, scale_y = 2.0, 2.0
+
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=0.0, bl=0.0,
+        origin_svg_x=origin_x, origin_svg_y=origin_y,
+        scale_x=scale_x, scale_y=scale_y
+    )
+
+    # BL=0, FS=0 should map to origin
+    assert svg_x == origin_x
+    assert svg_y == origin_y
+
+
+def test_transform_to_svg_v2_fs_positive():
+    """Test that FS+ renders above origin (lower svg_y) (v2 transform)."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2
+
+    origin_x, origin_y = 550.0, 200.0
+    scale_x, scale_y = 2.0, 2.0
+
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=50.0, bl=0.0,
+        origin_svg_x=origin_x, origin_svg_y=origin_y,
+        scale_x=scale_x, scale_y=scale_y
+    )
+
+    # FS+ should move up (svg_y decreases)
+    assert svg_x == origin_x  # BL=0, no horizontal movement
+    assert svg_y == origin_y - (50.0 * scale_y)  # 200 - 100 = 100
+
+
+def test_transform_to_svg_v2_fs_negative():
+    """Test that FS- renders below origin (higher svg_y) (v2 transform)."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2
+
+    origin_x, origin_y = 550.0, 200.0
+    scale_x, scale_y = 2.0, 2.0
+
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=-50.0, bl=0.0,
+        origin_svg_x=origin_x, origin_svg_y=origin_y,
+        scale_x=scale_x, scale_y=scale_y
+    )
+
+    # FS- should move down (svg_y increases)
+    assert svg_x == origin_x  # BL=0, no horizontal movement
+    assert svg_y == origin_y - (-50.0 * scale_y)  # 200 - (-100) = 300
+
+
+def test_transform_to_svg_v2_bl_positive():
+    """Test that BL+ renders right of origin (v2 transform)."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2, scale_bl_nonlinear_v2
+
+    origin_x, origin_y = 550.0, 200.0
+    scale_x, scale_y = 2.0, 2.0
+
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=0.0, bl=20.0,
+        origin_svg_x=origin_x, origin_svg_y=origin_y,
+        scale_x=scale_x, scale_y=scale_y
+    )
+
+    # BL+ should move right (svg_x increases)
+    # BL=20 scaled with v2: 20 * 3.0 = 60
+    bl_scaled = scale_bl_nonlinear_v2(20.0)
+    assert svg_x == origin_x + (bl_scaled * scale_x)  # 550 + (60 * 2) = 670
+    assert svg_y == origin_y  # FS=0, no vertical movement
+
+
+def test_transform_to_svg_v2_bl_negative():
+    """Test that BL- renders left of origin (v2 transform)."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2, scale_bl_nonlinear_v2
+
+    origin_x, origin_y = 550.0, 200.0
+    scale_x, scale_y = 2.0, 2.0
+
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=0.0, bl=-20.0,
+        origin_svg_x=origin_x, origin_svg_y=origin_y,
+        scale_x=scale_x, scale_y=scale_y
+    )
+
+    # BL- should move left (svg_x decreases)
+    # BL=-20 scaled with v2: -20 * 3.0 = -60
+    bl_scaled = scale_bl_nonlinear_v2(-20.0)
+    assert svg_x == origin_x + (bl_scaled * scale_x)  # 550 + (-60 * 2) = 430
+    assert svg_y == origin_y  # FS=0, no vertical movement
+
+
 def test_label_position_longer_horizontal():
     """Test label position when FS segment is longer."""
     # Path: 5 3D points representing BL→FS→WL routing

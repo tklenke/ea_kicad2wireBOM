@@ -53,7 +53,7 @@
     - BL=200 → ~130 (heavy compression)
     - BL=-10 → -30 (sign preserved)
 
-- [ ] **Task 13.2.2**: Create new `transform_to_svg_v2()` function
+- [x] **Task 13.2.2**: Create new `transform_to_svg_v2()` function
   - Accept `origin_svg_x, origin_svg_y` parameters instead of bounds
   - Call `scale_bl_nonlinear_v2()` for BL scaling
   - Map BL to horizontal offset from center: `svg_x = origin_svg_x + (bl_scaled * scale_x)`
