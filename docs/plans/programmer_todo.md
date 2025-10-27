@@ -65,7 +65,7 @@
     - FS=0, BL=+20 → right of origin
     - FS=0, BL=-20 → left of origin
 
-- [ ] **Task 13.2.3**: Update `generate_svg()` for landscape layout
+- [x] **Task 13.2.3**: Update `generate_svg()` for landscape layout
   - Change dimensions to landscape (1100×700 from DIAGRAM_CONFIG)
   - Calculate origin position: `origin_svg_x = svg_width/2`, `origin_svg_y = title_height + origin_offset_y`
   - Update all coordinate transformation calls to use `transform_to_svg_v2()`

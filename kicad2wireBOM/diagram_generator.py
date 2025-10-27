@@ -507,7 +507,7 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
 
 def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None, component_value: str = None, component_desc: str = None, use_2d: bool = False) -> None:
     """
-    Generate SVG file for system or component diagram optimized for 8.5x11 portrait printing.
+    Generate SVG file for system or component diagram in landscape layout (Phase 13 v2).
 
     Args:
         diagram: SystemDiagram with all data
@@ -519,14 +519,18 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
 
     Creates SVG with:
     - Background (white)
-    - Wire segments (black lines, Manhattan routing, 3px width)
+    - Wire segments (black lines, Manhattan routing, configurable width)
     - Wire labels (12pt bold black text)
-    - Component markers (blue circles, 6px radius)
+    - Component markers (blue circles, configurable radius)
     - Component labels (12pt navy text)
     - Title (18pt bold) with project info and legend (11pt)
     - For component diagrams: includes component value and description
 
-    Optimized for printing on 8.5x11 portrait paper.
+    Layout (Phase 13 v2):
+    - Landscape orientation (1100×700px from DIAGRAM_CONFIG)
+    - Origin-centered coordinate system (FS=0, BL=0 at center)
+    - FS+ points up (rear at top), BL+ points right (starboard)
+    - Non-linear BL scaling v2: expands centerline, compresses wingtips
     """
     # Use diagram configuration constants
     MARGIN = DIAGRAM_CONFIG['margin']
@@ -534,30 +538,34 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     FIXED_WIDTH = DIAGRAM_CONFIG['svg_width']
     FIXED_HEIGHT = DIAGRAM_CONFIG['svg_height']
 
-    # Get bounds based on projection mode
+    # Get bounds based on projection mode (Phase 13 v2: use scale_bl_nonlinear_v2)
     if use_2d:
         # Recalculate bounds for 2D mode (FS/BL only, no WL projection)
         fs_values = [c.fs for c in diagram.components]
         bl_values = [c.bl for c in diagram.components]
         fs_min = min(fs_values)
         fs_max = max(fs_values)
-        bl_scaled_values = [scale_bl_nonlinear(bl) for bl in bl_values]
+        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in bl_values]
         bl_min_scaled = min(bl_scaled_values)
         bl_max_scaled = max(bl_scaled_values)
     else:
-        # Use 3D projected bounds from diagram
+        # Use 3D projected bounds from diagram (need to recalculate with v2 scaling)
         fs_min = diagram.fs_min
         fs_max = diagram.fs_max
-        bl_min_scaled = diagram.bl_min_scaled
-        bl_max_scaled = diagram.bl_max_scaled
+        # Recalculate BL bounds with v2 scaling
+        bl_values = [c.bl for c in diagram.components]
+        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in bl_values]
+        bl_min_scaled = min(bl_scaled_values)
+        bl_max_scaled = max(bl_scaled_values)
 
-    # Calculate independent scales for X and Y to fill available space
+    # Calculate independent scales for X and Y to fill available space (Phase 13 v2)
     fs_range = fs_max - fs_min
     bl_scaled_range = bl_max_scaled - bl_min_scaled
 
-    # Available space after margins and title
+    # Available space after margins, title, and origin offset
+    origin_offset_y = DIAGRAM_CONFIG['origin_offset_y']
     available_width = FIXED_WIDTH - 2 * MARGIN
-    available_height = FIXED_HEIGHT - TITLE_HEIGHT - 2 * MARGIN
+    available_height = FIXED_HEIGHT - TITLE_HEIGHT - origin_offset_y - MARGIN
 
     # Independent scaling for each axis
     scale_x = available_width / bl_scaled_range if bl_scaled_range > 0 else 1.0
@@ -567,8 +575,9 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_width = FIXED_WIDTH
     svg_height = FIXED_HEIGHT
 
-    # No need to center diagrams - they fill the space
-    diagram_offset_x = 0
+    # Calculate origin position (Phase 13 v2: centered horizontally, below title)
+    origin_svg_x = svg_width / 2.0
+    origin_svg_y = TITLE_HEIGHT + origin_offset_y
 
     # Start building SVG
     svg_lines = []
@@ -631,10 +640,8 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
                 # 3D mode: project 3D aircraft coordinates to 2D screen coordinates
                 from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
                 screen_x, screen_y = project_3d_to_2d(fs, wl, bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
-            # Transform to SVG coordinates
-            x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
-            x += diagram_offset_x  # Center narrow diagrams
-            y += TITLE_HEIGHT  # Offset for title
+            # Transform to SVG coordinates (Phase 13 v2: origin-centered)
+            x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
             points.append(f"{x:.1f},{y:.1f}")
         svg_lines.append(f'    <polyline points="{" ".join(points)}"/>')
     svg_lines.append('  </g>')
@@ -655,10 +662,8 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
             # 3D mode: project 3D label position to 2D screen coordinates
             from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
             screen_x, screen_y = project_3d_to_2d(label_fs, label_wl, label_bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
-        # Transform to SVG coordinates
-        x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
-        x += diagram_offset_x  # Center narrow diagrams
-        y += TITLE_HEIGHT  # Offset for title
+        # Transform to SVG coordinates (Phase 13 v2: origin-centered)
+        x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
 
         # Choose offset based on axis orientation
         # FS segments are vertical (Y-axis in SVG), need more horizontal offset
@@ -699,10 +704,8 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
             # 3D mode: project 3D component position to 2D screen coordinates
             from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
             screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
-        # Transform to SVG coordinates
-        x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
-        x += diagram_offset_x  # Center narrow diagrams
-        y += TITLE_HEIGHT  # Offset for title
+        # Transform to SVG coordinates (Phase 13 v2: origin-centered)
+        x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="{DIAGRAM_CONFIG["component_radius"]}" fill="blue" stroke="navy" stroke-width="{DIAGRAM_CONFIG["component_stroke_width"]}"/>')
     svg_lines.append('  </g>')
 
@@ -720,10 +723,8 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
             # 3D mode: project 3D component position to 2D screen coordinates
             from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
             screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
-        # Transform to SVG coordinates
-        x, y = transform_to_svg(screen_x, screen_y, fs_min, fs_max, bl_min_scaled, scale_x, scale_y, MARGIN)
-        x += diagram_offset_x  # Center narrow diagrams
-        y += TITLE_HEIGHT  # Offset for title
+        # Transform to SVG coordinates (Phase 13 v2: origin-centered)
+        x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
 
         # Check for collision with existing component labels
         collision_offset_y = 0
