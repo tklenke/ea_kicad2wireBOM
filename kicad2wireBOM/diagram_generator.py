@@ -895,9 +895,9 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
             svg_lines.append(f'    <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}"/>')
     svg_lines.append('  </g>')
 
-    # Wire labels (at midpoint of each line, offset up from line)
+    # Wire labels (offset from line based on orientation)
     # Track label positions to detect overlaps
-    used_label_positions = []  # List of (x, y, dy_offset) tuples
+    used_label_positions = []  # List of (x, y, dx_offset, dy_offset) tuples
     LABEL_COLLISION_THRESHOLD = 20  # pixels - labels closer than this are considered overlapping
 
     svg_lines.append('  <g id="wire-labels" font-family="Arial" font-size="12" font-weight="bold" fill="black" text-anchor="middle">')
@@ -908,26 +908,49 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
             mid_x = (x1 + x2) / 2
             mid_y = (y1 + y2) / 2
 
-            # Start with default offset (12 pixels up)
-            dy_offset = -12
+            # Detect wire orientation
+            dx = abs(x2 - x1)
+            dy = abs(y2 - y1)
+            is_vertical = dx < 10 and dy > dx  # Nearly vertical line
+
+            # Choose offset direction based on wire orientation
+            if is_vertical:
+                # Vertical wire: offset to the right
+                dx_offset = 25
+                dy_offset = 0
+            else:
+                # Horizontal or diagonal wire: offset upward
+                dx_offset = 0
+                dy_offset = -12
 
             # Check for collision with existing labels
-            for existing_x, existing_y, existing_dy in used_label_positions:
-                # Calculate actual Y positions after dy offset
+            for existing_x, existing_y, existing_dx, existing_dy in used_label_positions:
+                # Calculate actual positions after offset
+                actual_x = mid_x + dx_offset
                 actual_y = mid_y + dy_offset
+                existing_actual_x = existing_x + existing_dx
                 existing_actual_y = existing_y + existing_dy
 
                 # Check if positions are close enough to collide
-                distance = ((mid_x - existing_x)**2 + (actual_y - existing_actual_y)**2)**0.5
+                distance = ((actual_x - existing_actual_x)**2 + (actual_y - existing_actual_y)**2)**0.5
                 if distance < LABEL_COLLISION_THRESHOLD:
-                    # Collision detected - move this label further up
-                    dy_offset -= 15  # Move up by label height + spacing
+                    # Collision detected - adjust offset based on orientation
+                    if is_vertical:
+                        dy_offset -= 15  # Move up for vertical wires
+                    else:
+                        dy_offset -= 15  # Move up for horizontal/diagonal wires
 
             # Track this label's position
-            used_label_positions.append((mid_x, mid_y, dy_offset))
+            used_label_positions.append((mid_x, mid_y, dx_offset, dy_offset))
 
-            # Render label with calculated offset
-            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}" dy="{dy_offset}">{wire.circuit_id}</text>')
+            # Render label with calculated offsets
+            offset_attrs = []
+            if dx_offset != 0:
+                offset_attrs.append(f'dx="{dx_offset}"')
+            if dy_offset != 0:
+                offset_attrs.append(f'dy="{dy_offset}"')
+            offset_str = ' ' + ' '.join(offset_attrs) if offset_attrs else ''
+            svg_lines.append(f'    <text x="{mid_x:.1f}" y="{mid_y:.1f}"{offset_str}>{wire.circuit_id}</text>')
     svg_lines.append('  </g>')
 
     # Circles
