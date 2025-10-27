@@ -185,6 +185,58 @@ def scale_bl_nonlinear(bl: float, compression_factor: float = 25.0) -> float:
     return scaled
 
 
+def scale_bl_nonlinear_v2(bl: float) -> float:
+    """
+    Apply reversed non-linear scaling to BL coordinate (Phase 13 v2).
+
+    Expands coordinates near centerline (BL≈0) to give more space.
+    Compresses coordinates at wingtips (BL>>0) to reduce space.
+
+    This is the opposite of scale_bl_nonlinear() - centerline components
+    get MORE space, wingtip components get LESS space.
+
+    Args:
+        bl: BL coordinate in inches
+
+    Returns:
+        Scaled BL coordinate (sign preserved)
+
+    Piecewise function:
+        - BL < 30": Linear expansion by BL_CENTER_EXPANSION (3x)
+        - BL ≥ 30": Logarithmic compression with BL_TIP_COMPRESSION
+
+    Example:
+        scale_bl_nonlinear_v2(10.0) = 30.0   (expanded 3x)
+        scale_bl_nonlinear_v2(30.0) = 90.0   (threshold)
+        scale_bl_nonlinear_v2(200.0) ≈ 119   (heavily compressed)
+    """
+    from kicad2wireBOM.reference_data import (
+        BL_CENTER_EXPANSION,
+        BL_TIP_COMPRESSION,
+        BL_CENTER_THRESHOLD
+    )
+
+    if bl == 0.0:
+        return 0.0
+
+    sign = 1 if bl >= 0 else -1
+    abs_bl = abs(bl)
+
+    if abs_bl <= BL_CENTER_THRESHOLD:
+        # Expand centerline region
+        scaled = abs_bl * BL_CENTER_EXPANSION
+    else:
+        # Compress tip region
+        # Start at threshold * expansion = 90 for BL=30
+        # Then add compressed distance beyond threshold
+        base = BL_CENTER_THRESHOLD * BL_CENTER_EXPANSION
+        excess = abs_bl - BL_CENTER_THRESHOLD
+        compressed_excess = BL_TIP_COMPRESSION * math.log(1 + excess / BL_TIP_COMPRESSION)
+        scaled = base + compressed_excess
+
+    return sign * scaled
+
+
 def calculate_bounds(components: List[DiagramComponent]) -> Tuple[float, float, float, float]:
     """
     Calculate bounding box for all components after 3D projection.

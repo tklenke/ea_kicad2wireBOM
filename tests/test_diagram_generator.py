@@ -594,6 +594,57 @@ def test_scale_bl_nonlinear_preserves_sign():
     assert abs(result_positive) == pytest.approx(abs(result_negative))
 
 
+def test_scale_bl_nonlinear_v2_zero():
+    """Test that zero BL remains zero (v2 scaling)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+    result = scale_bl_nonlinear_v2(0.0)
+    assert result == 0.0
+
+
+def test_scale_bl_nonlinear_v2_expansion():
+    """Test that small BL values are expanded (v2 scaling)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+    # BL < 30" should be expanded by 3x
+    result = scale_bl_nonlinear_v2(10.0)
+    assert result == pytest.approx(30.0)  # 10 * 3.0 = 30
+
+
+def test_scale_bl_nonlinear_v2_threshold():
+    """Test that threshold BL (30") maps correctly (v2 scaling)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+    # BL = 30" should be at the threshold: 30 * 3.0 = 90
+    result = scale_bl_nonlinear_v2(30.0)
+    assert result == pytest.approx(90.0)
+
+
+def test_scale_bl_nonlinear_v2_compression():
+    """Test that large BL values are compressed (v2 scaling)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+    import math
+    # BL = 200" should be heavily compressed
+    # base = 30 * 3.0 = 90
+    # excess = 200 - 30 = 170
+    # compressed_excess = 10.0 * log(1 + 170/10.0) = 10.0 * log(18) ≈ 10.0 * 2.89 ≈ 28.9
+    # result = 90 + 28.9 ≈ 118.9
+    result = scale_bl_nonlinear_v2(200.0)
+    expected = 90.0 + 10.0 * math.log(1 + 170.0 / 10.0)
+    assert result == pytest.approx(expected, abs=0.1)
+    # Should be significantly less than 200 but more than threshold
+    assert 90.0 < result < 140.0
+
+
+def test_scale_bl_nonlinear_v2_preserves_sign():
+    """Test that negative BL values remain negative (v2 scaling)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+    result_positive = scale_bl_nonlinear_v2(10.0)
+    result_negative = scale_bl_nonlinear_v2(-10.0)
+
+    assert result_positive > 0
+    assert result_negative < 0
+    assert result_positive == pytest.approx(30.0)  # 10 * 3.0
+    assert result_negative == pytest.approx(-30.0)  # -10 * 3.0
+
+
 def test_3d_projection_constants_exist():
     """Test that 3D projection constants are defined with correct values."""
     assert DEFAULT_WL_SCALE == 1.5

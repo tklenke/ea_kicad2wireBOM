@@ -41,7 +41,7 @@
 
 ### Phase 13.2: Coordinate System Changes
 
-- [ ] **Task 13.2.1**: Implement `scale_bl_nonlinear_v2()` function
+- [x] **Task 13.2.1**: Implement `scale_bl_nonlinear_v2()` function
   - Create new function in `diagram_generator.py` alongside existing `scale_bl_nonlinear()`
   - Piecewise scaling: BL < 30" → expand by center_expansion factor
   - BL > 30" → compress logarithmically
