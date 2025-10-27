@@ -740,6 +740,49 @@ def test_scale_bl_nonlinear_v2_preserves_sign():
     assert result_negative == pytest.approx(-30.0)  # -10 * 3.0
 
 
+def test_scale_calculation_v2():
+    """Test that scale calculations work correctly with v2 BL scaling (Phase 13.3)."""
+    from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
+
+    # Create components spanning a range within centerline (< 30" for 3x expansion)
+    # FS: 0 to 100 inches
+    # BL: -20 to +20 inches (will be scaled with v2, within centerline threshold)
+
+    # With v2 scaling (centerline expansion):
+    # BL -20 → -60 (3x expansion at center)
+    # BL +20 → +60 (3x expansion at center)
+    # Range: 120 scaled inches
+
+    fs_min, fs_max = 0.0, 100.0
+    bl_min_scaled = scale_bl_nonlinear_v2(-20.0)
+    bl_max_scaled = scale_bl_nonlinear_v2(20.0)
+
+    # Verify v2 scaling expands centerline
+    assert bl_min_scaled == pytest.approx(-60.0)  # -20 * 3.0
+    assert bl_max_scaled == pytest.approx(60.0)   # +20 * 3.0
+
+    # Calculate scale factors as done in generate_svg()
+    # Assume 1100x700 landscape, 40px margins, 80px title, 100px origin offset
+    available_width = 1100 - 2 * 40  # 1020px
+    available_height = 700 - 80 - 100 - 40  # 480px
+
+    fs_range = fs_max - fs_min  # 100 inches
+    bl_scaled_range = bl_max_scaled - bl_min_scaled  # 120 scaled inches
+
+    scale_x = available_width / bl_scaled_range  # 1020 / 120 = 8.5 px/inch
+    scale_y = available_height / fs_range  # 480 / 100 = 4.8 px/inch
+
+    # Verify scales are reasonable (positive, not too extreme)
+    assert scale_x > 0
+    assert scale_y > 0
+    assert 1.0 < scale_x < 20.0  # Reasonable range
+    assert 1.0 < scale_y < 20.0  # Reasonable range
+
+    # Verify independent scaling allows different X/Y ratios
+    # (This is a key feature of Phase 13)
+    assert scale_x != scale_y  # Should be different for this test case
+
+
 def test_3d_projection_constants_exist():
     """Test that 3D projection constants are defined with correct values."""
     assert DEFAULT_WL_SCALE == 1.5

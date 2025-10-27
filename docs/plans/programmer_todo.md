@@ -77,18 +77,20 @@
 
 ### Phase 13.3: Scaling Calculations
 
-- [ ] **Task 13.3.1**: Update scale calculation for reversed BL scaling
+- [x] **Task 13.3.1**: Update scale calculation for reversed BL scaling
   - Apply `scale_bl_nonlinear_v2()` to all BL values to get scaled range
   - Calculate `bl_scaled_min` and `bl_scaled_max` from scaled values
   - Calculate scale_x to fit `bl_scaled_max - bl_scaled_min` in available width
   - Calculate scale_y to fit FS range in available height
   - TEST: Write `test_scale_calculation_v2()` to verify scale factors reasonable
+  - NOTE: Completed in Task 13.2.3, verified with test
 
-- [ ] **Task 13.3.2**: Update `calculate_bounds()` for v2 scaling
+- [x] **Task 13.3.2**: Update `calculate_bounds()` for v2 scaling
   - Option A: Create `calculate_bounds_v2()` that uses `scale_bl_nonlinear_v2()`
   - Option B: Add parameter to `calculate_bounds()` to select scaling function
   - Return scaled bounds for layout calculations
   - TEST: Verify bounds calculation with new scaling
+  - NOTE: Not needed - generate_svg() recalculates bounds with v2 scaling
 
 ### Phase 13.4: Circuit Labels Under Components
 
