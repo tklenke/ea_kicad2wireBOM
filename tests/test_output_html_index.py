@@ -12,7 +12,7 @@ def test_write_html_index_basic(tmp_path):
     # Create some output files to reference
     (tmp_path / "wire_bom.csv").touch()
     (tmp_path / "component_bom.csv").touch()
-    (tmp_path / "engineering_report.txt").touch()
+    (tmp_path / "engineering_report.md").touch()
     (tmp_path / "L_System.svg").touch()
     (tmp_path / "P_System.svg").touch()
     (tmp_path / "CB1_Component.svg").touch()
@@ -43,7 +43,7 @@ def test_write_html_index_basic(tmp_path):
     # Check for links to outputs
     assert 'href="wire_bom.csv"' in content
     assert 'href="component_bom.csv"' in content
-    assert 'href="engineering_report.txt"' in content
+    assert 'href="engineering_report.md"' in content
     assert 'href="L_System.svg"' in content
     assert 'href="P_System.svg"' in content
     assert 'href="CB1_Component.svg"' in content

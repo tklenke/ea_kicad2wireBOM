@@ -37,7 +37,7 @@ def test_write_engineering_report_basic(tmp_path):
                        wire_gauge='20', wire_color='RED', length=60.0, wire_type='Standard', notes='', warnings=[]),
     ]
 
-    output_file = tmp_path / "engineering_report.txt"
+    output_file = tmp_path / "engineering_report.md"
     write_engineering_report(components, wires, str(output_file))
 
     # Verify file was created
@@ -46,12 +46,12 @@ def test_write_engineering_report_basic(tmp_path):
     # Read and verify contents
     content = output_file.read_text()
 
-    # Check for key sections
-    assert "ENGINEERING REPORT" in content
-    assert "COMPONENT SUMMARY" in content
-    assert "WIRE SUMMARY" in content
-    assert "Total Components: 4" in content
-    assert "Total Wires: 3" in content
+    # Check for key sections (Markdown format)
+    assert "# Engineering Report" in content
+    assert "## Component Summary by Type" in content
+    assert "## Wire Summary by System" in content
+    assert "- **Total Components**: 4" in content
+    assert "- **Total Wires**: 3" in content
 
 
 def test_write_engineering_report_component_breakdown(tmp_path):
@@ -66,15 +66,15 @@ def test_write_engineering_report_component_breakdown(tmp_path):
 
     wires = []
 
-    output_file = tmp_path / "engineering_report.txt"
+    output_file = tmp_path / "engineering_report.md"
     write_engineering_report(components, wires, str(output_file))
 
     content = output_file.read_text()
 
-    # Check component breakdown
-    assert "Circuit Breakers (CB): 2" in content
-    assert "Switches (SW): 1" in content
-    assert "Lights (LIGHT): 2" in content
+    # Check component breakdown (Markdown format with bold)
+    assert "**Circuit Breakers (CB)**: 2" in content
+    assert "**Switches (SW)**: 1" in content
+    assert "**Lights (LIGHT)**: 2" in content
 
 
 def test_write_engineering_report_wire_breakdown(tmp_path):
@@ -94,14 +94,14 @@ def test_write_engineering_report_wire_breakdown(tmp_path):
                        wire_gauge='18', wire_color='RED', length=65.0, wire_type='Standard', notes='', warnings=[]),
     ]
 
-    output_file = tmp_path / "engineering_report.txt"
+    output_file = tmp_path / "engineering_report.md"
     write_engineering_report(components, wires, str(output_file))
 
     content = output_file.read_text()
 
-    # Check wire system breakdown
-    assert "Lighting (L): 2" in content
-    assert "Power (P): 3" in content
+    # Check wire system breakdown (Markdown format with bold)
+    assert "**Lighting (L)**: 2" in content
+    assert "**Power (P)**: 3" in content
 
 
 def test_write_engineering_report_empty_lists(tmp_path):
@@ -109,14 +109,14 @@ def test_write_engineering_report_empty_lists(tmp_path):
     components = []
     wires = []
 
-    output_file = tmp_path / "engineering_report.txt"
+    output_file = tmp_path / "engineering_report.md"
     write_engineering_report(components, wires, str(output_file))
 
     assert output_file.exists()
 
     content = output_file.read_text()
-    assert "Total Components: 0" in content
-    assert "Total Wires: 0" in content
+    assert "- **Total Components**: 0" in content
+    assert "- **Total Wires**: 0" in content
 
 
 def test_format_markdown_table_left_aligned():
