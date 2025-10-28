@@ -4,11 +4,52 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.5 (Post-Implementation Enhancements)
-**Date**: 2025-10-26
-**Status**: Phase 1-12 Complete ✅ (265 tests passing)
+**Version**: 3.6 (Routing Diagram Enhancements v2.0)
+**Date**: 2025-10-28
+**Status**: Phase 1-13 Complete ✅ (306 tests passing)
 
 ## Design Revision History
+
+### Version 3.6 (2025-10-28)
+**Changed**: Phase 13 - Routing diagram enhancements v2.0 with improved layout and component star diagrams
+
+**Sections Modified**:
+- Section 7.9: System Routing Diagrams (landscape orientation, centered origin, reversed FS/BL scaling)
+- Section 7.11: NEW section - Component Star Diagrams (radial/polar connectivity view)
+- Section 11.1: Implementation Architecture (diagram_generator.py enhancements)
+
+**System Routing Diagram Enhancements**:
+- Landscape orientation (1100×700 px instead of 750×950 portrait) for better horizontal space
+- Centered origin placement (FS=0, BL=0 positioned at center below title)
+- Reversed FS axis (aircraft points UP - nose at bottom, tail at top on page)
+- Reversed non-linear BL scaling (MORE space at centerline, LESS at wingtips)
+- Configurable wire stroke width via reference_data.py DIAGRAM_CONFIG
+- Circuit labels grouped under components with stroke-1 boxes
+
+**Component Star Diagrams (NEW)**:
+- One diagram per component showing first-hop neighbors in radial/polar layout
+- Portrait orientation (750×950 px) with center component and outer circles
+- Center circle: component ref, value, description
+- Outer circles: neighbor ref, description
+- Lines labeled with circuit IDs
+- Auto-sized circles based on text content with wrapping
+- Power symbols (GND, +12V, etc.) excluded to avoid clutter
+- File naming: `{comp_ref}_Star.svg`
+
+**Rationale**: Landscape orientation provides more horizontal space for BL axis (wingtip to wingtip). Reversed BL scaling gives centerline components (where most equipment clusters) adequate space while compressing wingtip extremes. Aircraft-pointing-up orientation matches intuitive aircraft diagrams. Circuit labels under components improve readability when tracing connections. Star diagrams complement spatial routing diagrams with logical connectivity view for troubleshooting.
+
+**Impact**:
+- All 306 tests passing (Phase 1-13 complete)
+- System diagrams now landscape with improved centerline spacing
+- Better visual grouping of circuits at each component
+- New star diagrams provide quick reference for component connections during wiring
+- Added to HTML index with "Star Diagrams" section
+
+**Technical Details**:
+- BL scaling: Linear 3x expansion for |BL| < 30", logarithmic compression beyond 30"
+- FS axis inverted: `svg_y = origin_svg_y - (fs * scale_y)` so FS+ goes upward
+- Origin at `(svg_width/2, title_height + 100px)`
+- Star layout: Even angular distribution `360° / N` for N neighbors
 
 ### Version 3.5 (2025-10-26)
 **Changed**: Post-implementation bug fixes and diagram enhancements
