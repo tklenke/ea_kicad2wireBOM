@@ -114,7 +114,7 @@ def test_successful_processing_with_new_destination():
         # Verify expected output files were created
         assert (output_dir / "wire_bom.csv").exists()
         assert (output_dir / "component_bom.csv").exists()
-        assert (output_dir / "engineering_report.txt").exists()
+        assert (output_dir / "engineering_report.md").exists()
         assert (output_dir / "index.html").exists()
         assert (output_dir / "stdout.txt").exists()
         assert (output_dir / "stderr.txt").exists()

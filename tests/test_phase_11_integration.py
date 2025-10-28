@@ -61,14 +61,14 @@ def test_phase_11_complete_integration(tmp_path):
     assert "BL" in component_bom_content, "Component BOM missing BL column"
 
     # Verify engineering report
-    eng_report = output_dir / "engineering_report.txt"
+    eng_report = output_dir / "engineering_report.md"
     assert eng_report.exists(), "Engineering report not created"
     eng_report_content = eng_report.read_text()
-    assert "ENGINEERING REPORT" in eng_report_content, "Report missing title"
-    assert "Total Components:" in eng_report_content, "Report missing component count"
-    assert "Total Wires:" in eng_report_content, "Report missing wire count"
-    assert "COMPONENT SUMMARY" in eng_report_content, "Report missing component summary"
-    assert "WIRE SUMMARY" in eng_report_content, "Report missing wire summary"
+    assert "# Engineering Report" in eng_report_content, "Report missing title"
+    assert "- **Total Components**:" in eng_report_content, "Report missing component count"
+    assert "- **Total Wires**:" in eng_report_content, "Report missing wire count"
+    assert "## Component Summary by Type" in eng_report_content, "Report missing component summary"
+    assert "## Wire Summary by System" in eng_report_content, "Report missing wire summary"
 
     # Verify HTML index
     html_index = output_dir / "index.html"
@@ -79,7 +79,7 @@ def test_phase_11_complete_integration(tmp_path):
     assert "kicad2wireBOM Output" in html_index_content, "HTML missing title"
     assert 'href="wire_bom.csv"' in html_index_content, "HTML missing wire BOM link"
     assert 'href="component_bom.csv"' in html_index_content, "HTML missing component BOM link"
-    assert 'href="engineering_report.txt"' in html_index_content, "HTML missing report link"
+    assert 'href="engineering_report.md"' in html_index_content, "HTML missing report link"
 
     # Verify system diagrams exist
     system_diagrams = list(output_dir.glob("*_System.svg"))
