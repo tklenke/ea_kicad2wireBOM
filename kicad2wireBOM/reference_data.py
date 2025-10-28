@@ -71,6 +71,6 @@ DIAGRAM_CONFIG = {
 }
 
 # BL scaling constants for Phase 13 non-linear scaling
-BL_CENTER_EXPANSION = 3.0            # Expansion factor near centerline
+BL_CENTER_EXPANSION = 20.0            # Expansion factor near centerline
 BL_TIP_COMPRESSION = 10.0            # Compression factor at wing tips
 BL_CENTER_THRESHOLD = 30.0           # BL value where expansion transitions to compression

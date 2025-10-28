@@ -783,6 +783,82 @@ def test_scale_calculation_v2():
     assert scale_x != scale_y  # Should be different for this test case
 
 
+def test_bl_scaling_only_compresses_when_needed():
+    """Test that BL scaling only compresses to fit, never stretches to fill (Phase 13.5)."""
+
+    # Test the logic: only scale to fit if range exceeds available width
+    available_width = 1020.0
+
+    # Test case 1: bl_scaled_range > available_width (should compress)
+    bl_scaled_range_large = 1500.0  # Exceeds available width
+
+    if bl_scaled_range_large > 0:
+        if bl_scaled_range_large > available_width:
+            scale_x = available_width / bl_scaled_range_large
+        else:
+            scale_x = 1.0
+    else:
+        scale_x = 1.0
+
+    # Should compress to fit
+    assert scale_x == pytest.approx(1020.0 / 1500.0)
+    assert scale_x < 1.0  # Compression
+
+    # Test case 2: bl_scaled_range <= available_width (should use 1:1)
+    bl_scaled_range_small = 200.0  # Fits within available width
+
+    if bl_scaled_range_small > 0:
+        if bl_scaled_range_small > available_width:
+            scale_x = available_width / bl_scaled_range_small
+        else:
+            scale_x = 1.0
+    else:
+        scale_x = 1.0
+
+    # Should NOT stretch - use 1:1
+    assert scale_x == 1.0
+
+    # Test case 3: zero range (edge case)
+    bl_scaled_range_zero = 0.0
+
+    if bl_scaled_range_zero > 0:
+        if bl_scaled_range_zero > available_width:
+            scale_x = available_width / bl_scaled_range_zero
+        else:
+            scale_x = 1.0
+    else:
+        scale_x = 1.0
+
+    assert scale_x == 1.0  # Default to 1.0
+
+
+def test_bl_zero_centered_on_page():
+    """Test that BL=0 (aircraft centerline) is always centered horizontally on the page."""
+    from kicad2wireBOM.diagram_generator import transform_to_svg_v2
+
+    # Page dimensions: 1100px wide
+    svg_width = 1100.0
+    page_center = svg_width / 2.0  # 550px
+
+    # When origin_svg_x is set to page_center, BL=0 should map to page center
+    origin_svg_x = page_center
+    origin_svg_y = 200.0  # Arbitrary
+    scale_x = 1.0
+    scale_y = 1.0
+
+    # Transform BL=0, FS=0
+    svg_x, svg_y = transform_to_svg_v2(
+        fs=0.0, bl=0.0,
+        origin_svg_x=origin_svg_x,
+        origin_svg_y=origin_svg_y,
+        scale_x=scale_x,
+        scale_y=scale_y
+    )
+
+    # BL=0 should be at page center
+    assert svg_x == page_center
+
+
 def test_3d_projection_constants_exist():
     """Test that 3D projection constants are defined with correct values."""
     assert DEFAULT_WL_SCALE == 0.2

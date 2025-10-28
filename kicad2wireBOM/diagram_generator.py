@@ -600,19 +600,33 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     available_height = FIXED_HEIGHT - TITLE_HEIGHT - origin_offset_y - MARGIN
 
     # Independent scaling for each axis
-    scale_x = available_width / bl_scaled_range if bl_scaled_range > 0 else 1.0
+    # BL (X-axis): Only compress if range exceeds available width, never stretch to fill
+    if bl_scaled_range > 0:
+        if bl_scaled_range > available_width:
+            scale_x = available_width / bl_scaled_range  # Compress to fit
+        else:
+            scale_x = 1.0  # Use 1:1 scaling, don't stretch
+    else:
+        scale_x = 1.0
+
+    # FS (Y-axis): Scale to fit available height
     scale_y = available_height / fs_range if fs_range > 0 else 1.0
+
+    # Calculate WL scale proportional to FS scale (per user requirement)
+    # WLs = FSs * DEFAULT_WL_SCALE
+    from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+    wl_scale_effective = scale_y * DEFAULT_WL_SCALE
 
     # Use fixed dimensions for all diagrams
     svg_width = FIXED_WIDTH
     svg_height = FIXED_HEIGHT
 
     # Calculate origin position (Phase 13 v2: positioned to fit BL and FS ranges)
-    # Horizontal: Position origin so most negative BL is at left margin, most positive at right margin
-    # Formula: origin adjusted by bl_min_scaled to align leftmost component with left margin
+    # Horizontal: Center BL=0 (aircraft centerline) on the page
+    # Formula: origin at horizontal center of page
     # Vertical: Position origin so most forward component is just below title block
     # Formula: origin at title+margin, adjusted by fs_min to make room for forward components
-    origin_svg_x = MARGIN - (bl_min_scaled * scale_x)
+    origin_svg_x = svg_width / 2.0
     origin_svg_y = TITLE_HEIGHT + MARGIN - (fs_min * scale_y)
 
     # Start building SVG
@@ -691,8 +705,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
                 screen_x, screen_y = fs, bl
             else:
                 # 3D mode: project 3D aircraft coordinates to 2D screen coordinates
-                from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-                screen_x, screen_y = project_3d_to_2d(fs, wl, bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+                screen_x, screen_y = project_3d_to_2d(fs, wl, bl, wl_scale_effective, DEFAULT_PROJECTION_ANGLE)
             # Transform to SVG coordinates (Phase 13 v2: origin-centered)
             x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
             points.append(f"{x:.1f},{y:.1f}")
@@ -713,8 +726,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
             screen_x, screen_y = label_fs, label_bl
         else:
             # 3D mode: project 3D label position to 2D screen coordinates
-            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-            screen_x, screen_y = project_3d_to_2d(label_fs, label_wl, label_bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+            screen_x, screen_y = project_3d_to_2d(label_fs, label_wl, label_bl, wl_scale_effective, DEFAULT_PROJECTION_ANGLE)
         # Transform to SVG coordinates (Phase 13 v2: origin-centered)
         x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
 
@@ -755,8 +767,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
             screen_x, screen_y = comp.fs, comp.bl
         else:
             # 3D mode: project 3D component position to 2D screen coordinates
-            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, wl_scale_effective, DEFAULT_PROJECTION_ANGLE)
         # Transform to SVG coordinates (Phase 13 v2: origin-centered)
         x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
         svg_lines.append(f'    <circle cx="{x:.1f}" cy="{y:.1f}" r="{DIAGRAM_CONFIG["component_radius"]}" fill="blue" stroke="navy" stroke-width="{DIAGRAM_CONFIG["component_stroke_width"]}"/>')
@@ -771,8 +782,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         if use_2d:
             screen_x, screen_y = comp.fs, comp.bl
         else:
-            from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+            screen_x, screen_y = project_3d_to_2d(comp.fs, comp.wl, comp.bl, wl_scale_effective, DEFAULT_PROJECTION_ANGLE)
         x, y = transform_to_svg_v2(screen_x, screen_y, origin_svg_x, origin_svg_y, scale_x, scale_y)
 
         # Format text: component ref + circuit labels (if any)
