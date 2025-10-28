@@ -7,7 +7,8 @@ import re
 
 from kicad2wireBOM.component import Component
 from kicad2wireBOM.wire_bom import WireConnection
-from kicad2wireBOM.wire_calculator import group_wires_by_circuit, determine_circuit_current
+from kicad2wireBOM.wire_calculator import group_wires_by_circuit, determine_circuit_current, calculate_voltage_drop, parse_net_name
+from kicad2wireBOM.reference_data import WIRE_RESISTANCE, WIRE_AMPACITY, DEFAULT_CONFIG
 
 
 def _format_markdown_table(headers: List[str], rows: List[List[str]], alignments: List[str] = None) -> List[str]:
@@ -198,6 +199,111 @@ def _calculate_circuit_currents(wires: List[WireConnection], components: List[Co
         circuit_currents[circuit_id] = current
 
     return circuit_currents
+
+
+def _generate_wire_engineering_analysis(wires: List[WireConnection], circuit_currents: Dict[str, float]) -> List[str]:
+    """
+    Generate wire engineering analysis table with electrical calculations.
+
+    Args:
+        wires: List of WireConnection objects
+        circuit_currents: Dict mapping circuit_id to current in amps
+
+    Returns:
+        List of formatted Markdown table lines
+    """
+    system_voltage = DEFAULT_CONFIG['system_voltage']  # 14V
+
+    headers = [
+        'Wire Label',
+        'Current (A)',
+        'Gauge',
+        'Length (in)',
+        'Voltage Drop (V)',
+        'Vdrop %',
+        'Ampacity (A)',
+        'Utilization %',
+        'Resistance (Ω)',
+        'Power Loss (W)'
+    ]
+
+    rows = []
+    total_length = 0.0
+    total_vdrop = 0.0
+    total_power_loss = 0.0
+
+    # Sort wires by wire_label
+    sorted_wires = sorted(wires, key=lambda w: w.wire_label)
+
+    for wire in sorted_wires:
+        # Extract circuit_id from wire_label (e.g., "L1" from "L-1-A")
+        parsed = parse_net_name(f"/{wire.wire_label}")
+        if not parsed:
+            continue
+
+        circuit_id = f"{parsed['system']}{parsed['circuit']}"
+        current = circuit_currents.get(circuit_id, -99)
+
+        # Skip wires with missing current data
+        if current == -99:
+            continue
+
+        gauge = int(wire.wire_gauge)
+        length_inches = wire.length
+        length_feet = length_inches / 12.0
+
+        # Calculate voltage drop
+        vdrop_volts = calculate_voltage_drop(current, gauge, length_inches)
+        vdrop_percent = (vdrop_volts / system_voltage) * 100.0
+
+        # Ampacity utilization
+        ampacity = WIRE_AMPACITY.get(gauge, 0)
+        utilization_percent = (current / ampacity) * 100.0 if ampacity > 0 else 0.0
+
+        # Resistance
+        resistance_per_foot = WIRE_RESISTANCE.get(gauge, 0)
+        total_resistance = resistance_per_foot * length_feet
+
+        # Power loss (I² × R)
+        power_loss_watts = (current ** 2) * total_resistance
+
+        # Accumulate totals
+        total_length += length_inches
+        total_vdrop += vdrop_volts
+        total_power_loss += power_loss_watts
+
+        # Format row
+        rows.append([
+            wire.wire_label,
+            f'{current:.1f}',
+            str(gauge),
+            f'{length_inches:.1f}',
+            f'{vdrop_volts:.2f}',
+            f'{vdrop_percent:.1f}%',
+            f'{ampacity:.1f}',
+            f'{utilization_percent:.1f}%',
+            f'{total_resistance:.4f}',
+            f'{power_loss_watts:.2f}'
+        ])
+
+    # Add totals row
+    if rows:
+        rows.append([
+            '**Total**',
+            '',
+            '',
+            f'**{total_length:.1f}**',
+            f'**{total_vdrop:.2f}**',
+            '',
+            '',
+            '',
+            '',
+            f'**{total_power_loss:.2f}**'
+        ])
+
+    # Format as markdown table
+    alignments = ['left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right']
+    return _format_markdown_table(headers, rows, alignments)
 
 
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:

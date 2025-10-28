@@ -11,7 +11,8 @@ from kicad2wireBOM.output_engineering_report import (
     _format_markdown_table,
     _generate_wire_purchasing_summary,
     _generate_component_purchasing_summary,
-    _calculate_circuit_currents
+    _calculate_circuit_currents,
+    _generate_wire_engineering_analysis
 )
 
 
@@ -404,3 +405,78 @@ def test_calculate_circuit_currents_missing_data():
 
     # P1 should have -99 (sentinel for missing data)
     assert result['P1'] == -99
+
+
+def test_generate_wire_engineering_analysis():
+    """Test wire engineering analysis table with electrical calculations"""
+    wires = [
+        WireConnection(wire_label='L-1-A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    circuit_currents = {
+        'L1': 5.0  # 5A current in L1 circuit
+    }
+
+    result = _generate_wire_engineering_analysis(wires, circuit_currents)
+
+    # Verify table structure
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Should have header, separator, 1 data row, and totals row
+    assert len(result) == 4
+
+    # Verify header columns
+    assert 'Wire Label' in result[0]
+    assert 'Current (A)' in result[0]
+    assert 'Gauge' in result[0]
+    assert 'Length (in)' in result[0]
+    assert 'Voltage Drop (V)' in result[0]
+    assert 'Vdrop %' in result[0]
+    assert 'Ampacity (A)' in result[0]
+    assert 'Utilization %' in result[0]
+    assert 'Resistance' in result[0]
+    assert 'Power Loss (W)' in result[0]
+
+    # Verify data row contains expected values
+    data_row = result[2]
+    assert 'L-1-A' in data_row
+    assert '5.0' in data_row  # Current
+    assert '18' in data_row    # Gauge
+    assert '50.0' in data_row  # Length
+
+    # Verify totals row
+    assert 'Total' in result[3]
+    assert '50.0' in result[3]  # Total length
+
+
+def test_generate_wire_engineering_analysis_multiple_wires():
+    """Test wire engineering analysis with multiple wires and circuits"""
+    wires = [
+        WireConnection(wire_label='L-1-A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='L-1-B', from_component='LIGHT1', from_pin='2', to_component='GND1', to_pin='1',
+                       wire_gauge='18', wire_color='BLK', length=45.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='P-1-A', from_component='CB2', from_pin='1', to_component='SW1', to_pin='1',
+                       wire_gauge='12', wire_color='RED', length=60.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    circuit_currents = {
+        'L1': 5.0,   # 5A in L1 circuit
+        'P1': 20.0,  # 20A in P1 circuit
+    }
+
+    result = _generate_wire_engineering_analysis(wires, circuit_currents)
+
+    # Should have header, separator, 3 data rows, totals
+    assert len(result) == 6
+
+    # Verify all wire labels present
+    all_data = '\n'.join(result)
+    assert 'L-1-A' in all_data
+    assert 'L-1-B' in all_data
+    assert 'P-1-A' in all_data
+
+    # Verify totals row
+    assert '155.0' in result[5]  # Total length (50 + 45 + 60)
