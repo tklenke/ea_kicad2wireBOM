@@ -533,6 +533,31 @@ def build_system_diagram(system_code: str, wires: List, components: Dict) -> Sys
     )
 
 
+def generate_title_block_lines(title_block: dict, svg_width: float, y_offset: int) -> tuple[list[str], int]:
+    """
+    Generate consistent title block SVG lines for all diagrams.
+
+    Args:
+        title_block: Optional dict with title, rev, date, company from schematic
+        svg_width: Width of SVG for centering text
+        y_offset: Starting Y position for first line
+
+    Returns:
+        Tuple of (svg_lines, new_y_offset) where svg_lines is list of SVG text elements
+        and new_y_offset is updated position for next element
+    """
+    lines = []
+
+    if title_block:
+        project_title = title_block.get('title', 'Untitled')
+        project_rev = title_block.get('rev', 'N/A')
+        project_date = title_block.get('date', 'N/A')
+        lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{project_title} - Rev {project_rev} - {project_date}</text>')
+        y_offset += 20
+
+    return lines, y_offset
+
+
 def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = None, component_value: str = None, component_desc: str = None, use_2d: bool = False) -> None:
     """
     Generate SVG file for system or component diagram in landscape layout (Phase 13 v2).
@@ -655,14 +680,10 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
 
     svg_lines.append('  <g id="title" font-family="Arial">')
 
-    # Add project title_block info if available
+    # Add project title_block info using helper function
     y_offset = 20
-    if title_block:
-        project_title = title_block.get('title', 'Untitled')
-        project_rev = title_block.get('rev', 'N/A')
-        project_date = title_block.get('date', 'N/A')
-        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{project_title} - Rev {project_rev} - {project_date}</text>')
-        y_offset += 20
+    title_block_lines, y_offset = generate_title_block_lines(title_block, svg_width, y_offset)
+    svg_lines.extend(title_block_lines)
 
     # Main title (reordered for component diagrams: title first, then description)
     if is_component_diagram:
@@ -863,16 +884,17 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     output_path.write_text('\n'.join(svg_lines))
 
 
-def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
+def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path, title_block: dict = None) -> None:
     """
     Generate star SVG diagram for one component and its neighbors (Phase 13.6.4).
 
     Args:
         diagram: ComponentStarDiagram with center, neighbors, and wires
         output_path: Path to write SVG file
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     Creates portrait SVG (750×950px) with:
-    - Title block with center component ref, value, description
+    - Title block with schematic info and center component ref, value, description
     - Wires (lines from center to neighbors)
     - Wire labels at midpoint
     - Center circle (lightblue fill, navy stroke 3px)
@@ -896,13 +918,20 @@ def generate_star_svg(diagram: ComponentStarDiagram, output_path: Path) -> None:
 
     # Title block
     svg_lines.append('  <g id="title" font-family="Arial" text-anchor="middle">')
-    svg_lines.append(f'    <text x="{svg_width/2}" y="30" font-size="24" font-weight="bold" fill="black">')
+
+    # Add schematic title_block info using helper function
+    y_offset = 20
+    title_block_lines, y_offset = generate_title_block_lines(title_block, svg_width, y_offset)
+    svg_lines.extend(title_block_lines)
+
+    # Component star diagram title
+    svg_lines.append(f'    <text x="{svg_width/2}" y="{y_offset + 15}" font-size="24" font-weight="bold" fill="black">')
     svg_lines.append(f'      Component Star Diagram: {diagram.center.ref}')
     svg_lines.append('    </text>')
-    svg_lines.append(f'    <text x="{svg_width/2}" y="55" font-size="14" fill="navy">')
+    svg_lines.append(f'    <text x="{svg_width/2}" y="{y_offset + 35}" font-size="14" fill="navy">')
     svg_lines.append(f'      {diagram.center.value}')
     svg_lines.append('    </text>')
-    svg_lines.append(f'    <text x="{svg_width/2}" y="75" font-size="12" fill="navy">')
+    svg_lines.append(f'    <text x="{svg_width/2}" y="{y_offset + 50}" font-size="12" fill="navy">')
     svg_lines.append(f'      {diagram.center.desc}')
     svg_lines.append('    </text>')
     svg_lines.append('  </g>')
@@ -1325,7 +1354,7 @@ def generate_component_diagrams(wire_connections: List, components: Dict, output
         print(f"Generated {output_path}")
 
 
-def generate_component_star_diagrams(wire_connections: List, components: Dict, output_dir: Path) -> None:
+def generate_component_star_diagrams(wire_connections: List, components: Dict, output_dir: Path, title_block: dict = None) -> None:
     """
     Generate component star diagram SVG files for all components (Phase 13.6.5).
 
@@ -1333,6 +1362,7 @@ def generate_component_star_diagrams(wire_connections: List, components: Dict, o
         wire_connections: All wire connections from BOM
         components: Dict mapping component ref to Component object
         output_dir: Directory to write SVG files
+        title_block: Optional dict with title, date, rev from schematic title_block
 
     Outputs:
         One star diagram SVG per component ({comp_ref}_Star.svg)
@@ -1443,7 +1473,7 @@ def generate_component_star_diagrams(wire_connections: List, components: Dict, o
 
         # Generate SVG
         output_path = output_dir / f"{comp_ref}_Star.svg"
-        generate_star_svg(star_diagram, output_path)
+        generate_star_svg(star_diagram, output_path, title_block)
 
         print(f"Generated {output_path}")
 
@@ -1482,4 +1512,4 @@ def generate_routing_diagrams(wire_connections: List, components: Dict, output_d
     generate_component_diagrams(wire_connections, components, output_dir, title_block, use_2d)
 
     # Generate component star diagrams (Phase 13.6.5)
-    generate_component_star_diagrams(wire_connections, components, output_dir)
+    generate_component_star_diagrams(wire_connections, components, output_dir, title_block)
