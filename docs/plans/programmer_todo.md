@@ -191,6 +191,56 @@
 
 ---
 
+## COMPLETED WORK: Diagram Rendering Bugfixes ✅
+
+**Date**: 2025-10-28
+
+**Status**: **COMPLETE** - All bugfixes applied, 326/326 tests passing
+
+### Bug #1: 3D Diagram WL Scale Mismatch
+
+**Problem**: All 3D diagrams had polylines and components rendering outside SVG viewport (e.g., Y=1267.9 when viewport max is 700px)
+
+**Root Cause**:
+- Line 587: Bounds calculation used `DEFAULT_WL_SCALE` (0.2) directly
+- Line 618: Rendering used `wl_scale_effective = scale_y * DEFAULT_WL_SCALE` (19.9 × 0.2 ≈ 4.0)
+- Result: WL contribution in rendering was ~20× larger than in bounds calculation
+- This caused severe coordinate mismatches
+
+**Fix** (diagram_generator.py:617):
+- Changed `wl_scale_effective = scale_y * DEFAULT_WL_SCALE` to `wl_scale_effective = DEFAULT_WL_SCALE`
+- Now uses 0.2 consistently for both bounds and rendering
+
+**Verification**:
+- Before: test_07_fixture P_System polyline Y=1267.9 ❌
+- After: test_07_fixture P_System polyline Y=617.2 ✅
+- Commit: f252e6f
+
+### Bug #2: Negative SVG Coordinates in 2D Diagrams
+
+**Problem**: Components with large negative BL values (e.g., L2 at BL=-100) rendered at negative X coordinates outside viewport
+
+**Root Cause**:
+- Origin centered at svg_width/2 (550px for 1100px page)
+- Available space LEFT of origin: 510px (550 - 40 margin)
+- Available space RIGHT of origin: 510px (1100 - 550 - 40 margin)
+- Old scale_x logic only checked if `bl_scaled_range > available_width` (1020px)
+- Didn't account for centered origin having limited space on EACH side
+- Example: BL=-100 scales to -620.79, with scale_x=1.0 gives svg_x = 550 + (-620.79) = -70.8 ❌
+
+**Fix** (diagram_generator.py:605-624):
+- Calculate scale_x to ensure BOTH left and right extents fit within their respective sides
+- Left constraint: `scale_x <= available_left / |bl_min_scaled|`
+- Right constraint: `scale_x <= available_right / bl_max_scaled`
+- Take minimum of both constraints, capped at 1.0 (no stretching)
+
+**Verification**:
+- Before: test_07_fixture L2_Component at X=-70.8, scale_x=1.0 ❌
+- After: test_07_fixture L2_Component at X=40.0, scale_x=0.8 ✅
+- Commit: c64bc7a
+
+---
+
 ## WORKFLOW REMINDERS
 
 **TDD Cycle**:
