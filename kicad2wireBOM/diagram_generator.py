@@ -8,6 +8,7 @@ from collections import defaultdict
 import math
 
 from kicad2wireBOM.reference_data import DIAGRAM_CONFIG
+from kicad2wireBOM.wire_connections import is_power_symbol
 
 
 # System code to full name mapping (per MIL-W-5088L and EAWMS)
@@ -1330,7 +1331,7 @@ def generate_component_star_diagrams(wire_connections: List, components: Dict, o
     # Generate one star diagram per component
     for comp_ref, wires in component_wires.items():
         # Skip power symbols (they connect to many components)
-        if comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V'] or comp_ref.startswith('GND') or comp_ref.startswith('+'):
+        if is_power_symbol(comp_ref):
             continue
 
         # Find neighbor components (all components connected to this one)
@@ -1349,12 +1350,6 @@ def generate_component_star_diagrams(wire_connections: List, components: Dict, o
                 wire_connections_map.append((wire.wire_label, comp_ref, neighbor_ref))
 
         # Skip if no neighbors
-        if not neighbors:
-            continue
-
-        # Remove power symbols from neighbors
-        neighbors = [n for n in neighbors if not (n in ['GND', '+12V', '+5V', '+3V3', '+28V'] or n.startswith('GND') or n.startswith('+'))]
-
         if not neighbors:
             continue
 
