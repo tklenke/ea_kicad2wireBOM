@@ -140,7 +140,7 @@ def test_diagram_config_exists():
 def test_bl_scaling_constants_exist():
     """Test that BL scaling constants are defined with correct values"""
     assert isinstance(BL_CENTER_EXPANSION, (int, float))
-    assert BL_CENTER_EXPANSION == 3.0
+    assert BL_CENTER_EXPANSION == 20.0
 
     assert isinstance(BL_TIP_COMPRESSION, (int, float))
     assert BL_TIP_COMPRESSION == 10.0

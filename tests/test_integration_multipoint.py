@@ -164,8 +164,8 @@ def test_circuit_based_wire_sizing():
 
     Uses test_07_fixture with:
     - Circuit L1 (single load): L1A, L1B → 16 AWG (L1 = 10A, 170in max length)
-    - Circuit L2 (parallel loads): L2A, L2B, L2C → 12 AWG (L2+L3 = 14A)
-    - Circuit P1 (power distribution): P1A → 12 AWG (BT1 = 40A source)
+    - Circuit L2 (parallel loads): L2A, L2B, L2C → 14 AWG (L2+L3 = 14A, 15A ampacity)
+    - Circuit P1 (power distribution): P1A → 8 AWG (BT1 = 40A source, 40A ampacity)
     - Circuit G1-G4 (grounds): Various gauges based on connected loads/sources
     """
     fixture_path = Path('tests/fixtures/test_07_fixture.kicad_sch')
@@ -262,16 +262,16 @@ def test_circuit_based_wire_sizing():
     assert wire_gauge_map.get('L1A') == 16, f"L1A expected 16 AWG, got {wire_gauge_map.get('L1A')}"
     assert wire_gauge_map.get('L1B') == 16, f"L1B expected 16 AWG, got {wire_gauge_map.get('L1B')}"
 
-    # VERIFY: Circuit L2 wires all have same gauge (12 AWG for 14A total)
-    assert wire_gauge_map.get('L2A') == 12, f"L2A expected 12 AWG, got {wire_gauge_map.get('L2A')}"
-    assert wire_gauge_map.get('L2B') == 12, f"L2B expected 12 AWG, got {wire_gauge_map.get('L2B')}"
-    assert wire_gauge_map.get('L2C') == 12, f"L2C expected 12 AWG, got {wire_gauge_map.get('L2C')}"
+    # VERIFY: Circuit L2 wires all have same gauge (14 AWG for 14A total - 15A ampacity)
+    assert wire_gauge_map.get('L2A') == 14, f"L2A expected 14 AWG, got {wire_gauge_map.get('L2A')}"
+    assert wire_gauge_map.get('L2B') == 14, f"L2B expected 14 AWG, got {wire_gauge_map.get('L2B')}"
+    assert wire_gauge_map.get('L2C') == 14, f"L2C expected 14 AWG, got {wire_gauge_map.get('L2C')}"
 
     # VERIFY: Power circuit P1 (40A source)
-    assert wire_gauge_map.get('P1A') == 12, f"P1A expected 12 AWG, got {wire_gauge_map.get('P1A')}"
+    assert wire_gauge_map.get('P1A') == 8, f"P1A expected 8 AWG, got {wire_gauge_map.get('P1A')}"
 
     # VERIFY: Ground circuits
     assert wire_gauge_map.get('G1A') == 16, f"G1A expected 16 AWG, got {wire_gauge_map.get('G1A')}"  # 10A, 164in → 16 AWG
     assert wire_gauge_map.get('G2A') == 18, f"G2A expected 18 AWG, got {wire_gauge_map.get('G2A')}"  # 7A, 134in → 18 AWG
     assert wire_gauge_map.get('G3A') == 18, f"G3A expected 18 AWG, got {wire_gauge_map.get('G3A')}"  # 7A, 134in → 18 AWG
-    assert wire_gauge_map.get('G4A') == 12, f"G4A expected 12 AWG, got {wire_gauge_map.get('G4A')}"  # 40A, 49in → 12 AWG
+    assert wire_gauge_map.get('G4A') == 8, f"G4A expected 8 AWG, got {wire_gauge_map.get('G4A')}"  # 40A, 49in → 8 AWG

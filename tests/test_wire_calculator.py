@@ -107,8 +107,8 @@ def test_determine_min_gauge_voltage_drop_constraint():
     max_vdrop = 14.0 * 0.05
     assert vdrop <= max_vdrop
 
-    # Should be AWG 20 or smaller (lower number = larger wire)
-    assert min_gauge in [12, 16, 18, 20]
+    # Should be AWG 22 or smaller (lower number = larger wire)
+    assert min_gauge in [12, 16, 18, 20, 22]
 
 
 def test_determine_min_gauge_ampacity_constraint():

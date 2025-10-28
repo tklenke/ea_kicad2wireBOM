@@ -699,17 +699,17 @@ def test_scale_bl_nonlinear_v2_zero():
 def test_scale_bl_nonlinear_v2_expansion():
     """Test that small BL values are expanded (v2 scaling)."""
     from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
-    # BL < 30" should be expanded by 3x
+    # BL < 30" should be expanded by 20x
     result = scale_bl_nonlinear_v2(10.0)
-    assert result == pytest.approx(30.0)  # 10 * 3.0 = 30
+    assert result == pytest.approx(200.0)  # 10 * 20.0 = 200
 
 
 def test_scale_bl_nonlinear_v2_threshold():
     """Test that threshold BL (30") maps correctly (v2 scaling)."""
     from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
-    # BL = 30" should be at the threshold: 30 * 3.0 = 90
+    # BL = 30" should be at the threshold: 30 * 20.0 = 600
     result = scale_bl_nonlinear_v2(30.0)
-    assert result == pytest.approx(90.0)
+    assert result == pytest.approx(600.0)
 
 
 def test_scale_bl_nonlinear_v2_compression():
@@ -717,15 +717,15 @@ def test_scale_bl_nonlinear_v2_compression():
     from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
     import math
     # BL = 200" should be heavily compressed
-    # base = 30 * 3.0 = 90
+    # base = 30 * 20.0 = 600
     # excess = 200 - 30 = 170
     # compressed_excess = 10.0 * log(1 + 170/10.0) = 10.0 * log(18) ≈ 10.0 * 2.89 ≈ 28.9
-    # result = 90 + 28.9 ≈ 118.9
+    # result = 600 + 28.9 ≈ 628.9
     result = scale_bl_nonlinear_v2(200.0)
-    expected = 90.0 + 10.0 * math.log(1 + 170.0 / 10.0)
+    expected = 600.0 + 10.0 * math.log(1 + 170.0 / 10.0)
     assert result == pytest.approx(expected, abs=0.1)
     # Should be significantly less than 200 but more than threshold
-    assert 90.0 < result < 140.0
+    assert 600.0 < result < 650.0
 
 
 def test_scale_bl_nonlinear_v2_preserves_sign():
@@ -736,30 +736,30 @@ def test_scale_bl_nonlinear_v2_preserves_sign():
 
     assert result_positive > 0
     assert result_negative < 0
-    assert result_positive == pytest.approx(30.0)  # 10 * 3.0
-    assert result_negative == pytest.approx(-30.0)  # -10 * 3.0
+    assert result_positive == pytest.approx(200.0)  # 10 * 20.0
+    assert result_negative == pytest.approx(-200.0)  # -10 * 20.0
 
 
 def test_scale_calculation_v2():
     """Test that scale calculations work correctly with v2 BL scaling (Phase 13.3)."""
     from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
 
-    # Create components spanning a range within centerline (< 30" for 3x expansion)
+    # Create components spanning a range within centerline (< 30" for 20x expansion)
     # FS: 0 to 100 inches
     # BL: -20 to +20 inches (will be scaled with v2, within centerline threshold)
 
     # With v2 scaling (centerline expansion):
-    # BL -20 → -60 (3x expansion at center)
-    # BL +20 → +60 (3x expansion at center)
-    # Range: 120 scaled inches
+    # BL -20 → -400 (20x expansion at center)
+    # BL +20 → +400 (20x expansion at center)
+    # Range: 800 scaled inches
 
     fs_min, fs_max = 0.0, 100.0
     bl_min_scaled = scale_bl_nonlinear_v2(-20.0)
     bl_max_scaled = scale_bl_nonlinear_v2(20.0)
 
     # Verify v2 scaling expands centerline
-    assert bl_min_scaled == pytest.approx(-60.0)  # -20 * 3.0
-    assert bl_max_scaled == pytest.approx(60.0)   # +20 * 3.0
+    assert bl_min_scaled == pytest.approx(-400.0)  # -20 * 20.0
+    assert bl_max_scaled == pytest.approx(400.0)   # +20 * 20.0
 
     # Calculate scale factors as done in generate_svg()
     # Assume 1100x700 landscape, 40px margins, 80px title, 100px origin offset
@@ -767,9 +767,9 @@ def test_scale_calculation_v2():
     available_height = 700 - 80 - 100 - 40  # 480px
 
     fs_range = fs_max - fs_min  # 100 inches
-    bl_scaled_range = bl_max_scaled - bl_min_scaled  # 120 scaled inches
+    bl_scaled_range = bl_max_scaled - bl_min_scaled  # 800 scaled inches
 
-    scale_x = available_width / bl_scaled_range  # 1020 / 120 = 8.5 px/inch
+    scale_x = available_width / bl_scaled_range  # 1020 / 800 = 1.275 px/inch
     scale_y = available_height / fs_range  # 480 / 100 = 4.8 px/inch
 
     # Verify scales are reasonable (positive, not too extreme)
@@ -1072,18 +1072,18 @@ def test_diagram_fs_axis_direction(tmp_path):
 
 
 def test_diagram_bl_expansion_at_center(tmp_path):
-    """Test that centerline BL values are expanded 3x (Phase 13.5.2)."""
+    """Test that centerline BL values are expanded 20x (Phase 13.5.2)."""
     from kicad2wireBOM.diagram_generator import scale_bl_nonlinear_v2
 
-    # BL values < 30" should be expanded by 3x
+    # BL values < 30" should be expanded by 20x
     bl_10 = scale_bl_nonlinear_v2(10.0)
     bl_20 = scale_bl_nonlinear_v2(20.0)
     bl_30 = scale_bl_nonlinear_v2(30.0)
 
-    # Verify 3x expansion in centerline region
-    assert bl_10 == pytest.approx(30.0)  # 10 * 3.0
-    assert bl_20 == pytest.approx(60.0)  # 20 * 3.0
-    assert bl_30 == pytest.approx(90.0)  # 30 * 3.0 (threshold)
+    # Verify 20x expansion in centerline region
+    assert bl_10 == pytest.approx(200.0)  # 10 * 20.0
+    assert bl_20 == pytest.approx(400.0)  # 20 * 20.0
+    assert bl_30 == pytest.approx(600.0)  # 30 * 20.0 (threshold)
 
 
 def test_circuit_labels_under_components(tmp_path):
