@@ -50,12 +50,14 @@ See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.
 3. Add Component BOM table (complete component details in Markdown table)
 4. Add Wire Purchasing Summary table (total length by gauge + type)
 5. Add Component Purchasing Summary table (component count by value + datasheet)
-6. Preserve existing project info and summary statistics
-7. Properly aligned Markdown tables
+6. Add Wire Engineering Analysis table (voltage drop, ampacity utilization, power loss)
+7. Add Engineering Summary (safety warnings for overload and high vdrop)
+8. Preserve existing project info and summary statistics
+9. Properly aligned Markdown tables
 
 **Deliverables**:
-- [x] Design document created (engineering_report_enhancement.md)
-- [x] Programmer tasks documented in programmer_todo.md (8 phases, 11 tasks)
+- [x] Design document created (engineering_report_enhancement.md - 560 lines)
+- [x] Programmer tasks documented in programmer_todo.md (9 phases, 14 tasks)
 - [ ] Implementation (programmer work)
 - [ ] Testing (programmer work)
 

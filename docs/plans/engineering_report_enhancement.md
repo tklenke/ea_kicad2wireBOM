@@ -38,8 +38,9 @@ The current engineering_report.txt provides only high-level statistics. Builders
 **FR-3**: Include Component BOM table with all component details
 **FR-4**: Include Wire Purchasing Summary table (gauge, type, total length)
 **FR-5**: Include Component Purchasing Summary table (value, datasheet, quantity)
-**FR-6**: Preserve existing project information and summary statistics sections
-**FR-7**: Tables must be valid Markdown with aligned columns
+**FR-6**: Include Wire Engineering Analysis table (voltage drop, ampacity, utilization, power loss)
+**FR-7**: Preserve existing project information and summary statistics sections
+**FR-8**: Tables must be valid Markdown with aligned columns
 
 ### 2.2 Non-Functional Requirements
 
@@ -95,6 +96,31 @@ Component counts by value and datasheet for procurement.
 | Desc          |             | 1        | FH1               |
 | ~             |             | 3        | L1, L2, L3        |
 | **Total**     |             | **10**   |                   |
+
+---
+
+## Wire Engineering Analysis
+Electrical calculations for voltage drop, ampacity utilization, and power loss.
+
+| Wire Label | Current (A) | Gauge | Length (in) | Voltage Drop (V) | Vdrop % | Ampacity (A) | Utilization % | Resistance (Ω) | Power Loss (W) |
+|------------|------------:|-------|------------:|-----------------:|--------:|-------------:|--------------:|---------------:|---------------:|
+| G1A        | 10.0        | 18    | 33.0        | 0.22             | 1.5%    | 16           | 62.5%         | 0.0069         | 0.69           |
+| G2A        | 10.0        | 18    | 134.0       | 0.88             | 6.3%    | 16           | 62.5%         | 0.0279         | 2.79           |
+| L1A        | 10.0        | 18    | 37.0        | 0.24             | 1.7%    | 16           | 62.5%         | 0.0077         | 0.77           |
+| L1B        | 10.0        | 18    | 31.0        | 0.20             | 1.4%    | 16           | 62.5%         | 0.0065         | 0.65           |
+| L2A        | 14.0        | 12    | 39.0        | 0.14             | 1.0%    | 25           | 56.0%         | 0.0010         | 0.20           |
+| P1A        | 40.0        | 12    | 43.0        | 0.22             | 1.6%    | 25           | **160%** ⚠️   | 0.0014         | 2.24           |
+| **Total**  |             |       | **748.0**   | **3.02**         |         |              |               |                | **12.5**       |
+
+**Summary**:
+- **Total Power Loss**: 12.5 W (heat dissipated in wire harness)
+- **Worst Voltage Drop**: G2A at 6.3% (exceeds 5% limit ⚠️)
+- **Safety Warnings**: 1 wire exceeds ampacity rating (P1A at 160%)
+
+**Notes**:
+- Voltage drop % based on 14V system (12V nominal + charging)
+- Utilization > 100% indicates wire undersized for circuit current
+- Power loss calculated as I² × R for each wire segment
 
 ---
 
@@ -218,7 +244,84 @@ total_inches = sum(wire_groups.values())
 total_feet = total_inches / 12.0
 ```
 
-### 4.4 Component Purchasing Summary Table
+### 4.4 Wire Engineering Analysis Table
+
+**Columns** (10 total):
+1. Wire Label - Circuit ID (e.g., "L1A")
+2. Current (A) - Circuit current (from circuit grouping)
+3. Gauge - AWG wire size
+4. Length (in) - Wire length in inches
+5. Voltage Drop (V) - Calculated voltage drop
+6. Vdrop % - Voltage drop as percentage of system voltage
+7. Ampacity (A) - Maximum current rating for this gauge
+8. Utilization % - (Current / Ampacity) × 100 - **CRITICAL SAFETY METRIC**
+9. Resistance (Ω) - Total wire resistance (ohms)
+10. Power Loss (W) - Power dissipated as heat (I² × R)
+
+**Sorting**: By wire label (circuit ID) ascending
+
+**Alignment**:
+- Wire Label: left-aligned
+- All numeric columns: right-aligned
+
+**Calculations**:
+```python
+from kicad2wireBOM.reference_data import WIRE_RESISTANCE, WIRE_AMPACITY, DEFAULT_CONFIG
+from kicad2wireBOM.wire_calculator import calculate_voltage_drop, group_wires_by_circuit, determine_circuit_current
+
+# For each wire, calculate engineering data
+system_voltage = DEFAULT_CONFIG['system_voltage']  # e.g., 14V
+
+for wire in wires:
+    # Get circuit current (group wires by circuit ID, sum loads)
+    circuit_id = extract_circuit_id(wire.wire_label)  # e.g., "L1" from "L1A"
+    circuit_current = circuit_currents[circuit_id]  # Pre-calculated
+
+    # Voltage drop (already have function)
+    vdrop_volts = calculate_voltage_drop(circuit_current, wire.wire_gauge, wire.length)
+    vdrop_percent = (vdrop_volts / system_voltage) * 100.0
+
+    # Ampacity utilization
+    ampacity = WIRE_AMPACITY[wire.wire_gauge]
+    utilization_percent = (circuit_current / ampacity) * 100.0
+
+    # Resistance
+    resistance_per_foot = WIRE_RESISTANCE[wire.wire_gauge]
+    length_feet = wire.length / 12.0
+    total_resistance = resistance_per_foot * length_feet
+
+    # Power loss (I² × R)
+    power_loss_watts = (circuit_current ** 2) * total_resistance
+```
+
+**Summary Calculations**:
+```python
+# Total power loss
+total_power_loss = sum(power_loss for each wire)
+
+# Worst voltage drop
+worst_vdrop = max(vdrop_percent for each wire)
+worst_vdrop_label = wire.wire_label with max vdrop_percent
+
+# Safety warnings
+overloaded_wires = [wire for wire in wires if utilization_percent > 100]
+high_vdrop_wires = [wire for wire in wires if vdrop_percent > 5.0]
+```
+
+**Summary Section** (after table):
+```markdown
+**Summary**:
+- **Total Power Loss**: 12.5 W (heat dissipated in wire harness)
+- **Worst Voltage Drop**: G2A at 6.3% (exceeds 5% limit ⚠️)
+- **Safety Warnings**: 1 wire exceeds ampacity rating (P1A at 160%)
+
+**Notes**:
+- Voltage drop % based on 14V system (12V nominal + charging)
+- Utilization > 100% indicates wire undersized for circuit current
+- Power loss calculated as I² × R for each wire segment
+```
+
+### 4.5 Component Purchasing Summary Table
 
 **Columns** (4 total):
 1. Value - Component value field
@@ -264,11 +367,14 @@ for (value, datasheet), refs in sorted_groups:
 1. Rename function: `write_engineering_report()` (keep same signature for compatibility)
 2. Change file extension in output_path from `.txt` to `.md`
 3. Rewrite content generation to use Markdown format
-4. Add `_generate_wire_bom_table()` helper function
-5. Add `_generate_component_bom_table()` helper function
-6. Add `_generate_wire_purchasing_summary()` helper function
-7. Add `_generate_component_purchasing_summary()` helper function
-8. Add `_format_markdown_table()` utility for table formatting
+4. Add `_format_markdown_table()` utility for table formatting
+5. Add `_generate_wire_purchasing_summary()` helper function
+6. Add `_generate_component_purchasing_summary()` helper function
+7. Add `_calculate_circuit_currents()` helper function - group wires by circuit, determine current
+8. Add `_generate_wire_engineering_analysis()` helper function - electrical calculations table
+9. Add `_generate_engineering_summary()` helper function - safety warnings and totals
+10. Add `_generate_wire_bom_table()` helper function
+11. Add `_generate_component_bom_table()` helper function
 
 ### 5.2 CLI Changes
 
@@ -304,6 +410,8 @@ Update engineering report link to point to `.md` file:
 2. Update assertions to check for Markdown format (headers with `#`, tables with `|`)
 3. Add new tests for table formatting
 4. Add new tests for purchasing summaries
+5. Add new tests for wire engineering analysis calculations
+6. Add new tests for engineering summary warnings
 
 ---
 
@@ -402,13 +510,16 @@ def _format_markdown_table(headers: List[str],
 ### 8.1 Unit Tests
 
 1. Test Markdown header formatting
-2. Test Wire BOM table generation with sample data
-3. Test Component BOM table generation with sample data
-4. Test Wire Purchasing Summary calculation and formatting
-5. Test Component Purchasing Summary calculation and formatting
-6. Test table alignment (left, center, right)
-7. Test empty lists (no wires, no components)
-8. Test special characters in values (commas, pipes, etc.)
+2. Test `_format_markdown_table()` with various alignments
+3. Test Wire BOM table generation with sample data
+4. Test Component BOM table generation with sample data
+5. Test Wire Purchasing Summary calculation and formatting
+6. Test Component Purchasing Summary calculation and formatting
+7. Test Wire Engineering Analysis calculations (voltage drop, utilization, power loss)
+8. Test Engineering Summary warnings (overload, high vdrop)
+9. Test table alignment (left, center, right)
+10. Test empty lists (no wires, no components)
+11. Test special characters in values (commas, pipes, etc.)
 
 ### 8.2 Integration Tests
 
@@ -416,6 +527,8 @@ def _format_markdown_table(headers: List[str],
 2. Verify `.md` file created
 3. Verify all sections present
 4. Verify tables render correctly in Markdown viewer
+5. Verify Wire Engineering Analysis calculations are accurate
+6. Verify safety warnings detected properly
 
 ---
 
@@ -428,11 +541,13 @@ Feature complete when:
 3. ✅ Component BOM table includes all component details
 4. ✅ Wire Purchasing Summary groups by gauge+type, sums lengths
 5. ✅ Component Purchasing Summary groups by value+datasheet, counts components
-6. ✅ Tables use proper Markdown syntax with alignment
-7. ✅ Tables render correctly in GitHub and VS Code
-8. ✅ All existing tests updated and passing
-9. ✅ New tests for table generation passing
-10. ✅ HTML index updated to link to `.md` file
+6. ✅ Wire Engineering Analysis table calculates voltage drop, ampacity utilization, power loss
+7. ✅ Engineering Summary identifies safety warnings (overload >100%, high vdrop >5%)
+8. ✅ Tables use proper Markdown syntax with alignment
+9. ✅ Tables render correctly in GitHub and VS Code
+10. ✅ All existing tests updated and passing
+11. ✅ New tests for table generation and calculations passing
+12. ✅ HTML index updated to link to `.md` file
 
 ---
 

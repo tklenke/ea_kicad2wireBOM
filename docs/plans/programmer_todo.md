@@ -66,9 +66,49 @@
     - Verify example refs formatting
     - Verify totals row
 
-### Phase 14.4: Wire BOM Table
+### Phase 14.4: Wire Engineering Analysis
 
-- [ ] **Task 14.4.1**: Implement `_generate_wire_bom_table()` function
+- [ ] **Task 14.4.1**: Implement `_calculate_circuit_currents()` helper function
+  - Group wires by circuit ID using `group_wires_by_circuit()` from wire_calculator
+  - For each circuit group, call `determine_circuit_current()` from wire_calculator
+  - Return dict mapping circuit_id (e.g., "L1") to current in amps
+  - Handle -99 sentinel for missing data
+  - TEST: Write `test_calculate_circuit_currents()` with sample wires
+
+- [ ] **Task 14.4.2**: Implement `_generate_wire_engineering_analysis()` function
+  - Import WIRE_RESISTANCE, WIRE_AMPACITY, DEFAULT_CONFIG from reference_data
+  - For each wire:
+    - Extract circuit_id from wire_label (e.g., "L1" from "L1A")
+    - Get circuit current from circuit_currents dict
+    - Calculate voltage drop using `calculate_voltage_drop()`
+    - Calculate vdrop % = (vdrop / system_voltage) × 100
+    - Get ampacity from WIRE_AMPACITY[gauge]
+    - Calculate utilization % = (current / ampacity) × 100
+    - Calculate resistance = resistance_per_foot × (length / 12)
+    - Calculate power loss = current² × resistance
+  - Format as Markdown table (all numeric columns right-aligned)
+  - Add totals row (sum: length, voltage drop, power loss)
+  - TEST: Write `test_wire_engineering_analysis()` with:
+    - Sample wires with known circuit currents
+    - Verify voltage drop calculations
+    - Verify utilization percentages
+    - Verify power loss calculations
+    - Verify totals row
+
+- [ ] **Task 14.4.3**: Implement `_generate_engineering_summary()` function
+  - Calculate total power loss (sum all wire power losses)
+  - Find worst voltage drop (max vdrop %)
+  - Identify overloaded wires (utilization > 100%)
+  - Identify high vdrop wires (vdrop > 5%)
+  - Format summary section with warnings
+  - TEST: Write `test_engineering_summary()` with:
+    - Wires with utilization > 100%
+    - Wires with vdrop > 5%
+    - Verify warnings generated
+
+### Phase 14.5: Wire BOM Table
+
+- [ ] **Task 14.5.1**: Implement `_generate_wire_bom_table()` function
   - Extract all wire fields into table rows
   - Format each field as string
   - Use `_format_markdown_table()` with proper alignments
@@ -76,9 +116,9 @@
   - Sort by wire label
   - TEST: Write `test_wire_bom_table()` with sample wire data
 
-### Phase 14.5: Component BOM Table
+### Phase 14.6: Component BOM Table
 
-- [ ] **Task 14.5.1**: Implement `_generate_component_bom_table()` function
+- [ ] **Task 14.6.1**: Implement `_generate_component_bom_table()` function
   - Extract all component fields into table rows
   - Format coordinates and electrical specs
   - Use `_format_markdown_table()` with proper alignments
@@ -86,9 +126,9 @@
   - Sort by reference
   - TEST: Write `test_component_bom_table()` with sample component data
 
-### Phase 14.6: Main Report Generation
+### Phase 14.7: Main Report Generation
 
-- [ ] **Task 14.6.1**: Rewrite `write_engineering_report()` for Markdown output
+- [ ] **Task 14.7.1**: Rewrite `write_engineering_report()` for Markdown output
   - Change to Markdown header format (# and ##)
   - Add all sections in order:
     1. Header with title
@@ -96,38 +136,43 @@
     3. Overall Summary (with total wire length)
     4. Wire Purchasing Summary table
     5. Component Purchasing Summary table
-    6. Wire BOM table
-    7. Component BOM table
-    8. Component Summary by Type (existing)
-    9. Wire Summary by System (existing)
-  - Use helper functions for tables
+    6. Wire Engineering Analysis table with summary
+    7. Wire BOM table
+    8. Component BOM table
+    9. Component Summary by Type (existing)
+    10. Wire Summary by System (existing)
+  - Calculate circuit currents before generating tables
+  - Use helper functions for all tables
   - Write to `.md` file
   - TEST: Write `test_write_engineering_report_markdown()` to verify full report
 
-### Phase 14.7: Integration Updates
+### Phase 14.8: Integration Updates
 
-- [ ] **Task 14.7.1**: Update CLI to use `.md` extension
+- [ ] **Task 14.8.1**: Update CLI to use `.md` extension
   - Change `__main__.py` line 425: `engineering_report.txt` → `engineering_report.md`
+  - Pass components list to `write_engineering_report()` for circuit current calculations
   - TEST: Run integration test, verify `.md` file created
 
-- [ ] **Task 14.7.2**: Update HTML index to link to `.md` file
+- [ ] **Task 14.8.2**: Update HTML index to link to `.md` file
   - Change `output_html_index.py`: link from `engineering_report.txt` → `engineering_report.md`
   - TEST: Verify HTML index links correctly
 
-### Phase 14.8: Test Updates
+### Phase 14.9: Test Updates
 
-- [ ] **Task 14.8.1**: Update existing engineering report tests
+- [ ] **Task 14.9.1**: Update existing engineering report tests
   - Change all test file paths from `.txt` to `.md`
   - Update assertions for Markdown format:
     - Check for `#` headers instead of `===` separators
     - Check for table syntax with `|` characters
   - Verify all existing tests pass
 
-- [ ] **Task 14.8.2**: Add integration test for Phase 14
+- [ ] **Task 14.9.2**: Add integration test for Phase 14
   - Generate engineering report from test_07 fixture
   - Verify all sections present
   - Verify tables are valid Markdown
   - Verify purchasing summaries have correct calculations
+  - Verify wire engineering analysis calculations accurate
+  - Verify safety warnings detected (if any in fixture)
 
 ---
 
