@@ -7,6 +7,7 @@ import re
 
 from kicad2wireBOM.component import Component
 from kicad2wireBOM.wire_bom import WireConnection
+from kicad2wireBOM.wire_calculator import group_wires_by_circuit, determine_circuit_current
 
 
 def _format_markdown_table(headers: List[str], rows: List[List[str]], alignments: List[str] = None) -> List[str]:
@@ -173,6 +174,30 @@ def _generate_component_purchasing_summary(components: List[Component]) -> List[
     # Format as markdown table
     alignments = ['left', 'left', 'right', 'left']
     return _format_markdown_table(headers, rows, alignments)
+
+
+def _calculate_circuit_currents(wires: List[WireConnection], components: List[Component]) -> Dict[str, float]:
+    """
+    Calculate current for each circuit by grouping wires and determining circuit current.
+
+    Args:
+        wires: List of WireConnection objects
+        components: List of Component objects
+
+    Returns:
+        Dict mapping circuit_id (e.g., "L1", "P2") to current in amps
+        Uses -99 as sentinel for missing data
+    """
+    # Group wires by circuit
+    circuit_groups = group_wires_by_circuit(wires)
+
+    # Calculate current for each circuit
+    circuit_currents = {}
+    for circuit_id, circuit_wires in circuit_groups.items():
+        current = determine_circuit_current(circuit_wires, components, None)
+        circuit_currents[circuit_id] = current
+
+    return circuit_currents
 
 
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:

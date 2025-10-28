@@ -71,12 +71,13 @@
 
 ### Phase 14.4: Wire Engineering Analysis
 
-- [ ] **Task 14.4.1**: Implement `_calculate_circuit_currents()` helper function
+- [x] **Task 14.4.1**: Implement `_calculate_circuit_currents()` helper function
   - Group wires by circuit ID using `group_wires_by_circuit()` from wire_calculator
   - For each circuit group, call `determine_circuit_current()` from wire_calculator
   - Return dict mapping circuit_id (e.g., "L1") to current in amps
   - Handle -99 sentinel for missing data
   - TEST: Write `test_calculate_circuit_currents()` with sample wires
+  - ✅ 2/2 tests passing
 
 - [ ] **Task 14.4.2**: Implement `_generate_wire_engineering_analysis()` function
   - Import WIRE_RESISTANCE, WIRE_AMPACITY, DEFAULT_CONFIG from reference_data

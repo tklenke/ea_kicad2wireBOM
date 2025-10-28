@@ -10,7 +10,8 @@ from kicad2wireBOM.output_engineering_report import (
     write_engineering_report,
     _format_markdown_table,
     _generate_wire_purchasing_summary,
-    _generate_component_purchasing_summary
+    _generate_component_purchasing_summary,
+    _calculate_circuit_currents
 )
 
 
@@ -344,3 +345,62 @@ def test_generate_component_purchasing_summary_empty():
 
     # Should still have header and separator
     assert len(result) >= 2
+
+
+def test_calculate_circuit_currents():
+    """Test circuit current calculation from wires and components"""
+    components = [
+        Component(ref='CB1', fs=100.0, wl=25.0, bl=-5.0, load=None, rating=10.0),
+        Component(ref='LIGHT1', fs=200.0, wl=35.0, bl=5.0, load=5.0, rating=None),  # 5A load
+        Component(ref='LIGHT2', fs=200.0, wl=35.0, bl=-5.0, load=3.0, rating=None), # 3A load
+        Component(ref='GND1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None),
+    ]
+
+    wires = [
+        # L1 circuit with LIGHT1 (5A)
+        WireConnection(wire_label='L-1-A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='L-1-B', from_component='LIGHT1', from_pin='2', to_component='GND1', to_pin='1',
+                       wire_gauge='18', wire_color='BLK', length=45.0, wire_type='M22759/16', notes='', warnings=[]),
+        # L2 circuit with LIGHT2 (3A)
+        WireConnection(wire_label='L-2-A', from_component='CB1', from_pin='2', to_component='LIGHT2', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=55.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='L-2-B', from_component='LIGHT2', from_pin='2', to_component='GND1', to_pin='1',
+                       wire_gauge='18', wire_color='BLK', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    result = _calculate_circuit_currents(wires, components)
+
+    # Should be a dict mapping circuit_id to current
+    assert isinstance(result, dict)
+
+    # Should have L1 and L2 circuits
+    assert 'L1' in result
+    assert 'L2' in result
+
+    # L1 should have 5A (LIGHT1 load)
+    assert result['L1'] == 5.0
+
+    # L2 should have 3A (LIGHT2 load)
+    assert result['L2'] == 3.0
+
+
+def test_calculate_circuit_currents_missing_data():
+    """Test circuit current calculation handles missing load data"""
+    components = [
+        Component(ref='CB1', fs=100.0, wl=25.0, bl=-5.0, load=None, rating=10.0),
+        Component(ref='SW1', fs=150.0, wl=30.0, bl=0.0, load=None, rating=20.0),  # No load
+    ]
+
+    wires = [
+        WireConnection(wire_label='P-1-A', from_component='CB1', from_pin='1', to_component='SW1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    result = _calculate_circuit_currents(wires, components)
+
+    # Should have P1 circuit
+    assert 'P1' in result
+
+    # P1 should have -99 (sentinel for missing data)
+    assert result['P1'] == -99
