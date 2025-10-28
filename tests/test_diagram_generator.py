@@ -350,7 +350,7 @@ def test_transform_to_svg_v2_origin():
 
 
 def test_transform_to_svg_v2_fs_positive():
-    """Test that FS+ renders above origin (lower svg_y) - rear up (v2 transform)."""
+    """Test that FS+ renders below origin (higher svg_y) - rear down, nose up (v2 transform)."""
     from kicad2wireBOM.diagram_generator import transform_to_svg_v2
 
     origin_x, origin_y = 550.0, 200.0
@@ -362,13 +362,13 @@ def test_transform_to_svg_v2_fs_positive():
         scale_x=scale_x, scale_y=scale_y
     )
 
-    # FS+ (rear) should move up (svg_y decreases) per design spec
+    # FS+ (rear/aft) should move down (svg_y increases) - aircraft points up
     assert svg_x == origin_x  # BL=0, no horizontal movement
-    assert svg_y == origin_y - (50.0 * scale_y)  # 200 - 100 = 100
+    assert svg_y == origin_y + (50.0 * scale_y)  # 200 + 100 = 300
 
 
 def test_transform_to_svg_v2_fs_negative():
-    """Test that FS- renders below origin (higher svg_y) - nose down (v2 transform)."""
+    """Test that FS- renders above origin (lower svg_y) - nose up (v2 transform)."""
     from kicad2wireBOM.diagram_generator import transform_to_svg_v2
 
     origin_x, origin_y = 550.0, 200.0
@@ -380,9 +380,9 @@ def test_transform_to_svg_v2_fs_negative():
         scale_x=scale_x, scale_y=scale_y
     )
 
-    # FS- (nose) should move down (svg_y increases) per design spec
+    # FS- (nose/forward) should move up (svg_y decreases) - aircraft points up
     assert svg_x == origin_x  # BL=0, no horizontal movement
-    assert svg_y == origin_y - (-50.0 * scale_y)  # 200 - (-100) = 300
+    assert svg_y == origin_y + (-50.0 * scale_y)  # 200 - 100 = 100
 
 
 def test_transform_to_svg_v2_bl_positive():
@@ -977,22 +977,22 @@ def test_diagram_origin_centered(tmp_path):
 
 
 def test_diagram_fs_axis_direction(tmp_path):
-    """Test that FS+ renders above FS- (rear up, nose down) per Phase 13 design (Phase 13.5.2)."""
+    """Test that FS+ renders below FS- (nose up, rear down) - aircraft points up (Phase 13.5.2)."""
     from kicad2wireBOM.diagram_generator import transform_to_svg_v2
 
     origin_x, origin_y = 550.0, 200.0
     scale_x, scale_y = 2.0, 2.0
 
-    # FS+ (rear) should be above origin (lower svg_y) per Phase 13 design
+    # FS+ (rear/aft) should be below origin (higher svg_y) - aircraft points up
     svg_x_plus, svg_y_plus = transform_to_svg_v2(50.0, 0.0, origin_x, origin_y, scale_x, scale_y)
 
-    # FS- (nose) should be below origin (higher svg_y) per Phase 13 design
+    # FS- (nose/forward) should be above origin (lower svg_y) - aircraft points up
     svg_x_minus, svg_y_minus = transform_to_svg_v2(-50.0, 0.0, origin_x, origin_y, scale_x, scale_y)
 
-    # Verify FS+ has lower Y (above) than FS- (below) - rear at top, nose at bottom
-    assert svg_y_plus < origin_y  # FS+ above origin
-    assert svg_y_minus > origin_y  # FS- below origin
-    assert svg_y_plus < svg_y_minus  # Rear above nose
+    # Verify FS- (nose) has lower Y (above) than FS+ (rear) - nose at top, rear at bottom
+    assert svg_y_plus > origin_y  # FS+ below origin
+    assert svg_y_minus < origin_y  # FS- above origin
+    assert svg_y_minus < svg_y_plus  # Nose above rear
 
 
 def test_diagram_bl_expansion_at_center(tmp_path):
