@@ -6,6 +6,45 @@ from kicad2wireBOM.connectivity_graph import ConnectivityGraph
 from kicad2wireBOM.schematic import WireSegment
 
 
+def is_power_symbol(comp_ref: Optional[str]) -> bool:
+    """
+    Check if a component reference is a power symbol.
+
+    Power symbols represent global nets (GND, voltage rails) and are not
+    physical components in the wire harness.
+
+    KiCad power symbol patterns used in EA schematics:
+    - GND, GND1-6, GND12, GND24, GNDREF
+    - +nV, +nVA where n is 1, 2, 3, 4, 5, 6, 12, or 24
+    - -nV, -nVA (same voltage values)
+    - VDC, VAC
+
+    Args:
+        comp_ref: Component reference designator (e.g., 'GND', '+12V', 'SW1')
+
+    Returns:
+        True if component is a power symbol, False otherwise
+    """
+    if not comp_ref:
+        return False
+
+    # Exact matches
+    if comp_ref in ('GND', 'GNDREF', 'VDC', 'VAC'):
+        return True
+
+    # GNDn patterns (n = 1, 2, 3, 4, 5, 6, 12, 24)
+    if comp_ref in ('GND1', 'GND2', 'GND3', 'GND4', 'GND5', 'GND6', 'GND12', 'GND24'):
+        return True
+
+    # Voltage patterns: +nV, +nVA, -nV, -nVA where n is 1, 2, 3, 4, 5, 6, 12, or 24
+    valid_voltages = ('1', '2', '3', '4', '5', '6', '12', '24')
+    for voltage in valid_voltages:
+        if comp_ref in (f'+{voltage}V', f'+{voltage}VA', f'-{voltage}V', f'-{voltage}VA'):
+            return True
+
+    return False
+
+
 def identify_wire_connections(
     wire: WireSegment,
     graph: ConnectivityGraph
@@ -114,11 +153,6 @@ def generate_multipoint_bom_entries(
     # Check if this group contains a power symbol
     # Power symbols (GND, +12V, etc.) represent global nets, not physical junctions
     # If present, the power symbol IS the common pin (all other pins connect to it)
-    def is_power_symbol(comp_ref):
-        return comp_ref and (comp_ref.startswith('GND') or comp_ref.startswith('+') or
-                            comp_ref in ['GND', '+12V', '+5V', '+3V3', '+28V'])
-
-    # Check if group contains a power symbol
     power_pins = [pin for pin in group if is_power_symbol(pin['component_ref'])]
 
     if power_pins:

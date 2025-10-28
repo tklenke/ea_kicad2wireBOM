@@ -6,6 +6,7 @@ from kicad2wireBOM.reference_data import (
     WIRE_RESISTANCE,
     WIRE_AMPACITY,
     STANDARD_AWG_SIZES,
+    POSITION_PRECISION,
     DEFAULT_CONFIG,
     DIAGRAM_CONFIG,
     BL_CENTER_EXPANSION,
@@ -51,6 +52,13 @@ def test_standard_awg_sizes_exists():
     # Should be sorted from smallest (largest wire) to largest (smallest wire)
     for i in range(len(STANDARD_AWG_SIZES) - 1):
         assert STANDARD_AWG_SIZES[i] < STANDARD_AWG_SIZES[i + 1]
+
+
+def test_position_precision_exists():
+    """Test that POSITION_PRECISION constant is defined correctly"""
+    assert isinstance(POSITION_PRECISION, int)
+    assert POSITION_PRECISION == 2  # 0.01mm precision for coordinate matching
+    assert POSITION_PRECISION >= 0  # Must be non-negative
 
 
 def test_default_config_exists():

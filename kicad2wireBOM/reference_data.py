@@ -24,6 +24,11 @@ WIRE_AMPACITY: Dict[int, float] = {
 # Standard AWG wire sizes available (sorted smallest to largest)
 STANDARD_AWG_SIZES: List[int] = [12, 16, 18, 20]
 
+# Position precision for coordinate matching
+# KiCad schematic coordinates are floats; we round to this many decimal places
+# to reliably match positions (0.01mm precision for node/pin matching)
+POSITION_PRECISION = 2
+
 # System code to wire color mapping
 # Based on experimental aircraft wire marking standards
 SYSTEM_COLOR_MAP: Dict[str, str] = {

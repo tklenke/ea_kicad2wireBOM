@@ -89,6 +89,12 @@ def build_connectivity_graph(schematic_sexp: Any) -> ConnectivityGraph:
         for pin_def in pins:
             # Create simple object with x, y for pin calculator
             class ComponentPosition:
+                """
+                Adapter class to provide component position for pin_calculator.
+
+                Converts position tuple (x, y) into object with .x and .y attributes
+                required by calculate_pin_position().
+                """
                 def __init__(self, x, y):
                     self.x = x
                     self.y = y
