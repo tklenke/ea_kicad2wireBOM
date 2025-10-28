@@ -612,10 +612,9 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     # FS (Y-axis): Scale to fit available height
     scale_y = available_height / fs_range if fs_range > 0 else 1.0
 
-    # Calculate WL scale proportional to FS scale (per user requirement)
-    # WLs = FSs * DEFAULT_WL_SCALE
+    # Use DEFAULT_WL_SCALE directly (don't multiply by scale_y to match bounds calculation)
     from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-    wl_scale_effective = scale_y * DEFAULT_WL_SCALE
+    wl_scale_effective = DEFAULT_WL_SCALE
 
     # Use fixed dimensions for all diagrams
     svg_width = FIXED_WIDTH
