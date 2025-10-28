@@ -13,7 +13,8 @@ from kicad2wireBOM.output_engineering_report import (
     _generate_component_purchasing_summary,
     _calculate_circuit_currents,
     _generate_wire_engineering_analysis,
-    _generate_engineering_summary
+    _generate_engineering_summary,
+    _generate_wire_bom_table
 )
 
 
@@ -559,3 +560,62 @@ def test_generate_engineering_summary_no_warnings():
     # Verify no warnings reported (or explicitly states no warnings)
     # Should either have "0 wires" or "No wires" or similar
     assert '0 wire' in summary_text.lower() or 'no wire' in summary_text.lower() or 'none' in summary_text.lower()
+
+
+def test_generate_wire_bom_table():
+    """Test wire BOM table generation with all wire fields"""
+    wires = [
+        WireConnection(wire_label='L-1-A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='WHITE', length=50.0, wire_type='M22759/16', notes='Test note', warnings=[]),
+        WireConnection(wire_label='P-1-A', from_component='BT1', from_pin='1', to_component='CB1', to_pin='1',
+                       wire_gauge='12', wire_color='RED', length=60.0, wire_type='M22759/16', notes='', warnings=['Warning: test']),
+    ]
+
+    result = _generate_wire_bom_table(wires)
+
+    # Verify result is list of strings
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Should have header, separator, 2 data rows (sorted by wire label)
+    assert len(result) == 4
+
+    # Verify header columns (11 total from design spec)
+    header = result[0]
+    assert 'Wire Label' in header
+    assert 'From Component' in header
+    assert 'From Pin' in header
+    assert 'To Component' in header
+    assert 'To Pin' in header
+    assert 'Gauge' in header
+    assert 'Color' in header
+    assert 'Length (in)' in header
+    assert 'Type' in header
+    assert 'Notes' in header
+    assert 'Warnings' in header
+
+    # Verify separator has alignment markers
+    assert '|' in result[1]
+    assert '-' in result[1]
+
+    # Verify data rows contain wire data (sorted by label: L-1-A, P-1-A)
+    data_rows = '\n'.join(result[2:])
+    assert 'L-1-A' in data_rows
+    assert 'P-1-A' in data_rows
+    assert 'CB1' in data_rows
+    assert 'LIGHT1' in data_rows
+    assert 'BT1' in data_rows
+    assert '50.0' in data_rows
+    assert '60.0' in data_rows
+    assert 'M22759/16' in data_rows
+
+
+def test_generate_wire_bom_table_empty():
+    """Test wire BOM table with no wires"""
+    wires = []
+
+    result = _generate_wire_bom_table(wires)
+
+    # Should still have header and separator
+    assert len(result) >= 2
+    assert 'Wire Label' in result[0]

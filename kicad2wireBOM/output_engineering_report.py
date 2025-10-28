@@ -411,6 +411,58 @@ def _generate_engineering_summary(wires: List[WireConnection], circuit_currents:
     return lines
 
 
+def _generate_wire_bom_table(wires: List[WireConnection]) -> List[str]:
+    """
+    Generate wire BOM table with all wire details.
+
+    Args:
+        wires: List of WireConnection objects
+
+    Returns:
+        List of formatted Markdown table lines
+    """
+    headers = [
+        'Wire Label',
+        'From Component',
+        'From Pin',
+        'To Component',
+        'To Pin',
+        'Gauge',
+        'Color',
+        'Length (in)',
+        'Type',
+        'Notes',
+        'Warnings'
+    ]
+
+    rows = []
+
+    # Sort wires by wire_label
+    sorted_wires = sorted(wires, key=lambda w: w.wire_label)
+
+    for wire in sorted_wires:
+        # Format warnings list as comma-separated string
+        warnings_str = ', '.join(wire.warnings) if wire.warnings else ''
+
+        rows.append([
+            wire.wire_label,
+            wire.from_component if wire.from_component else '',
+            wire.from_pin if wire.from_pin else '',
+            wire.to_component if wire.to_component else '',
+            wire.to_pin if wire.to_pin else '',
+            str(wire.wire_gauge),
+            wire.wire_color,
+            f'{wire.length:.1f}',
+            wire.wire_type,
+            wire.notes if wire.notes else '',
+            warnings_str
+        ])
+
+    # Format as markdown table (right-align length column)
+    alignments = ['left', 'left', 'left', 'left', 'left', 'left', 'left', 'right', 'left', 'left', 'left']
+    return _format_markdown_table(headers, rows, alignments)
+
+
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.

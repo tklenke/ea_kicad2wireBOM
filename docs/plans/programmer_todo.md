@@ -114,13 +114,14 @@
 
 ### Phase 14.5: Wire BOM Table
 
-- [ ] **Task 14.5.1**: Implement `_generate_wire_bom_table()` function
+- [x] **Task 14.5.1**: Implement `_generate_wire_bom_table()` function
   - Extract all wire fields into table rows
   - Format each field as string
   - Use `_format_markdown_table()` with proper alignments
   - Right-align length column
   - Sort by wire label
   - TEST: Write `test_wire_bom_table()` with sample wire data
+  - ✅ 2/2 tests passing
 
 ### Phase 14.6: Component BOM Table
 
