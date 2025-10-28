@@ -664,7 +664,14 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{project_title} - Rev {project_rev} - {project_date}</text>')
         y_offset += 20
 
-    # Add component info for component diagrams
+    # Main title (reordered for component diagrams: title first, then description)
+    if is_component_diagram:
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{diagram.system_code} Component Diagram</text>')
+    else:
+        system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
+
+    # Add component info for component diagrams (after main title)
     if is_component_diagram and (component_value or component_desc):
         comp_info_parts = []
         if component_value:
@@ -672,22 +679,10 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         if component_desc:
             comp_info_parts.append(component_desc)
         comp_info = " - ".join(comp_info_parts)
-        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset}" font-size="11" text-anchor="middle">{diagram.system_code}: {comp_info}</text>')
-        y_offset += 20
+        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 30}" font-size="11" text-anchor="middle">{diagram.system_code}: {comp_info}</text>')
 
-    # Main title
-    if is_component_diagram:
-        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{diagram.system_code} Component Diagram</text>')
-    else:
-        system_name = SYSTEM_NAMES.get(diagram.system_code, diagram.system_code)
-        svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 15}" font-size="18" font-weight="bold" text-anchor="middle">{system_name} ({diagram.system_code}) System Diagram</text>')
-
-    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 35}" font-size="11" text-anchor="middle">Scale: {scale_y:.1f}×{scale_x:.1f} px/inch (Y×X) | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
-    svg_lines.append('  </g>')
-
-    # Separator line below title/legend (fixed width for all diagrams)
-    svg_lines.append('  <g id="separator">')
-    svg_lines.append(f'    <line x1="{MARGIN}" y1="65" x2="{svg_width - MARGIN}" y2="65" stroke="black" stroke-width="0.5"/>')
+    # Scale line (last)
+    svg_lines.append(f'    <text x="{svg_width/2:.1f}" y="{y_offset + 50}" font-size="11" text-anchor="middle">Scale: {scale_y:.1f}×{scale_x:.1f} px/inch (Y×X) | FS: {diagram.fs_min_original:.0f}"-{diagram.fs_max_original:.0f}" | BL: {diagram.bl_min_original:.0f}"-{diagram.bl_max_original:.0f}" (compressed)</text>')
     svg_lines.append('  </g>')
 
     # Build component-to-circuits mapping (Phase 13.4.1)
