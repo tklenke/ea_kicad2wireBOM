@@ -36,6 +36,31 @@ See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.
 
 ---
 
-## DELIVERABLES COMPLETE
+## CURRENT WORK
 
-All architectural planning complete. No outstanding design work.
+### Phase 14: Engineering Report Enhancement - Markdown Tables
+
+**Status**: [~] Design Complete, Implementation Pending
+**Design Document**: `docs/plans/engineering_report_enhancement.md`
+**Programmer Tasks**: `docs/plans/programmer_todo.md` - Phase 14
+
+**Enhancements**:
+1. Change output format from `.txt` to `.md` (Markdown)
+2. Add Wire BOM table (complete wire details in Markdown table)
+3. Add Component BOM table (complete component details in Markdown table)
+4. Add Wire Purchasing Summary table (total length by gauge + type)
+5. Add Component Purchasing Summary table (component count by value + datasheet)
+6. Preserve existing project info and summary statistics
+7. Properly aligned Markdown tables
+
+**Deliverables**:
+- [x] Design document created (engineering_report_enhancement.md)
+- [x] Programmer tasks documented in programmer_todo.md (8 phases, 11 tasks)
+- [ ] Implementation (programmer work)
+- [ ] Testing (programmer work)
+
+---
+
+## FUTURE OPTIONS
+
+See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.

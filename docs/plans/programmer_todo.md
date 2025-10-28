@@ -22,9 +22,112 @@
 
 ---
 
-## IMPLEMENTATION COMPLETE
+## CURRENT WORK: Phase 14 - Engineering Report Enhancement
 
-All implementation tasks complete. No outstanding programming work.
+**Design Document**: `docs/plans/engineering_report_enhancement.md`
+
+### Phase 14.1: Markdown Table Formatting Utility
+
+- [ ] **Task 14.1.1**: Implement `_format_markdown_table()` helper function
+  - Accept headers, rows, and alignment specifications
+  - Calculate column widths based on content
+  - Generate Markdown table with proper alignment syntax
+  - TEST: Write `test_format_markdown_table()` with:
+    - Left, center, right alignment
+    - Various column widths
+    - Special characters in cells
+
+### Phase 14.2: Wire Purchasing Summary
+
+- [ ] **Task 14.2.1**: Implement `_generate_wire_purchasing_summary()` function
+  - Group wires by (gauge, type) tuple
+  - Sum total wire length for each group
+  - Calculate length in inches and feet
+  - Sort by gauge (numeric), then type
+  - Add totals row
+  - Return formatted Markdown table lines
+  - TEST: Write `test_wire_purchasing_summary()` with:
+    - Multiple gauges and types
+    - Verify grouping and summation
+    - Verify totals row
+
+### Phase 14.3: Component Purchasing Summary
+
+- [ ] **Task 14.3.1**: Implement `_generate_component_purchasing_summary()` function
+  - Group components by (value, datasheet) tuple
+  - Count components in each group
+  - Collect example refs (first 3-5)
+  - Sort by value, then datasheet
+  - Add totals row
+  - Return formatted Markdown table lines
+  - TEST: Write `test_component_purchasing_summary()` with:
+    - Multiple value/datasheet combinations
+    - Verify grouping and counting
+    - Verify example refs formatting
+    - Verify totals row
+
+### Phase 14.4: Wire BOM Table
+
+- [ ] **Task 14.4.1**: Implement `_generate_wire_bom_table()` function
+  - Extract all wire fields into table rows
+  - Format each field as string
+  - Use `_format_markdown_table()` with proper alignments
+  - Right-align length column
+  - Sort by wire label
+  - TEST: Write `test_wire_bom_table()` with sample wire data
+
+### Phase 14.5: Component BOM Table
+
+- [ ] **Task 14.5.1**: Implement `_generate_component_bom_table()` function
+  - Extract all component fields into table rows
+  - Format coordinates and electrical specs
+  - Use `_format_markdown_table()` with proper alignments
+  - Right-align numeric columns (Amps, FS, WL, BL)
+  - Sort by reference
+  - TEST: Write `test_component_bom_table()` with sample component data
+
+### Phase 14.6: Main Report Generation
+
+- [ ] **Task 14.6.1**: Rewrite `write_engineering_report()` for Markdown output
+  - Change to Markdown header format (# and ##)
+  - Add all sections in order:
+    1. Header with title
+    2. Project Information (if available)
+    3. Overall Summary (with total wire length)
+    4. Wire Purchasing Summary table
+    5. Component Purchasing Summary table
+    6. Wire BOM table
+    7. Component BOM table
+    8. Component Summary by Type (existing)
+    9. Wire Summary by System (existing)
+  - Use helper functions for tables
+  - Write to `.md` file
+  - TEST: Write `test_write_engineering_report_markdown()` to verify full report
+
+### Phase 14.7: Integration Updates
+
+- [ ] **Task 14.7.1**: Update CLI to use `.md` extension
+  - Change `__main__.py` line 425: `engineering_report.txt` → `engineering_report.md`
+  - TEST: Run integration test, verify `.md` file created
+
+- [ ] **Task 14.7.2**: Update HTML index to link to `.md` file
+  - Change `output_html_index.py`: link from `engineering_report.txt` → `engineering_report.md`
+  - TEST: Verify HTML index links correctly
+
+### Phase 14.8: Test Updates
+
+- [ ] **Task 14.8.1**: Update existing engineering report tests
+  - Change all test file paths from `.txt` to `.md`
+  - Update assertions for Markdown format:
+    - Check for `#` headers instead of `===` separators
+    - Check for table syntax with `|` characters
+  - Verify all existing tests pass
+
+- [ ] **Task 14.8.2**: Add integration test for Phase 14
+  - Generate engineering report from test_07 fixture
+  - Verify all sections present
+  - Verify tables are valid Markdown
+  - Verify purchasing summaries have correct calculations
 
 ---
 
