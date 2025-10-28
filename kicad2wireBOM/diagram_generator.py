@@ -566,48 +566,24 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     FIXED_HEIGHT = DIAGRAM_CONFIG['svg_height']
 
     # Get bounds based on projection mode (Phase 13 v2: use scale_bl_nonlinear_v2)
-    # Calculate bounds from all Manhattan path waypoints (not just component positions)
-    # to ensure waypoints don't extend off-canvas
     if use_2d:
-        # 2D mode: collect all FS/BL values from Manhattan paths
-        all_fs_values = []
-        all_bl_values = []
-        if diagram.wire_segments:
-            for segment in diagram.wire_segments:
-                for fs, wl, bl in segment.manhattan_path:
-                    all_fs_values.append(fs)
-                    all_bl_values.append(bl)
-        else:
-            # No wire segments, use component positions
-            all_fs_values = [c.fs for c in diagram.components]
-            all_bl_values = [c.bl for c in diagram.components]
-        fs_min = min(all_fs_values)
-        fs_max = max(all_fs_values)
-        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in all_bl_values]
+        # Recalculate bounds for 2D mode (FS/BL only, no WL projection)
+        fs_values = [c.fs for c in diagram.components]
+        bl_values = [c.bl for c in diagram.components]
+        fs_min = min(fs_values)
+        fs_max = max(fs_values)
+        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in bl_values]
         bl_min_scaled = min(bl_scaled_values)
         bl_max_scaled = max(bl_scaled_values)
     else:
-        # 3D mode: Use pre-calculated bounds from diagram
-        # (diagram.fs_min/fs_max already account for 3D projection)
+        # Use 3D projected bounds from diagram (need to recalculate with v2 scaling)
         fs_min = diagram.fs_min
         fs_max = diagram.fs_max
-        # For BL bounds, project all Manhattan waypoints and find screen_x range
-        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
-        if diagram.wire_segments:
-            all_screen_x_values = []
-            for segment in diagram.wire_segments:
-                for fs, wl, bl in segment.manhattan_path:
-                    screen_x, screen_y = project_3d_to_2d(fs, wl, bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
-                    all_screen_x_values.append(screen_x)
-            bl_scaled_values = [scale_bl_nonlinear_v2(x) for x in all_screen_x_values]
-            bl_min_scaled = min(bl_scaled_values)
-            bl_max_scaled = max(bl_scaled_values)
-        else:
-            # No wire segments, use component positions
-            bl_values = [c.bl for c in diagram.components]
-            bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in bl_values]
-            bl_min_scaled = min(bl_scaled_values)
-            bl_max_scaled = max(bl_scaled_values)
+        # Recalculate BL bounds with v2 scaling
+        bl_values = [c.bl for c in diagram.components]
+        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in bl_values]
+        bl_min_scaled = min(bl_scaled_values)
+        bl_max_scaled = max(bl_scaled_values)
 
     # Calculate independent scales for X and Y to fill available space (Phase 13 v2)
     fs_range = fs_max - fs_min
@@ -626,13 +602,10 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_width = FIXED_WIDTH
     svg_height = FIXED_HEIGHT
 
-    # Calculate origin position (Phase 13 v2: positioned to fit BL and FS ranges)
-    # X axis: position origin so bl_min_scaled appears at left margin
-    # Add padding to account for Manhattan routing waypoints extending beyond component bounds
-    x_padding = available_width * 0.2  # 20% padding on left side
-    effective_bl_min = bl_min_scaled - (x_padding / scale_x if scale_x > 0 else 0)
-    origin_svg_x = MARGIN - (effective_bl_min * scale_x)
-    # Y axis: position origin with balanced top/bottom margins (inverted FS axis: FS+ up)
+    # Calculate origin position (Phase 13 v2: centered horizontally, positioned to fit FS range)
+    # With inverted FS axis (FS+ up = lower Y), position origin with balanced top/bottom margins
+    # Use half of origin_offset_y to provide space at both top and bottom
+    origin_svg_x = svg_width / 2.0
     origin_svg_y = (FIXED_HEIGHT - MARGIN - origin_offset_y / 2) + (fs_min * scale_y)
 
     # Start building SVG

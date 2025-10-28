@@ -10,12 +10,6 @@
 ✅ **297/297 tests passing**
 ✅ **HTML index updated** - Star diagrams section added to index.html
 
-**Known Issues**:
-- test_07 P_System diagram: Some content at negative X coordinates in 3D mode
-  - Manhattan waypoints with mixed WL values extend beyond calculated bounds
-  - Requires deeper investigation into 3D projection coordinate system
-  - 2D mode and simpler 3D layouts work correctly
-
 **Key Modules**:
 - `parser.py`, `schematic.py`, `hierarchical_schematic.py` - Parsing
 - `connectivity_graph.py`, `graph_builder.py` - Graph construction
