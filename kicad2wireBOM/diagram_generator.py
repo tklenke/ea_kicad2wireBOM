@@ -580,9 +580,13 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
         # Use 3D projected bounds from diagram (need to recalculate with v2 scaling)
         fs_min = diagram.fs_min
         fs_max = diagram.fs_max
-        # Recalculate BL bounds with v2 scaling
-        bl_values = [c.bl for c in diagram.components]
-        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in bl_values]
+        # Recalculate BL bounds with v2 scaling using projected 2D coordinates
+        from kicad2wireBOM.reference_data import DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE
+        projected_bl_values = []
+        for c in diagram.components:
+            screen_x, screen_y = project_3d_to_2d(c.fs, c.wl, c.bl, DEFAULT_WL_SCALE, DEFAULT_PROJECTION_ANGLE)
+            projected_bl_values.append(screen_y)
+        bl_scaled_values = [scale_bl_nonlinear_v2(bl) for bl in projected_bl_values]
         bl_min_scaled = min(bl_scaled_values)
         bl_max_scaled = max(bl_scaled_values)
 
@@ -603,11 +607,12 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_width = FIXED_WIDTH
     svg_height = FIXED_HEIGHT
 
-    # Calculate origin position (Phase 13 v2: centered horizontally, positioned to fit FS range)
-    # With new FS orientation (FS+ down, nose up), position origin so most forward component
-    # is just below title block and most aft component is at bottom margin
+    # Calculate origin position (Phase 13 v2: positioned to fit BL and FS ranges)
+    # Horizontal: Position origin so most negative BL is at left margin, most positive at right margin
+    # Formula: origin adjusted by bl_min_scaled to align leftmost component with left margin
+    # Vertical: Position origin so most forward component is just below title block
     # Formula: origin at title+margin, adjusted by fs_min to make room for forward components
-    origin_svg_x = svg_width / 2.0
+    origin_svg_x = MARGIN - (bl_min_scaled * scale_x)
     origin_svg_y = TITLE_HEIGHT + MARGIN - (fs_min * scale_y)
 
     # Start building SVG
@@ -655,7 +660,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
 
     # Separator line below title/legend (fixed width for all diagrams)
     svg_lines.append('  <g id="separator">')
-    svg_lines.append(f'    <line x1="{MARGIN}" y1="{TITLE_HEIGHT}" x2="{svg_width - MARGIN}" y2="{TITLE_HEIGHT}" stroke="black" stroke-width="1"/>')
+    svg_lines.append(f'    <line x1="{MARGIN}" y1="65" x2="{svg_width - MARGIN}" y2="65" stroke="black" stroke-width="0.5"/>')
     svg_lines.append('  </g>')
 
     # Build component-to-circuits mapping (Phase 13.4.1)
