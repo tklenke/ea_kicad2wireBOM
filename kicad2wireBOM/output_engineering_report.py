@@ -9,6 +9,62 @@ from kicad2wireBOM.component import Component
 from kicad2wireBOM.wire_bom import WireConnection
 
 
+def _format_markdown_table(headers: List[str], rows: List[List[str]], alignments: List[str] = None) -> List[str]:
+    """
+    Format data as Markdown table.
+
+    Args:
+        headers: Column headers
+        rows: Data rows (each row is list of cell values)
+        alignments: List of 'left', 'center', 'right' for each column
+                   Default: all left-aligned
+
+    Returns:
+        List of formatted table lines
+    """
+    if alignments is None:
+        alignments = ['left'] * len(headers)
+
+    # Calculate column widths
+    col_widths = [len(h) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            col_widths[i] = max(col_widths[i], len(str(cell)))
+
+    lines = []
+
+    # Header row
+    header_cells = [headers[i].ljust(col_widths[i]) for i in range(len(headers))]
+    lines.append('| ' + ' | '.join(header_cells) + ' |')
+
+    # Separator row with alignment
+    sep_cells = []
+    for i, align in enumerate(alignments):
+        width = col_widths[i]
+        if align == 'center':
+            sep_cells.append(':' + '-' * (width - 2) + ':')
+        elif align == 'right':
+            sep_cells.append('-' * (width - 1) + ':')
+        else:  # left
+            sep_cells.append('-' * width)
+    lines.append('| ' + ' | '.join(sep_cells) + ' |')
+
+    # Data rows
+    for row in rows:
+        cells = []
+        for i, cell in enumerate(row):
+            cell_str = str(cell)
+            if alignments[i] == 'right':
+                cells.append(cell_str.rjust(col_widths[i]))
+            elif alignments[i] == 'center':
+                cells.append(cell_str.center(col_widths[i]))
+            else:
+                cells.append(cell_str.ljust(col_widths[i]))
+        lines.append('| ' + ' | '.join(cells) + ' |')
+
+    return lines
+
+
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.

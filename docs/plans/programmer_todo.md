@@ -28,7 +28,7 @@
 
 ### Phase 14.1: Markdown Table Formatting Utility
 
-- [ ] **Task 14.1.1**: Implement `_format_markdown_table()` helper function
+- [x] **Task 14.1.1**: Implement `_format_markdown_table()` helper function
   - Accept headers, rows, and alignment specifications
   - Calculate column widths based on content
   - Generate Markdown table with proper alignment syntax
@@ -36,6 +36,7 @@
     - Left, center, right alignment
     - Various column widths
     - Special characters in cells
+  - ✅ 4/4 tests passing
 
 ### Phase 14.2: Wire Purchasing Summary
 

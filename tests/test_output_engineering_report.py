@@ -6,7 +6,7 @@ from pathlib import Path
 
 from kicad2wireBOM.component import Component
 from kicad2wireBOM.wire_bom import WireConnection
-from kicad2wireBOM.output_engineering_report import write_engineering_report
+from kicad2wireBOM.output_engineering_report import write_engineering_report, _format_markdown_table
 
 
 def test_write_engineering_report_basic(tmp_path):
@@ -107,3 +107,85 @@ def test_write_engineering_report_empty_lists(tmp_path):
     content = output_file.read_text()
     assert "Total Components: 0" in content
     assert "Total Wires: 0" in content
+
+
+def test_format_markdown_table_left_aligned():
+    """Test markdown table formatting with left alignment"""
+    headers = ['Name', 'Age', 'City']
+    rows = [
+        ['Alice', '30', 'NYC'],
+        ['Bob', '25', 'LA'],
+    ]
+    alignments = ['left', 'left', 'left']
+
+    result = _format_markdown_table(headers, rows, alignments)
+
+    expected = [
+        '| Name  | Age | City |',
+        '| ----- | --- | ---- |',
+        '| Alice | 30  | NYC  |',
+        '| Bob   | 25  | LA   |',
+    ]
+
+    assert result == expected
+
+
+def test_format_markdown_table_mixed_alignment():
+    """Test markdown table with mixed alignment (left, center, right)"""
+    headers = ['Item', 'Count', 'Price']
+    rows = [
+        ['Apple', '5', '1.50'],
+        ['Banana', '10', '0.75'],
+    ]
+    alignments = ['left', 'center', 'right']
+
+    result = _format_markdown_table(headers, rows, alignments)
+
+    # Note: Python's str.center() puts extra space on right for odd-width content
+    expected = [
+        '| Item   | Count | Price |',
+        '| ------ | :---: | ----: |',
+        '| Apple  |   5   |  1.50 |',
+        '| Banana |   10  |  0.75 |',
+    ]
+
+    assert result == expected
+
+
+def test_format_markdown_table_default_alignment():
+    """Test markdown table with default (all left) alignment"""
+    headers = ['Col1', 'Col2']
+    rows = [
+        ['Data1', 'Data2'],
+    ]
+
+    result = _format_markdown_table(headers, rows)
+
+    expected = [
+        '| Col1  | Col2  |',
+        '| ----- | ----- |',
+        '| Data1 | Data2 |',
+    ]
+
+    assert result == expected
+
+
+def test_format_markdown_table_with_varying_widths():
+    """Test markdown table handles varying column widths"""
+    headers = ['Short', 'VeryLongHeader']
+    rows = [
+        ['X', 'Y'],
+        ['LongData', 'Short'],
+    ]
+    alignments = ['left', 'right']
+
+    result = _format_markdown_table(headers, rows, alignments)
+
+    expected = [
+        '| Short    | VeryLongHeader |',
+        '| -------- | -------------: |',
+        '| X        |              Y |',
+        '| LongData |          Short |',
+    ]
+
+    assert result == expected
