@@ -26,7 +26,7 @@ def write_html_index(output_dir: Path, output_path: str, title_block: Dict[str, 
     # Scan output directory for files
     wire_bom = "wire_bom.csv" if (output_dir / "wire_bom.csv").exists() else None
     component_bom = "component_bom.csv" if (output_dir / "component_bom.csv").exists() else None
-    engineering_report = "engineering_report.txt" if (output_dir / "engineering_report.txt").exists() else None
+    engineering_report = "engineering_report.md" if (output_dir / "engineering_report.md").exists() else None
     stdout_log = "stdout.txt" if (output_dir / "stdout.txt").exists() else None
     stderr_log = "stderr.txt" if (output_dir / "stderr.txt").exists() else None
 

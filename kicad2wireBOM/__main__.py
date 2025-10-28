@@ -422,8 +422,8 @@ def main():
 
             # Generate engineering report
             print(f"\nGenerating engineering report...")
-            write_engineering_report(components, bom.wires, str(output_dir / 'engineering_report.txt'), title_block)
-            print(f"  Generated: {output_dir / 'engineering_report.txt'}")
+            write_engineering_report(components, bom.wires, str(output_dir / 'engineering_report.md'), title_block)
+            print(f"  Generated: {output_dir / 'engineering_report.md'}")
 
             # Generate HTML index
             print(f"\nGenerating HTML index...")

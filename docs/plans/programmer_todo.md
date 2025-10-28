@@ -158,14 +158,15 @@
 
 ### Phase 14.8: Integration Updates
 
-- [ ] **Task 14.8.1**: Update CLI to use `.md` extension
+- [x] **Task 14.8.1**: Update CLI to use `.md` extension
   - Change `__main__.py` line 425: `engineering_report.txt` → `engineering_report.md`
-  - Pass components list to `write_engineering_report()` for circuit current calculations
-  - TEST: Run integration test, verify `.md` file created
+  - Components list already passed to `write_engineering_report()`
+  - ✅ CLI updated to generate .md file
 
-- [ ] **Task 14.8.2**: Update HTML index to link to `.md` file
+- [x] **Task 14.8.2**: Update HTML index to link to `.md` file
   - Change `output_html_index.py`: link from `engineering_report.txt` → `engineering_report.md`
-  - TEST: Verify HTML index links correctly
+  - ✅ HTML index updated to link to .md file
+  - ⚠️ 1 test failing (expected - will fix in Task 14.9.1)
 
 ### Phase 14.9: Test Updates
 
