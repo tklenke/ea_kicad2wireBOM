@@ -12,7 +12,8 @@ from kicad2wireBOM.output_engineering_report import (
     _generate_wire_purchasing_summary,
     _generate_component_purchasing_summary,
     _calculate_circuit_currents,
-    _generate_wire_engineering_analysis
+    _generate_wire_engineering_analysis,
+    _generate_engineering_summary
 )
 
 
@@ -480,3 +481,81 @@ def test_generate_wire_engineering_analysis_multiple_wires():
 
     # Verify totals row
     assert '155.0' in result[5]  # Total length (50 + 45 + 60)
+
+
+def test_generate_engineering_summary_with_warnings():
+    """Test engineering summary with overload and high voltage drop warnings"""
+    wires = [
+        # Overloaded wire: 18 AWG (10A ampacity) with 15A current = 150% utilization
+        WireConnection(wire_label='L-1-A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+        # High voltage drop wire: 18 AWG, 300 inches, 5A = ~5.7% vdrop
+        WireConnection(wire_label='L-2-A', from_component='CB2', from_pin='1', to_component='LIGHT2', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=300.0, wire_type='M22759/16', notes='', warnings=[]),
+        # Normal wire: 12 AWG, 60 inches, 10A = normal
+        WireConnection(wire_label='P-1-A', from_component='CB3', from_pin='1', to_component='SW1', to_pin='1',
+                       wire_gauge='12', wire_color='RED', length=60.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    circuit_currents = {
+        'L1': 15.0,  # Overload condition
+        'L2': 5.0,   # High voltage drop
+        'P1': 10.0,  # Normal
+    }
+
+    result = _generate_engineering_summary(wires, circuit_currents)
+
+    # Verify result is list of strings
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Convert to single string for easier checking
+    summary_text = '\n'.join(result)
+
+    # Verify summary section markers
+    assert '**Summary**:' in summary_text or 'Summary' in summary_text
+
+    # Verify total power loss is reported
+    assert 'Total Power Loss' in summary_text or 'Power Loss' in summary_text
+
+    # Verify worst voltage drop is reported
+    assert 'Voltage Drop' in summary_text or 'Vdrop' in summary_text
+
+    # Verify warnings for overloaded wire
+    assert 'overload' in summary_text.lower() or 'ampacity' in summary_text.lower()
+    assert 'L-1-A' in summary_text  # The overloaded wire label
+
+    # Verify warnings for high voltage drop
+    assert 'L-2-A' in summary_text  # The high vdrop wire label
+
+    # Verify notes section exists
+    assert 'Notes' in summary_text or 'notes' in summary_text
+
+
+def test_generate_engineering_summary_no_warnings():
+    """Test engineering summary with no safety warnings"""
+    wires = [
+        # Normal wire: 12 AWG, 60 inches, 10A = normal
+        WireConnection(wire_label='P-1-A', from_component='CB1', from_pin='1', to_component='SW1', to_pin='1',
+                       wire_gauge='12', wire_color='RED', length=60.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    circuit_currents = {
+        'P1': 10.0,  # Normal (12 AWG has 22A ampacity)
+    }
+
+    result = _generate_engineering_summary(wires, circuit_currents)
+
+    # Verify result is list of strings
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Convert to single string for easier checking
+    summary_text = '\n'.join(result)
+
+    # Verify summary section exists
+    assert '**Summary**:' in summary_text or 'Summary' in summary_text
+
+    # Verify no warnings reported (or explicitly states no warnings)
+    # Should either have "0 wires" or "No wires" or similar
+    assert '0 wire' in summary_text.lower() or 'no wire' in summary_text.lower() or 'none' in summary_text.lower()

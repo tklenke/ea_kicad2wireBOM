@@ -100,7 +100,7 @@
     - Verify totals row
   - ✅ 2/2 tests passing
 
-- [ ] **Task 14.4.3**: Implement `_generate_engineering_summary()` function
+- [x] **Task 14.4.3**: Implement `_generate_engineering_summary()` function
   - Calculate total power loss (sum all wire power losses)
   - Find worst voltage drop (max vdrop %)
   - Identify overloaded wires (utilization > 100%)
@@ -110,6 +110,7 @@
     - Wires with utilization > 100%
     - Wires with vdrop > 5%
     - Verify warnings generated
+  - ✅ 2/2 tests passing
 
 ### Phase 14.5: Wire BOM Table
 

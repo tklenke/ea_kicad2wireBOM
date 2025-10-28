@@ -306,6 +306,111 @@ def _generate_wire_engineering_analysis(wires: List[WireConnection], circuit_cur
     return _format_markdown_table(headers, rows, alignments)
 
 
+def _generate_engineering_summary(wires: List[WireConnection], circuit_currents: Dict[str, float]) -> List[str]:
+    """
+    Generate engineering summary with safety warnings and totals.
+
+    Args:
+        wires: List of WireConnection objects
+        circuit_currents: Dict mapping circuit_id to current in amps
+
+    Returns:
+        List of formatted Markdown lines with summary and warnings
+    """
+    system_voltage = DEFAULT_CONFIG['system_voltage']  # 14V
+
+    # Track metrics for summary
+    total_power_loss = 0.0
+    worst_vdrop_percent = 0.0
+    worst_vdrop_label = ''
+    overloaded_wires = []
+    high_vdrop_wires = []
+
+    # Analyze each wire
+    sorted_wires = sorted(wires, key=lambda w: w.wire_label)
+
+    for wire in sorted_wires:
+        # Extract circuit_id from wire_label
+        parsed = parse_net_name(f"/{wire.wire_label}")
+        if not parsed:
+            continue
+
+        circuit_id = f"{parsed['system']}{parsed['circuit']}"
+        current = circuit_currents.get(circuit_id, -99)
+
+        # Skip wires with missing current data
+        if current == -99:
+            continue
+
+        gauge = int(wire.wire_gauge)
+        length_inches = wire.length
+        length_feet = length_inches / 12.0
+
+        # Calculate voltage drop
+        vdrop_volts = calculate_voltage_drop(current, gauge, length_inches)
+        vdrop_percent = (vdrop_volts / system_voltage) * 100.0
+
+        # Ampacity utilization
+        ampacity = WIRE_AMPACITY.get(gauge, 0)
+        utilization_percent = (current / ampacity) * 100.0 if ampacity > 0 else 0.0
+
+        # Resistance
+        resistance_per_foot = WIRE_RESISTANCE.get(gauge, 0)
+        total_resistance = resistance_per_foot * length_feet
+
+        # Power loss (I² × R)
+        power_loss_watts = (current ** 2) * total_resistance
+
+        # Accumulate totals
+        total_power_loss += power_loss_watts
+
+        # Track worst voltage drop
+        if vdrop_percent > worst_vdrop_percent:
+            worst_vdrop_percent = vdrop_percent
+            worst_vdrop_label = wire.wire_label
+
+        # Check for warnings
+        if utilization_percent > 100.0:
+            overloaded_wires.append((wire.wire_label, utilization_percent))
+
+        if vdrop_percent > 5.0:
+            high_vdrop_wires.append((wire.wire_label, vdrop_percent))
+
+    # Generate summary lines
+    lines = []
+    lines.append('')
+    lines.append('**Summary**:')
+    lines.append(f'- **Total Power Loss**: {total_power_loss:.2f} W (heat dissipated in wire harness)')
+
+    if worst_vdrop_label:
+        warning = ' ⚠️' if worst_vdrop_percent > 5.0 else ''
+        lines.append(f'- **Worst Voltage Drop**: {worst_vdrop_label} at {worst_vdrop_percent:.1f}%{warning}')
+
+    # Safety warnings
+    if overloaded_wires:
+        wire_plural = 'wire' if len(overloaded_wires) == 1 else 'wires'
+        lines.append(f'- **Safety Warnings**: {len(overloaded_wires)} {wire_plural} exceed ampacity rating')
+        for wire_label, util_pct in overloaded_wires:
+            lines.append(f'  - {wire_label} at {util_pct:.0f}% utilization')
+    else:
+        lines.append('- **Safety Warnings**: No wires exceed ampacity rating')
+
+    if high_vdrop_wires and not overloaded_wires:
+        # Only show as separate warning if not already showing overload warnings
+        wire_plural = 'wire' if len(high_vdrop_wires) == 1 else 'wires'
+        lines.append(f'- **High Voltage Drop**: {len(high_vdrop_wires)} {wire_plural} exceed 5% limit')
+        for wire_label, vdrop_pct in high_vdrop_wires:
+            lines.append(f'  - {wire_label} at {vdrop_pct:.1f}%')
+
+    lines.append('')
+    lines.append('**Notes**:')
+    lines.append('- Voltage drop % based on 14V system (12V nominal + charging)')
+    lines.append('- Utilization > 100% indicates wire undersized for circuit current')
+    lines.append('- Power loss calculated as I² × R for each wire segment')
+
+    return lines
+
+
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.
