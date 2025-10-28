@@ -9,7 +9,8 @@ from kicad2wireBOM.wire_bom import WireConnection
 from kicad2wireBOM.output_engineering_report import (
     write_engineering_report,
     _format_markdown_table,
-    _generate_wire_purchasing_summary
+    _generate_wire_purchasing_summary,
+    _generate_component_purchasing_summary
 )
 
 
@@ -272,4 +273,74 @@ def test_generate_wire_purchasing_summary_empty():
     result = _generate_wire_purchasing_summary(wires)
 
     # Should still have header and separator, but no data rows
+    assert len(result) >= 2
+
+
+def test_generate_component_purchasing_summary():
+    """Test component purchasing summary table generation"""
+    components = [
+        Component(ref='CB1', fs=100.0, wl=25.0, bl=-5.0, load=None, rating=10.0, value='10A', datasheet='CB-10A.pdf'),
+        Component(ref='CB2', fs=100.0, wl=25.0, bl=5.0, load=None, rating=10.0, value='10A', datasheet='CB-10A.pdf'),
+        Component(ref='CB3', fs=150.0, wl=30.0, bl=0.0, load=None, rating=15.0, value='15A', datasheet='CB-15A.pdf'),
+        Component(ref='LIGHT1', fs=200.0, wl=35.0, bl=5.0, load=5.0, rating=None, value='LED', datasheet='LED-W.pdf'),
+        Component(ref='LIGHT2', fs=200.0, wl=35.0, bl=-5.0, load=5.0, rating=None, value='LED', datasheet='LED-W.pdf'),
+    ]
+
+    result = _generate_component_purchasing_summary(components)
+
+    # Verify table structure
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Should have header, separator, 3 data rows (2 LED, 2 CB 10A, 1 CB 15A), and totals
+    assert len(result) == 6
+
+    # Verify header
+    assert 'Value' in result[0]
+    assert 'Datasheet' in result[0]
+    assert 'Quantity' in result[0]
+    assert 'Example Refs' in result[0]
+
+    # Verify data rows (sorted by value, then datasheet)
+    # Should contain both 10A and 15A
+    data_content = '\n'.join(result[2:5])  # Skip header and separator
+    assert '10A' in data_content
+    assert '15A' in data_content
+    assert 'LED' in data_content
+
+    # Verify quantities
+    assert '2' in result[2] or '2' in result[3] or '2' in result[4]  # Two LEDs or two CB 10A
+
+    # Verify example refs
+    assert 'CB1' in data_content or 'CB2' in data_content  # At least one CB ref
+    assert 'LIGHT1' in data_content or 'LIGHT2' in data_content  # At least one LIGHT ref
+
+    # Verify totals row
+    assert 'Total' in result[5]
+    assert '5' in result[5]  # Total 5 components
+
+
+def test_generate_component_purchasing_summary_with_many_refs():
+    """Test component purchasing summary with >5 refs shows ellipsis"""
+    components = [
+        Component(ref=f'R{i}', fs=100.0, wl=25.0, bl=0.0, load=None, rating=None, value='1K', datasheet='resistor.pdf')
+        for i in range(1, 8)  # 7 resistors
+    ]
+
+    result = _generate_component_purchasing_summary(components)
+
+    # Should show first 5 refs + ellipsis
+    data_row = result[2]  # First data row after header and separator
+    assert 'R1' in data_row
+    assert '...' in data_row or '7' in data_row  # Either ellipsis or total count
+    assert '7' in data_row  # Quantity should be 7
+
+
+def test_generate_component_purchasing_summary_empty():
+    """Test component purchasing summary with no components"""
+    components = []
+
+    result = _generate_component_purchasing_summary(components)
+
+    # Should still have header and separator
     assert len(result) >= 2

@@ -55,7 +55,7 @@
 
 ### Phase 14.3: Component Purchasing Summary
 
-- [ ] **Task 14.3.1**: Implement `_generate_component_purchasing_summary()` function
+- [x] **Task 14.3.1**: Implement `_generate_component_purchasing_summary()` function
   - Group components by (value, datasheet) tuple
   - Count components in each group
   - Collect example refs (first 3-5)
@@ -67,6 +67,7 @@
     - Verify grouping and counting
     - Verify example refs formatting
     - Verify totals row
+  - ✅ 3/3 tests passing
 
 ### Phase 14.4: Wire Engineering Analysis
 

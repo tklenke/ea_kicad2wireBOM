@@ -116,6 +116,65 @@ def _generate_wire_purchasing_summary(wires: List[WireConnection]) -> List[str]:
     return _format_markdown_table(headers, rows, alignments)
 
 
+def _generate_component_purchasing_summary(components: List[Component]) -> List[str]:
+    """
+    Generate component purchasing summary table grouped by value and datasheet.
+
+    Args:
+        components: List of Component objects
+
+    Returns:
+        List of formatted Markdown table lines
+    """
+    # Group components by (value, datasheet) and collect refs
+    comp_groups = defaultdict(list)
+    for comp in components:
+        value = comp.value if comp.value else '~'
+        datasheet = comp.datasheet if comp.datasheet else ''
+        key = (value, datasheet)
+        comp_groups[key].append(comp.ref)
+
+    # Sort by value, then datasheet
+    sorted_groups = sorted(comp_groups.items(),
+                          key=lambda x: (x[0][0], x[0][1]))
+
+    # Build table rows
+    headers = ['Value', 'Datasheet', 'Quantity', 'Example Refs']
+    rows = []
+
+    total_count = 0
+    for (value, datasheet), refs in sorted_groups:
+        quantity = len(refs)
+        total_count += quantity
+
+        # Format example refs (limit to first 5)
+        sorted_refs = sorted(refs)
+        if len(sorted_refs) <= 5:
+            example_refs = ', '.join(sorted_refs)
+        else:
+            example_refs = ', '.join(sorted_refs[:5]) + f', ... ({len(sorted_refs)} total)'
+
+        rows.append([
+            value,
+            datasheet,
+            str(quantity),
+            example_refs
+        ])
+
+    # Add totals row
+    if rows:
+        rows.append([
+            '**Total**',
+            '',
+            f'**{total_count}**',
+            ''
+        ])
+
+    # Format as markdown table
+    alignments = ['left', 'left', 'right', 'left']
+    return _format_markdown_table(headers, rows, alignments)
+
+
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.
