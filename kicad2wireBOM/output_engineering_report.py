@@ -65,6 +65,57 @@ def _format_markdown_table(headers: List[str], rows: List[List[str]], alignments
     return lines
 
 
+def _generate_wire_purchasing_summary(wires: List[WireConnection]) -> List[str]:
+    """
+    Generate wire purchasing summary table grouped by gauge and type.
+
+    Args:
+        wires: List of WireConnection objects
+
+    Returns:
+        List of formatted Markdown table lines
+    """
+    # Group wires by (gauge, type) and sum lengths
+    wire_groups = defaultdict(float)
+    for wire in wires:
+        key = (wire.wire_gauge, wire.wire_type)
+        wire_groups[key] += wire.length
+
+    # Sort by gauge (numeric), then type
+    sorted_groups = sorted(wire_groups.items(),
+                          key=lambda x: (int(x[0][0]), x[0][1]))
+
+    # Build table rows
+    headers = ['Wire Gauge', 'Wire Type', 'Total Length (in)', 'Total Length (ft)']
+    rows = []
+
+    total_inches = 0.0
+    for (gauge, wire_type), length_inches in sorted_groups:
+        length_feet = length_inches / 12.0
+        total_inches += length_inches
+
+        rows.append([
+            f'{gauge} AWG',
+            wire_type,
+            f'{length_inches:.1f}',
+            f'{length_feet:.1f}'
+        ])
+
+    # Add totals row
+    if rows:
+        total_feet = total_inches / 12.0
+        rows.append([
+            '**Total**',
+            '',
+            f'**{total_inches:.1f}**',
+            f'**{total_feet:.1f}**'
+        ])
+
+    # Format as markdown table
+    alignments = ['left', 'left', 'right', 'right']
+    return _format_markdown_table(headers, rows, alignments)
+
+
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.

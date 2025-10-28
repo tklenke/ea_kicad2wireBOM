@@ -6,7 +6,11 @@ from pathlib import Path
 
 from kicad2wireBOM.component import Component
 from kicad2wireBOM.wire_bom import WireConnection
-from kicad2wireBOM.output_engineering_report import write_engineering_report, _format_markdown_table
+from kicad2wireBOM.output_engineering_report import (
+    write_engineering_report,
+    _format_markdown_table,
+    _generate_wire_purchasing_summary
+)
 
 
 def test_write_engineering_report_basic(tmp_path):
@@ -189,3 +193,83 @@ def test_format_markdown_table_with_varying_widths():
     ]
 
     assert result == expected
+
+
+def test_generate_wire_purchasing_summary():
+    """Test wire purchasing summary table generation"""
+    wires = [
+        WireConnection(wire_label='L1A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='L2A', from_component='CB1', from_pin='2', to_component='LIGHT2', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=45.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='P1A', from_component='CB2', from_pin='1', to_component='SW1', to_pin='1',
+                       wire_gauge='12', wire_color='RED', length=60.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='P2A', from_component='CB3', from_pin='1', to_component='SW2', to_pin='1',
+                       wire_gauge='12', wire_color='RED', length=40.0, wire_type='M22759/16', notes='', warnings=[]),
+    ]
+
+    result = _generate_wire_purchasing_summary(wires)
+
+    # Verify table structure
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Should have header, separator, 2 data rows (AWG 12 and 18), and totals row
+    assert len(result) == 5
+
+    # Verify header
+    assert 'Wire Gauge' in result[0]
+    assert 'Wire Type' in result[0]
+    assert 'Total Length (in)' in result[0]
+    assert 'Total Length (ft)' in result[0]
+
+    # Verify separator (markdown alignment syntax)
+    assert '|' in result[1]
+    assert '-' in result[1]
+
+    # Verify data rows - AWG 12 should come first (sorted numerically)
+    assert '12 AWG' in result[2]
+    assert '100.0' in result[2]  # 60 + 40 inches
+    assert '8.3' in result[2]     # 100/12 = 8.33... feet
+
+    assert '18 AWG' in result[3]
+    assert '95.0' in result[3]    # 50 + 45 inches
+    assert '7.9' in result[3]     # 95/12 = 7.91... feet
+
+    # Verify totals row
+    assert 'Total' in result[4]
+    assert '195.0' in result[4]   # 100 + 95 inches
+    assert '16.2' in result[4]    # 195/12 = 16.25 feet (rounds to 16.2)
+
+
+def test_generate_wire_purchasing_summary_multiple_types():
+    """Test wire purchasing summary with different wire types"""
+    wires = [
+        WireConnection(wire_label='L1A', from_component='CB1', from_pin='1', to_component='LIGHT1', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=50.0, wire_type='M22759/16', notes='', warnings=[]),
+        WireConnection(wire_label='L2A', from_component='CB1', from_pin='2', to_component='LIGHT2', to_pin='1',
+                       wire_gauge='18', wire_color='RED', length=45.0, wire_type='M22759/32', notes='', warnings=[]),
+    ]
+
+    result = _generate_wire_purchasing_summary(wires)
+
+    # Should have header, separator, 2 data rows (same gauge, different types), and totals
+    assert len(result) == 5
+
+    # Both should be AWG 18 but different types
+    assert '18 AWG' in result[2]
+    assert '18 AWG' in result[3]
+
+    # Check they're grouped separately
+    assert ('M22759/16' in result[2] and 'M22759/32' in result[3]) or \
+           ('M22759/32' in result[2] and 'M22759/16' in result[3])
+
+
+def test_generate_wire_purchasing_summary_empty():
+    """Test wire purchasing summary with no wires"""
+    wires = []
+
+    result = _generate_wire_purchasing_summary(wires)
+
+    # Should still have header and separator, but no data rows
+    assert len(result) >= 2

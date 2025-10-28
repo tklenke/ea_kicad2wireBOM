@@ -4,7 +4,7 @@
 from typing import Dict, List
 
 # Wire resistance in ohms per foot for common AWG sizes
-# Source: Standard copper wire resistance tables
+# Source: Aeroelectric Connection Fig 8-3
 WIRE_RESISTANCE: Dict[int, float] = {
     2: 0.000156,   # AWG 2: 0.156 milliohms/ft
     4: 0.000249,   # AWG 4: 0.249 milliohms/ft
@@ -21,19 +21,19 @@ WIRE_RESISTANCE: Dict[int, float] = {
 }
 
 # Wire ampacity (current carrying capacity) in amps for common AWG sizes
-# Source: Average current capacity for bundled aircraft wiring
+# Source: Aeroelectric Connection Fig 8-3
 WIRE_AMPACITY: Dict[int, float] = {
-    2: 142.0,   # AWG 2: 142A
-    4: 100.0,   # AWG 4: 100A
-    6: 71.0,    # AWG 6: 71A
-    8: 52.0,    # AWG 8: 52A
-    10: 35.0,   # AWG 10: 35A
-    12: 25.2,   # AWG 12: 25.2A
-    14: 19.0,   # AWG 14: 19A
-    16: 12.8,   # AWG 16: 12.8A
-    18: 9.2,    # AWG 18: 9.2A
-    20: 6.2,    # AWG 20: 6.2A
-    22: 4.0,    # AWG 22: 4A
+    2: 100.0,   # AWG 2: 142A
+    4: 72.0,   # AWG 4: 100A
+    6: 540.0,    # AWG 6: 71A
+    8: 40.0,    # AWG 8: 52A
+    10: 30.0,   # AWG 10: 35A
+    12: 22.0,   # AWG 12: 25.2A
+    14: 15.,   # AWG 14: 19A
+    16: 12.5,   # AWG 16: 12.8A
+    18: 10.0,    # AWG 18: 9.2A
+    20: 7.0,    # AWG 20: 6.2A
+    22: 5.0,    # AWG 22: 4A
     24: 2.0,    # AWG 24: 2A
 }
 
