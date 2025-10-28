@@ -131,10 +131,10 @@ def main():
     )
 
     parser.add_argument(
-        '--2d',
-        dest='two_d',
+        '--3d',
+        dest='three_d',
         action='store_true',
-        help='Generate 2D diagrams (FS/BL only) instead of default 3D projection with WL axis'
+        help='Generate 3D diagrams with WL axis projection (default: 2D diagrams with FS/BL only)'
     )
 
     args = parser.parse_args()
@@ -411,9 +411,9 @@ def main():
             components_dict = {comp.ref: comp for comp in components}
 
             # Generate diagrams
-            diagram_mode = "2D (FS/BL only)" if args.two_d else "3D (FS/WL/BL projection)"
+            diagram_mode = "3D (FS/WL/BL projection)" if args.three_d else "2D (FS/BL only)"
             print(f"\nGenerating routing diagrams ({diagram_mode})...")
-            generate_routing_diagrams(bom.wires, components_dict, output_dir, title_block, use_2d=args.two_d)
+            generate_routing_diagrams(bom.wires, components_dict, output_dir, title_block, use_2d=not args.three_d)
 
             # Generate component BOM
             print(f"\nGenerating component BOM...")
