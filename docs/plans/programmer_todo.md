@@ -136,7 +136,7 @@
 
 ### Phase 14.7: Main Report Generation
 
-- [ ] **Task 14.7.1**: Rewrite `write_engineering_report()` for Markdown output
+- [x] **Task 14.7.1**: Rewrite `write_engineering_report()` for Markdown output
   - Change to Markdown header format (# and ##)
   - Add all sections in order:
     1. Header with title
@@ -153,6 +153,8 @@
   - Use helper functions for all tables
   - Write to `.md` file
   - TEST: Write `test_write_engineering_report_markdown()` to verify full report
+  - ✅ Function rewritten with all 10 sections
+  - ⚠️ 4 old tests failing (expected - will fix in Task 14.9.1)
 
 ### Phase 14.8: Integration Updates
 

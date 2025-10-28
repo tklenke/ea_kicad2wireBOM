@@ -525,53 +525,115 @@ def _generate_component_bom_table(components: List[Component]) -> List[str]:
 
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
-    Write engineering report to text file.
+    Write engineering report to Markdown file.
 
     Args:
         components: List of Component objects
         wires: List of WireConnection objects
-        output_path: Path to output text file
-        title_block: Optional dict with title, date, rev from schematic title_block
+        output_path: Path to output Markdown file
+        title_block: Optional dict with title, date, rev, company from schematic title_block
 
     Report includes:
         - Project title block information
-        - Overall summary statistics
+        - Overall summary with wire lengths
+        - Wire purchasing summary table
+        - Component purchasing summary table
+        - Wire engineering analysis with electrical calculations
+        - Wire BOM table
+        - Component BOM table
         - Component breakdown by type
         - Wire breakdown by system
     """
     lines = []
 
     # Header
-    lines.append("=" * 60)
-    lines.append("ENGINEERING REPORT")
+    lines.append("# Engineering Report")
     lines.append("kicad2wireBOM Wire Harness Analysis")
-    lines.append("=" * 60)
+    lines.append("")
+    lines.append("---")
     lines.append("")
 
-    # Title block information
+    # Project Information
     if title_block:
-        lines.append("PROJECT INFORMATION")
-        lines.append("-" * 60)
+        lines.append("## Project Information")
         if 'title' in title_block:
-            lines.append(f"Project:     {title_block['title']}")
+            lines.append(f"- **Project**: {title_block['title']}")
         if 'rev' in title_block:
-            lines.append(f"Revision:    {title_block['rev']}")
+            lines.append(f"- **Revision**: {title_block['rev']}")
         if 'date' in title_block:
-            lines.append(f"Issue Date:  {title_block['date']}")
+            lines.append(f"- **Issue Date**: {title_block['date']}")
         if 'company' in title_block:
-            lines.append(f"Company:     {title_block['company']}")
+            lines.append(f"- **Company**: {title_block['company']}")
+        lines.append("")
+        lines.append("---")
         lines.append("")
 
-    # Overall summary
-    lines.append("OVERALL SUMMARY")
-    lines.append("-" * 60)
-    lines.append(f"Total Components: {len(components)}")
-    lines.append(f"Total Wires: {len(wires)}")
+    # Overall Summary (with total wire length)
+    total_wire_length_inches = sum(wire.length for wire in wires)
+    total_wire_length_feet = total_wire_length_inches / 12.0
+
+    lines.append("## Overall Summary")
+    lines.append(f"- **Total Components**: {len(components)}")
+    lines.append(f"- **Total Wires**: {len(wires)}")
+    lines.append(f"- **Total Wire Length**: {total_wire_length_inches:.1f} inches ({total_wire_length_feet:.1f} feet)")
+    lines.append("")
+    lines.append("---")
     lines.append("")
 
-    # Component breakdown by type
-    lines.append("COMPONENT SUMMARY")
-    lines.append("-" * 60)
+    # Wire Purchasing Summary
+    lines.append("## Wire Purchasing Summary")
+    lines.append("Total wire length needed by gauge and type for procurement.")
+    lines.append("")
+    lines.extend(_generate_wire_purchasing_summary(wires))
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # Component Purchasing Summary
+    lines.append("## Component Purchasing Summary")
+    lines.append("Component counts by value and datasheet for procurement.")
+    lines.append("")
+    lines.extend(_generate_component_purchasing_summary(components))
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # Wire Engineering Analysis
+    lines.append("## Wire Engineering Analysis")
+    lines.append("Electrical calculations for voltage drop, ampacity utilization, and power loss.")
+    lines.append("")
+
+    # Calculate circuit currents first
+    circuit_currents = _calculate_circuit_currents(wires, components)
+
+    lines.extend(_generate_wire_engineering_analysis(wires, circuit_currents))
+    lines.extend(_generate_engineering_summary(wires, circuit_currents))
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # Wire BOM
+    lines.append("## Wire BOM")
+    lines.append("Complete wire bill of materials with all connections.")
+    lines.append("")
+    lines.extend(_generate_wire_bom_table(wires))
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # Component BOM
+    lines.append("## Component BOM")
+    lines.append("Complete component bill of materials with electrical specifications.")
+    lines.append("")
+    lines.extend(_generate_component_bom_table(components))
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # Component Summary by Type
+    lines.append("## Component Summary by Type")
+    lines.append("Component count grouped by reference prefix.")
+    lines.append("")
 
     if components:
         component_types = defaultdict(int)
@@ -587,15 +649,18 @@ def write_engineering_report(components: List[Component], wires: List[WireConnec
             count = component_types[comp_type]
             # Generate friendly name
             friendly_name = get_component_type_name(comp_type)
-            lines.append(f"{friendly_name} ({comp_type}): {count}")
+            lines.append(f"- **{friendly_name} ({comp_type})**: {count}")
     else:
         lines.append("No components found")
 
     lines.append("")
+    lines.append("---")
+    lines.append("")
 
-    # Wire breakdown by system
-    lines.append("WIRE SUMMARY")
-    lines.append("-" * 60)
+    # Wire Summary by System
+    lines.append("## Wire Summary by System")
+    lines.append("Wire count grouped by system code.")
+    lines.append("")
 
     if wires:
         system_counts = defaultdict(int)
@@ -611,14 +676,14 @@ def write_engineering_report(components: List[Component], wires: List[WireConnec
             count = system_counts[system_code]
             # Generate friendly name
             friendly_name = get_system_name(system_code)
-            lines.append(f"{friendly_name} ({system_code}): {count}")
+            lines.append(f"- **{friendly_name} ({system_code})**: {count}")
     else:
         lines.append("No wires found")
 
     lines.append("")
-    lines.append("=" * 60)
-    lines.append("End of Report")
-    lines.append("=" * 60)
+    lines.append("---")
+    lines.append("")
+    lines.append("*Generated by kicad2wireBOM*")
 
     # Write to file
     with open(output_path, 'w') as f:
