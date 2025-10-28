@@ -125,13 +125,14 @@
 
 ### Phase 14.6: Component BOM Table
 
-- [ ] **Task 14.6.1**: Implement `_generate_component_bom_table()` function
+- [x] **Task 14.6.1**: Implement `_generate_component_bom_table()` function
   - Extract all component fields into table rows
   - Format coordinates and electrical specs
   - Use `_format_markdown_table()` with proper alignments
   - Right-align numeric columns (Amps, FS, WL, BL)
   - Sort by reference
   - TEST: Write `test_component_bom_table()` with sample component data
+  - ✅ 2/2 tests passing
 
 ### Phase 14.7: Main Report Generation
 

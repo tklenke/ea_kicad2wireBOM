@@ -463,6 +463,66 @@ def _generate_wire_bom_table(wires: List[WireConnection]) -> List[str]:
     return _format_markdown_table(headers, rows, alignments)
 
 
+def _generate_component_bom_table(components: List[Component]) -> List[str]:
+    """
+    Generate component BOM table with all component details.
+
+    Args:
+        components: List of Component objects
+
+    Returns:
+        List of formatted Markdown table lines
+    """
+    headers = [
+        'Reference',
+        'Value',
+        'Description',
+        'Datasheet',
+        'Type',
+        'Amps',
+        'FS',
+        'WL',
+        'BL'
+    ]
+
+    rows = []
+
+    # Sort components by reference
+    sorted_components = sorted(components, key=lambda c: c.ref)
+
+    for comp in sorted_components:
+        # Determine component type and amps
+        comp_type = ''
+        amps = ''
+
+        if comp.load is not None:
+            comp_type = 'L'
+            amps = f'{comp.load:.1f}'
+        elif comp.rating is not None:
+            comp_type = 'R'
+            amps = f'{comp.rating:.1f}'
+        elif comp.source is not None:
+            comp_type = 'S'
+            amps = f'{comp.source:.1f}'
+
+        rows.append([
+            comp.ref,
+            comp.value if comp.value else '',
+            comp.desc if comp.desc else '',
+            comp.datasheet if comp.datasheet else '',
+            comp_type,
+            amps,
+            f'{comp.fs:.1f}' if comp.fs is not None else '',
+            f'{comp.wl:.1f}' if comp.wl is not None else '',
+            f'{comp.bl:.1f}' if comp.bl is not None else ''
+        ])
+
+    # Format as markdown table
+    # Text columns left-aligned, numeric columns (Amps, FS, WL, BL) right-aligned
+    alignments = ['left', 'left', 'left', 'left', 'left', 'right', 'right', 'right', 'right']
+    return _format_markdown_table(headers, rows, alignments)
+
+
 def write_engineering_report(components: List[Component], wires: List[WireConnection], output_path: str, title_block: Dict[str, str] = None) -> None:
     """
     Write engineering report to text file.

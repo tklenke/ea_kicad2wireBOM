@@ -14,7 +14,8 @@ from kicad2wireBOM.output_engineering_report import (
     _calculate_circuit_currents,
     _generate_wire_engineering_analysis,
     _generate_engineering_summary,
-    _generate_wire_bom_table
+    _generate_wire_bom_table,
+    _generate_component_bom_table
 )
 
 
@@ -619,3 +620,63 @@ def test_generate_wire_bom_table_empty():
     # Should still have header and separator
     assert len(result) >= 2
     assert 'Wire Label' in result[0]
+
+
+def test_generate_component_bom_table():
+    """Test component BOM table generation with all component fields"""
+    components = [
+        Component(ref='CB1', fs=100.0, wl=25.0, bl=-5.0, load=None, rating=10.0, value='10A',
+                  desc='Circuit Breaker', datasheet='CB-10A.pdf'),
+        Component(ref='LIGHT1', fs=200.0, wl=35.0, bl=5.0, load=5.0, rating=None, value='LED',
+                  desc='LED Light', datasheet='LED-W.pdf'),
+        Component(ref='BT1', fs=0.0, wl=0.0, bl=0.0, load=None, rating=None, value='Battery',
+                  desc='12V Battery', datasheet='', source=40.0),
+    ]
+
+    result = _generate_component_bom_table(components)
+
+    # Verify result is list of strings
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+    # Should have header, separator, 3 data rows (sorted by ref: BT1, CB1, LIGHT1)
+    assert len(result) == 5
+
+    # Verify header columns (9 total from design spec)
+    header = result[0]
+    assert 'Reference' in header
+    assert 'Value' in header
+    assert 'Description' in header
+    assert 'Datasheet' in header
+    assert 'Type' in header
+    assert 'Amps' in header
+    assert 'FS' in header
+    assert 'WL' in header
+    assert 'BL' in header
+
+    # Verify separator has alignment markers
+    assert '|' in result[1]
+    assert '-' in result[1]
+
+    # Verify data rows contain component data (sorted by ref: BT1, CB1, LIGHT1)
+    data_rows = '\n'.join(result[2:])
+    assert 'BT1' in data_rows
+    assert 'CB1' in data_rows
+    assert 'LIGHT1' in data_rows
+    assert '10A' in data_rows
+    assert 'LED' in data_rows
+    assert 'Battery' in data_rows
+    assert '100.0' in data_rows  # CB1 FS
+    assert '200.0' in data_rows  # LIGHT1 FS
+    assert '5.0' in data_rows    # LIGHT1 load
+
+
+def test_generate_component_bom_table_empty():
+    """Test component BOM table with no components"""
+    components = []
+
+    result = _generate_component_bom_table(components)
+
+    # Should still have header and separator
+    assert len(result) >= 2
+    assert 'Reference' in result[0]
