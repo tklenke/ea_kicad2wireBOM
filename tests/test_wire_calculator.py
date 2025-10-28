@@ -113,12 +113,12 @@ def test_determine_min_gauge_voltage_drop_constraint():
 
 def test_determine_min_gauge_ampacity_constraint():
     """Test that gauge selection meets ampacity constraint"""
-    # 15A load - requires AWG 12 or 16 (16 is 13A, 12 is 25A)
+    # 15A load - requires AWG 14 or larger (16 is 12.8A, 14 is 19A, 12 is 25.2A)
     # Short wire so voltage drop won't be the limiting factor
     min_gauge = determine_min_gauge(current=15.0, length_inches=24.0, system_voltage=14.0)
 
-    # Must be AWG 12 since AWG 16 only handles 13A
-    assert min_gauge == 12
+    # Must be AWG 14 since AWG 16 only handles 12.8A (AWG 14 handles 19A)
+    assert min_gauge == 14
 
 
 def test_determine_min_gauge_returns_smallest_suitable():
@@ -126,8 +126,8 @@ def test_determine_min_gauge_returns_smallest_suitable():
     # Low current, short wire - should select smallest (highest AWG number)
     min_gauge = determine_min_gauge(current=2.0, length_inches=24.0, system_voltage=14.0)
 
-    # Should be AWG 20 (smallest wire that meets requirements)
-    assert min_gauge == 20
+    # Should be AWG 24 (smallest wire that meets requirements - 2.0A ampacity)
+    assert min_gauge == 24
 
 
 def test_determine_min_gauge_handles_missing_data_sentinel():

@@ -6,23 +6,40 @@ from typing import Dict, List
 # Wire resistance in ohms per foot for common AWG sizes
 # Source: Standard copper wire resistance tables
 WIRE_RESISTANCE: Dict[int, float] = {
+    2: 0.000156,   # AWG 2: 0.156 milliohms/ft
+    4: 0.000249,   # AWG 4: 0.249 milliohms/ft
+    6: 0.000395,   # AWG 6: 0.395 milliohms/ft
+    8: 0.000628,   # AWG 8: 0.628 milliohms/ft
+    10: 0.000999,  # AWG 10: 0.999 milliohms/ft
     12: 0.001588,  # AWG 12: 1.588 milliohms/ft
+    14: 0.002525,  # AWG 14: 2.525 milliohms/ft
     16: 0.004016,  # AWG 16: 4.016 milliohms/ft
     18: 0.006385,  # AWG 18: 6.385 milliohms/ft
     20: 0.01015,   # AWG 20: 10.15 milliohms/ft
+    22: 0.01614,   # AWG 22: 16.14 milliohms/ft
+    24: 0.02567,   # AWG 24: 25.67 milliohms/ft
 }
 
 # Wire ampacity (current carrying capacity) in amps for common AWG sizes
-# Source: Conservative ratings for bundled aircraft wiring
+# Source: Average current capacity for bundled aircraft wiring
 WIRE_AMPACITY: Dict[int, float] = {
-    12: 25.0,   # AWG 12: 25A
-    16: 13.0,   # AWG 16: 13A
-    18: 10.0,   # AWG 18: 10A
-    20: 7.5,    # AWG 20: 7.5A
+    2: 142.0,   # AWG 2: 142A
+    4: 100.0,   # AWG 4: 100A
+    6: 71.0,    # AWG 6: 71A
+    8: 52.0,    # AWG 8: 52A
+    10: 35.0,   # AWG 10: 35A
+    12: 25.2,   # AWG 12: 25.2A
+    14: 19.0,   # AWG 14: 19A
+    16: 12.8,   # AWG 16: 12.8A
+    18: 9.2,    # AWG 18: 9.2A
+    20: 6.2,    # AWG 20: 6.2A
+    22: 4.0,    # AWG 22: 4A
+    24: 2.0,    # AWG 24: 2A
 }
 
+
 # Standard AWG wire sizes available (sorted smallest to largest)
-STANDARD_AWG_SIZES: List[int] = [12, 16, 18, 20]
+STANDARD_AWG_SIZES: List[int] = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
 
 # Position precision for coordinate matching
 # KiCad schematic coordinates are floats; we round to this many decimal places
