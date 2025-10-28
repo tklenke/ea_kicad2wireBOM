@@ -6,60 +6,20 @@
 
 ## CURRENT STATUS
 
-✅ **Phase 1-13 Complete** - Production-ready wire BOM generation tool
-✅ **306/306 tests passing**
-
-**Design Documents**:
-- `kicad2wireBOM_design.md` v3.6 - Main design specification
-- `ea_wire_marking_standard.md` - Wire marking standard
+✅ **Phase 1-14 Complete** - Production-ready wire BOM generation tool
+✅ **326/326 tests passing**
 
 **Core Capabilities**:
-- Flat and hierarchical schematics
-- Circuit-based wire gauge calculation
-- N-way multipoint connections with power symbol support
-- Comprehensive validation framework (strict and permissive modes)
-- 3D SVG routing diagrams with optional 2D mode
-- System routing diagrams (one per system code)
-- Component wiring diagrams (first-hop connections per component)
-- Component star diagrams (radial/polar logical connectivity view)
-- Landscape orientation with centered origin, aircraft-pointing-up
-- Reversed non-linear BL scaling (expanded centerline, compressed wingtips)
-- Circuit labels grouped under components
-- Unified output directory with multiple formats
-- Component BOM, engineering report, HTML index
+- Wire BOM generation with circuit-based gauge calculation
+- Hierarchical schematic support
+- Validation framework (strict/permissive modes)
+- SVG routing diagrams (system, component, star views)
+- Engineering report with Markdown tables and electrical analysis
+- Component BOM, HTML index, unified output directory
 
----
-
-## FUTURE OPTIONS
-
-See `docs/notes/opportunities_for_improvement.md` for detailed feature ideas.
-
----
-
-## CURRENT WORK
-
-### Phase 14: Engineering Report Enhancement - Markdown Tables
-
-**Status**: [~] Design Complete, Implementation Pending
-**Design Document**: `docs/plans/engineering_report_enhancement.md`
-**Programmer Tasks**: `docs/plans/programmer_todo.md` - Phase 14
-
-**Enhancements**:
-1. Change output format from `.txt` to `.md` (Markdown)
-2. Add Wire BOM table (complete wire details in Markdown table)
-3. Add Component BOM table (complete component details in Markdown table)
-4. Add Wire Purchasing Summary table (total length by gauge + type)
-5. Add Component Purchasing Summary table (component count by value + datasheet)
-6. Add Wire Engineering Analysis table (voltage drop, ampacity utilization, power loss)
-7. Add Engineering Summary (safety warnings for overload and high vdrop)
-8. Preserve existing project info and summary statistics
-9. Properly aligned Markdown tables
-
-**Deliverables**:
-- [x] Design document created (engineering_report_enhancement.md - 560 lines)
-- [x] Programmer tasks documented in programmer_todo.md (9 phases, 14 tasks)
-- [ ] Implementation (programmer work)
-- [ ] Testing (programmer work)
+**Design Documents**:
+- `kicad2wireBOM_design.md` v3.7 - Main design specification
+- `ea_wire_marking_standard.md` - Wire marking standard
 
 ---
 

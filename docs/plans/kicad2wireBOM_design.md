@@ -4,11 +4,46 @@
 
 **Purpose**: Comprehensive design specification for kicad2wireBOM tool - a wire Bill of Materials generator for experimental aircraft electrical systems.
 
-**Version**: 3.6 (Routing Diagram Enhancements v2.0)
+**Version**: 3.7 (Engineering Report Enhancement)
 **Date**: 2025-10-28
-**Status**: Phase 1-13 Complete ✅ (306 tests passing)
+**Status**: Phase 1-14 Complete ✅ (326 tests passing)
 
 ## Design Revision History
+
+### Version 3.7 (2025-10-28)
+**Changed**: Phase 14 - Engineering Report Enhancement with Markdown tables and electrical analysis
+
+**Sections Modified**:
+- Section 7.7: Engineering Report (comprehensive rewrite for Phase 14 implementation)
+
+**Engineering Report Enhancements**:
+- Changed file format from plain text (.txt) to Markdown (.md)
+- Added Wire BOM table with all connection details
+- Added Component BOM table with electrical specifications
+- Added Wire Purchasing Summary table (grouped by gauge+type with totals)
+- Added Component Purchasing Summary table (grouped by value+datasheet with counts)
+- Added Wire Engineering Analysis table with:
+  - Voltage drop calculations (V and %)
+  - Ampacity utilization percentage (critical safety metric)
+  - Wire resistance and power loss calculations
+  - Engineering summary with safety warnings (overload >100%, high vdrop >5%)
+- All tables use proper Markdown syntax with column alignment
+- Preserved existing project info and summary statistics sections
+
+**Rationale**: Builders need comprehensive wire and component data in readable table format for procurement and build planning. Engineering analysis with voltage drop and ampacity calculations provides critical safety validation. Markdown format renders beautifully in GitHub, VS Code, and browsers while remaining readable as plain text.
+
+**Impact**:
+- All 326 tests passing (Phase 1-14 complete)
+- Engineering report now provides complete BOM data in addition to analysis
+- Safety warnings automatically flag undersized wires and excessive voltage drop
+- Purchasing summaries enable accurate material procurement
+- Markdown tables improve readability and professional appearance
+
+**Technical Details**:
+- Table formatting via `_format_markdown_table()` helper with configurable alignment
+- Circuit current calculation via `_calculate_circuit_currents()` using existing wire_calculator functions
+- Wire engineering analysis uses WIRE_RESISTANCE and WIRE_AMPACITY from reference_data.py
+- HTML index updated to link to .md file instead of .txt
 
 ### Version 3.6 (2025-10-28)
 **Changed**: Phase 13 - Routing diagram enhancements v2.0 with improved layout and component star diagrams
@@ -1606,65 +1641,118 @@ All outputs sorted by:
 - Weight & balance calculations (when combined with component weights)
 - Troubleshooting reference (find component by reference)
 
-### 7.7 Engineering Report (`engineering_report.md`) **[NEW - 2025-10-26]**
+### 7.7 Engineering Report (`engineering_report.md`) **[REVISED - 2025-10-28]**
 
-**Purpose**: Comprehensive technical documentation combining wire analysis, component data, calculations, and validation results.
+**Purpose**: Comprehensive technical documentation with complete BOM data, electrical analysis, and safety validation in professional Markdown format.
 
-**Report Sections**:
+**Format**: Markdown (.md) with properly aligned tables
+
+**Report Sections** (in order):
 
 1. **Header**
-   - Project name (from source filename)
-   - Generation timestamp
-   - kicad2wireBOM version
-   - Source schematic file path
+   - Project title: "Engineering Report - kicad2wireBOM Wire Harness Analysis"
+   - Horizontal separator
 
-2. **Summary**
-   - Total wire count
-   - Total component count
-   - System codes processed (with counts per system)
-   - Validation status (Pass/Warnings/Errors)
+2. **Project Information** (if title_block data available)
+   - Project name from schematic
+   - Revision
+   - Issue date
+   - Company
 
-3. **Validation Results**
-   - All validation errors (if any)
-   - All validation warnings (if any)
-   - Each with description and suggested resolution
+3. **Overall Summary**
+   - Total components count
+   - Total wires count
+   - Total wire length (inches and feet)
 
-4. **Wire BOM**
-   - Grouped by system code (L-circuits, P-circuits, etc.)
-   - Markdown table format
-   - Columns: Label, From, To, Gauge, Color, Length, Type, Notes
-   - Sorted by system/circuit/segment
+4. **Wire Purchasing Summary Table**
+   - Groups wires by (gauge, type) combination
+   - Columns: Wire Gauge, Wire Type, Total Length (in), Total Length (ft)
+   - Sorted by gauge (numeric), then type
+   - Includes totals row
+   - Purpose: Material procurement planning
 
-5. **Component BOM**
-   - Markdown table format
-   - All columns from component_bom.csv
+5. **Component Purchasing Summary Table**
+   - Groups components by (value, datasheet) combination
+   - Columns: Value, Datasheet, Quantity, Example Refs
+   - Example Refs shows first 3-5 component references
+   - Includes totals row
+   - Purpose: Component procurement planning
+
+6. **Wire Engineering Analysis Table**
+   - Electrical calculations for each wire segment
+   - Columns:
+     - Wire Label (circuit ID)
+     - Current (A) - from circuit grouping
+     - Gauge (AWG)
+     - Length (in)
+     - Voltage Drop (V) - calculated
+     - Vdrop % - percentage of system voltage
+     - Ampacity (A) - maximum rating for gauge
+     - Utilization % - **critical safety metric** (current/ampacity × 100)
+     - Resistance (Ω) - total wire resistance
+     - Power Loss (W) - heat dissipated (I² × R)
+   - All numeric columns right-aligned
+   - Includes totals row (sum of length, voltage drop, power loss)
+   - Sorted by wire label
+
+7. **Engineering Summary** (after analysis table)
+   - Total power loss (watts)
+   - Worst voltage drop identification (label and percentage)
+   - Safety warnings:
+     - **Utilization > 100%**: Wire undersized for circuit current ⚠️
+     - **Vdrop > 5%**: Excessive voltage drop ⚠️
+   - Notes explaining calculations and thresholds
+
+8. **Wire BOM Table**
+   - Complete wire bill of materials
+   - Columns: Wire Label, From Component, From Pin, To Component, To Pin, Gauge, Color, Length (in), Type, Notes, Warnings
+   - Sorted by wire label
+   - Length column right-aligned
+
+9. **Component BOM Table**
+   - Complete component bill of materials
+   - Columns: Reference, Value, Description, Datasheet, Type, Amps, FS, WL, BL
    - Sorted by reference designator
+   - Numeric columns (Amps, FS, WL, BL) right-aligned
 
-6. **Wire Calculations**
-   - Per-circuit analysis showing:
-     - Circuit ID (e.g., "L1")
-     - Total circuit current (sum of all loads)
-     - Maximum wire length in circuit
-     - Calculated voltage drop
-     - Selected wire gauge with rationale
-   - Grouped by system code
+10. **Component Summary by Type**
+    - Count of components grouped by reference prefix
+    - Format: "Batteries (BT): 1"
 
-7. **Purchasing Summary**
-   - Total wire length needed by gauge and color
-   - Format: "20 AWG White: 45.2 ft"
-   - Useful for ordering wire
+11. **Wire Summary by System**
+    - Count of wires grouped by system code
+    - Format: "Ground (G): 4"
 
-8. **Configuration**
-   - System voltage used (volts)
-   - Slack length per segment (inches)
-   - Label association threshold (mm)
-   - Validation mode (strict/permissive)
+12. **Footer**
+    - "Generated by kicad2wireBOM"
+
+**Table Formatting**:
+- All tables use Markdown syntax with pipe delimiters
+- Column alignment specified in separator row (`:--`, `--:`, `:--:`)
+- Columns dynamically sized based on content
+- Numeric columns right-aligned for readability
+- Text columns left-aligned
+
+**Electrical Calculations**:
+- Circuit current: Determined by `determine_circuit_current()` from wire_calculator
+- Voltage drop: Calculated using `calculate_voltage_drop()` from wire_calculator
+- Resistance: `WIRE_RESISTANCE[gauge] × (length_inches / 12)`
+- Power loss: `current² × resistance`
+- Ampacity: From `WIRE_AMPACITY` table in reference_data.py
+- System voltage: 14V (12V nominal + charging)
+
+**Safety Validation**:
+- Utilization >100%: Wire cannot safely carry circuit current
+- Vdrop >5%: May cause equipment malfunction or damage
+- Both conditions flagged with ⚠️ symbol in tables
 
 **Use Cases**:
-- Design review and verification
-- FAA documentation for experimental aircraft
+- Complete BOM for wire and component procurement
+- Engineering analysis and safety validation
+- FAA documentation for experimental aircraft certification
 - Build planning and cost estimation
 - Troubleshooting and maintenance reference
+- Design review and verification
 
 ### 7.8 HTML Index (`<basename>.html`) **[NEW - 2025-10-26]**
 
