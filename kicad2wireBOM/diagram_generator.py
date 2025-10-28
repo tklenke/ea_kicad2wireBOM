@@ -604,10 +604,11 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     svg_height = FIXED_HEIGHT
 
     # Calculate origin position (Phase 13 v2: centered horizontally, positioned to fit FS range)
-    # With inverted FS axis (FS+ up = lower Y), position origin with balanced top/bottom margins
-    # Use half of origin_offset_y to provide space at both top and bottom
+    # With new FS orientation (FS+ down, nose up), position origin so most forward component
+    # is just below title block and most aft component is at bottom margin
+    # Formula: origin at title+margin, adjusted by fs_min to make room for forward components
     origin_svg_x = svg_width / 2.0
-    origin_svg_y = (FIXED_HEIGHT - MARGIN - origin_offset_y / 2) + (fs_min * scale_y)
+    origin_svg_y = TITLE_HEIGHT + MARGIN - (fs_min * scale_y)
 
     # Start building SVG
     svg_lines = []
@@ -654,7 +655,7 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
 
     # Separator line below title/legend (fixed width for all diagrams)
     svg_lines.append('  <g id="separator">')
-    svg_lines.append(f'    <line x1="{MARGIN}" y1="{TITLE_HEIGHT - 10}" x2="{svg_width - MARGIN}" y2="{TITLE_HEIGHT - 10}" stroke="black" stroke-width="1"/>')
+    svg_lines.append(f'    <line x1="{MARGIN}" y1="{TITLE_HEIGHT}" x2="{svg_width - MARGIN}" y2="{TITLE_HEIGHT}" stroke="black" stroke-width="1"/>')
     svg_lines.append('  </g>')
 
     # Build component-to-circuits mapping (Phase 13.4.1)
