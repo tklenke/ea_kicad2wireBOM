@@ -600,12 +600,26 @@ def generate_svg(diagram: SystemDiagram, output_path: Path, title_block: dict = 
     available_height = FIXED_HEIGHT - TITLE_HEIGHT - origin_offset_y - MARGIN
 
     # Independent scaling for each axis
-    # BL (X-axis): Only compress if range exceeds available width, never stretch to fill
+    # BL (X-axis): Must fit within available space on BOTH sides of centered origin
+    # Origin will be at svg_width/2, so we have (svg_width/2 - MARGIN) pixels on each side
     if bl_scaled_range > 0:
-        if bl_scaled_range > available_width:
-            scale_x = available_width / bl_scaled_range  # Compress to fit
-        else:
-            scale_x = 1.0  # Use 1:1 scaling, don't stretch
+        # Calculate maximum scale_x that keeps both extents within margins
+        # Left extent: origin_x + (bl_min_scaled * scale_x) >= MARGIN
+        # Right extent: origin_x + (bl_max_scaled * scale_x) <= svg_width - MARGIN
+        origin_svg_x_future = FIXED_WIDTH / 2.0
+        available_left = origin_svg_x_future - MARGIN
+        available_right = FIXED_WIDTH - origin_svg_x_future - MARGIN
+
+        # Calculate scale_x constraints for each side
+        scale_x_max = 1.0  # Don't stretch beyond 1:1
+        if bl_min_scaled < 0:
+            scale_x_left = available_left / (-bl_min_scaled)
+            scale_x_max = min(scale_x_max, scale_x_left)
+        if bl_max_scaled > 0:
+            scale_x_right = available_right / bl_max_scaled
+            scale_x_max = min(scale_x_max, scale_x_right)
+
+        scale_x = scale_x_max
     else:
         scale_x = 1.0
 
