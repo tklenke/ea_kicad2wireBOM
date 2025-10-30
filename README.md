@@ -11,7 +11,7 @@ A wire Bill of Materials (BOM) generator for experimental aircraft electrical sy
 Experimental aircraft builders who:
 - Use KiCad for electrical system design
 - Need accurate wire harness BOMs for construction
-- Require FAA-compliant documentation for certification- Want automated wire gauge calculations and voltage drop analysis
+- Want automated wire gauge calculations and voltage drop analysis
 - Need visual routing diagrams for harness installation
 
 ### What Problem Does It Solve?
